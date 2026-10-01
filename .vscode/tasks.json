@@ -1,0 +1,58 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Mathcourse: Start local server",
+			"type": "shell",
+			"command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}\\start-server.ps1\"",
+			"windows": {
+				"command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}\\start-server.ps1\""
+			},
+			"isBackground": true,
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"focus": false
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Mathcourse: Build one-file site",
+			"type": "shell",
+			"command": "node \"${workspaceFolder}\\build.js\"",
+			"windows": {
+				"command": "node \"${workspaceFolder}\\build.js\""
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Mathcourse: Start bundled site",
+			"type": "shell",
+			"command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}\\start-bundle.ps1\"",
+			"windows": {
+				"command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}\\start-bundle.ps1\""
+			},
+			"isBackground": true,
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"focus": false
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Mathcourse: Deploy to Netlify",
+			"type": "shell",
+			"command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}\\deploy-netlify.ps1\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Mathcourse: Deploy production now",
+			"type": "shell",
+			"command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}\\deploy-netlify.ps1\"",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

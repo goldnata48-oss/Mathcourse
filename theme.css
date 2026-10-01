@@ -1,0 +1,101 @@
+/* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
+:root{
+    --paper:#F5F6F7;
+    --surface:#FFFFFF;
+    --ink:#1D1F23;
+    --ink-soft:#5B616B;
+    --line:#E1E4E8;
+    --sidebar-bg:#FFFFFF;
+    --sidebar-border:#E1E4E8;
+    --sidebar-ink:#33383F;
+    --sidebar-ink-soft:#767C87;
+    --accent:#33415C;
+    --accent-soft:#E7EAF0;
+    --amber:#5B6472;
+    --amber-soft:#ECEEF1;
+    --error:#A23B34;
+    --error-soft:#F5E4E2;
+    --blue:#3D5A80;
+    --blue-soft:#E7ECF2;
+    --purple:#4A4E69;
+    --purple-soft:#EAEAEF;
+    --coral:#6E4E4A;
+    --coral-soft:#EFE7E5;
+    --teal:#3C6E62;
+    --teal-soft:#E5EFEC;
+    --success:#2F6F4F;
+    --success-soft:#E3EEE8;
+    --serif: Iowan Old Style, Palatino Linotype, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  [data-theme="dark"]{
+    --paper:#18191C;
+    --surface:#212327;
+    --ink:#E7E9EC;
+    --ink-soft:#9AA0AC;
+    --line:#2C2F35;
+    --sidebar-bg:#17181B;
+    --sidebar-border:#2A2C31;
+    --sidebar-ink:#DCDFE4;
+    --sidebar-ink-soft:#888E99;
+    --accent:#8593AC;
+    --accent-soft:#262B34;
+    --amber:#9BA3B0;
+    --amber-soft:#25272C;
+    --error:#D2756D;
+    --error-soft:#302321;
+    --blue:#7C93B8;
+    --blue-soft:#20262F;
+    --purple:#8C90AC;
+    --purple-soft:#25252E;
+    --coral:#A88E88;
+    --coral-soft:#292321;
+    --teal:#7DAA9B;
+    --teal-soft:#1E2724;
+    --success:#4C9A72;
+    --success-soft:#1B2A22;
+  }
+
+  /* ---------- ВІКОВІ ПАЛІТРИ (1–4 та 5–9 клас) ---------- */
+  /* 10–11 (НМТ) лишається без змін — це базова строга тема вище */
+  [data-grade="junior"]{
+    --sidebar-bg:linear-gradient(165deg, #FF7A45 0%, #FF3D71 55%, #9B5DE5 100%);
+    --sidebar-border:transparent;
+    --sidebar-ink:#FFF3EA;
+    --sidebar-ink-soft:#FFE3D3;
+    --accent:#FF6A3D;
+    --accent-soft:#FFE7DC;
+    --amber:#FFB020;
+    --amber-soft:#FFF2D6;
+    --blue:#12B6E0;
+    --blue-soft:#DBF6FC;
+    --purple:#9B5DE5;
+    --purple-soft:#F1E5FC;
+    --coral:#FF3D71;
+    --coral-soft:#FFE1EB;
+    --teal:#0FD9A8;
+    --teal-soft:#D8FBF0;
+    --success:#2F9E63;
+    --success-soft:#E3F7EC;
+  }
+  [data-grade="middle"]{
+    --sidebar-bg:#1F2A44;
+    --sidebar-border:rgba(255,255,255,.14);
+    --sidebar-ink:#EAF0FB;
+    --sidebar-ink-soft:#9FB0D0;
+    --accent:#2F86C7;
+    --accent-soft:#E3F0FB;
+    --amber:#E8A33D;
+    --amber-soft:#FBEEDA;
+    --blue:#2F86C7;
+    --blue-soft:#E3F0FB;
+    --purple:#8B5CF6;
+    --purple-soft:#EDE7FD;
+    --coral:#E85D75;
+    --coral-soft:#FBE4E8;
+    --teal:#22A699;
+    --teal-soft:#DFF3F1;
+    --success:#2F9E63;
+    --success-soft:#E3F7EC;
+  }
