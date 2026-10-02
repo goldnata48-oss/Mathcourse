@@ -16,8 +16,14 @@ function genIdentityBasicMC(){
   const doubleArg = k===1 ? "2x" : (2*k)+"x";
   const {opts,correctIdx} = buildMC("1", ["0","2","sin("+doubleArg+")"]);
   return {
+    topic:{ru:"Основное тождество",ua:"Основна тотожність"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`Чему равен sin²(${argStr}) + cos²(${argStr})?`, ua:`Чому дорівнює sin²(${argStr}) + cos²(${argStr})?`},
     hint:{ru:"Это основное тригонометрическое тождество — не зависит от аргумента.",ua:"Це основна тригонометрична тотожність — не залежить від аргументу."},
+    solution:{
+      ru:`Основное тригонометрическое тождество: sin²α + cos²α = 1 при любом α, поэтому и sin²(${argStr}) + cos²(${argStr}) = 1.`,
+      ua:`Основна тригонометрична тотожність: sin²α + cos²α = 1 за будь-якого α, тому й sin²(${argStr}) + cos²(${argStr}) = 1.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -30,8 +36,14 @@ function genRadConvertMC(){
     const distractors = shuffleArr(pool).slice(0,3);
     const {opts,correctIdx} = buildMC(correct, distractors);
     return {
+      topic:{ru:"Градусы ↔ радианы",ua:"Градуси ↔ радіани"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
       question:{ru:`Сколько радиан составляет угол ${row.deg}°?`, ua:`Скільки радіан становить кут ${row.deg}°?`},
       hint:{ru:"Используйте α(рад) = α(°)·π/180.",ua:"Використайте α(рад) = α(°)·π/180."},
+      solution:{
+        ru:`α(рад) = ${row.deg}·π/180 = ${correct}.`,
+        ua:`α(рад) = ${row.deg}·π/180 = ${correct}.`
+      },
       options:{ru:opts,ua:opts}, correct:correctIdx
     };
   } else {
@@ -40,8 +52,14 @@ function genRadConvertMC(){
     const distractors = shuffleArr(pool).slice(0,3);
     const {opts,correctIdx} = buildMC(correct, distractors);
     return {
+      topic:{ru:"Градусы ↔ радианы",ua:"Градуси ↔ радіани"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
       question:{ru:`Сколько градусов составляет угол ${fmtRad(row.num,row.den)} рад?`, ua:`Скільки градусів становить кут ${fmtRad(row.num,row.den)} рад?`},
       hint:{ru:"Используйте α(°) = α(рад)·180/π.",ua:"Використайте α(°) = α(рад)·180/π."},
+      solution:{
+        ru:`α(°) = (${fmtRad(row.num,row.den)})·180/π = ${row.deg}°.`,
+        ua:`α(°) = (${fmtRad(row.num,row.den)})·180/π = ${row.deg}°.`
+      },
       options:{ru:opts,ua:opts}, correct:correctIdx
     };
   }
@@ -60,8 +78,14 @@ function genSimplestEqMC(){
   const distractors = pool.slice(0,3);
   const {opts,correctIdx} = buildMC(item.a, distractors);
   return {
+    topic:{ru:"Простейшие уравнения",ua:"Найпростіші рівняння"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`Общее решение уравнения ${item.q}:`, ua:`Загальний розв'язок рівняння ${item.q}:`},
     hint:{ru:"Вспомните таблицу частных случаев из урока 4.",ua:"Згадайте таблицю окремих випадків з уроку 4."},
+    solution:{
+      ru:`Для уравнения ${item.q} по таблице частных случаев получаем: ${item.a}.`,
+      ua:`Для рівняння ${item.q} за таблицею окремих випадків отримуємо: ${item.a}.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -81,8 +105,14 @@ function genSignByQuadrant(){
   const optsRu = tokens.map(t=>SIGN_TOKEN_TEXT[t].ru);
   const optsUa = tokens.map(t=>SIGN_TOKEN_TEXT[t].ua);
   return {
+    topic:{ru:"Знак функции по четверти",ua:"Знак функції за чвертю"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`Каким является ${fn} α, если α — угол ${quadrant} четверти?`, ua:`Яким є ${fn} α, якщо α — кут ${quadrant} чверті?`},
     hint:{ru:"Вспомните таблицу знаков по четвертям из урока 3.",ua:"Згадайте таблицю знаків за чвертями з уроку 3."},
+    solution:{
+      ru:`В ${quadrant} четверти функция ${fn} имеет знак «${SIGNS[fn][quadrant]}», то есть ${SIGN_TOKEN_TEXT[correctToken].ru}.`,
+      ua:`У ${quadrant} чверті функція ${fn} має знак «${SIGNS[fn][quadrant]}», тобто ${SIGN_TOKEN_TEXT[correctToken].ua}.`
+    },
     options:{ru:optsRu,ua:optsUa}, correct:correctIdx
   };
 }
@@ -103,6 +133,8 @@ function genTanExpr(){
   const value = numer/denom;
   const exprStr = `(${fmtSignedTerm(a,"sin α",true)}${fmtSignedTerm(b,"cos α",false)}) / (${fmtSignedTerm(c,"sin α",true)}${fmtSignedTerm(d,"cos α",false)})`;
   return {
+    topic:{ru:"Выражение через tg α",ua:"Вираз через tg α"},
+    format:{ru:"короткий ответ",ua:"коротка відповідь"},
     question:{
       ru:`Дано: tg α = ${tset.label}. Найдите значение выражения: ${exprStr}`,
       ua:`Дано: tg α = ${tset.label}. Знайдіть значення виразу: ${exprStr}`
@@ -110,6 +142,10 @@ function genTanExpr(){
     hint:{
       ru:"Разделите числитель и знаменатель на cos α — выражение сведётся к tg α.",
       ua:"Поділіть чисельник і знаменник на cos α — вираз зведеться до tg α."
+    },
+    solution:{
+      ru:`Делим числитель и знаменатель на cos α: (${a}·tg α ${b>=0?"+":"−"} ${Math.abs(b)}) / (${c}·tg α ${d>=0?"+":"−"} ${Math.abs(d)}) = (${a}·(${tset.label}) ${b>=0?"+":"−"} ${Math.abs(b)}) / (${c}·(${tset.label}) ${d>=0?"+":"−"} ${Math.abs(d)}) = ${fmtNum(value)}.`,
+      ua:`Ділимо чисельник і знаменник на cos α: (${a}·tg α ${b>=0?"+":"−"} ${Math.abs(b)}) / (${c}·tg α ${d>=0?"+":"−"} ${Math.abs(d)}) = (${a}·(${tset.label}) ${b>=0?"+":"−"} ${Math.abs(b)}) / (${c}·(${tset.label}) ${d>=0?"+":"−"} ${Math.abs(d)}) = ${fmtNum(value)}.`
     },
     expected:value, correctLabel: fmtNum(value),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, value, 0.02); }
@@ -128,6 +164,8 @@ function genSimplifyEval(){
   const tanSign = (signs.sin*signs.cos)<0 ? "−" : "";
   const tanLabel = tanSign+tr.a+"/"+tr.b;
   return {
+    topic:{ru:"sin α + cos α по tg α",ua:"sin α + cos α за tg α"},
+    format:{ru:"десятичная дробь, округлите до 0.01",ua:"десятковий дріб, округліть до 0.01"},
     question:{
       ru:`tg α = ${tanLabel}, α — угол ${quadrant} четверти. Найдите sin α + cos α (округлите до 0.01).`,
       ua:`tg α = ${tanLabel}, α — кут ${quadrant} чверті. Знайдіть sin α + cos α (округліть до 0.01).`
@@ -135,6 +173,10 @@ function genSimplifyEval(){
     hint:{
       ru:"Найдите cos α из 1+tg²α=1/cos²α, определите знак по четверти, затем sin α = tg α · cos α.",
       ua:"Знайдіть cos α з 1+tg²α=1/cos²α, визначте знак за чвертю, потім sin α = tg α · cos α."
+    },
+    solution:{
+      ru:`Из 1+tg²α=1/cos²α: cos α = ${fmtNum(cosVal)}, sin α = tg α·cos α = ${fmtNum(sinVal)}. Тогда sin α + cos α = ${fmtNum(sinVal)} + (${fmtNum(cosVal)}) = ${fmtNum(sum)}.`,
+      ua:`З 1+tg²α=1/cos²α: cos α = ${fmtNum(cosVal)}, sin α = tg α·cos α = ${fmtNum(sinVal)}. Тоді sin α + cos α = ${fmtNum(sinVal)} + (${fmtNum(cosVal)}) = ${fmtNum(sum)}.`
     },
     expected:sum, correctLabel: fmtNum(sum),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, sum, 0.02); }
@@ -144,6 +186,8 @@ function genDoubleAngleSimplify(){
   const tset = rnd(TAN_SET);
   const value = tset.val; // sin2α/(1+cos2α) ≡ tg α
   return {
+    topic:{ru:"Формула двойного угла",ua:"Формула подвійного кута"},
+    format:{ru:"короткий ответ",ua:"коротка відповідь"},
     question:{
       ru:`Упростите выражение sin2α / (1 + cos2α) и найдите его значение, если tg α = ${tset.label}.`,
       ua:`Спростіть вираз sin2α / (1 + cos2α) і знайдіть його значення, якщо tg α = ${tset.label}.`
@@ -151,6 +195,10 @@ function genDoubleAngleSimplify(){
     hint:{
       ru:"Используйте sin2α=2sinαcosα и cos2α=2cos²α−1, затем сократите на cos α.",
       ua:"Використайте sin2α=2sinαcosα і cos2α=2cos²α−1, потім скоротіть на cos α."
+    },
+    solution:{
+      ru:`sin2α/(1+cos2α) = 2sinαcosα/(1+2cos²α−1) = 2sinαcosα/(2cos²α) = sinα/cosα = tg α = ${tset.label}.`,
+      ua:`sin2α/(1+cos2α) = 2sinαcosα/(1+2cos²α−1) = 2sinαcosα/(2cos²α) = sinα/cosα = tg α = ${tset.label}.`
     },
     expected:value, correctLabel: fmtNum(value),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, value, 0.02); }
@@ -165,6 +213,8 @@ function genHomogen(){
   const B = -(t1+t2), C = t1*t2;
   const eqStr = `sin²x${fmtSignedTerm(B,"·sinx·cosx",false)}${fmtSignedTerm(C,"cos²x",false)} = 0`;
   return {
+    topic:{ru:"Однородные уравнения",ua:"Однорідні рівняння"},
+    format:{ru:"короткий ответ (укажите одно значение)",ua:"коротка відповідь (вкажіть одне значення)"},
     question:{
       ru:`Решите однородное уравнение: ${eqStr}. Укажите одно из значений tg x.`,
       ua:`Розв'яжіть однорідне рівняння: ${eqStr}. Вкажіть одне зі значень tg x.`
@@ -172,6 +222,10 @@ function genHomogen(){
     hint:{
       ru:"Разделите обе части на cos²x (cos x ≠ 0) — получите квадратное уравнение относительно tg x.",
       ua:"Поділіть обидві частини на cos²x (cos x ≠ 0) — отримаєте квадратне рівняння відносно tg x."
+    },
+    solution:{
+      ru:`Делим на cos²x: tg²x + (${B})·tg x + (${C}) = 0. Корни: tg x = ${t1} и tg x = ${t2} (подходит любое из них).`,
+      ua:`Ділимо на cos²x: tg²x + (${B})·tg x + (${C}) = 0. Корені: tg x = ${t1} і tg x = ${t2} (підходить будь-яке з них).`
     },
     expected:[t1,t2], correctLabel: t1+" / "+t2,
     check(input){ const v=parseAnswer(input); if(isNaN(v)) return false; return near(v,t1,0.02)||near(v,t2,0.02); }
@@ -220,6 +274,8 @@ function genRootsCount(){
   const interval = rnd(ROOT_INTERVALS);
   const count = countRootsInInterval(eq.fn, eq.a, interval.lo, interval.hi);
   return {
+    topic:{ru:"Число корней на промежутке",ua:"Кількість коренів на проміжку"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{
       ru:`Сколько корней имеет уравнение ${eq.fn} x = ${eq.label} на промежутке ${interval.label}?`,
       ua:`Скільки коренів має рівняння ${eq.fn} x = ${eq.label} на проміжку ${interval.label}?`
@@ -227,6 +283,10 @@ function genRootsCount(){
     hint:{
       ru:"Запишите общее решение и подставьте границы промежутка вместо x, чтобы найти подходящие n.",
       ua:"Запишіть загальний розв'язок і підставте межі проміжку замість x, щоб знайти відповідні n."
+    },
+    solution:{
+      ru:`Записываем общее решение уравнения ${eq.fn} x = ${eq.label} и отбираем те решения, что попадают в промежуток ${interval.label}: их ${count}.`,
+      ua:`Записуємо загальний розв'язок рівняння ${eq.fn} x = ${eq.label} і відбираємо ті розв'язки, що потрапляють у проміжок ${interval.label}: їх ${count}.`
     },
     expected:count, correctLabel:String(count),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && Math.round(v)===count; }
@@ -239,6 +299,8 @@ function genParamRange(){
   const lo = (c-1)/m;
   const mStr = m===1 ? "" : m+"·";
   return {
+    topic:{ru:"Параметр в уравнении",ua:"Параметр у рівнянні"},
+    format:{ru:"короткий ответ",ua:"коротка відповідь"},
     question:{
       ru:`При каких значениях параметра a уравнение ${fn} x = ${mStr}a − ${c} имеет решения? Укажите наименьшее возможное значение a.`,
       ua:`При яких значеннях параметра a рівняння ${fn} x = ${mStr}a − ${c} має розв'язки? Вкажіть найменше можливе значення a.`
@@ -246,6 +308,10 @@ function genParamRange(){
     hint:{
       ru:"Правая часть должна лежать в пределах [−1;1] — составьте двойное неравенство и выразите a.",
       ua:"Права частина має лежати в межах [−1;1] — складіть подвійну нерівність і виразіть a."
+    },
+    solution:{
+      ru:`Для существования решений нужно −1 ≤ ${mStr}a − ${c} ≤ 1, то есть ${c-1} ≤ ${mStr}a ≤ ${c+1}. Наименьшее значение: a = (${c}−1)/${m} = ${fmtNum(lo)}.`,
+      ua:`Для існування розв'язків потрібно −1 ≤ ${mStr}a − ${c} ≤ 1, тобто ${c-1} ≤ ${mStr}a ≤ ${c+1}. Найменше значення: a = (${c}−1)/${m} = ${fmtNum(lo)}.`
     },
     expected:lo, correctLabel: fmtNum(lo),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, lo, 0.02); }
@@ -257,6 +323,8 @@ function genMaxSum(){
   const maxVal = Math.sqrt(A*A+B*B);
   const fnStr = `${A}sin x ${B<0?'−':'+'} ${Math.abs(B)}cos x`;
   return {
+    topic:{ru:"Максимум A sinx + B cosx",ua:"Максимум A sinx + B cosx"},
+    format:{ru:"десятичная дробь, округлите до 0.01",ua:"десятковий дріб, округліть до 0.01"},
     question:{
       ru:`Найдите наибольшее значение функции f(x) = ${fnStr} (округлите до 0.01).`,
       ua:`Знайдіть найбільше значення функції f(x) = ${fnStr} (округліть до 0.01).`
@@ -264,6 +332,10 @@ function genMaxSum(){
     hint:{
       ru:"Максимум выражения A sinx + B cosx равен √(A²+B²).",
       ua:"Максимум виразу A sinx + B cosx дорівнює √(A²+B²)."
+    },
+    solution:{
+      ru:`Максимум A sinx + B cosx равен √(A²+B²) = √(${A}² + (${B})²) = √(${A*A + B*B}) = ${fmtNum(maxVal)}.`,
+      ua:`Максимум A sinx + B cosx дорівнює √(A²+B²) = √(${A}² + (${B})²) = √(${A*A + B*B}) = ${fmtNum(maxVal)}.`
     },
     expected:maxVal, correctLabel: fmtNum(maxVal),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, maxVal, 0.02); }
@@ -285,8 +357,14 @@ function genExpBasicMC(){
   const distractors = pool.slice(0,3);
   const {opts,correctIdx} = buildMC(correct, distractors);
   return {
+    topic:{ru:"Показательное уравнение (основа)",ua:"Показникове рівняння (основа)"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`Решите: ${a}ˣ = ${a}${supNum(n)}`, ua:`Розв'яжіть: ${a}ˣ = ${a}${supNum(n)}`},
     hint:{ru:"Основания одинаковые — значит показатели равны.",ua:"Основи однакові — отже показники рівні."},
+    solution:{
+      ru:`Основания одинаковы и равны ${a}, поэтому приравниваем показатели: x = ${n}.`,
+      ua:`Основи однакові й дорівнюють ${a}, тому прирівнюємо показники: x = ${n}.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -299,8 +377,14 @@ function genLogBasicMC(){
   const distractors = pool.slice(0,3);
   const {opts,correctIdx} = buildMC(correct, distractors);
   return {
+    topic:{ru:"Логарифмическое тождество",ua:"Логарифмічна тотожність"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`Чему равен log${subNum(a)}(${a}${supNum(n)})?`, ua:`Чому дорівнює log${subNum(a)}(${a}${supNum(n)})?`},
     hint:{ru:"Используй основное логарифмическое тождество: logₐ(aⁿ)=n.",ua:"Використай основну логарифмічну тотожність: logₐ(aⁿ)=n."},
+    solution:{
+      ru:`По основному логарифмическому тождеству logₐ(aⁿ)=n: log${subNum(a)}(${a}${supNum(n)}) = ${n}.`,
+      ua:`За основною логарифмічною тотожністю logₐ(aⁿ)=n: log${subNum(a)}(${a}${supNum(n)}) = ${n}.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -312,6 +396,8 @@ function genExpEquationShort(){
   const rhsStr = n>=0 ? String(Math.pow(a,n)) : "1/"+Math.pow(a,-n);
   const sStr = s===0 ? "" : (s>0 ? " + "+s : " − "+Math.abs(s));
   return {
+    topic:{ru:"Показательное уравнение",ua:"Показникове рівняння"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{
       ru:`Решите: ${a}^(x${sStr}) = ${rhsStr}. Найдите x.`,
       ua:`Розв'яжіть: ${a}^(x${sStr}) = ${rhsStr}. Знайдіть x.`
@@ -319,6 +405,10 @@ function genExpEquationShort(){
     hint:{
       ru:`Представьте ${rhsStr} как степень числа ${a}, затем приравняйте показатели.`,
       ua:`Подайте ${rhsStr} як степінь числа ${a}, потім прирівняйте показники.`
+    },
+    solution:{
+      ru:`Представляем ${rhsStr} = ${a}${supNum(n)}. Приравниваем показатели: x${sStr} = ${n}, откуда x = ${x}.`,
+      ua:`Подаємо ${rhsStr} = ${a}${supNum(n)}. Прирівнюємо показники: x${sStr} = ${n}, звідки x = ${x}.`
     },
     expected:x, correctLabel:String(x),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, x, 0.02); }
@@ -331,6 +421,8 @@ function genLogEquationShort(){
   const x = Math.pow(a,n) - s;
   const sStr = s===0 ? "" : (s>0 ? " + "+s : " − "+Math.abs(s));
   return {
+    topic:{ru:"Логарифмическое уравнение",ua:"Логарифмічне рівняння"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{
       ru:`Решите: log${subNum(a)}(x${sStr}) = ${n}. Найдите x.`,
       ua:`Розв'яжіть: log${subNum(a)}(x${sStr}) = ${n}. Знайдіть x.`
@@ -338,6 +430,10 @@ function genLogEquationShort(){
     hint:{
       ru:`Потенцируйте: x${sStr} = ${a}${supNum(n)}.`,
       ua:`Потенціюйте: x${sStr} = ${a}${supNum(n)}.`
+    },
+    solution:{
+      ru:`Потенцируем: x${sStr} = ${a}${supNum(n)} = ${Math.pow(a,n)}, значит x = ${x}.`,
+      ua:`Потенціюємо: x${sStr} = ${a}${supNum(n)} = ${Math.pow(a,n)}, отже x = ${x}.`
     },
     expected:x, correctLabel:String(x),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, x, 0.02); }
@@ -350,6 +446,8 @@ function genExpSubstitution(){
   const B = t1+t2, C = t1*t2;
   const x1 = Math.log2(t1), x2 = Math.log2(t2);
   return {
+    topic:{ru:"Показательное уравнение (замена)",ua:"Показникове рівняння (заміна)"},
+    format:{ru:"короткий ответ (укажите одно значение)",ua:"коротка відповідь (вкажіть одне значення)"},
     question:{
       ru:`Решите: 4ˣ − ${B}·2ˣ + ${C} = 0. Укажите одно из значений x.`,
       ua:`Розв'яжіть: 4ˣ − ${B}·2ˣ + ${C} = 0. Вкажіть одне зі значень x.`
@@ -357,6 +455,10 @@ function genExpSubstitution(){
     hint:{
       ru:"Замена t=2ˣ (t>0) сводит уравнение к квадратному: t²−"+B+"t+"+C+"=0.",
       ua:"Заміна t=2ˣ (t>0) зводить рівняння до квадратного: t²−"+B+"t+"+C+"=0."
+    },
+    solution:{
+      ru:`Замена t=2ˣ (t>0): t² − ${B}t + ${C} = 0, корни t = ${t1} и t = ${t2}. Тогда 2ˣ = ${t1} ⇒ x = ${x1}, 2ˣ = ${t2} ⇒ x = ${x2}.`,
+      ua:`Заміна t=2ˣ (t>0): t² − ${B}t + ${C} = 0, корені t = ${t1} і t = ${t2}. Тоді 2ˣ = ${t1} ⇒ x = ${x1}, 2ˣ = ${t2} ⇒ x = ${x2}.`
     },
     expected:[x1,x2], correctLabel: x1+" / "+x2,
     check(input){ const v=parseAnswer(input); if(isNaN(v)) return false; return near(v,x1,0.02)||near(v,x2,0.02); }
@@ -368,6 +470,8 @@ function genLogInequalityBoundary(){
   const boundary = Math.pow(a,n);
   const answer = boundary+1;
   return {
+    topic:{ru:"Логарифмическое неравенство",ua:"Логарифмічна нерівність"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{
       ru:`Решите: log${subNum(a)}(x) > ${n}. Укажите наименьшее целое число, удовлетворяющее неравенству.`,
       ua:`Розв'яжіть: log${subNum(a)}(x) > ${n}. Вкажіть найменше ціле число, яке задовольняє нерівність.`
@@ -375,6 +479,10 @@ function genLogInequalityBoundary(){
     hint:{
       ru:`Основание ${a}>1 — знак сохраняется: x > ${a}${supNum(n)} = ${boundary}.`,
       ua:`Основа ${a}>1 — знак зберігається: x > ${a}${supNum(n)} = ${boundary}.`
+    },
+    solution:{
+      ru:`Основание ${a}>1, знак неравенства сохраняется: x > ${a}${supNum(n)} = ${boundary}. Так как x строго больше ${boundary}, наименьшее целое — ${answer}.`,
+      ua:`Основа ${a}>1, знак нерівності зберігається: x > ${a}${supNum(n)} = ${boundary}. Оскільки x строго більше ${boundary}, найменше ціле — ${answer}.`
     },
     expected:answer, correctLabel:String(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
@@ -393,8 +501,14 @@ function genLimitDirectMC(){
   const {opts,correctIdx} = buildMC(String(correct), distractors);
   const bStr = b>=0 ? " + "+b : " − "+Math.abs(b);
   return {
+    topic:{ru:"Предел подстановкой",ua:"Границя підстановкою"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`lim(x→${c}) (${a}x${bStr}) равен:`, ua:`lim(x→${c}) (${a}x${bStr}) дорівнює:`},
     hint:{ru:"Функция непрерывна — подставь значение x прямо в выражение.",ua:"Функція неперервна — підстав значення x прямо у вираз."},
+    solution:{
+      ru:`Функция непрерывна, поэтому подставляем x = ${c}: ${a}·(${c})${bStr} = ${correct}.`,
+      ua:`Функція неперервна, тому підставляємо x = ${c}: ${a}·(${c})${bStr} = ${correct}.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -408,8 +522,14 @@ function genDerivTableMC(){
   const distractors = pool.slice(0,3);
   const {opts,correctIdx} = buildMC(item.fp, distractors);
   return {
+    topic:{ru:"Таблица производных",ua:"Таблиця похідних"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`Чему равна производная (${item.f})′?`, ua:`Чому дорівнює похідна (${item.f})′?`},
     hint:{ru:"Вспомни таблицу производных из урока.",ua:"Згадай таблицю похідних з уроку."},
+    solution:{
+      ru:`По таблице производных: (${item.f})′ = ${item.fp}.`,
+      ua:`За таблицею похідних: (${item.f})′ = ${item.fp}.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -421,11 +541,17 @@ function genLimitFactorShort(){
   const CStr = C>=0 ? " − "+C : " + "+Math.abs(C);
   const DStr = D>=0 ? " + "+D : " − "+Math.abs(D);
   return {
+    topic:{ru:"Предел с сокращением",ua:"Границя зі скороченням"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{
       ru:`Найдите lim(x→${a}) (x²${CStr}x${DStr}) / (x−${a})`,
       ua:`Знайдіть lim(x→${a}) (x²${CStr}x${DStr}) / (x−${a})`
     },
     hint:{ru:"Разложи числитель на множители (x−"+a+")(x−"+b+") и сократи.",ua:"Розклади чисельник на множники (x−"+a+")(x−"+b+") і скороти."},
+    solution:{
+      ru:`Числитель раскладывается как (x−${a})(x−${b}). После сокращения на (x−${a}) предел равен ${a}−(${b}) = ${answer}.`,
+      ua:`Чисельник розкладається як (x−${a})(x−${b}). Після скорочення на (x−${a}) границя дорівнює ${a}−(${b}) = ${answer}.`
+    },
     expected:answer, correctLabel:String(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
   };
@@ -438,11 +564,17 @@ function genDerivativeAtPoint(){
   const bStr = b>=0 ? " + "+b+"x" : " − "+Math.abs(b)+"x";
   const cStr = c>0 ? " + "+c : (c<0 ? " − "+Math.abs(c) : "");
   return {
+    topic:{ru:"Производная в точке",ua:"Похідна в точці"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{
       ru:`f(x) = x³${bStr}${cStr}. Найдите f′(${a}).`,
       ua:`f(x) = x³${bStr}${cStr}. Знайдіть f′(${a}).`
     },
     hint:{ru:"f′(x)=3x²+"+b+". Подставь x="+a+".",ua:"f′(x)=3x²+"+b+". Підстав x="+a+"."},
+    solution:{
+      ru:`f′(x) = 3x²${b>=0?" + "+b:" − "+Math.abs(b)}. При x = ${a}: 3·(${a})²${b>=0?" + "+b:" − "+Math.abs(b)} = ${answer}.`,
+      ua:`f′(x) = 3x²${b>=0?" + "+b:" − "+Math.abs(b)}. При x = ${a}: 3·(${a})²${b>=0?" + "+b:" − "+Math.abs(b)} = ${answer}.`
+    },
     expected:answer, correctLabel:String(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
   };
@@ -451,11 +583,17 @@ function genSecondRemarkableGeneral(){
   const k = rnd([1,2,3,-1,-2]);
   const answer = Math.exp(k);
   return {
+    topic:{ru:"Второй замечательный предел",ua:"Друга чудова границя"},
+    format:{ru:"десятичная дробь, округлите до 0.01",ua:"десятковий дріб, округліть до 0.01"},
     question:{
       ru:`Найдите lim(x→∞) (1 + ${k}/x)ˣ (округлите до 0.01)`,
       ua:`Знайдіть lim(x→∞) (1 + ${k}/x)ˣ (округліть до 0.01)`
     },
     hint:{ru:"lim(x→∞)(1+k/x)ˣ = eᵏ. Вычисли e^"+k+".",ua:"lim(x→∞)(1+k/x)ˣ = eᵏ. Обчисли e^"+k+"."},
+    solution:{
+      ru:`Второй замечательный предел: lim(x→∞)(1+k/x)ˣ = eᵏ. При k = ${k}: e${supNum(k)} ≈ ${fmtNum(answer)}.`,
+      ua:`Друга чудова границя: lim(x→∞)(1+k/x)ˣ = eᵏ. При k = ${k}: e${supNum(k)} ≈ ${fmtNum(answer)}.`
+    },
     expected:answer, correctLabel: fmtNum(answer)+" (e"+supNum(k)+")",
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
   };
@@ -464,11 +602,17 @@ function genExtremumPoint(){
   const a = rnd([1,2,3]);
   const coef = 3*a*a;
   return {
+    topic:{ru:"Точка экстремума",ua:"Точка екстремуму"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{
       ru:`f(x) = x³ − ${coef}x. Найдите точку минимума функции.`,
       ua:`f(x) = x³ − ${coef}x. Знайдіть точку мінімуму функції.`
     },
     hint:{ru:"f′(x)=3x²−"+coef+"=0 → x²="+a*a+" → x=±"+a+". Определи знак f′ вокруг каждой точки.",ua:"f′(x)=3x²−"+coef+"=0 → x²="+a*a+" → x=±"+a+". Визнач знак f′ навколо кожної точки."},
+    solution:{
+      ru:`f′(x) = 3x² − ${coef} = 0 ⇒ x = ±${a}. В точке x = ${a} производная меняет знак с «−» на «+», это точка минимума.`,
+      ua:`f′(x) = 3x² − ${coef} = 0 ⇒ x = ±${a}. У точці x = ${a} похідна змінює знак з «−» на «+», це точка мінімуму.`
+    },
     expected:a, correctLabel:String(a),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, a, 0.02); }
   };
@@ -485,19 +629,33 @@ function genAntiderivativeBasicMC(){
   ]);
   const {opts,correctIdx} = buildMC(correct, distractors);
   return {
+    topic:{ru:"Первообразная (основа)",ua:"Первісна (основа)"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`∫x${supNum(n)}dx равен:`, ua:`∫x${supNum(n)}dx дорівнює:`},
     hint:{ru:"Используй ∫xⁿdx=xⁿ⁺¹/(n+1)+C.",ua:"Використай ∫xⁿdx=xⁿ⁺¹/(n+1)+C."},
+    solution:{
+      ru:`По формуле ∫xⁿdx = xⁿ⁺¹/(n+1) + C: ∫x${supNum(n)}dx = x${supNum(n+1)}/${n+1} + C.`,
+      ua:`За формулою ∫xⁿdx = xⁿ⁺¹/(n+1) + C: ∫x${supNum(n)}dx = x${supNum(n+1)}/${n+1} + C.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
 function genDefiniteIntegralPolyMC(){
   const b = rnd([1,2,3,4,5]);
-  const correct = String(b*b);
-  const distractors = shuffleArr([String(b),String(2*b),String(b*b*b)]);
-  const {opts,correctIdx} = buildMC(correct, distractors);
+  const correct = b*b;
+  const correctStr = String(correct);
+  const cand = [correct+1, correct-1, correct+b, correct-b, correct+2*b, correct-2*b].map(String).filter(v=>v!==correctStr);
+  const distractors = [...new Set(cand)].slice(0,3);
+  const {opts,correctIdx} = buildMC(correctStr, distractors);
   return {
+    topic:{ru:"Определённый интеграл (основа)",ua:"Визначений інтеграл (основа)"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`∫[0;${b}] 2x dx равен:`, ua:`∫[0;${b}] 2x dx дорівнює:`},
     hint:{ru:"Первообразная 2x — это x². Подставь границы: b²−0².",ua:"Первісна 2x — це x². Підстав межі: b²−0²."},
+    solution:{
+      ru:`Первообразная 2x равна x². Подставляем границы: ${b}² − 0² = ${correct}.`,
+      ua:`Первісна 2x дорівнює x². Підставляємо межі: ${b}² − 0² = ${correct}.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -510,11 +668,17 @@ function genDefiniteIntegralLinearShort(){
   const answer = F(q)-F(p);
   const bStr = b===0 ? "" : (b>0?" + "+b+"x":" − "+Math.abs(b)+"x");
   return {
+    topic:{ru:"Определённый интеграл (линейный)",ua:"Визначений інтеграл (лінійний)"},
+    format:{ru:"десятичная дробь, округлите до 0.01",ua:"десятковий дріб, округліть до 0.01"},
     question:{
       ru:`Вычислите ∫[${p};${q}] (${a}x${bStr}) dx`,
       ua:`Обчисліть ∫[${p};${q}] (${a}x${bStr}) dx`
     },
     hint:{ru:"Найди первообразную F(x), затем вычисли F("+q+")−F("+p+").",ua:"Знайди первісну F(x), потім обчисли F("+q+")−F("+p+")."},
+    solution:{
+      ru:`F(x) = ${a}x²/2${b===0?"":(b>0?" + "+b+"x":" − "+Math.abs(b)+"x")}. Тогда F(${q}) − F(${p}) = ${fmtNum(answer)}.`,
+      ua:`F(x) = ${a}x²/2${b===0?"":(b>0?" + "+b+"x":" − "+Math.abs(b)+"x")}. Тоді F(${q}) − F(${p}) = ${fmtNum(answer)}.`
+    },
     expected:answer, correctLabel:fmtNum(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
   };
@@ -524,11 +688,17 @@ function genAreaUnderCubicShort(){
   const b = rnd([1,2,3]);
   const answer = k*Math.pow(b,3);
   return {
+    topic:{ru:"Площадь под параболой",ua:"Площа під параболою"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{
       ru:`Найдите площадь фигуры, ограниченной y=${3*k}x² и осью Ox на [0;${b}].`,
       ua:`Знайдіть площу фігури, обмеженої y=${3*k}x² і віссю Ox на [0;${b}].`
     },
     hint:{ru:"Первообразная "+(3*k)+"x² — это "+k+"x³. Подставь границы.",ua:"Первісна "+(3*k)+"x² — це "+k+"x³. Підстав межі."},
+    solution:{
+      ru:`S = ∫[0;${b}] ${3*k}x² dx = ${k}x³ |[0;${b}] = ${k}·${b}³ = ${answer}.`,
+      ua:`S = ∫[0;${b}] ${3*k}x² dx = ${k}x³ |[0;${b}] = ${k}·${b}³ = ${answer}.`
+    },
     expected:answer, correctLabel:String(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
   };
@@ -537,11 +707,17 @@ function genAreaBetweenCurvesHigh(){
   const k = rnd([1,2,3,4]);
   const answer = Math.pow(k,3)/6;
   return {
+    topic:{ru:"Площадь между кривыми",ua:"Площа між кривими"},
+    format:{ru:"десятичная дробь, округлите до 0.001",ua:"десятковий дріб, округліть до 0.001"},
     question:{
       ru:`Найдите площадь фигуры между y=${k}x и y=x² (при x≥0).`,
       ua:`Знайдіть площу фігури між y=${k}x і y=x² (при x≥0).`
     },
     hint:{ru:"Точки пересечения: 0 и "+k+". S=∫[0;"+k+"]("+k+"x−x²)dx.",ua:"Точки перетину: 0 і "+k+". S=∫[0;"+k+"]("+k+"x−x²)dx."},
+    solution:{
+      ru:`Точки пересечения ${k}x = x²: x = 0 и x = ${k}. S = ∫[0;${k}](${k}x − x²)dx = ${fmtNum(answer)}.`,
+      ua:`Точки перетину ${k}x = x²: x = 0 і x = ${k}. S = ∫[0;${k}](${k}x − x²)dx = ${fmtNum(answer)}.`
+    },
     expected:answer, correctLabel:fmtNum(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
   };
@@ -550,11 +726,17 @@ function genAbsAreaHigh(){
   const n = rnd([1,2,3,4]);
   const answer = 2*n;
   return {
+    topic:{ru:"Площадь под синусоидой",ua:"Площа під синусоїдою"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{
       ru:`Найдите площадь фигуры между y=sin x и осью Ox на [0;${n}π].`,
       ua:`Знайдіть площу фігури між y=sin x і віссю Ox на [0;${n}π].`
     },
     hint:{ru:"Каждая «арка» синуса даёт площадь 2. Сколько таких арок на [0;"+n+"π]?",ua:"Кожна «арка» синуса дає площу 2. Скільки таких арок на [0;"+n+"π]?"},
+    solution:{
+      ru:`Каждая арка sin x даёт площадь 2. На [0;${n}π] таких арок ${n}, поэтому S = 2·${n} = ${answer}.`,
+      ua:`Кожна арка sin x дає площу 2. На [0;${n}π] таких арок ${n}, тому S = 2·${n} = ${answer}.`
+    },
     expected:answer, correctLabel:String(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
   };
@@ -569,8 +751,14 @@ function genPrismVolumeMC(){
   const distractors = [...new Set(pool)].slice(0,3);
   const {opts,correctIdx} = buildMC(String(correct), distractors);
   return {
+    topic:{ru:"Объём призмы",ua:"Об'єм призми"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`Призма: Sосн=${S}, h=${h}. Объём равен:`, ua:`Призма: Sосн=${S}, h=${h}. Об'єм дорівнює:`},
     hint:{ru:"V=Sосн·h.",ua:"V=Sосн·h."},
+    solution:{
+      ru:`V = Sосн·h = ${S}·${h} = ${correct}.`,
+      ua:`V = Sосн·h = ${S}·${h} = ${correct}.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -580,8 +768,14 @@ function genSphereSurfaceMC(){
   const distractors = [2*Math.PI*R*R, Math.PI*R*R, 8*Math.PI*R*R].map(v=>fmtNum(v));
   const {opts,correctIdx} = buildMC(fmtNum(correct), distractors);
   return {
+    topic:{ru:"Площадь поверхности сферы",ua:"Площа поверхні сфери"},
+    format:{ru:"десятичная дробь, округлите до 0.01",ua:"десятковий дріб, округліть до 0.01"},
     question:{ru:`Площадь поверхности сферы радиуса R=${R} равна (в единицах π):`, ua:`Площа поверхні сфери радіуса R=${R} дорівнює (в одиницях π):`},
     hint:{ru:"S=4πR².",ua:"S=4πR²."},
+    solution:{
+      ru:`S = 4πR² = 4π·${R}² = ${4*R*R}π ≈ ${fmtNum(correct)} (в числовом виде).`,
+      ua:`S = 4πR² = 4π·${R}² = ${4*R*R}π ≈ ${fmtNum(correct)} (у числовому вигляді).`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -593,11 +787,20 @@ function genTriangleFeaturesMC(){
     {key:"midline", ru:"средняя линия", ua:"середня лінія", qa:{ru:"Средняя линия треугольника:",ua:"Середня лінія трикутника:"}, opts:{ru:["параллельна одной из сторон и равна её половине","всегда равна сумме двух сторон","перпендикулярна основанию","делит треугольник пополам"],ua:["паралельна одній зі сторін і дорівнює її половині","завжди дорівнює сумі двох сторін","перпендикулярна до основи","ділить трикутник навпіл"]}, correct:0}
   ]);
   const item = concept;
-  const {opts,correctIdx} = buildMC(item.opts.ru[0], item.opts.ru);
+  const idx = shuffleArr([0,1,2,3]);
+  const optsRu = idx.map(i=>item.opts.ru[i]);
+  const optsUa = idx.map(i=>item.opts.ua[i]);
+  const correctIdx = idx.indexOf(0);
   return {
+    topic:{ru:"Элементы треугольника",ua:"Елементи трикутника"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:item.qa.ru,ua:item.qa.ua},
     hint:{ru:`Ключевое свойство: ${item.ru}.`,ua:`Ключова властивість: ${item.ua}.`},
-    options:{ru:opts,ua:item.opts.ua}, correct:correctIdx
+    solution:{
+      ru:`Правильный ответ: ${item.opts.ru[0]}.`,
+      ua:`Правильна відповідь: ${item.opts.ua[0]}.`
+    },
+    options:{ru:optsRu,ua:optsUa}, correct:correctIdx
   };
 }
 function genRegularPolygonMC(){
@@ -605,13 +808,18 @@ function genRegularPolygonMC(){
   const central = 360 / n;
   const internal = 180 - central;
   const correct = `${internal}°`;
-  const distractors = [
+  const cand = [
     `${central}°`,
     `${180 / n}°`,
-    `${(n - 2) * 180}°`
-  ].filter((value, idx, arr) => arr.indexOf(value) === idx);
+    `${(n - 2) * 180}°`,
+    `${internal + 10}°`,
+    `${internal - 10}°`
+  ].filter((value, idx, arr) => arr.indexOf(value) === idx && value !== correct);
+  const distractors = cand.slice(0,3);
   const {opts,correctIdx} = buildMC(correct, distractors);
   return {
+    topic:{ru:"Правильный многоугольник",ua:"Правильний многокутник"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{
       ru:`В правильном ${n}-угольнике внутренний угол равен:`,
       ua:`У правильному ${n}-кутнику внутрішній кут дорівнює:`
@@ -620,14 +828,20 @@ function genRegularPolygonMC(){
       ru:"Внутренний угол = 180° − 360°/n. Центр. угол = 360°/n.",
       ua:"Внутрішній кут = 180° − 360°/n. Центр. кут = 360°/n."
     },
+    solution:{
+      ru:`Внутренний угол правильного ${n}-угольника: 180° − 360°/${n} = ${internal}°.`,
+      ua:`Внутрішній кут правильного ${n}-кутника: 180° − 360°/${n} = ${internal}°.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
 function genAngleBisectorMC(){
-  const correct = "Биссектриса";
-  const distractors = ["Медиана","Высота","Середняя линия"];
-  const {opts,correctIdx} = buildMC(correct, distractors);
+  const optsRu = ["Биссектриса","Медиана","Высота","Средняя линия"];
+  const optsUa = ["Бісектриса","Медіана","Висота","Середня лінія"];
+  const idx = shuffleArr([0,1,2,3]);
   return {
+    topic:{ru:"Биссектриса",ua:"Бісектриса"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{
       ru:"Отрезок, который делит угол треугольника пополам, называется:",
       ua:"Відрізок, який ділить кут трикутника навпіл, називається:"
@@ -636,14 +850,20 @@ function genAngleBisectorMC(){
       ru:"Это линия из вершины угла, которая делит угол на два равных угла.",
       ua:"Це лінія з вершини кута, яка ділить кут на два рівні кути."
     },
-    options:{ru:opts,ua:opts}, correct:correctIdx
+    solution:{
+      ru:"Биссектриса делит угол пополам.",
+      ua:"Бісектриса ділить кут навпіл."
+    },
+    options:{ru:idx.map(i=>optsRu[i]),ua:idx.map(i=>optsUa[i])}, correct:idx.indexOf(0)
   };
 }
 function genMedianMC(){
-  const correct = "Медиана";
-  const distractors = ["Биссектриса","Высота","Середняя линия"];
-  const {opts,correctIdx} = buildMC(correct, distractors);
+  const optsRu = ["Медиана","Биссектриса","Высота","Средняя линия"];
+  const optsUa = ["Медіана","Бісектриса","Висота","Середня лінія"];
+  const idx = shuffleArr([0,1,2,3]);
   return {
+    topic:{ru:"Медиана",ua:"Медіана"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{
       ru:"Отрезок, соединяющий вершину треугольника с серединой противоположной стороны, называется:",
       ua:"Відрізок, який з'єднує вершину трикутника з серединою протилежної сторони, називається:"
@@ -652,14 +872,20 @@ function genMedianMC(){
       ru:"Медиана идет из вершины к середине противоположной стороны.",
       ua:"Медіана йде з вершини до середини протилежної сторони."
     },
-    options:{ru:opts,ua:opts}, correct:correctIdx
+    solution:{
+      ru:"Медиана соединяет вершину с серединой противоположной стороны.",
+      ua:"Медіана сполучає вершину із серединою протилежної сторони."
+    },
+    options:{ru:idx.map(i=>optsRu[i]),ua:idx.map(i=>optsUa[i])}, correct:idx.indexOf(0)
   };
 }
 function genHeightMC(){
-  const correct = "Высота";
-  const distractors = ["Медиана","Биссектриса","Середняя линия"];
-  const {opts,correctIdx} = buildMC(correct, distractors);
+  const optsRu = ["Высота","Медиана","Биссектриса","Средняя линия"];
+  const optsUa = ["Висота","Медіана","Бісектриса","Середня лінія"];
+  const idx = shuffleArr([0,1,2,3]);
   return {
+    topic:{ru:"Высота",ua:"Висота"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{
       ru:"Перпендикуляр, проведённый из вершины треугольника к противоположной стороне, называется:",
       ua:"Перпендикуляр, проведений з вершини трикутника до протилежної сторони, називається:"
@@ -668,14 +894,20 @@ function genHeightMC(){
       ru:"Высота перпендикулярна противоположной стороне.",
       ua:"Висота перпендикулярна до протилежної сторони."
     },
-    options:{ru:opts,ua:opts}, correct:correctIdx
+    solution:{
+      ru:"Высота — перпендикуляр из вершины к противоположной стороне.",
+      ua:"Висота — перпендикуляр із вершини до протилежної сторони."
+    },
+    options:{ru:idx.map(i=>optsRu[i]),ua:idx.map(i=>optsUa[i])}, correct:idx.indexOf(0)
   };
 }
 function genMidlineMC(){
-  const correct = "Средняя линия";
-  const distractors = ["Медиана","Биссектриса","Высота"];
-  const {opts,correctIdx} = buildMC(correct, distractors);
+  const optsRu = ["Средняя линия","Медиана","Биссектриса","Высота"];
+  const optsUa = ["Середня лінія","Медіана","Бісектриса","Висота"];
+  const idx = shuffleArr([0,1,2,3]);
   return {
+    topic:{ru:"Средняя линия",ua:"Середня лінія"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{
       ru:"Отрезок, соединяющий середины двух сторон треугольника, называется:",
       ua:"Відрізок, що сполучає середини двох сторін трикутника, називається:"
@@ -684,7 +916,11 @@ function genMidlineMC(){
       ru:"Средняя линия параллельна третьей стороне и равна её половине.",
       ua:"Середня лінія паралельна третій стороні та дорівнює її половині."
     },
-    options:{ru:opts,ua:opts}, correct:correctIdx
+    solution:{
+      ru:"Средняя линия параллельна третьей стороне и равна её половине.",
+      ua:"Середня лінія паралельна третій стороні та дорівнює її половині."
+    },
+    options:{ru:idx.map(i=>optsRu[i]),ua:idx.map(i=>optsUa[i])}, correct:idx.indexOf(0)
   };
 }
 function genPyramidVolumeShort(){
@@ -692,8 +928,14 @@ function genPyramidVolumeShort(){
   const h = rnd([2,3,4,5,6]);
   const answer = (1/3)*S*h;
   return {
+    topic:{ru:"Объём пирамиды",ua:"Об'єм піраміди"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{ru:`Пирамида: Sосн=${S}, h=${h}. Найдите объём.`, ua:`Піраміда: Sосн=${S}, h=${h}. Знайдіть об'єм.`},
     hint:{ru:"V=⅓Sосн·h.",ua:"V=⅓Sосн·h."},
+    solution:{
+      ru:`V = ⅓·Sосн·h = ⅓·${S}·${h} = ${answer}.`,
+      ua:`V = ⅓·Sосн·h = ⅓·${S}·${h} = ${answer}.`
+    },
     expected:answer, correctLabel:fmtNum(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
   };
@@ -704,8 +946,14 @@ function genConeSurfaceShort(){
   const coeff = tr.r*(tr.r+tr.l);
   const answer = coeff*Math.PI;
   return {
+    topic:{ru:"Площадь поверхности конуса",ua:"Площа поверхні конуса"},
+    format:{ru:"десятичная дробь, округлите до 0.01",ua:"десятковий дріб, округліть до 0.01"},
     question:{ru:`Конус: R=${tr.r}, h=${tr.h}. Найдите Sполн (округлите до 0.01).`, ua:`Конус: R=${tr.r}, h=${tr.h}. Знайдіть Sповн (округліть до 0.01).`},
     hint:{ru:"l=√(R²+h²). Sполн=πR(R+l).",ua:"l=√(R²+h²). Sповн=πR(R+l)."},
+    solution:{
+      ru:`l = √(R²+h²) = √(${tr.r}²+${tr.h}²) = ${tr.l}. Sполн = πR(R+l) = π·${tr.r}·(${tr.r}+${tr.l}) = ${coeff}π ≈ ${fmtNum(answer)}.`,
+      ua:`l = √(R²+h²) = √(${tr.r}²+${tr.h}²) = ${tr.l}. Sповн = πR(R+l) = π·${tr.r}·(${tr.r}+${tr.l}) = ${coeff}π ≈ ${fmtNum(answer)}.`
+    },
     expected:answer, correctLabel: coeff+"π ≈ "+fmtNum(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.05); }
   };
@@ -716,8 +964,14 @@ function genConeVolumeIntegralShort(){
   const coeff = (R*R*h)/3;
   const answer = coeff*Math.PI;
   return {
+    topic:{ru:"Объём конуса (интеграл)",ua:"Об'єм конуса (інтеграл)"},
+    format:{ru:"десятичная дробь, округлите до 0.01",ua:"десятковий дріб, округліть до 0.01"},
     question:{ru:`Через интеграл V=π∫[f(x)]²dx найдите объём конуса с R=${R}, h=${h} (округлите до 0.01).`, ua:`Через інтеграл V=π∫[f(x)]²dx знайдіть об'єм конуса з R=${R}, h=${h} (округліть до 0.01).`},
     hint:{ru:"f(x)=(R/h)x. V=π∫[0;h](Rx/h)²dx=⅓πR²h.",ua:"f(x)=(R/h)x. V=π∫[0;h](Rx/h)²dx=⅓πR²h."},
+    solution:{
+      ru:`Образующая по высоте: f(x) = (${R}/${h})x. V = π∫[0;${h}](${R}x/${h})²dx = ⅓πR²h = ${coeff}π ≈ ${fmtNum(answer)}.`,
+      ua:`Твірна за висотою: f(x) = (${R}/${h})x. V = π∫[0;${h}](${R}x/${h})²dx = ⅓πR²h = ${coeff}π ≈ ${fmtNum(answer)}.`
+    },
     expected:answer, correctLabel: fmtNum(coeff)+"π ≈ "+fmtNum(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.05); }
   };
@@ -727,8 +981,14 @@ function genCubeSectionAreaShort(){
   const coeff = (d*d)/2;
   const answer = coeff*Math.sqrt(3);
   return {
+    topic:{ru:"Сечение куба",ua:"Переріз куба"},
+    format:{ru:"десятичная дробь, округлите до 0.01",ua:"десятковий дріб, округліть до 0.01"},
     question:{ru:`Плоскость отсекает от вершины куба равносторонний треугольник со стороной ${d}√2. Найдите его площадь (округлите до 0.01).`, ua:`Площина відтинає від вершини куба рівносторонній трикутник зі стороною ${d}√2. Знайдіть його площу (округліть до 0.01).`},
     hint:{ru:"S=(√3/4)·сторона². Сторона="+d+"√2, сторона²="+(2*d*d)+".",ua:"S=(√3/4)·сторона². Сторона="+d+"√2, сторона²="+(2*d*d)+"."},
+    solution:{
+      ru:`Сторона сечения ${d}√2, её квадрат = ${2*d*d}. S = (√3/4)·${2*d*d} = ${coeff}√3 ≈ ${fmtNum(answer)}.`,
+      ua:`Сторона перерізу ${d}√2, її квадрат = ${2*d*d}. S = (√3/4)·${2*d*d} = ${coeff}√3 ≈ ${fmtNum(answer)}.`
+    },
     expected:answer, correctLabel: fmtNum(coeff)+"√3 ≈ "+fmtNum(answer),
     check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, answer, 0.02); }
   };
@@ -1347,8 +1607,14 @@ function genNmtTrigMixedMC(){
   const pool = shuffleArr([`${triple.b}/${triple.c}`,`−${triple.a}/${triple.c}`,`${triple.c}/${triple.a}`]).slice(0,3);
   const {opts,correctIdx} = buildMC(correct,pool);
   return {
+    topic:{ru:"НМТ: тригонометрия",ua:"НМТ: тригонометрія"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`В НМТ-формате: tg α = −${triple.a}/${triple.b}, α ∈ II четверти. Найдите sin α.`,ua:`У форматі НМТ: tg α = −${triple.a}/${triple.b}, α ∈ II чверті. Знайдіть sin α.`},
     hint:{ru:"Воспользуйтесь 1+tg²α=1/cos²α и знаком функций во II четверти.",ua:"Скористайтеся 1+tg²α=1/cos²α і знаком функцій у II чверті."},
+    solution:{
+      ru:`tg α = −${triple.a}/${triple.b} ⇒ катеты ${triple.a} и ${triple.b}, гипотенуза √(${triple.a}²+${triple.b}²) = ${triple.c}. В II четверти sin α > 0, поэтому sin α = ${sinLabel}.`,
+      ua:`tg α = −${triple.a}/${triple.b} ⇒ катети ${triple.a} і ${triple.b}, гіпотенуза √(${triple.a}²+${triple.b}²) = ${triple.c}. У II чверті sin α > 0, тому sin α = ${sinLabel}.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }
@@ -1359,8 +1625,14 @@ function genNmtShortAnswer(){
   const answer = exponent-shift;
   const shiftText = shift>0 ? ` + ${shift}` : ` − ${Math.abs(shift)}`;
   return {
+    topic:{ru:"НМТ: показательное уравнение",ua:"НМТ: показникове рівняння"},
+    format:{ru:"целое число",ua:"ціле число"},
     question:{ru:`В НМТ-формате решите ${a}^(x${shiftText}) = ${a}^${exponent}. Введите x.`,ua:`У форматі НМТ розв'яжіть ${a}^(x${shiftText}) = ${a}^${exponent}. Введіть x.`},
     hint:{ru:"При одинаковых основаниях приравняйте показатели степеней.",ua:"За однакових основ прирівняйте показники степенів."},
+    solution:{
+      ru:`Основания равны (${a}), приравниваем показатели: x${shiftText} = ${exponent}, откуда x = ${answer}.`,
+      ua:`Основи рівні (${a}), прирівнюємо показники: x${shiftText} = ${exponent}, звідки x = ${answer}.`
+    },
     expected:answer, correctLabel:String(answer),
     check(input){ const value=parseAnswer(input); return !isNaN(value) && near(value,answer,0.02); }
   };
@@ -1371,8 +1643,14 @@ function genNmtParameterMC(){
   const distractors = [String(boundary),String(boundary+1),String(-boundary)];
   const {opts,correctIdx} = buildMC(correct,distractors);
   return {
+    topic:{ru:"НМТ: параметр",ua:"НМТ: параметр"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
     question:{ru:`В НМТ-формате найдите наименьшее целое a, при котором уравнение sin x = a − ${boundary} имеет решения.`,ua:`У форматі НМТ знайдіть найменше ціле a, за якого рівняння sin x = a − ${boundary} має розв'язки.`},
     hint:{ru:"Правая часть должна принадлежать отрезку [−1;1], значит a − c ≥ −1.",ua:"Права частина має належати відрізку [−1;1], отже a − c ≥ −1."},
+    solution:{
+      ru:`Нужно a − ${boundary} ≥ −1, то есть a ≥ ${boundary-1}. Наименьшее целое a = ${boundary-1}.`,
+      ua:`Потрібно a − ${boundary} ≥ −1, тобто a ≥ ${boundary-1}. Найменше ціле a = ${boundary-1}.`
+    },
     options:{ru:opts,ua:opts}, correct:correctIdx
   };
 }

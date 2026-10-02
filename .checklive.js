@@ -59,7 +59,10 @@ function get(url){
     "m5 area topic":      page.body.indexOf('{ id:"areaFigures"') > 0,
     "trainer c6 gens":    page.body.indexOf("function genC6StatMedianModeShort") > 0,
     "trainer c6 total":   /function genC6\w+Short|MC/.test(page.body),
-    "trainer panel":      page.body.indexOf("function renderTaskMeta") > 0
+    "trainer panel":      page.body.indexOf("function renderTaskMeta") > 0,
+    "b3 absArea topic":   page.body.indexOf('topic:{ru:"Площадь под синусоидой"') > 0,
+    "b3 nmt param topic": page.body.indexOf('topic:{ru:"НМТ: параметр"') > 0,
+    "b3 short format":    page.body.indexOf("коротка відповідь (вкажіть одне значення)") > 0
   };
   Object.keys(checks).forEach(k => console.log((checks[k] ? "  OK   " : "  MISS ") + k));
   const tag = (page.body.match(/mathcourse-[a-f0-9]+/) || [])[0];
