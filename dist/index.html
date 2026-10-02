@@ -651,6 +651,16 @@
   }
   .topic-card h4{margin:0 0 6px;font-family:var(--serif);font-size:17px;color:var(--ink);}
   .topic-card p{margin:0;font-size:13px;color:var(--ink-soft);}
+  .topic-stat{margin-top:10px;display:inline-block;font:700 11px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--line);border-radius:999px;padding:2px 9px;}
+  .trainer-stats-panel{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--surface);margin-top:6px;}
+  .trainer-stats-title{font:700 12px var(--sans);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:6px;}
+  .trainer-stats-line{font-size:14px;color:var(--ink);margin-bottom:10px;}
+  .trainer-stats-clear{color:var(--success);font-weight:700;}
+  .trainer-review-btn{margin-top:2px;}
+  .trainer-review-progress{font:700 12px var(--mono);color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+  .trainer-review-summary{max-width:600px;}
+  .trainer-review-summary p{font-size:16px;color:var(--ink);margin-bottom:16px;}
+  .trainer-review-summary .btn{margin-right:10px;}
   .resources-section{margin-top:42px;padding-top:24px;border-top:1px solid var(--line);}
   .resources-section h3{font-family:var(--serif);font-size:22px;margin:0 0 16px;color:var(--ink);}
   .resource-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
@@ -1144,6 +1154,19 @@ const UI = {
     trainerMetaFormat:"Формат ответа",
     trainerMetaAnswer:"Правильный ответ",
     trainerMetaSolution:"Краткое решение",
+    trainerStatsTitle:"Моя статистика",
+    trainerStatsOverall:"Общая точность: {p}% ({c} из {t})",
+    trainerStatsNone:"Пока нет решённых задач — начни тренировку.",
+    trainerAccuracy:"{p}% · {n}",
+    trainerReview:"Повторение ошибок",
+    trainerReviewStart:"Повторить ошибки: {n}",
+    trainerReviewExit:"← Выйти из повторения",
+    trainerReviewProgress:"Повторение: {c}/{t}",
+    trainerReviewDone:"Повторение завершено",
+    trainerReviewResult:"Правильно: {c} из {t}",
+    trainerReviewAgain:"Ещё раз",
+    trainerReviewToTopics:"К темам",
+    trainerReviewClear:"Ошибок нет — отличная работа!",
     showHint:"Показать подсказку",
     testKicker:"Итоговый тест модуля",
     testTitle:"Тригонометрия — итоговый тест",
@@ -1186,6 +1209,19 @@ const UI = {
     trainerMetaFormat:"Формат відповіді",
     trainerMetaAnswer:"Правильна відповідь",
     trainerMetaSolution:"Коротке розв'язання",
+    trainerStatsTitle:"Моя статистика",
+    trainerStatsOverall:"Загальна точність: {p}% ({c} з {t})",
+    trainerStatsNone:"Поки немає розв'язаних задач — почни тренування.",
+    trainerAccuracy:"{p}% · {n}",
+    trainerReview:"Повторення помилок",
+    trainerReviewStart:"Повторити помилки: {n}",
+    trainerReviewExit:"← Вийти з повторення",
+    trainerReviewProgress:"Повторення: {c}/{t}",
+    trainerReviewDone:"Повторення завершено",
+    trainerReviewResult:"Правильно: {c} з {t}",
+    trainerReviewAgain:"Ще раз",
+    trainerReviewToTopics:"До тем",
+    trainerReviewClear:"Помилок немає — чудова робота!",
     showHint:"Показати підказку",
     testKicker:"Підсумковий тест модуля",
     testTitle:"Тригонометрія — підсумковий тест",
@@ -15118,7 +15154,9 @@ let state = {
   doneLessons: new Set(JSON.parse(localStorage.getItem("mc_done")||"[]")),
   searchQuery: "",
   favoriteFormulas: new Set(JSON.parse(localStorage.getItem("mc_favorites")||"[]")),
-  miniChecks: JSON.parse(localStorage.getItem("mc_mini")||"{}")
+  miniChecks: JSON.parse(localStorage.getItem("mc_mini")||"{}"),
+  trainerStats: JSON.parse(localStorage.getItem("mc_trainer")||"{}"),
+  trainerReview: null
 };
 
 const MODULE_TEST_DURATION = 20 * 60;
@@ -15153,6 +15191,32 @@ function refreshMiniIndicators(){
     ind.title = UI[state.lang].miniCheckProgress.replace("{c}",stat.correct).replace("{t}",stat.total);
     ind.className = "mini-ind visible" + (stat.complete ? " done" : "");
   });
+}
+function saveTrainerStats(){ localStorage.setItem("mc_trainer", JSON.stringify(state.trainerStats)); }
+function trainerAcc(rec){ return rec && rec.total ? Math.round(rec.correct/rec.total*100) : 0; }
+function recordTrainerResult(topicId, ok){
+  if(!topicId) return;
+  const rec = state.trainerStats[topicId] || (state.trainerStats[topicId] = {total:0, correct:0, wrong:0, lastWrong:0});
+  rec.total++;
+  if(ok){ rec.correct++; if(rec.wrong>0) rec.wrong--; }
+  else { rec.wrong++; rec.lastWrong = Date.now(); }
+  saveTrainerStats();
+}
+function allTrainerTopics(){ return LEVEL_DEFS.flatMap(level=>level.topics.map(topic=>({level, topic}))); }
+function findTrainerTopic(topicId){ return allTrainerTopics().find(x=>x.topic.id===topicId) || null; }
+function trainerOverall(){
+  let total = 0, correct = 0;
+  Object.keys(state.trainerStats).forEach(id=>{ total += state.trainerStats[id].total; correct += state.trainerStats[id].correct; });
+  return {total, correct, acc: total ? Math.round(correct/total*100) : 0};
+}
+function weakTrainerTopics(limit){
+  return Object.keys(state.trainerStats)
+    .filter(id=>state.trainerStats[id].wrong>0 && findTrainerTopic(id))
+    .sort((a,b)=>{
+      const ra = state.trainerStats[a], rb = state.trainerStats[b];
+      return (rb.wrong-ra.wrong) || (rb.lastWrong-ra.lastWrong) || (trainerAcc(ra)-trainerAcc(rb));
+    })
+    .slice(0, limit||10);
 }
 
 function closeMobileMenu(){
@@ -15697,18 +15761,50 @@ function renderCourse(){
 function renderTrainerLevelPicker(){
   const main = document.getElementById("main");
   const L = UI[state.lang];
+  const overall = trainerOverall();
+  const weak = weakTrainerTopics(10);
   main.innerHTML = `
     <div class="lesson-header">
       <div class="lesson-kicker">${L.trainer}</div>
       <h2>${L.trainerLevelPick}</h2>
     </div>
+    <div class="trainer-stats-panel" id="trainer-stats-panel"></div>
     <div class="trainer-topic-grid" id="level-grid"></div>
   `;
+  const panel = main.querySelector("#trainer-stats-panel");
+  const title = document.createElement("div");
+  title.className = "trainer-stats-title";
+  title.textContent = L.trainerStatsTitle;
+  panel.appendChild(title);
+  const line = document.createElement("div");
+  line.className = "trainer-stats-line";
+  line.textContent = overall.total
+    ? L.trainerStatsOverall.replace("{p}",overall.acc).replace("{c}",overall.correct).replace("{t}",overall.total)
+    : L.trainerStatsNone;
+  panel.appendChild(line);
+  if(weak.length){
+    const btn = document.createElement("button");
+    btn.className = "btn trainer-review-btn";
+    btn.id = "trainer-review-start";
+    btn.textContent = L.trainerReviewStart.replace("{n}",weak.length);
+    btn.addEventListener("click", startTrainerReview);
+    panel.appendChild(btn);
+  } else if(overall.total){
+    const done = document.createElement("div");
+    done.className = "trainer-stats-line trainer-stats-clear";
+    done.textContent = L.trainerReviewClear;
+    panel.appendChild(done);
+  }
   const grid = main.querySelector("#level-grid");
   LEVEL_DEFS.forEach(level=>{
     const card = document.createElement("div");
     card.className = "topic-card";
-    card.innerHTML = `<h4>${level.title[state.lang]}</h4><p>${level.desc[state.lang]}</p>`;
+    let levelTotal = 0, levelCorrect = 0;
+    level.topics.forEach(t=>{ const r = state.trainerStats[t.id]; if(r){ levelTotal += r.total; levelCorrect += r.correct; } });
+    const badge = levelTotal
+      ? `<div class="topic-stat">${L.trainerAccuracy.replace("{p}",Math.round(levelCorrect/levelTotal*100)).replace("{n}",levelTotal)}</div>`
+      : "";
+    card.innerHTML = `<h4>${level.title[state.lang]}</h4><p>${level.desc[state.lang]}</p>${badge}`;
     card.addEventListener("click", ()=>{
       state.trainerLevel = level.id;
       state.trainerTopic = null;
@@ -15784,7 +15880,11 @@ function renderTrainerTopicPicker(){
   level.topics.forEach(topic=>{
     const card = document.createElement("div");
     card.className = "topic-card";
-    card.innerHTML = `<h4>${topic.title[state.lang]}</h4><p>${topic.desc[state.lang]}</p>`;
+    const rec = state.trainerStats[topic.id];
+    const badge = rec
+      ? `<div class="topic-stat">${L.trainerAccuracy.replace("{p}",trainerAcc(rec)).replace("{n}",rec.total)}</div>`
+      : "";
+    card.innerHTML = `<h4>${topic.title[state.lang]}</h4><p>${topic.desc[state.lang]}</p>${badge}`;
     card.addEventListener("click", ()=>{
       state.trainerTopic = topic.id;
       state.trainerScore = {correct:0,total:0};
@@ -15795,21 +15895,21 @@ function renderTrainerTopicPicker(){
   });
 }
 
-function renderTrainerRun(){
+function renderTrainerQuestion(opts){
   const main = document.getElementById("main");
   const L = UI[state.lang];
-  const level = LEVEL_DEFS.find(l=>l.id===state.trainerLevel);
-  const topic = level.topics.find(t=>t.id===state.trainerTopic);
+  const topic = opts.topic;
   if(!trainerCurrent) trainerCurrent = topic.generate();
   const isMC = !!trainerCurrent.options;
 
   main.innerHTML = `
-    <div class="back-link" id="trainer-back">${L.trainerBack}</div>
+    <div class="back-link" id="trainer-back">${opts.backLabel}</div>
     <div class="lesson-header">
-      <div class="lesson-kicker">${L.trainer} · ${level.title[state.lang]}</div>
+      <div class="lesson-kicker">${opts.kicker}</div>
       <h2>${topic.title[state.lang]}</h2>
     </div>
     <div class="trainer-run">
+      ${opts.progress ? `<div class="trainer-review-progress">${opts.progress}</div>` : ""}
       <div class="trainer-score">${L.trainerScore.replace("{c}",state.trainerScore.correct).replace("{t}",state.trainerScore.total)}</div>
       <div id="feedback-slot"></div>
       <div class="trainer-q">${trainerCurrent.question[state.lang]}</div>
@@ -15822,18 +15922,18 @@ function renderTrainerRun(){
       </div>`}
     </div>
   `;
-  main.querySelector("#trainer-back").addEventListener("click", ()=>{ state.trainerTopic=null; trainerCurrent=null; render(); });
+  main.querySelector("#trainer-back").addEventListener("click", opts.onBack);
   main.querySelector("#hint-btn").addEventListener("click", ()=>{
     main.querySelector("#hint-text").textContent = trainerCurrent.hint[state.lang];
     main.querySelector("#hint-text").style.display = "block";
     main.querySelector("#hint-btn").style.display = "none";
   });
 
-  function nextQuestion(){ trainerCurrent = topic.generate(); render(); }
-
   function grade(ok, correctLabel){
     state.trainerScore.total++;
     if(ok) state.trainerScore.correct++;
+    recordTrainerResult(topic.id, ok);
+    if(opts.onGraded) opts.onGraded(ok);
     const slot = main.querySelector("#feedback-slot");
     slot.innerHTML = `<div class="feedback ${ok?'correct':'wrong'}">${ok ? L.trainerCorrect : L.trainerWrongPrefix+correctLabel}</div>`;
     renderTaskMeta();
@@ -15891,8 +15991,8 @@ function renderTrainerRun(){
         const nextBtn = document.createElement("button");
         nextBtn.className = "btn";
         nextBtn.style.marginTop = "14px";
-        nextBtn.textContent = L.trainerNext;
-        nextBtn.addEventListener("click", nextQuestion);
+        nextBtn.textContent = opts.nextLabel || L.trainerNext;
+        nextBtn.addEventListener("click", opts.onNext);
         main.querySelector(".trainer-run").appendChild(nextBtn);
       });
       optsWrap.appendChild(b);
@@ -15904,12 +16004,73 @@ function renderTrainerRun(){
       const ok = trainerCurrent.check(input.value);
       grade(ok, trainerCurrent.correctLabel);
       input.disabled = true;
-      main.querySelector("#trainer-check-btn").textContent = L.trainerNext;
-      main.querySelector("#trainer-check-btn").onclick = nextQuestion;
+      main.querySelector("#trainer-check-btn").textContent = opts.nextLabel || L.trainerNext;
+      main.querySelector("#trainer-check-btn").onclick = opts.onNext;
     }
     main.querySelector("#trainer-check-btn").addEventListener("click", submit);
     input.addEventListener("keydown", e=>{ if(e.key==="Enter" && !input.disabled) submit(); });
   }
+}
+
+function renderTrainerRun(){
+  const L = UI[state.lang];
+  const level = LEVEL_DEFS.find(l=>l.id===state.trainerLevel);
+  const topic = level.topics.find(t=>t.id===state.trainerTopic);
+  renderTrainerQuestion({
+    kicker: `${L.trainer} · ${level.title[state.lang]}`,
+    topic,
+    backLabel: L.trainerBack,
+    onBack: ()=>{ state.trainerTopic=null; trainerCurrent=null; render(); },
+    onNext: ()=>{ trainerCurrent=null; render(); }
+  });
+}
+
+function startTrainerReview(){
+  const ids = weakTrainerTopics(10);
+  if(!ids.length) return;
+  state.trainerReview = {ids, idx:0, correct:0, total:0};
+  state.trainerScore = {correct:0,total:0};
+  trainerCurrent = null;
+  render();
+}
+
+function renderTrainerReview(){
+  const main = document.getElementById("main");
+  const L = UI[state.lang];
+  const rev = state.trainerReview;
+  if(!rev){ renderTrainerLevelPicker(); return; }
+  if(rev.idx >= rev.ids.length){
+    main.innerHTML = `
+      <div class="lesson-header">
+        <div class="lesson-kicker">${L.trainer} · ${L.trainerReview}</div>
+        <h2>${L.trainerReviewDone}</h2>
+      </div>
+      <div class="trainer-review-summary">
+        <p>${L.trainerReviewResult.replace("{c}",rev.correct).replace("{t}",rev.total)}</p>
+        <button class="btn" id="review-again">${L.trainerReviewAgain}</button>
+        <button class="btn secondary" id="review-topics">${L.trainerReviewToTopics}</button>
+      </div>
+    `;
+    main.querySelector("#review-again").addEventListener("click", ()=>{
+      state.trainerReview = null;
+      if(weakTrainerTopics(10).length) startTrainerReview();
+      else { state.trainerTopic=null; trainerCurrent=null; render(); }
+    });
+    main.querySelector("#review-topics").addEventListener("click", ()=>{
+      state.trainerReview=null; state.trainerTopic=null; trainerCurrent=null; render();
+    });
+    return;
+  }
+  const entry = findTrainerTopic(rev.ids[rev.idx]);
+  renderTrainerQuestion({
+    kicker: `${L.trainer} · ${L.trainerReview}`,
+    topic: entry.topic,
+    backLabel: L.trainerReviewExit,
+    progress: L.trainerReviewProgress.replace("{c}",rev.idx+1).replace("{t}",rev.ids.length),
+    onBack: ()=>{ state.trainerReview=null; trainerCurrent=null; render(); },
+    onGraded: (ok)=>{ rev.total++; if(ok) rev.correct++; },
+    onNext: ()=>{ rev.idx++; trainerCurrent=null; render(); }
+  });
 }
 
 /* ============================================================
@@ -16067,6 +16228,7 @@ function renderModuleTest(){
           state.mode = "trainer";
           state.trainerLevel = topic.level;
           state.trainerTopic = topic.id;
+          state.trainerReview = null;
           state.trainerScore = {correct:0,total:0};
           trainerCurrent = null;
           render();
@@ -16111,7 +16273,8 @@ function render(){
   if(state.mode==="course") renderCourse();
   else if(state.mode==="moduletest") renderModuleTest();
   else {
-    if(!state.trainerLevel) renderTrainerLevelPicker();
+    if(state.trainerReview) renderTrainerReview();
+    else if(!state.trainerLevel) renderTrainerLevelPicker();
     else if(!state.trainerTopic) renderTrainerTopicPicker();
     else renderTrainerRun();
   }
@@ -16138,7 +16301,7 @@ const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
 if(btnLangRu){ btnLangRu.addEventListener("click", ()=>{ state.lang="ru"; document.documentElement.lang="ru"; trainerCurrent=null; render(); }); }
 if(btnLangUa){ btnLangUa.addEventListener("click", ()=>{ state.lang="ua"; document.documentElement.lang="uk"; trainerCurrent=null; render(); }); }
 if(btnModeCourse){ btnModeCourse.addEventListener("click", ()=>{ state.mode="course"; render(); }); }
-if(btnModeTrainer){ btnModeTrainer.addEventListener("click", ()=>{ state.mode="trainer"; state.trainerLevel=null; state.trainerTopic=null; render(); }); }
+if(btnModeTrainer){ btnModeTrainer.addEventListener("click", ()=>{ state.mode="trainer"; state.trainerLevel=null; state.trainerTopic=null; state.trainerReview=null; render(); }); }
 if(mobileMenuToggle){ mobileMenuToggle.addEventListener("click", ()=>{
   const open = document.body.classList.toggle("sidebar-open");
   const button = document.getElementById("mobile-menu-toggle");

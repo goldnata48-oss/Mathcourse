@@ -68,7 +68,13 @@ function get(url){
     "b4 mini badge":      page.body.indexOf("mini-check-badge") > 0,
     "b4 mini progress":   page.body.indexOf("miniCheckProgress") > 0,
     "b4 sidebar data":    page.body.indexOf("state.miniChecks[lessonId]") > 0,
-    "b4 mini indicator":  page.body.indexOf("function refreshMiniIndicators") > 0
+    "b4 mini indicator":  page.body.indexOf("function refreshMiniIndicators") > 0,
+    "b5 stats record":    page.body.indexOf("function recordTrainerResult") > 0,
+    "b5 review start":    page.body.indexOf("function startTrainerReview") > 0,
+    "b5 review render":   page.body.indexOf("function renderTrainerReview") > 0,
+    "b5 question core":   page.body.indexOf("function renderTrainerQuestion") > 0,
+    "b5 stats panel":     page.body.indexOf("trainerStatsTitle") > 0,
+    "b5 topic stat":      page.body.indexOf("topic-stat") > 0
   };
   Object.keys(checks).forEach(k => console.log((checks[k] ? "  OK   " : "  MISS ") + k));
   const tag = (page.body.match(/mathcourse-[a-f0-9]+/) || [])[0];

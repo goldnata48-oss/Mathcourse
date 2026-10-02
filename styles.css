@@ -522,6 +522,16 @@
   }
   .topic-card h4{margin:0 0 6px;font-family:var(--serif);font-size:17px;color:var(--ink);}
   .topic-card p{margin:0;font-size:13px;color:var(--ink-soft);}
+  .topic-stat{margin-top:10px;display:inline-block;font:700 11px var(--mono);color:var(--accent);background:var(--accent-soft);border:1px solid var(--line);border-radius:999px;padding:2px 9px;}
+  .trainer-stats-panel{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--surface);margin-top:6px;}
+  .trainer-stats-title{font:700 12px var(--sans);text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:6px;}
+  .trainer-stats-line{font-size:14px;color:var(--ink);margin-bottom:10px;}
+  .trainer-stats-clear{color:var(--success);font-weight:700;}
+  .trainer-review-btn{margin-top:2px;}
+  .trainer-review-progress{font:700 12px var(--mono);color:var(--accent);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+  .trainer-review-summary{max-width:600px;}
+  .trainer-review-summary p{font-size:16px;color:var(--ink);margin-bottom:16px;}
+  .trainer-review-summary .btn{margin-right:10px;}
   .resources-section{margin-top:42px;padding-top:24px;border-top:1px solid var(--line);}
   .resources-section h3{font-family:var(--serif);font-size:22px;margin:0 0 16px;color:var(--ink);}
   .resource-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
