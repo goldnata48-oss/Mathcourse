@@ -32,7 +32,21 @@ function get(url){
     "geoRose roadmap":    /"geoCurved","geoRose"/.test(page.body),
     "no stale geoRose":   page.body.indexOf('soon:true, t:{ru:"Полярные кривые. Роза"') < 0,
     "geoSineCos lesson":  page.body.indexOf('id: "geoSineCos"') > 0,
-    "geoVectorTasks":     page.body.indexOf('id: "geoVectorTasks"') > 0
+    "geoVectorTasks":     page.body.indexOf('id: "geoVectorTasks"') > 0,
+    "stereo geoPerp":     page.body.indexOf('id: "geoPerp"') > 0,
+    "stereo geoPrism":    page.body.indexOf('id: "geoPrism"') > 0,
+    "stereo geoRevolve":  page.body.indexOf('id: "geoRevolve"') > 0,
+    "m6 comb1":           page.body.indexOf('id: "comb1"') > 0,
+    "m6 comb2":           page.body.indexOf('id: "comb2"') > 0,
+    "m6 prob1":           page.body.indexOf('id: "prob1"') > 0,
+    "m6 prob2":           page.body.indexOf('id: "prob2"') > 0,
+    "m6 stat1":           page.body.indexOf('id: "stat1"') > 0,
+    "m6 comb1 hint":      page.body.indexOf("comb1:{ru:") > 0,
+    "m6 stat1 hint":      page.body.indexOf("stat1:{ru:") > 0,
+    "m6 in roadmap":      /"stat1"\s*\]/.test(page.body),
+    "trainer c6 gens":    page.body.indexOf("function genC6StatMedianModeShort") > 0,
+    "trainer c6 total":   /function genC6\w+Short|MC/.test(page.body),
+    "trainer panel":      page.body.indexOf("function renderTaskMeta") > 0
   };
   Object.keys(checks).forEach(k => console.log((checks[k] ? "  OK   " : "  MISS ") + k));
   const tag = (page.body.match(/mathcourse-[a-f0-9]+/) || [])[0];
