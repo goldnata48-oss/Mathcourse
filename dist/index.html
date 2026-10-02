@@ -13285,7 +13285,8 @@ const ROADMAP = {
     {test:true, id:"test5", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
   ]},
   6:{ru:"Модуль 6. Комбинаторика, вероятности и статистика",ua:"Модуль 6. Комбінаторика, ймовірності та статистика", lessons:[
-    "comb1","comb2","prob1","prob2","stat1"
+    "comb1","comb2","prob1","prob2","stat1",
+    {test:true, id:"test6", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
   ]}
 };
 
@@ -14031,6 +14032,231 @@ function genCubeSectionAreaShort(){
   };
 }
 
+/* ---- Планиметрия: векторы, теоремы, окружности, площади (Модуль 5) ---- */
+const GEO_VECS = [[1,2],[2,3],[3,1],[2,-1],[-1,3],[4,1],[1,-2],[3,4],[-2,5],[5,-3],[2,4],[1,5]];
+function genVectorsDotMC(){
+  const a = rnd(GEO_VECS);
+  const b = rnd(GEO_VECS.filter(v => v[0]!==a[0] || v[1]!==a[1]));
+  const correct = a[0]*b[0] + a[1]*b[1];
+  const cand = [a[0]*b[1] + a[1]*b[0], a[0]*b[0] - a[1]*b[1], a[0]*b[1] - a[1]*b[0], correct + 1];
+  const distractors = [...new Set(cand.map(v=>String(v)))].filter(v=>v!==String(correct)).slice(0,3);
+  const {opts,correctIdx} = buildMC(String(correct), distractors);
+  return {
+    topic:{ru:"Скалярное произведение векторов",ua:"Скалярний добуток векторів"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Найдите скалярное произведение векторов a=(${a[0]};${a[1]}) и b=(${b[0]};${b[1]}).`,ua:`Знайдіть скалярний добуток векторів a=(${a[0]};${a[1]}) і b=(${b[0]};${b[1]}).`},
+    hint:{ru:"a·b = x₁x₂ + y₁y₂ — сумма произведений одноимённых координат.",ua:"a·b = x₁x₂ + y₁y₂ — сума добутків однойменних координат."},
+    solution:{
+      ru:`Перемножаем одноимённые координаты и складываем: a·b = ${a[0]}·${b[0]} + ${a[1]}·${b[1]} = ${a[0]*b[0]} + ${a[1]*b[1]} = ${correct}.`,
+      ua:`Перемножуємо однойменні координати й додаємо: a·b = ${a[0]}·${b[0]} + ${a[1]}·${b[1]} = ${a[0]*b[0]} + ${a[1]*b[1]} = ${correct}.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+const LOC_CASES = [
+  {b:5,c:8,A:60,a:7},
+  {b:5,c:5,A:60,a:5},
+  {b:3,c:5,A:120,a:7},
+  {b:7,c:8,A:120,a:13},
+  {b:3,c:4,A:90,a:5},
+  {b:5,c:12,A:90,a:13},
+  {b:8,c:15,A:90,a:17}
+];
+function genLawOfCosinesMC(){
+  const k = rnd(LOC_CASES);
+  const correct = k.a;
+  const cand = [k.b + k.c, Math.abs(k.b - k.c), Math.round(Math.sqrt(k.b*k.b + k.c*k.c)), correct + 1, correct - 1];
+  const distractors = [...new Set(cand.map(v=>String(v)))].filter(v=>v!==String(correct) && +v>0).slice(0,3);
+  const {opts,correctIdx} = buildMC(String(correct), distractors);
+  const cosTxt = k.A===60 ? "1/2" : k.A===120 ? "−1/2" : "0";
+  return {
+    topic:{ru:"Теорема косинусов",ua:"Теорема косинусів"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Две стороны треугольника равны ${k.b} и ${k.c}, угол между ними ${k.A}°. Найдите третью сторону.`,ua:`Дві сторони трикутника дорівнюють ${k.b} і ${k.c}, кут між ними ${k.A}°. Знайдіть третю сторону.`},
+    hint:{ru:"Теорема косинусов: a² = b² + c² − 2bc·cos A.",ua:"Теорема косинусів: a² = b² + c² − 2bc·cos A."},
+    solution:{
+      ru:`cos ${k.A}° = ${cosTxt}. Тогда a² = ${k.b}² + ${k.c}² − 2·${k.b}·${k.c}·(${cosTxt}) = ${k.b*k.b} + ${k.c*k.c} − ${2*k.b*k.c}·(${cosTxt}) = ${correct*correct}, значит a = ${correct}.`,
+      ua:`cos ${k.A}° = ${cosTxt}. Тоді a² = ${k.b}² + ${k.c}² − 2·${k.b}·${k.c}·(${cosTxt}) = ${k.b*k.b} + ${k.c*k.c} − ${2*k.b*k.c}·(${cosTxt}) = ${correct*correct}, отже a = ${correct}.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genInscribedAngleMC(){
+  const central = rnd([60,80,90,100,120,140,160,180]);
+  const correct = central / 2;
+  const correctTxt = correct + "°";
+  const cand = [central, 2*central, 180-central, correct+10].filter(v=>v!==correct);
+  const distractors = [...new Set(cand.map(v=>v+"°"))].slice(0,3);
+  const {opts,correctIdx} = buildMC(correctTxt, distractors);
+  return {
+    topic:{ru:"Вписанный угол",ua:"Вписаний кут"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Центральный угол равен ${central}°. Найдите вписанный угол, опирающийся на ту же дугу.`,ua:`Центральний кут дорівнює ${central}°. Знайдіть вписаний кут, що спирається на ту саму дугу.`},
+    hint:{ru:"Вписанный угол равен половине центрального, если они опираются на одну дугу.",ua:"Вписаний кут дорівнює половині центрального, якщо вони спираються на ту саму дугу."},
+    solution:{
+      ru:`Оба угла опираются на одну дугу, поэтому вписанный вдвое меньше центрального: ${central}° : 2 = ${correct}°.`,
+      ua:`Обидва кути спираються на ту саму дугу, тому вписаний удвічі менший за центральний: ${central}° : 2 = ${correct}°.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+const VANG_CASES = [
+  {rs:"2", r:2, s:2, d:2, ang:60},
+  {rs:"3", r:3, s:4, d:6, ang:60},
+  {rs:"2", r:2, s:5, d:5, ang:60},
+  {rs:"2", r:2, s:3, d:0, ang:90},
+  {rs:"3", r:3, s:4, d:0, ang:90},
+  {rs:"2", r:2, s:3, d:-3, ang:120},
+  {rs:"3", r:3, s:4, d:-6, ang:120},
+  {rs:"2", r:2, s:3, d:-6, ang:180},
+  {rs:"2", r:2, s:3, d:6, ang:0},
+  {rs:"√2", r:Math.SQRT2, s:3, d:3, ang:45},
+  {rs:"√2", r:Math.SQRT2, s:3, d:-3, ang:135}
+];
+const VANG_ALL = [0,30,45,60,90,120,135,180];
+function genVectorsAngleMC(){
+  const k = rnd(VANG_CASES);
+  const correct = k.ang + "°";
+  const distractors = shuffleArr(VANG_ALL.filter(x=>x!==k.ang)).slice(0,3).map(x=>x+"°");
+  const {opts,correctIdx} = buildMC(correct, distractors);
+  const cosVal = k.d / (k.r * k.s);
+  let cosTxt;
+  if(Math.abs(cosVal-0.5)<1e-9) cosTxt = "1/2";
+  else if(Math.abs(cosVal+0.5)<1e-9) cosTxt = "−1/2";
+  else if(Math.abs(cosVal-1)<1e-9) cosTxt = "1";
+  else if(Math.abs(cosVal+1)<1e-9) cosTxt = "−1";
+  else if(Math.abs(cosVal)<1e-9) cosTxt = "0";
+  else cosTxt = cosVal>0 ? "√2/2" : "−√2/2";
+  return {
+    topic:{ru:"Угол между векторами",ua:"Кут між векторами"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`|a| = ${k.rs}, |b| = ${k.s}, a·b = ${k.d}. Найдите угол между векторами.`,ua:`|a| = ${k.rs}, |b| = ${k.s}, a·b = ${k.d}. Знайдіть кут між векторами.`},
+    hint:{ru:"cos ∠ = a·b / (|a|·|b|). Сначала найдите косинус, потом по нему — угол.",ua:"cos ∠ = a·b / (|a|·|b|). Спершу знайдіть косинус, потім за ним — кут."},
+    solution:{
+      ru:`cos ∠ = (${k.d}) / (${k.rs}·${k.s}) = ${cosTxt}. Этому косинусу соответствует угол ${k.ang}°.`,
+      ua:`cos ∠ = (${k.d}) / (${k.rs}·${k.s}) = ${cosTxt}. Цьому косинусу відповідає кут ${k.ang}°.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+const LOS_CASES = [
+  {a:6,A:30,R:6},
+  {a:10,A:30,R:10},
+  {a:8,A:90,R:4},
+  {a:12,A:90,R:6},
+  {a:8,A:150,R:8},
+  {a:10,A:150,R:10}
+];
+function genLawOfSinesMC(){
+  const k = rnd(LOS_CASES);
+  const correct = k.R;
+  const cand = [k.a, 2*k.a, Math.round(k.a/2), Math.round(k.a/3), 2*k.R, Math.round(k.R/2)];
+  const distractors = [...new Set(cand.map(v=>String(v)))].filter(v=>v!==String(correct) && +v>0).slice(0,3);
+  const {opts,correctIdx} = buildMC(String(correct), distractors);
+  const sinTxt = k.A===90 ? "1" : "1/2";
+  return {
+    topic:{ru:"Теорема синусов",ua:"Теорема синусів"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Сторона a = ${k.a} лежит против угла A = ${k.A}°. Найдите радиус описанной окружности R.`,ua:`Сторона a = ${k.a} лежить проти кута A = ${k.A}°. Знайдіть радіус описаного кола R.`},
+    hint:{ru:"Теорема синусов: a / sin A = 2R, откуда R = a / (2 sin A).",ua:"Теорема синусів: a / sin A = 2R, звідки R = a / (2 sin A)."},
+    solution:{
+      ru:`sin ${k.A}° = ${sinTxt}. Тогда R = a / (2 sin A) = ${k.a} / (2·${sinTxt}) = ${correct}. Проверка: 2R = ${2*correct} = a / sin A ✓`,
+      ua:`sin ${k.A}° = ${sinTxt}. Тоді R = a / (2 sin A) = ${k.a} / (2·${sinTxt}) = ${correct}. Перевірка: 2R = ${2*correct} = a / sin A ✓`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genCircleRadiiMC(){
+  const tr = rnd(PY_TRIPLES);
+  const rIn = (tr.a + tr.b - tr.c) / 2;
+  const rOut = tr.c / 2;
+  const askIn = Math.random() < 0.5;
+  const legs = `катетами ${tr.a} и ${tr.b}`;
+  const legsUa = `катетами ${tr.a} і ${tr.b}`;
+  if(askIn){
+    const correct = fmtNum(rIn);
+    const cand = [rOut, (tr.a+tr.b)/2, tr.c/2, rIn+1].map(fmtNum);
+    const distractors = [...new Set(cand)].filter(v=>v!==correct).slice(0,3);
+    const {opts,correctIdx} = buildMC(correct, distractors);
+    return {
+      topic:{ru:"Радиус вписанной окружности",ua:"Радіус вписаного кола"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Прямоугольный треугольник с ${legs}. Найдите радиус вписанной окружности.`,ua:`Прямокутний трикутник з ${legsUa}. Знайдіть радіус вписаного кола.`},
+      hint:{ru:"Для прямоугольного треугольника r = (a + b − c)/2, где c — гипотенуза.",ua:"Для прямокутного трикутника r = (a + b − c)/2, де c — гіпотенуза."},
+      solution:{
+        ru:`Гипотенуза c = ${tr.c} (египетский треугольник). Тогда r = (a + b − c)/2 = (${tr.a} + ${tr.b} − ${tr.c})/2 = ${fmtNum(rIn)}.`,
+        ua:`Гіпотенуза c = ${tr.c} (єгипетський трикутник). Тоді r = (a + b − c)/2 = (${tr.a} + ${tr.b} − ${tr.c})/2 = ${fmtNum(rIn)}.`
+      },
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  const correct = fmtNum(rOut);
+  const cand = [rIn, tr.c, (tr.a+tr.b)/2, rOut+1].map(fmtNum);
+  const distractors = [...new Set(cand)].filter(v=>v!==correct).slice(0,3);
+  const {opts,correctIdx} = buildMC(correct, distractors);
+  return {
+    topic:{ru:"Радиус описанной окружности",ua:"Радіус описаного кола"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Прямоугольный треугольник с ${legs}. Найдите радиус описанной окружности.`,ua:`Прямокутний трикутник з ${legsUa}. Знайдіть радіус описаного кола.`},
+    hint:{ru:"У прямоугольного треугольника гипотенуза — диаметр описанной окружности, поэтому R = c/2.",ua:"У прямокутного трикутника гіпотенуза — діаметр описаного кола, тому R = c/2."},
+    solution:{
+      ru:`Гипотенуза c = ${tr.c}. Прямой угол опирается на диаметр, значит R = c/2 = ${fmtNum(rOut)}.`,
+      ua:`Гіпотенуза c = ${tr.c}. Прямий кут спирається на діаметр, отже R = c/2 = ${fmtNum(rOut)}.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genVectorsCrossMC(){
+  const a = rnd(GEO_VECS);
+  const b = rnd(GEO_VECS.filter(v => v[0]*a[1] - v[1]*a[0] !== 0));
+  const det = a[0]*b[1] - a[1]*b[0];
+  const correct = Math.abs(det);
+  const cand = [Math.abs(a[0]*b[0] + a[1]*b[1]), Math.abs(a[0]*b[0] - a[1]*b[1]), Math.abs(a[0]*b[1] + a[1]*b[0]), correct + 1, correct * 2];
+  const distractors = [...new Set(cand.map(v=>String(v)))].filter(v=>v!==String(correct)).slice(0,3);
+  const {opts,correctIdx} = buildMC(String(correct), distractors);
+  return {
+    topic:{ru:"Площадь через векторное произведение",ua:"Площа через векторний добуток"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Найдите площадь параллелограмма, построенного на векторах a=(${a[0]};${a[1]}) и b=(${b[0]};${b[1]}).`,ua:`Знайдіть площу паралелограма, побудованого на векторах a=(${a[0]};${a[1]}) і b=(${b[0]};${b[1]}).`},
+    hint:{ru:"В координатах площадь параллелограмма S = |x₁y₂ − x₂y₁| (модуль определителя).",ua:"У координатах площа паралелограма S = |x₁y₂ − x₂y₁| (модуль визначника)."},
+    solution:{
+      ru:`S = |x₁y₂ − x₂y₁| = |${a[0]}·${b[1]} − ${b[0]}·${a[1]}| = |${a[0]*b[1]} − ${b[0]*a[1]}| = |${det}| = ${correct}.`,
+      ua:`S = |x₁y₂ − x₂y₁| = |${a[0]}·${b[1]} − ${b[0]}·${a[1]}| = |${a[0]*b[1]} − ${b[0]*a[1]}| = |${det}| = ${correct}.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+const AREA_CASES = [
+  {a:6,b:8,C:30,v:12},
+  {a:6,b:10,C:30,v:15},
+  {a:4,b:5,C:90,v:10},
+  {a:5,b:8,C:90,v:20},
+  {a:4,b:6,C:45,v:6*Math.SQRT2},
+  {a:6,b:6,C:120,v:9*Math.sqrt(3)},
+  {a:4,b:4,C:150,v:4}
+];
+function genAreaFiguresHigh(){
+  const k = rnd(AREA_CASES);
+  const val = Math.round(k.v * 100) / 100;
+  const correct = fmtNum(val);
+  const cand = [k.a*k.b, (k.a*k.b)/2, (k.a*k.b)/4, (k.a+k.b)*2, k.v*2, k.v/2].map(x=>fmtNum(Math.round(x*100)/100));
+  const distractors = [...new Set(cand)].filter(x=>x!==correct).slice(0,3);
+  const {opts,correctIdx} = buildMC(correct, distractors);
+  const sinTxt = {30:"1/2",90:"1",45:"√2/2",120:"√3/2",150:"1/2"}[k.C];
+  const eq = Math.abs(val - Math.round(val)) < 1e-9 ? "=" : "≈";
+  return {
+    topic:{ru:"Площадь треугольника по двум сторонам и углу",ua:"Площа трикутника за двома сторонами й кутом"},
+    format:{ru:"десятичная дробь, округлите до 0.01",ua:"десятковий дріб, округліть до 0.01"},
+    question:{ru:`В треугольнике стороны a = ${k.a}, b = ${k.b}, угол между ними C = ${k.C}°. Найдите площадь (округлите до 0.01).`,ua:`У трикутнику сторони a = ${k.a}, b = ${k.b}, кут між ними C = ${k.C}°. Знайдіть площу (округліть до 0.01).`},
+    hint:{ru:"Площадь через две стороны и угол: S = ½·a·b·sin C.",ua:"Площа через дві сторони й кут: S = ½·a·b·sin C."},
+    solution:{
+      ru:`sin ${k.C}° = ${sinTxt}. Тогда S = ½·a·b·sin C = ½·${k.a}·${k.b}·(${sinTxt}) ${eq} ${correct}.`,
+      ua:`sin ${k.C}° = ${sinTxt}. Тоді S = ½·a·b·sin C = ½·${k.a}·${k.b}·(${sinTxt}) ${eq} ${correct}.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+
 /* ============================================================
    МОДУЛЬ 6: комбинаторика, вероятности, статистика
    Генераторы возвращают topic / format / solution —
@@ -14474,6 +14700,9 @@ const LEVEL_DEFS = [
       { id:"midline", module:5, title:{ru:"Средняя линия треугольника",ua:"Середня лінія трикутника"}, desc:{ru:"Соединяет середины двух сторон",ua:"Сполучає середини двох сторін"}, generate: genMidlineMC },
       { id:"regularPolygon", module:5, title:{ru:"Правильные многоугольники",ua:"Правильні многокутники"}, desc:{ru:"Внутренние углы и центральный угол",ua:"Внутрішні кути та центральний кут"}, generate: genRegularPolygonMC },
       { id:"sphereSurface", module:5, title:{ru:"Площадь сферы",ua:"Площа сфери"}, desc:{ru:"S=4πR²",ua:"S=4πR²"}, generate: genSphereSurfaceMC }
+      ,{ id:"vectorsDot", module:5, title:{ru:"Скалярное произведение векторов",ua:"Скалярний добуток векторів"}, desc:{ru:"a·b = x₁x₂ + y₁y₂",ua:"a·b = x₁x₂ + y₁y₂"}, generate: genVectorsDotMC }
+      ,{ id:"lawOfCosines", module:5, title:{ru:"Теорема косинусов",ua:"Теорема косинусів"}, desc:{ru:"Сторона по двум сторонам и углу",ua:"Сторона за двома сторонами й кутом"}, generate: genLawOfCosinesMC }
+      ,{ id:"inscribedAngle", module:5, title:{ru:"Вписанный угол",ua:"Вписаний кут"}, desc:{ru:"Половина центрального угла",ua:"Половина центрального кута"}, generate: genInscribedAngleMC }
       ,{ id:"c6Product", module:6, title:{ru:"Правило умножения",ua:"Правило множення"}, desc:{ru:"Последовательные обязательные выборы",ua:"Послідовні обов'язкові вибори"}, generate: genC6ProductRuleShort }
       ,{ id:"c6Sum", module:6, title:{ru:"Правило сложения",ua:"Правило додавання"}, desc:{ru:"Непересекающиеся группы вариантов",ua:"Неперетинні групи варіантів"}, generate: genC6SumRuleShort }
       ,{ id:"c6ProbSingle", module:6, title:{ru:"Классическая вероятность",ua:"Класична ймовірність"}, desc:{ru:"P = благоприятных / всех",ua:"P = сприятливих / усіх"}, generate: genC6ProbSingleShort }
@@ -14498,6 +14727,9 @@ const LEVEL_DEFS = [
       { id:"areaCubic", module:4, title:{ru:"Площадь под параболой",ua:"Площа під параболою"}, desc:{ru:"S=∫f(x)dx на [0;b]",ua:"S=∫f(x)dx на [0;b]"}, generate: genAreaUnderCubicShort },
       { id:"pyramidVolume", module:5, title:{ru:"Объём пирамиды",ua:"Об'єм піраміди"}, desc:{ru:"V=⅓Sосн·h",ua:"V=⅓Sосн·h"}, generate: genPyramidVolumeShort },
       { id:"coneSurface", module:5, title:{ru:"Площадь поверхности конуса",ua:"Площа поверхні конуса"}, desc:{ru:"l=√(R²+h²), Sполн=πR(R+l)",ua:"l=√(R²+h²), Sповн=πR(R+l)"}, generate: genConeSurfaceShort }
+      ,{ id:"vectorsAngle", module:5, title:{ru:"Угол между векторами",ua:"Кут між векторами"}, desc:{ru:"cos ∠ через скалярное произведение",ua:"cos ∠ через скалярний добуток"}, generate: genVectorsAngleMC }
+      ,{ id:"lawOfSines", module:5, title:{ru:"Теорема синусов",ua:"Теорема синусів"}, desc:{ru:"a/sin A = 2R",ua:"a/sin A = 2R"}, generate: genLawOfSinesMC }
+      ,{ id:"circleRadii", module:5, title:{ru:"Радиусы вписанной и описанной окружностей",ua:"Радіуси вписаного й описаного кіл"}, desc:{ru:"r = (a+b−c)/2, R = c/2",ua:"r = (a+b−c)/2, R = c/2"}, generate: genCircleRadiiMC }
       ,{ id:"c6Permutation", module:6, title:{ru:"Перестановки и факториал",ua:"Розстановки та факторіал"}, desc:{ru:"n! — все элементы, порядок важен",ua:"n! — усі елементи, порядок важливий"}, generate: genC6PermutationShort }
       ,{ id:"c6Combination", module:6, title:{ru:"Сочетания",ua:"Сполучення"}, desc:{ru:"Порядок не важен",ua:"Порядок неважливий"}, generate: genC6CombinationShort }
       ,{ id:"c6Urn", module:6, title:{ru:"Вероятность в урне",ua:"Ймовірність в урні"}, desc:{ru:"Шары без возврата",ua:"Кульки без повернення"}, generate: genC6ProbUrnaShort }
@@ -14523,6 +14755,8 @@ const LEVEL_DEFS = [
       { id:"absArea", module:4, title:{ru:"Площадь с модулем",ua:"Площа з модулем"}, desc:{ru:"Фигура пересекает ось Ox",ua:"Фігура перетинає вісь Ox"}, generate: genAbsAreaHigh },
       { id:"coneVolIntegral", module:5, title:{ru:"Объём конуса через интеграл",ua:"Об'єм конуса через інтеграл"}, desc:{ru:"Метод дисков",ua:"Метод дисків"}, generate: genConeVolumeIntegralShort },
       { id:"cubeSection", module:5, title:{ru:"Площадь сечения куба",ua:"Площа перерізу куба"}, desc:{ru:"Равносторонний треугольник у вершины",ua:"Рівносторонній трикутник біля вершини"}, generate: genCubeSectionAreaShort }
+      ,{ id:"vectorsCross", module:5, title:{ru:"Площадь через векторное произведение",ua:"Площа через векторний добуток"}, desc:{ru:"S = |x₁y₂ − x₂y₁|",ua:"S = |x₁y₂ − x₂y₁|"}, generate: genVectorsCrossMC }
+      ,{ id:"areaFigures", module:5, title:{ru:"Площадь по двум сторонам и углу",ua:"Площа за двома сторонами й кутом"}, desc:{ru:"S = ½·a·b·sin C",ua:"S = ½·a·b·sin C"}, generate: genAreaFiguresHigh }
       ,{ id:"c6Arrangement", module:6, title:{ru:"Размещения",ua:"Розміщення"}, desc:{ru:"A(n; k) — порядок важен",ua:"A(n; k) — порядок важливий"}, generate: genC6ArrangementShort }
       ,{ id:"c6Subsets", module:6, title:{ru:"Число подмножеств",ua:"Кількість підмножин"}, desc:{ru:"2ⁿ через биномиальную формулу",ua:"2ⁿ через біноміальну формулу"}, generate: genC6SubsetsShort }
       ,{ id:"c6Conditional", module:6, title:{ru:"Условная вероятность",ua:"Умовна ймовірність"}, desc:{ru:"Знаменатель ограничен условием",ua:"Знаменник обмежено умовою"}, generate: genC6ProbConditionalShort }
@@ -14736,6 +14970,8 @@ const LESSON_HINTS = {
   stereo4:{ru:"Соединяй только точки, которые лежат в одной грани — иначе линия пройдёт сквозь тело, а не по его поверхности.",ua:"З'єднуй лише точки, що лежать в одній грані — інакше лінія пройде крізь тіло, а не по його поверхні."},
   stereo5:{ru:"Всё, что ты знаешь о векторах на плоскости, просто добавляет третью координату — ничего принципиально нового.",ua:"Усе, що ти знаєш про вектори на площині, просто додає третю координату — нічого принципово нового."},
   geo1:{ru:"Прежде чем решать задачу, всегда сначала определи тип треугольника — это часто подсказывает метод решения.",ua:"Перш ніж розв'язувати задачу, завжди спочатку визнач тип трикутника — це часто підказує метод розв'язання."},
+  geoTriangles:{ru:"Держи под рукой три опоры: медиана к гипотенузе равна её половине, средняя линия — половине третьей стороны, а все медианы делятся точкой пересечения в отношении 2:1, считая от вершины.",ua:"Тримай напохваті три опори: медіана до гіпотенузи дорівнює її половині, середня лінія — половині третьої сторони, а всі медіани діляться точкою перетину у відношенні 2:1, рахуючи від вершини."},
+  geoPolygons:{ru:"Не путай два угла: центральный = 360°/n, внутренний = 180° − 360°/n. А в правильном шестиугольнике сторона равна радиусу описанной окружности — это самый быстрый путь к ответу.",ua:"Не плутай два кути: центральний = 360°/n, внутрішній = 180° − 360°/n. А в правильному шестикутнику сторона дорівнює радіусу описаного кола — це найшвидший шлях до відповіді."},
   geo2:{ru:"Прямоугольник и ромб — это не отдельные фигуры, а параллелограммы с одним дополнительным условием. Запомни это, и свойства перестанут путаться.",ua:"Прямокутник і ромб — це не окремі фігури, а паралелограми з однією додатковою умовою. Запам'ятай це, і властивості перестануть плутатися."},
   geo3:{ru:"Двигай точку C по дуге — угол ACB не меняется, пока C остаётся на той же дуге. Это и есть теорема о вписанном угле в действии.",ua:"Рухай точку C по дузі — кут ACB не змінюється, поки C залишається на тій самій дузі. Це і є теорема про вписаний кут у дії."},
   geoSimilarity:{ru:"Сначала ищи равные углы — где углы равны, там подобие. И помни: площадь меняется как k², а не как k.",ua:"Спочатку шукай рівні кути — де кути рівні, там подібність. І пам'ятай: площа змінюється як k², а не як k."},
