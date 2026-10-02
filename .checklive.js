@@ -23,6 +23,14 @@ function get(url){
     "geoCircles hint":    page.body.indexOf("geoCircles:{ru:") > 0,
     "roadmap id":         /"geoCircles",/.test(page.body),
     "stale soon-entry":   page.body.indexOf('soon:true, t:{ru:"Вписанная и описанная') < 0,
+    "geoCurved lesson":   page.body.indexOf('id: "geoCurved"') > 0,
+    "geoCurved hint":     page.body.indexOf("geoCurved:{ru:") > 0,
+    "geoCurved roadmap":  /"geoCircles","geoCurved"/.test(page.body),
+    "no stale geoCurved": page.body.indexOf('soon:true, t:{ru:"Площади криволинейных фигур"') < 0,
+    "geoRose lesson":     page.body.indexOf('id: "geoRose"') > 0,
+    "geoRose hint":       page.body.indexOf("geoRose:{ru:") > 0,
+    "geoRose roadmap":    /"geoCurved","geoRose"/.test(page.body),
+    "no stale geoRose":   page.body.indexOf('soon:true, t:{ru:"Полярные кривые. Роза"') < 0,
     "geoSineCos lesson":  page.body.indexOf('id: "geoSineCos"') > 0,
     "geoVectorTasks":     page.body.indexOf('id: "geoVectorTasks"') > 0
   };

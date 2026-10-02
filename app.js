@@ -150,6 +150,18 @@ const MASCOT_PHRASES = {
   hint:{
     ru:["Совет: выписывай формулу перед тем, как решать пример.","Подсказка: сверяйся с таблицей значений — она всегда под рукой.","Лайфхак: в тренажёре можно тренироваться сколько угодно раз.","Ты уже на верном пути — не торопись, читай внимательно условие.","Помни: единичная окружность — твой друг в тригонометрии."],
     ua:["Порада: випиши формулу перед тим, як розв'язувати приклад.","Підказка: звіряйся з таблицею значень — вона завжди під рукою.","Лайфхак: у тренажері можна тренуватись скільки завгодно разів.","Ти вже на правильному шляху — не поспішай, уважно читай умову.","Пам'ятай: одиничне коло — твій друг у тригонометрії."]
+  },
+  quizStart:{
+    ru:["Квест завершён! Ты получил новый опыт, а Квантик уже зарядил следующий уровень. Каждый ответ приближает к рекорду!"],
+    ua:["Квест завершено! Ти здобув новий досвід, а Квантик уже зарядив наступний рівень. Кожна відповідь наближає до рекорду!"]
+  },
+  quizBoost:{
+    ru:["Отличный раунд! Твой навык набирает скорость, а серия достижений растёт. Ещё один квест — и новый рекорд близко!"],
+    ua:["Чудовий раунд! Твоя майстерність набирає швидкість, а серія досягнень зростає. Ще один квест — і новий рекорд близько!"]
+  },
+  quizLegend:{
+    ru:["Легендарный раунд! Квантик вручает значок «Мастер формул». Твой счёт достоин таблицы рекордов!"],
+    ua:["Легендарний раунд! Квантик вручає значок «Майстер формул». Твій результат гідний таблиці рекордів!"]
   }
 };
 const LESSON_HINTS = {
@@ -190,7 +202,18 @@ const LESSON_HINTS = {
   geoVectors:{ru:"Векторы складывают покоординатно, а длины — только по теореме косинусов. Перпендикулярность проверяй через скалярное произведение: если a⃗ · b⃗ = 0, они перпендикулярны.",ua:"Вектори додають покоординатно, а довжини — лише за теоремою косинусів. Перпендикулярність перевіряй через скалярний добуток: якщо a⃗ · b⃗ = 0, вони перпендикулярні."},
   geoVectorTasks:{ru:"Дайте векторам имена: AB = b − a, а сторона BC — это разность AC − AB. Площадь треугольника всегда ½·|a₁b₂ − a₂b₁|, а центр тяжести делит медиану в отношении 2 : 1 от вершины.",ua:"Дайте векторам імена: AB = b − a, а сторона BC — це різниця AC − AB. Площа трикутника завжди ½·|a₁b₂ − a₂b₁|, а центр тяжіння ділить медіану у відношенні 2 : 1 від вершини."},
   geoSineCos:{ru:"Сначала посмотрите, что дано: две стороны и угол между ними — работает теорема косинусов, а угол напротив известной стороны — теорема синусов. И всегда проверяйте, не нашлось ли второго решения.",ua:"Спершу подивіться, що дано: дві сторони та кут між ними — працює теорема косинусів, а кут навпроти відомої сторони — теорема синусів. І завжди перевіряйте, чи не знайшлося другого розв'язку."},
-  geoCircles:{ru:"Сначала найдите площадь: и r = S/s, и R = a·b·c/(4S) без неё не работают. А если треугольник прямоугольный — вообще не считайте площадь: R = c/2 и r = (a + b − c)/2.",ua:"Спершу знайдіть площу: і r = S/s, і R = a·b·c/(4S) без неї не працюють. А якщо трикутник прямокутний — взагалі не рахуйте площу: R = c/2 і r = (a + b − c)/2."}
+  geoCircles:{ru:"Сначала найдите площадь: и r = S/s, и R = a·b·c/(4S) без неё не работают. А если треугольник прямоугольный — вообще не считайте площадь: R = c/2 и r = (a + b − c)/2.",ua:"Спершу знайдіть площу: і r = S/s, і R = a·b·c/(4S) без неї не працюють. А якщо трикутник прямокутний — взагалі не рахуйте площу: R = c/2 і r = (a + b − c)/2."},
+  geoCurved:{ru:"Переводите угол в радианы до подстановки — формула S = ½·R²·(α − sin α) требует именно их. И если угол больше 180°, считайте меньший сегмент и вычитайте его из πR²: sin α там уже отрицательный.",ua:"Переводьте кут у радіани до підстановки — формула S = ½·R²·(α − sin α) потребує саме їх. І якщо кут більший за 180°, рахуйте менший сегмент і віднімайте його від πR²: sin α там уже від'ємний."},
+  geoRose:{ru:"Число лепестков не равно k: при чётном k их 2k, при нечётном — k. А чтобы нарисовать розу, угол φ нужно провести на полном обороте от 0 до 360° — на половине оборота вы увидите только половину розы.",ua:"Кількість пелюстків не дорівнює k: за парного k їх 2k, за непарного — k. А щоб намалювати троянду, кут φ треба провести на повному оберті від 0 до 360° — на половині оберту ви побачите тільки половину троянди."},
+  geoAxiom:{ru:"Аксиомы не доказывают — их принимают. Любая задача на существование точки в пространстве решается именно через них, поэтому стоит помнить их буквально.",ua:"Аксіоми не доводять — їх приймають. Будь-яка задача на існування точки в просторі розв'язується саме через них, тому варто пам'ятати їх буквально."},
+  geoPerp:{ru:"Если прямая перпендикулярна двум пересекающимся прямым плоскости, она перпендикулярна всей плоскости. Проверяй всегда: пересекаются ли эти две прямые в одной точке.",ua:"Якщо пряма перпендикулярна двом прямым, що перетинаються, вона перпендикулярна всій площині. Перевіряй завжди: чи перетинаються ці дві прямі в одній точці."},
+  geoPrism:{ru:"Пирамида всегда ровно треть от призмы с той же основой и высотой — и наклонная боковая грань здесь ни при чём, объём зависит только от основания и высоты.",ua:"Піраміда завжди рівно третина від призми з тією самою основою і висотою — і похила бічна грань тут ні до чого, об'єм залежить лише від основи та висоти."},
+  geoRevolve:{ru:"Все линейные размеры при подобии умножаются на k, площади — на k², объёмы — на k³. Это самая частая проверка в задачах на тела вращения.",ua:"Усі лінійні розміри при подібності множаться на k, площі — на k², об'єми — на k³. Це найчастіша перевірка в задачах на тіла обертання."},
+  comb1:{ru:"Сначала спроси: выборы идут последовательно или это две независимые группы? Последовательно — умножаем, группы — складываем.",ua:"Спершу спитай: вибори йдуть послідовно чи це дві незалежні групи? Послідовно — множимо, групи — додаємо."},
+  comb2:{ru:"Один вопрос решает всё: важен ли порядок. Порядок важен — размещение, не важен — сочетание. При k больше половины n меняй k на n − k.",ua:"Одне запитання вирішує все: чи важливий порядок. Порядок важливий — розміщення, неважливий — сполучення. При k більше за половину n замінюй k на n − k."},
+  prob1:{ru:"Перед делением всегда спроси, равновероятны ли исходы. Сумма 7 на двух кубиках — это 6 пар из 36, а не 1 из 11.",ua:"Перед діленням завжди спитай, чи рівноймовірні результати. Сума 7 на двох кубиках — це 6 пар із 36, а не 1 з 11."},
+  prob2:{ru:"Условие меняет знаменатель, а не числитель-«счастье». Вытянута пиковая карта оставляет 9 исходов из 36 — поэтому туз становится 4/9.",ua:"Умова змінює знаменник, а не чисельник. Витягнута пікова карта залишає 9 результатів із 36 — тому туз стає 4/9."},
+  stat1:{ru:"Всегда смотри среднее вместе с медианой: если они сильно расходятся, в данных есть выброс, и среднее уже никого ни о чём не говорит.",ua:"Завжди дивись на середнє разом із медіаною: якщо вони сильно розходзяться, у даних є викид, і середнє вже нікого ні про що не говорить."}
 };
 let mascotHideTimer = null;
 let mascotKbInset = 0;
@@ -674,8 +697,44 @@ function renderTrainerRun(){
     if(ok) state.trainerScore.correct++;
     const slot = main.querySelector("#feedback-slot");
     slot.innerHTML = `<div class="feedback ${ok?'correct':'wrong'}">${ok ? L.trainerCorrect : L.trainerWrongPrefix+correctLabel}</div>`;
+    renderTaskMeta();
     main.querySelector(".trainer-score").textContent = L.trainerScore.replace("{c}",state.trainerScore.correct).replace("{t}",state.trainerScore.total);
     mascotSay(ok?"correct":"wrong");
+  }
+
+  /* Разбор задания после проверки: тема, формат ответа, верный ответ, решение. */
+  function renderTaskMeta(){
+    const slot = main.querySelector("#feedback-slot");
+    if(!slot) return;
+    const cur = trainerCurrent || {};
+    const rows = [];
+    if(cur.topic) rows.push([L.trainerMetaTopic, cur.topic[state.lang]]);
+    if(cur.format) rows.push([L.trainerMetaFormat, cur.format[state.lang]]);
+    const answer = isMC && cur.options ? cur.options[state.lang][cur.correct]
+                : (typeof cur.correctLabel === "string" ? cur.correctLabel : "");
+    if(answer) rows.push([L.trainerMetaAnswer, answer]);
+    if(cur.solution) rows.push([L.trainerMetaSolution, cur.solution[state.lang]]);
+    if(!rows.length) return;
+    const box = document.createElement("div");
+    box.className = "task-meta";
+    const title = document.createElement("div");
+    title.className = "task-meta-title";
+    title.textContent = L.trainerMetaTitle;
+    box.appendChild(title);
+    rows.forEach(([k, v])=>{
+      const row = document.createElement("div");
+      row.className = "task-meta-row";
+      const key = document.createElement("span");
+      key.className = "task-meta-key";
+      key.textContent = k;
+      const val = document.createElement("span");
+      val.className = "task-meta-val";
+      val.textContent = v;
+      row.appendChild(key);
+      row.appendChild(val);
+      box.appendChild(row);
+    });
+    slot.appendChild(box);
   }
 
   if(isMC){
@@ -725,10 +784,19 @@ function buildModuleTest(moduleId){
   const items = [];
   LEVEL_DEFS.forEach(level=>{
     level.topics.filter(topic=>topic.module===moduleId).forEach(topic=>{
-      items.push({level: level.id, q: topic.generate()});
+      items.push({level: level.id, topicId: topic.id, topicTitle: topic.title, q: topic.generate()});
     });
   });
   return items;
+}
+
+function calculateQuizRating(correct, total){
+  const questionCount = Math.max(0, Math.trunc(Number(total) || 0));
+  const correctCount = Math.min(questionCount, Math.max(0, Math.trunc(Number(correct) || 0)));
+  const points = questionCount ? Math.round(correctCount / questionCount * 100) : 0;
+  const rating = Math.round(points / 20 * 10) / 10;
+  const tier = points < 50 ? "quizStart" : points < 80 ? "quizBoost" : "quizLegend";
+  return {correct:correctCount, total:questionCount, points, rating, tier};
 }
 
 function renderModuleTest(){
@@ -802,6 +870,7 @@ function renderModuleTest(){
     clearInterval(testTimerId);
     testTimerId = null;
     const scoreByLevel = {base:{c:0,t:0}, medium:{c:0,t:0}, high:{c:0,t:0}};
+    const reviewTopics = new Map();
     main.querySelectorAll(".test-q").forEach(qEl=>{
       const idx = +qEl.dataset.idx;
       const item = currentTest[idx];
@@ -824,22 +893,55 @@ function renderModuleTest(){
         fbEl.textContent = ok ? L.trainerCorrect : L.trainerWrongPrefix + item.q.correctLabel;
       }
       if(ok) scoreByLevel[item.level].c++;
+      else reviewTopics.set(`${item.level}:${item.topicId}`, {level:item.level, id:item.topicId, title:item.topicTitle});
       qEl.classList.add(ok ? "test-q-correct" : "test-q-wrong");
     });
     const total = {
       c: scoreByLevel.base.c + scoreByLevel.medium.c + scoreByLevel.high.c,
       t: scoreByLevel.base.t + scoreByLevel.medium.t + scoreByLevel.high.t
     };
+    const rating = calculateQuizRating(total.c, total.t);
     main.querySelector("#test-summary").innerHTML = `
       <div class="test-summary-box">
         ${timedOut ? `<div class="test-summary-row">${L.timeUp}</div>` : ""}
         <div class="test-summary-total">${L.testResult}: ${total.c} / ${total.t}</div>
+        <div class="test-summary-row">${L.testRating}: ${rating.rating.toFixed(1)} / 5 · ${rating.points} XP</div>
         <div class="test-summary-row">${LEVEL_DEFS[0].title[state.lang]}: ${scoreByLevel.base.c}/${scoreByLevel.base.t}</div>
         <div class="test-summary-row">${LEVEL_DEFS[1].title[state.lang]}: ${scoreByLevel.medium.c}/${scoreByLevel.medium.t}</div>
         <div class="test-summary-row">${LEVEL_DEFS[2].title[state.lang]}: ${scoreByLevel.high.c}/${scoreByLevel.high.t}</div>
+        <div class="test-review-topics" id="test-review-topics"></div>
       </div>`;
+    const review = main.querySelector("#test-review-topics");
+    if(reviewTopics.size){
+      const heading = document.createElement("div");
+      heading.className = "test-review-title";
+      heading.textContent = L.testReviewTitle;
+      review.appendChild(heading);
+      const list = document.createElement("div");
+      list.className = "test-review-list";
+      reviewTopics.forEach(topic=>{
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn secondary test-review-topic";
+        button.textContent = L.testReviewPractice.replace("{topic}", topic.title[state.lang]);
+        button.addEventListener("click", ()=>{
+          state.mode = "trainer";
+          state.trainerLevel = topic.level;
+          state.trainerTopic = topic.id;
+          state.trainerScore = {correct:0,total:0};
+          trainerCurrent = null;
+          render();
+        });
+        list.appendChild(button);
+      });
+      review.appendChild(list);
+    } else {
+      review.classList.add("test-review-complete");
+      review.textContent = L.testReviewAllDone;
+    }
     main.querySelector("#test-submit-btn").style.display = "none";
     main.querySelector("#test-restart-btn").style.display = "inline-block";
+    mascotSay(rating.tier, `${rating.points} XP · ${rating.rating.toFixed(1)}/5`);
   }
   main.querySelector("#test-submit-btn").addEventListener("click", ()=>submitTest(false));
   updateTestTimer();

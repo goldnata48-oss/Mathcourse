@@ -588,6 +588,38 @@
   }
   .feedback.correct{background:var(--success-soft);color:var(--success);}
   .feedback.wrong{background:var(--error-soft);color:var(--error);}
+  .task-meta{
+    margin-top:12px;
+    padding:12px 14px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--surface);
+    font-size:13.5px;
+    line-height:1.5;
+  }
+  .task-meta-title{
+    font-weight:700;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .task-meta-row{display:flex;gap:10px;padding:3px 0;align-items:flex-start;}
+  .task-meta-key{
+    flex:0 0 auto;
+    min-width:120px;
+    color:var(--ink-soft);
+    font-weight:600;
+  }
+  .task-meta-val{flex:1 1 auto;min-width:0;}
+  .task-meta-row:last-child .task-meta-val{
+    font-family:var(--mono);
+  }
+  @media (max-width:520px){
+    .task-meta-row{flex-direction:column;gap:2px;}
+    .task-meta-key{min-width:0;}
+  }
   .back-link{
     display:inline-block;
     margin-bottom:16px;
@@ -720,6 +752,11 @@
   }
   .test-summary-total{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--ink);margin-bottom:8px;}
   .test-summary-row{font-size:13.5px;color:var(--ink-soft);font-family:var(--mono);}
+  .test-review-topics{margin-top:14px;}
+  .test-review-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+  .test-review-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .test-review-topic{max-width:100%;text-align:left;}
+  .test-review-complete{font-size:14px;font-weight:600;color:var(--success);}
   .test-timer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 18px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--accent-soft);color:var(--ink-soft);font-family:var(--mono);font-size:13px;}
   .test-timer-value{font-weight:700;color:var(--accent);}
   .test-timer.warning .test-timer-value{color:var(--error);}

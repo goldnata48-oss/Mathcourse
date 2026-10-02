@@ -734,6 +734,386 @@ function genCubeSectionAreaShort(){
   };
 }
 
+/* ============================================================
+   МОДУЛЬ 6: комбинаторика, вероятности, статистика
+   Генераторы возвращают topic / format / solution —
+   они показываются в разборе после проверки ответа.
+   ============================================================ */
+function c6fact(n){ let r = 1; for(let i = 2; i <= n; i++) r *= i; return r; }
+function c6C(n, k){ if(k < 0 || k > n) return 0; return c6fact(n) / (c6fact(k) * c6fact(n - k)); }
+function c6A(n, k){ if(k < 0 || k > n) return 0; let r = 1; for(let i = 0; i < k; i++) r *= (n - i); return r; }
+function c6gcd(a, b){ a = Math.abs(a); b = Math.abs(b); while(b){ const t = b; b = a % b; a = t; } return a || 1; }
+function c6frac(n, d){ const g = c6gcd(n, d); const a = n / g, b = d / g; return b === 1 ? String(a) : a + "/" + b; }
+/* число пар (a,b) из 1..n с суммой s */
+function c6fav(n, s){ let c = 0; for(let a = 1; a <= n; a++){ const b = s - a; if(b >= 1 && b <= n) c++; } return c; }
+
+/* ---------- Базовый уровень ---------- */
+function genC6ProductRuleShort(){
+  const m = rnd([3,4,5,6,7,8]);
+  const n = rnd([2,3,4,5,6,7]);
+  const answer = m * n;
+  return {
+    topic:{ru:"Правило умножения", ua:"Правило множення"},
+    format:{ru:"целое число", ua:"ціле число"},
+    question:{
+      ru:`Первый выбор можно сделать ${m} способами, второй — ${n} способами, причём оба выбора обязательны. Сколько всего вариантов?`,
+      ua:`Перший вибір можна зробити ${m} способами, другий — ${n} способами, причому обидва вибори обов'язкові. Скільки всього варіантів?`
+    },
+    hint:{ru:"Выборы идут последовательно — значит, варианты перемножаются.", ua:"Вибори йдуть послідовно — отже, варіанти множаться."},
+    solution:{
+      ru:`Оба этапа обязательны, поэтому по правилу умножения: ${m} · ${n} = ${answer}. Складывать нельзя: варианты не разбиты на непересекающиеся группы, а образуют произведение.`,
+      ua:`Обидва етапи обов'язкові, отже за правилом множення: ${m} · ${n} = ${answer}. Додавати не можна: варіанти не розбиті на неперетинні групи, а утворюють добуток.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && v === answer; }
+  };
+}
+function genC6SumRuleShort(){
+  const a = rnd([4,5,6,7,8,9]);
+  const b = rnd([3,4,5,6,7,8]);
+  const answer = a + b;
+  return {
+    topic:{ru:"Правило сложения", ua:"Правило додавання"},
+    format:{ru:"целое число", ua:"ціле число"},
+    question:{
+      ru:`Две непересекающиеся группы содержат ${a} и ${b} вариантов. Сколько вариантов в объединении?`,
+      ua:`Дві неперетинні групи містять ${a} і ${b} варіантів. Скільки варіантів в об'єднанні?`
+    },
+    hint:{ru:"Непересекающиеся группы складываются.", ua:"Неперетинні групи додаються."},
+    solution:{
+      ru:`Группы не пересекаются, ни один вариант не попал в две группы сразу, поэтому по правилу сложения: ${a} + ${b} = ${answer}. Если бы группы пересекались, часть вариантов была бы посчитана дважды.`,
+      ua:`Групи не перетинаються, жоден варіант не потрапив у дві групи одразу, отже за правилом додавання: ${a} + ${b} = ${answer}. Якби групи перетиналися, частину варіантів було б пораховано двічі.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && v === answer; }
+  };
+}
+function genC6ProbSingleShort(){
+  const n = rnd([6,8,10,12,20]);
+  const m = rnd([1,2,3,4,5].filter(x => x < n));
+  const answer = m / n;
+  return {
+    topic:{ru:"Классическая вероятность", ua:"Класична ймовірність"},
+    format:{ru:"десятичная дробь, округлите до 0.001", ua:"десятковий дріб, округліть до 0.001"},
+    question:{
+      ru:`Все ${n} исходов равновероятны, благоприятных ${m}. Найдите вероятность (округлите до 0.001).`,
+      ua:`Усі ${n} результатів рівноймовірні, сприятливих ${m}. Знайдіть ймовірність (округліть до 0.001).`
+    },
+    hint:{ru:"P = m / n — отношение благоприятных исходов к числу всех.", ua:"P = m / n — відношення сприятливих результатів до кількості всіх."},
+    solution:{
+      ru:`Так как исходы равновероятны, деление законно: P = ${m}/${n} = ${c6frac(m, n)} ≈ ${fmtNum(Math.round(answer * 1000) / 1000)}. Проверка: 0 ≤ ${fmtNum(answer)} ≤ 1.`,
+      ua:`Оскільки результати рівноймовірні, ділення законне: P = ${m}/${n} = ${c6frac(m, n)} ≈ ${fmtNum(Math.round(answer * 1000) / 1000)}. Перевірка: 0 ≤ ${fmtNum(answer)} ≤ 1.`
+    },
+    expected:Math.round(answer * 1000) / 1000, correctLabel:fmtNum(Math.round(answer * 1000) / 1000),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && near(v, answer, 0.0015); }
+  };
+}
+function genC6ProbComplementMC(){
+  const p = rnd([0.2,0.25,0.3,0.4,0.5,0.6,0.75]);
+  const correct = Math.round((1 - p) * 100) / 100;
+  const r2 = x => fmtNum(Math.round(x * 100) / 100);
+  const correctText = r2(correct);
+  const candidates = [r2(p), r2(p * 2), r2(1 + p), r2(correct / 2), r2(p * p), r2(1 - p / 2)];
+  const distractors = [...new Set(candidates)].filter(v => v !== correctText).slice(0, 3);
+  const {opts,correctIdx} = buildMC(correctText, distractors);
+  return {
+    topic:{ru:"Свойства вероятности", ua:"Властивості ймовірності"},
+    format:{ru:"выбор одного ответа", ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Известно, что P(A) = ${fmtNum(p)}. Чему равна P(Ā)?`,
+      ua:`Відомо, що P(A) = ${fmtNum(p)}. Чому дорівнює P(Ā)?`
+    },
+    hint:{ru:"Событие и его противоположность вместе дают полную группу, то есть 1.", ua:"Подія та її протилежність разом дають повну групу, тобто 1."},
+    solution:{
+      ru:`По свойству противоположного события: P(Ā) = 1 − P(A) = 1 − ${fmtNum(p)} = ${fmtNum(correct)}. Сумма P(A) + P(Ā) = ${fmtNum(p)} + ${fmtNum(correct)} = 1 ✓`,
+      ua:`За властивістю протилежної події: P(Ā) = 1 − P(A) = 1 − ${fmtNum(p)} = ${fmtNum(correct)}. Сума P(A) + P(Ā) = ${fmtNum(p)} + ${fmtNum(correct)} = 1 ✓`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genC6StatMeanShort(){
+  const n = rnd([4,5,6]);
+  const base = rnd([3,4,5,6]);
+  const data = [];
+  for(let i = 0; i < n; i++) data.push(base + rnd([0,1,2,3]));
+  const sum = data.reduce((p, c) => p + c, 0);
+  const answer = sum / n;
+  return {
+    topic:{ru:"Среднее арифметическое", ua:"Середнє арифметичне"},
+    format:{ru:"десятичная дробь, округлите до 0.001", ua:"десятковий дріб, округліть до 0.001"},
+    question:{
+      ru:`Данные: ${data.join(", ")}. Найдите среднее арифметическое (округлите до 0.001).`,
+      ua:`Дані: ${data.join(", ")}. Знайдіть середнє арифметичне (округліть до 0.001).`
+    },
+    hint:{ru:"Сумма значений, делённая на их количество.", ua:"Сума значень, поділена на їхню кількість."},
+    solution:{
+      ru:`Сумма данных: ${data.join(" + ")} = ${sum}. Количество: ${n}. Значит x̄ = ${sum}/${n} = ${fmtNum(Math.round(answer * 1000) / 1000)}.`,
+      ua:`Сума даних: ${data.join(" + ")} = ${sum}. Кількість: ${n}. Отже x̄ = ${sum}/${n} = ${fmtNum(Math.round(answer * 1000) / 1000)}.`
+    },
+    expected:Math.round(answer * 1000) / 1000, correctLabel:fmtNum(Math.round(answer * 1000) / 1000),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && near(v, answer, 0.0015); }
+  };
+}
+
+/* ---------- Средний уровень ---------- */
+function genC6PermutationShort(){
+  const n = rnd([4,5,6,7]);
+  const answer = c6fact(n);
+  const prod = [];
+  for(let i = 2; i <= n; i++) prod.push(String(i));
+  return {
+    topic:{ru:"Перестановки и факториал", ua:"Розстановки та факторіал"},
+    format:{ru:"целое число", ua:"ціле число"},
+    question:{
+      ru:`Сколькими способами можно расположить ${n} различных предметов в ряд?`,
+      ua:`Скількома способами можна розташувати ${n} різних предметів у ряд?`
+    },
+    hint:{ru:"n! = 1 · 2 · … · n. Взять все элементы — частный случай размещения.", ua:"n! = 1 · 2 · … · n. Взяти всі елементи — частинний випадок розміщення."},
+    solution:{
+      ru:`Все ${n} элементов, порядок важен → перестановка P(${n}) = ${n}! = ${prod.join(" · ")} = <b>${answer}</b>. Проверка вручную: на первое место ${n} вариантов, на второе ${n - 1} и так далее.`,
+      ua:`Усі ${n} елементів, порядок важливий → розстановка P(${n}) = ${n}! = ${prod.join(" · ")} = <b>${answer}</b>. Перевірка вручну: на перше місце ${n} варіантів, на друге ${n - 1} і так далі.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && v === answer; }
+  };
+}
+function genC6CombinationShort(){
+  const n = rnd([6,7,8,9,10]);
+  const k = rnd([2,3,3,4].filter(x => x <= n - 2));
+  const answer = c6C(n, k);
+  const kk = Math.min(k, n - k);
+  const num = [];
+  for(let i = 0; i < kk; i++) num.push(String(n - i));
+  const den = [];
+  for(let i = 2; i <= kk; i++) den.push(String(i));
+  return {
+    topic:{ru:"Сочетания", ua:"Сполучення"},
+    format:{ru:"целое число", ua:"ціле число"},
+    question:{
+      ru:`Из ${n} человек нужно выбрать комиссию из ${k} человек. Порядок не важен. Сколько способов?`,
+      ua:`Із ${n} людей потрібно обрати комісію з ${k} осіб. Порядок неважливий. Скільки способів?`
+    },
+    hint:{ru:`Порядок не важен → сочетание C(${n}; ${k}) = n! / (k! · (n−k)!).`, ua:`Порядок неважливий → сполучення C(${n}; ${k}) = n! / (k! · (n−k)!).`},
+    solution:{
+      ru:`Порядок не важен, поэтому это сочетание: C(${n}; ${k}) = ${num.join("·")} / (${den.join("·")}) = ${num.length ? num.reduce((p, c) => p * Number(c), 1) : 1} / ${kk > 1 ? den.reduce((p, c) => p * Number(c), 1) : 1} = <b>${answer}</b>. Проверка симметрией: C(${n}; ${k}) = C(${n}; ${n - k}).`,
+      ua:`Порядок неважливий, отож це сполучення: C(${n}; ${k}) = ${num.join("·")} / (${den.join("·")}) = ${num.length ? num.reduce((p, c) => p * Number(c), 1) : 1} / ${kk > 1 ? den.reduce((p, c) => p * Number(c), 1) : 1} = <b>${answer}</b>. Перевірка симетрією: C(${n}; ${k}) = C(${n}; ${n - k}).`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && v === answer; }
+  };
+}
+function genC6ProbUrnaShort(){
+  const red = rnd([3,4,5,6,7]);
+  const blue = rnd([2,3,4,5]);
+  const total = red + blue;
+  const answer = red / total;
+  return {
+    topic:{ru:"Вероятность в урне", ua:"Ймовірність в урні"},
+    format:{ru:"десятичная дробь, округлите до 0.001", ua:"десятковий дріб, округліть до 0.001"},
+    question:{
+      ru:`В урне ${red} красных и ${blue} синих шаров. Из неё наугад вынимают один шар. Найдите вероятность, что он красный (округлите до 0.001).`,
+      ua:`В урні ${red} червоних і ${blue} синіх кульок. З неї навмання витягують одну. Знайдіть ймовірність, що вона червона (округліть до 0.001).`
+    },
+    hint:{ru:"P = число благоприятных / число всех. Исходы равновероятны.", ua:"P = кількість сприятливих / кількість всіх. Результати рівноймовірні."},
+    solution:{
+      ru:`Всего шаров: ${red} + ${blue} = ${total}. Из них ${red} благоприятных, поэтому P = ${red}/${total} = ${c6frac(red, total)} ≈ ${fmtNum(Math.round(answer * 1000) / 1000)}.`,
+      ua:`Усього кульок: ${red} + ${blue} = ${total}. З них ${red} сприятливих, отже P = ${red}/${total} = ${c6frac(red, total)} ≈ ${fmtNum(Math.round(answer * 1000) / 1000)}.`
+    },
+    expected:Math.round(answer * 1000) / 1000, correctLabel:fmtNum(Math.round(answer * 1000) / 1000),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && near(v, answer, 0.0015); }
+  };
+}
+function genC6ProbDiceSumMC(){
+  const s = rnd([4,5,6,7,8,9]);
+  const f = c6fav(6, s);
+  const correct = c6frac(f, 36);
+  const pool = [...new Set([2,3,4,5,6,7,8,9,10,11,12].map(v => c6frac(c6fav(6, v), 36)))].filter(v => v !== correct);
+  const {opts,correctIdx} = buildMC(correct, shuffleArr(pool).slice(0, 3));
+  return {
+    topic:{ru:"Вероятность на костях", ua:"Ймовірність на кістках"},
+    format:{ru:"выбор одного ответа", ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Бросают два кубика. Какова вероятность, что сумма равна ${s}?`,
+      ua:`Кидають два кубики. Яка ймовірність, що сума дорівнює ${s}?`
+    },
+    hint:{ru:"Всего 6 · 6 = 36 равновероятных пар, а не 11 значений суммы.", ua:"Усього 6 · 6 = 36 рівноймовірних пар, а не 11 значень суми."},
+    solution:{
+      ru:`Благоприятные пары со суммой ${s}: ${Array.from({length:f}, (_, i) => "(" + (i + 1) + ";" + (s - i - 1) + ")").join(", ")} — их ${f}. Всего равновероятных исходов 36, поэтому P = ${f}/36 = <b>${correct}</b> ≈ ${fmtNum(Math.round(f / 36 * 1000) / 1000)}.`,
+      ua:`Сприятливі пари із сумою ${s}: ${Array.from({length:f}, (_, i) => "(" + (i + 1) + ";" + (s - i - 1) + ")").join(", ")} — їх ${f}. Усього рівноймовірних результатів 36, отже P = ${f}/36 = <b>${correct}</b> ≈ ${fmtNum(Math.round(f / 36 * 1000) / 1000)}.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genC6StatMedianModeShort(){
+  const n = rnd([5,6,7]);
+  const sorted = shuffleArr([1,2,3,4,5,6,7,8,9,10]).slice(0, n).sort((a, b) => a - b);
+  const odd = n % 2 === 1;
+  const med = odd ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+  const answer = odd ? med : Math.round(med * 100) / 100;
+  const center = odd ? String(sorted[(n - 1) / 2]) : (sorted[n / 2 - 1] + " и " + sorted[n / 2]);
+  return {
+    topic:{ru:"Медиана", ua:"Медіана"},
+    format:{ru:"десятичная дробь, округлите до 0.01", ua:"десятковий дріб, округліть до 0.01"},
+    question:{
+      ru:`Данные в отсортированном виде: ${sorted.join(", ")}. Найдите медиану (округлите до 0.01).`,
+      ua:`Дані у відсортованому вигляді: ${sorted.join(", ")}. Знайдіть медіану (округліть до 0.01).`
+    },
+    hint:{ru:"Медиана делит упорядоченный ряд пополам; при чётном числе элементов — среднее двух центральных.", ua:"Медіана ділить впорядкований ряд навпіл; при парній кількості елементів — середнє двох центральних."},
+    solution:{
+      ru:`Элементов ${n} — ${odd ? "нечётное" : "чётное"}, поэтому медиана — это ${odd ? "единственное центральное значение" : "среднее двух центральных значений"}. Центральные: ${center}. Медиана = <b>${fmtNum(answer)}</b>.`,
+      ua:`Елементів ${n} — ${odd ? "непарне" : "парне"}, отже медіана — це ${odd ? "єдине центральне значення" : "середнє двох центральних значень"}. Центральні: ${center}. Медіана = <b>${fmtNum(answer)}</b>.`
+    },
+    expected:answer, correctLabel:fmtNum(answer),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && near(v, med, 0.005); }
+  };
+}
+
+/* ---------- Наисложнейший уровень ---------- */
+function genC6ArrangementShort(){
+  const n = rnd([5,6,7,8]);
+  const k = rnd([2,3,4].filter(x => x <= n - 1));
+  const answer = c6A(n, k);
+  const factors = [];
+  for(let i = 0; i < k; i++) factors.push(String(n - i));
+  return {
+    topic:{ru:"Размещения", ua:"Розміщення"},
+    format:{ru:"целое число", ua:"ціле число"},
+    question:{
+      ru:`Из ${n} человек на первую и вторую (третью) позицию выбирают по одному человеку. Позиции различаются. Сколько способов?`,
+      ua:`Із ${n} людей на першу та другу (третю) позицію обирають по одній людині. Позиції різняться. Скільки способів?`
+    },
+    hint:{ru:"Порядок важен (есть «первое место», «второе место») → размещения A(n; k) = n!/(n−k)!.", ua:"Порядок важливий (є «перше місце», «друге місце») → розміщення A(n; k) = n!/(n−k)!."},
+    solution:{
+      ru:`Позиции различаются, значит порядок важен и нужны размещения: A(${n}; ${k}) = ${factors.join(" · ")} = ${c6fact(n)}/${c6fact(n - k)} = <b>${answer}</b>. Сочетание дало бы на ${c6fact(k)} раз меньше.`,
+      ua:`Позиції різняться, отже порядок важливий і потрібні розміщення: A(${n}; ${k}) = ${factors.join(" · ")} = ${c6fact(n)}/${c6fact(n - k)} = <b>${answer}</b>. Сполучення дало б у ${c6fact(k)} разів менше.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && v === answer; }
+  };
+}
+function genC6SubsetsShort(){
+  const n = rnd([5,6,7,8]);
+  const answer = Math.pow(2, n);
+  const rows = [];
+  for(let k = 0; k <= n; k++) rows.push(c6C(n, k));
+  return {
+    topic:{ru:"Число подмножеств", ua:"Кількість підмножин"},
+    format:{ru:"целое число", ua:"ціле число"},
+    question:{
+      ru:`Сколько всего подмножеств имеет множество из ${n} элементов?`,
+      ua:`Скільки всього підмножин має множина з ${n} елементів?`
+    },
+    hint:{ru:"Каждый элемент либо входит в подмножество, либо нет — две возможности.", ua:"Кожен елемент або входить у підмножину, або ні — дві можливості."},
+    solution:{
+      ru:`Каждый из ${n} элементов независимо входит или не входит в подмножество, поэтому по правилу умножения 2 · 2 · … = <b>2^${n} = ${answer}</b>. Проверка через разбиение по размеру: ${rows.join(" + ")} = ${answer}.`,
+      ua:`Кожен із ${n} елементів незалежно входить або ні у підмножину, отже за правилом множення 2 · 2 · … = <b>2^${n} = ${answer}</b>. Перевірка через розбиття за розміром: ${rows.join(" + ")} = ${answer}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && v === answer; }
+  };
+}
+function genC6ProbConditionalShort(){
+  const suits = rnd([4, 9]);
+  const total = 36;
+  const answer = suits === 4 ? 4 / 9 : 4 / 36;
+  const cond = suits === 4
+    ? {ru:"Из колоды вытянута карта пиковой масти. Какова вероятность, что это туз?", ua:"З колоди витягнута карта пікової масті. Яка ймовірність, що це туз?"}
+    : {ru:"Из колоды вытянута карта. Какова вероятность, что это туз?", ua:"З колоди витягнута карта. Яка ймовірність, що це туз?"};
+  return {
+    topic:{ru:"Условная вероятность", ua:"Умовна ймовірність"},
+    format:{ru:"десятичная дробь, округлите до 0.001", ua:"десятковий дріб, округліть до 0.001"},
+    question:{
+      ru:`${cond.ru} Ответ дайте в виде десятичной дроби (округлите до 0.001).`,
+      ua:`${cond.ua} Відповідь дайте у вигляді десяткового дробу (округліть до 0.001).`
+    },
+    hint:{ru:"Знаменатель меняется: считаем только среди исходов, совместимых с условием.", ua:"Знаменник змінюється: рахуємо лише серед результатів, сумісних з умовою."},
+    solution:{
+      ru: suits === 4
+        ? `После условия остаются только 9 пиковых карт, из них 4 туза: P = 4/9 ≈ <b>${fmtNum(Math.round(answer * 1000) / 1000)}</b>. Без условия было бы 4/36 = 1/9 ≈ 0.111 — условие увеличило вероятность вчетверо.`
+        : `Без условия подходят все 36 карт: P = 4/36 = 1/9 ≈ <b>${fmtNum(Math.round(answer * 1000) / 1000)}</b>. Знаменатель не меняется, потому что условие не ограничивает выбор.`,
+      ua: suits === 4
+        ? `Після умови залишаються лише 9 пікових карт, з них 4 тузи: P = 4/9 ≈ <b>${fmtNum(Math.round(answer * 1000) / 1000)}</b>. Без умови було б 4/36 = 1/9 ≈ 0.111 — умова збільшила ймовірність учетверо.`
+        : `Без умови підходять усі 36 карт: P = 4/36 = 1/9 ≈ <b>${fmtNum(Math.round(answer * 1000) / 1000)}</b>. Знаменник не змінюється, бо умова не обмежує вибір.`
+    },
+    expected:Math.round(answer * 1000) / 1000, correctLabel:c6frac(4, suits === 4 ? 9 : 36),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && near(v, answer, 0.0015); }
+  };
+}
+function genC6ProbTotalShort(){
+  const pA = rnd([0.2, 0.3, 0.4, 0.5, 0.6]);
+  const pB = Math.round((1 - pA) * 100) / 100;
+  const qA = rnd([0.05, 0.1, 0.2, 0.25]);
+  const qB = rnd([0.02, 0.05, 0.1]);
+  const answer = pA * qA + pB * qB;
+  const p100 = Math.round(answer * 1000) / 10;
+  return {
+    topic:{ru:"Формула полной вероятности", ua:"Формула повної ймовірності"},
+    format:{ru:"десятичная дробь, округлите до 0.001", ua:"десятковий дріб, округліть до 0.001"},
+    question:{
+      ru:`Завод A даёт ${Math.round(pA * 100)}% продукции, брак в его партии ${Math.round(qA * 100)}%. У завода B — ${Math.round(pB * 100)}% продукции и ${Math.round(qB * 100)}% брака. Найдите вероятность брака (округлите до 0.001).`,
+      ua:`Завод A дає ${Math.round(pA * 100)}% продукції, брак у його партії ${Math.round(qA * 100)}%. У заводу B — ${Math.round(pB * 100)}% продукції та ${Math.round(qB * 100)}% браку. Знайдіть ймовірність браку (округліть до 0.001).`
+    },
+    hint:{ru:"P = Σ P(завод) · P(брак | завод) по всем заводам.", ua:"P = Σ P(завод) · P(брак | завод) за всіма заводами."},
+    solution:{
+      ru:`Разложим событие по заводам: P(брак) = ${fmtNum(pA)} · ${fmtNum(qA)} + ${fmtNum(pB)} · ${fmtNum(qB)} = ${fmtNum(Math.round(pA * qA * 1000) / 1000)} + ${fmtNum(Math.round(pB * qB * 1000) / 1000)} = <b>${fmtNum(p100 / 100)}</b>.`,
+      ua:`Розкладемо подію за заводами: P(брак) = ${fmtNum(pA)} · ${fmtNum(qA)} + ${fmtNum(pB)} · ${fmtNum(qB)} = ${fmtNum(Math.round(pA * qA * 1000) / 1000)} + ${fmtNum(Math.round(pB * qB * 1000) / 1000)} = <b>${fmtNum(p100 / 100)}</b>.`
+    },
+    expected:p100 / 100, correctLabel:fmtNum(p100 / 100),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && near(v, answer, 0.002); }
+  };
+}
+function genC6StatDispersionShort(){
+  const spread = rnd([0, 1, 2, 3]);
+  const base = rnd([4, 5, 6, 8]);
+  const data = spread === 0 ? [base, base, base] : [base - spread, base, base + spread];
+  const mean = data.reduce((p, c) => p + c, 0) / data.length;
+  const D = data.reduce((p, c) => p + (c - mean) * (c - mean), 0) / data.length;
+  const R = spread * 2;
+  const wantR = Math.random() < 0.5;
+  const answer = wantR ? R : D;
+  return {
+    topic:{ru:"Размах и дисперсия", ua:"Розмах і дисперсія"},
+    format:{ru:"десятичная дробь, округлите до 0.01", ua:"десятковий дріб, округліть до 0.01"},
+    question:{
+      ru:`Данные: ${data.join(", ")}. Найдите ${wantR ? "размах R" : "дисперсию D"} (округлите до 0.01).`,
+      ua:`Дані: ${data.join(", ")}. Знайдіть ${wantR ? "розмах R" : "дисперсію D"} (округліть до 0.01).`
+    },
+    hint:{ru:"R = x_max − x_min. D — это среднее квадратов отклонений от среднего.", ua:"R = x_max − x_min. D — це середнє квадратів відхилень від середнього."},
+    solution:{
+      ru: wantR
+        ? `Минимум ${Math.min(...data)}, максимум ${Math.max(...data)}, поэтому R = ${Math.max(...data)} − ${Math.min(...data)} = <b>${R}</b>.`
+        : `Сначала среднее: x̄ = ${data.join(" + ")} / ${data.length} = ${fmtNum(mean)}. Отклонения: ${data.map(v => fmtNum(v - mean)).join(", ")}, их квадраты: ${data.map(v => fmtNum((v - mean) * (v - mean))).join(", ")}. D = ${data.map(v => fmtNum((v - mean) * (v - mean))).join(" + ")} / ${data.length} = <b>${fmtNum(Math.round(D * 100) / 100)}</b>.`,
+      ua: wantR
+        ? `Мінімум ${Math.min(...data)}, максимум ${Math.max(...data)}, отже R = ${Math.max(...data)} − ${Math.min(...data)} = <b>${R}</b>.`
+        : `Спершу середнє: x̄ = ${data.join(" + ")} / ${data.length} = ${fmtNum(mean)}. Відхилення: ${data.map(v => fmtNum(v - mean)).join(", ")}, їхні квадрати: ${data.map(v => fmtNum((v - mean) * (v - mean))).join(", ")}. D = ${data.map(v => fmtNum((v - mean) * (v - mean))).join(" + ")} / ${data.length} = <b>${fmtNum(Math.round(D * 100) / 100)}</b>.`
+    },
+    expected:Math.round(answer * 100) / 100, correctLabel:fmtNum(Math.round(answer * 100) / 100),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && near(v, answer, 0.005); }
+  };
+}
+function genC6ProbFreqShort(){
+  const n = rnd([50, 100, 200, 400]);
+  const p = rnd([0.5, 1 / 6, 1 / 3, 0.25]);
+  const expected = n * p;
+  const observed = Math.round(expected + rnd([-2, -1, 1, 2]));
+  const answer = observed / n;
+  return {
+    topic:{ru:"Относительная частота", ua:"Відносна частота"},
+    format:{ru:"десятичная дробь, округлите до 0.001", ua:"десятковий дріб, округліть до 0.001"},
+    question:{
+      ru:`Монета брошена ${n} раз, выпало ${observed} орлов. Найдите относительную частоту события «орёл» (округлите до 0.001).`,
+      ua:`Монета кинута ${n} разів, випало ${observed} орлів. Знайдіть відносну частоту події «орел» (округліть до 0.001).`
+    },
+    hint:{ru:"Относительная частота = благоприятных / всего испытаний.", ua:"Відносна частота = сприятливих / усього випробувань."},
+    solution:{
+      ru:`Относительная частота = ${observed}/${n} = <b>${fmtNum(Math.round(answer * 1000) / 1000)}</b>. Это статистическая оценка вероятности 1/2 = 0.5, а не точное значение: чем больше испытаний, тем ближе частота к вероятности.`,
+      ua:`Відносна частота = ${observed}/${n} = <b>${fmtNum(Math.round(answer * 1000) / 1000)}</b>. Це статистична оцінка ймовірності 1/2 = 0.5, а не точне значення: чим більше випробувань, тим ближче частота до ймовірності.`
+    },
+    expected:Math.round(answer * 1000) / 1000, correctLabel:fmtNum(Math.round(answer * 1000) / 1000),
+    check(input){ const v = parseAnswer(input); return !isNaN(v) && near(v, answer, 0.0015); }
+  };
+}
+
 /* ---- НМТ-формат: комбинированные задания и короткий ответ ---- */
 function genNmtTrigMixedMC(){
   const triple = rnd(PY_TRIPLES.slice(0,3));
@@ -797,6 +1177,11 @@ const LEVEL_DEFS = [
       { id:"midline", module:5, title:{ru:"Средняя линия треугольника",ua:"Середня лінія трикутника"}, desc:{ru:"Соединяет середины двух сторон",ua:"Сполучає середини двох сторін"}, generate: genMidlineMC },
       { id:"regularPolygon", module:5, title:{ru:"Правильные многоугольники",ua:"Правильні многокутники"}, desc:{ru:"Внутренние углы и центральный угол",ua:"Внутрішні кути та центральний кут"}, generate: genRegularPolygonMC },
       { id:"sphereSurface", module:5, title:{ru:"Площадь сферы",ua:"Площа сфери"}, desc:{ru:"S=4πR²",ua:"S=4πR²"}, generate: genSphereSurfaceMC }
+      ,{ id:"c6Product", module:6, title:{ru:"Правило умножения",ua:"Правило множення"}, desc:{ru:"Последовательные обязательные выборы",ua:"Послідовні обов'язкові вибори"}, generate: genC6ProductRuleShort }
+      ,{ id:"c6Sum", module:6, title:{ru:"Правило сложения",ua:"Правило додавання"}, desc:{ru:"Непересекающиеся группы вариантов",ua:"Неперетинні групи варіантів"}, generate: genC6SumRuleShort }
+      ,{ id:"c6ProbSingle", module:6, title:{ru:"Классическая вероятность",ua:"Класична ймовірність"}, desc:{ru:"P = благоприятных / всех",ua:"P = сприятливих / усіх"}, generate: genC6ProbSingleShort }
+      ,{ id:"c6Complement", module:6, title:{ru:"Противоположное событие",ua:"Протилежна подія"}, desc:{ru:"P(Ā) = 1 − P(A)",ua:"P(Ā) = 1 − P(A)"}, generate: genC6ProbComplementMC }
+      ,{ id:"c6Mean", module:6, title:{ru:"Среднее арифметическое",ua:"Середнє арифметичне"}, desc:{ru:"Сумма данных, делённая на их количество",ua:"Сума даних, поділена на їхню кількість"}, generate: genC6StatMeanShort }
       ,{ id:"nmtTrig", module:1, title:{ru:"НМТ: тригонометрия",ua:"НМТ: тригонометрія"}, desc:{ru:"Комбинированная задача с четвертью угла",ua:"Комбінована задача з чвертю кута"}, generate: genNmtTrigMixedMC }
     ]
   },
@@ -816,6 +1201,11 @@ const LEVEL_DEFS = [
       { id:"areaCubic", module:4, title:{ru:"Площадь под параболой",ua:"Площа під параболою"}, desc:{ru:"S=∫f(x)dx на [0;b]",ua:"S=∫f(x)dx на [0;b]"}, generate: genAreaUnderCubicShort },
       { id:"pyramidVolume", module:5, title:{ru:"Объём пирамиды",ua:"Об'єм піраміди"}, desc:{ru:"V=⅓Sосн·h",ua:"V=⅓Sосн·h"}, generate: genPyramidVolumeShort },
       { id:"coneSurface", module:5, title:{ru:"Площадь поверхности конуса",ua:"Площа поверхні конуса"}, desc:{ru:"l=√(R²+h²), Sполн=πR(R+l)",ua:"l=√(R²+h²), Sповн=πR(R+l)"}, generate: genConeSurfaceShort }
+      ,{ id:"c6Permutation", module:6, title:{ru:"Перестановки и факториал",ua:"Розстановки та факторіал"}, desc:{ru:"n! — все элементы, порядок важен",ua:"n! — усі елементи, порядок важливий"}, generate: genC6PermutationShort }
+      ,{ id:"c6Combination", module:6, title:{ru:"Сочетания",ua:"Сполучення"}, desc:{ru:"Порядок не важен",ua:"Порядок неважливий"}, generate: genC6CombinationShort }
+      ,{ id:"c6Urn", module:6, title:{ru:"Вероятность в урне",ua:"Ймовірність в урні"}, desc:{ru:"Шары без возврата",ua:"Кульки без повернення"}, generate: genC6ProbUrnaShort }
+      ,{ id:"c6DiceSum", module:6, title:{ru:"Сумма двух костей",ua:"Сума двох кісток"}, desc:{ru:"36 равновероятных пар",ua:"36 рівноймовірних пар"}, generate: genC6ProbDiceSumMC }
+      ,{ id:"c6Median", module:6, title:{ru:"Медиана",ua:"Медіана"}, desc:{ru:"Центр упорядоченного ряда",ua:"Центр впорядкованого ряду"}, generate: genC6StatMedianModeShort }
       ,{ id:"nmtShort", module:2, title:{ru:"НМТ: короткий ответ",ua:"НМТ: коротка відповідь"}, desc:{ru:"Показательное уравнение в формате НМТ",ua:"Показникове рівняння у форматі НМТ"}, generate: genNmtShortAnswer }
     ]
   },
@@ -836,6 +1226,12 @@ const LEVEL_DEFS = [
       { id:"absArea", module:4, title:{ru:"Площадь с модулем",ua:"Площа з модулем"}, desc:{ru:"Фигура пересекает ось Ox",ua:"Фігура перетинає вісь Ox"}, generate: genAbsAreaHigh },
       { id:"coneVolIntegral", module:5, title:{ru:"Объём конуса через интеграл",ua:"Об'єм конуса через інтеграл"}, desc:{ru:"Метод дисков",ua:"Метод дисків"}, generate: genConeVolumeIntegralShort },
       { id:"cubeSection", module:5, title:{ru:"Площадь сечения куба",ua:"Площа перерізу куба"}, desc:{ru:"Равносторонний треугольник у вершины",ua:"Рівносторонній трикутник біля вершини"}, generate: genCubeSectionAreaShort }
+      ,{ id:"c6Arrangement", module:6, title:{ru:"Размещения",ua:"Розміщення"}, desc:{ru:"A(n; k) — порядок важен",ua:"A(n; k) — порядок важливий"}, generate: genC6ArrangementShort }
+      ,{ id:"c6Subsets", module:6, title:{ru:"Число подмножеств",ua:"Кількість підмножин"}, desc:{ru:"2ⁿ через биномиальную формулу",ua:"2ⁿ через біноміальну формулу"}, generate: genC6SubsetsShort }
+      ,{ id:"c6Conditional", module:6, title:{ru:"Условная вероятность",ua:"Умовна ймовірність"}, desc:{ru:"Знаменатель ограничен условием",ua:"Знаменник обмежено умовою"}, generate: genC6ProbConditionalShort }
+      ,{ id:"c6TotalProb", module:6, title:{ru:"Формула полной вероятности",ua:"Формула повної ймовірності"}, desc:{ru:"Сумма по гипотезам",ua:"Сума за гіпотезами"}, generate: genC6ProbTotalShort }
+      ,{ id:"c6Dispersion", module:6, title:{ru:"Размах и дисперсия",ua:"Розмах і дисперсія"}, desc:{ru:"R и D для набора данных",ua:"R і D для набору даних"}, generate: genC6StatDispersionShort }
+      ,{ id:"c6Freq", module:6, title:{ru:"Относительная частота",ua:"Відносна частота"}, desc:{ru:"Оценка вероятности по опытам",ua:"Оцінка ймовірності за дослідами"}, generate: genC6ProbFreqShort }
       ,{ id:"nmtParameter", module:3, title:{ru:"НМТ: параметр",ua:"НМТ: параметр"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genNmtParameterMC }
     ]
   }

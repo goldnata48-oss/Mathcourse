@@ -1,2 +1,6 @@
 # Local Netlify folder
 .netlify
+
+# Local Python env and build leftovers
+.venv
+*.tmp

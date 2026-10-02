@@ -8,6 +8,13 @@ const dist = path.join(root, "dist");
 const htmlPath = path.join(root, "index.html");
 
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
+/* Запись через временный файл: dist/index.html может быть открыт браузером или редактором,
+   и прямое усечение тогда падает с UNKNOWN. rename перекрывает занятый файл. */
+const writeFile = (file, content) => {
+  const tmp = file + ".tmp";
+  fs.writeFileSync(tmp, content, "utf8");
+  fs.renameSync(tmp, file);
+};
 const source = read("index.html");
 const css = [read("theme.css"), read("styles.css")].join("\n");
 const js = [read("i18n.js"), read("lessons.js"), read("trainer.js"), read("app.js")].join("\n");
@@ -23,7 +30,7 @@ let bundle = source
   .replace("</body>", `  <script>\n${js}\n  </script>\n</body>`);
 
 fs.mkdirSync(dist, { recursive: true });
-fs.writeFileSync(path.join(dist, "index.html"), bundle, "utf8");
+writeFile(path.join(dist, "index.html"), bundle);
 fs.copyFileSync(path.join(root, "manifest.webmanifest"), path.join(dist, "manifest.webmanifest"));
 fs.copyFileSync(path.join(root, "icon.svg"), path.join(dist, "icon.svg"));
 generateIcons(root);
@@ -34,7 +41,7 @@ const cacheTag = crypto.createHash("sha1").update(bundle).digest("hex").slice(0,
 let sw = read("sw.js")
   .replace(/const CACHE_NAME = "mathcourse-v1";/, `const CACHE_NAME = "mathcourse-${cacheTag}";`)
   .replace(/const APP_SHELL = \[[\s\S]*?\];/, `const APP_SHELL = [\n  "./",\n  "./index.html",\n  "./manifest.webmanifest",\n  "./icon.svg"\n];`);
-fs.writeFileSync(path.join(dist, "sw.js"), sw, "utf8");
+writeFile(path.join(dist, "sw.js"), sw);
 
 console.log(`Built ${path.relative(root, path.join(dist, "index.html"))}`);
 console.log(`Size: ${Buffer.byteLength(bundle, "utf8")} bytes`);

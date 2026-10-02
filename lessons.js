@@ -1,4 +1,4 @@
-﻿/* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
+/* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
 const DEG_TABLE = [
   {deg:0,num:0,den:1},{deg:30,num:1,den:6},{deg:45,num:1,den:4},{deg:60,num:1,den:3},
   {deg:90,num:1,den:2},{deg:120,num:2,den:3},{deg:135,num:3,den:4},{deg:150,num:5,den:6},
@@ -6931,9 +6931,5097 @@ const LESSONS = [
                 {ru:"для любого острого",ua:"для будь-якого гострого"},{ru:"никогда",ua:"ніколи"}], correct:0 }
       ]);
     }
-  }
-];
+  },
 
+/* ---------- LESSON geoCurved (криволинейные фигуры) ---------- */
+{
+    id: "geoCurved", module: 5,
+    RU: {
+      intro: "У круга, сектора, сегмента и кольца площади разные, но три из них выводятся из двух формул: πR² для круга и ½R²α для сектора. Всё остальное получается вычитанием. Разберём эти четыре случая и покажем, где здесь же возникает интеграл.",
+      c1: "1. Сектор",
+      c1p: "Сектор — часть круга, отсечённая двумя радиусами. Его угол обозначают α, радиус — R. Площадь сектора — та же доля от πR², что и α от полного угла.",
+      i1: "<b>S = π·R² · α / 360°</b> &nbsp;&nbsp; или &nbsp; <b>S = ½ · R² · α</b>, если α в радианах",
+      i1n: "Вторая запись удобнее: в ней нет ни числа 360, ни чётного деления. Она прямо связывает площадь с длиной дуги, потому что дуга при радиусе R имеет длину R·α.",
+      i1p: "Проверка на частных случаях: α = 180° даёт πR²/2 — площадь полукруга, α = 90° даёт πR²/4 — четверть круга. Логика ровно та же, что и с центральным углом.",
+      c2: "2. Сегмент",
+      c2p: "Сегмент — то, что останется от сектора, если вырезать треугольник, образованный двумя радиусами и хордой. Формула получается той же подстановкой.",
+      o1: "<b>S = ½ · R² · (α − sin α)</b> &nbsp;&nbsp; при 0 ≤ α ≤ 180°",
+      o1n: "Здесь sin α берётся от того же центрального угла α, в радианах. Если угол записан в градусах, сначала переведите: sin 60° = sin(π/3) = √3/2.",
+      o2: "<b>α ≤ 180°</b> — сегмент меньше половины круга.<br><b>α = 180°</b> — сегмент равен полукругу, то есть πR²/2.<br><b>α &gt; 180°</b> — сегмент больше половины; удобнее S = πR² − S(360° − α).",
+      o2n: "Причина одна: при α больше 180° значение sin α становится отрицательным, и формула выдаёт площадь «со знаком». Чтобы этого избежать, считают меньший сегмент — с углом 360° − α — и вычитают его из целого круга.",
+      c3: "3. Кольцо и луна",
+      e1: "<b>S = π · (R² − r²)</b> &nbsp;&nbsp; R — внешний радиус, r — внутренний",
+      e1n: "Это ровно та же схема: большой круг минус маленький. Соблазнительно написать π(R − r)², но так неверно: в исходной формуле радиус возведён в квадрат, значит и вычитать нужно квадраты, а не сами радиусы.",
+      e2: "<b>Луна</b> — фигура между дугой большой окружности и дугой малой. Считается так же: это разность двух сегментов или круг минус сегмент, в зависимости от того, как проведены хорды.",
+      e2n: "Универсальный приём: найдите точку, где кончается одна область и начинается другая, и посчитайте площадь каждой отдельно. Почти любая криволинейная фигура в задаче — это круг, сектор, сегмент и кольцо в разных комбинациях.",
+      c4: "4. Где здесь появляется интеграл",
+      w1: "<b>Полоски вместо кривой.</b> Интеграл делает ровно то же, что и разбиение на секторы: разрезает область на узкие части и складывает их площади.<br><b>Сектор → полоски.</b> Разрежьте сектор радиальными лучами на тонкие лучики — получатся сегменты толщины R·Δα, и сумма стремится к ½R²·α. Отсюда же и производная синуса: (sin(α + Δα) − sin α)/Δα → cos α.<br><b>Что запомнить.</b> Ни одна из формул этого урока интеграла не требует. Он нужен, когда граница фигуры — произвольная функция y = f(x), а не дуга окружности.",
+      interLabel: "Конструктор — двигайте радиус, угол и второй радиус, переключайте режим",
+      exTitle: "5. Разбор задач",
+      ex1: "<b>1. Сектор 60° при R = 6.</b><br>α = π/3 рад.<br>S = ½·36·π/3 = 6π ≈ <b>18.85</b>",
+      ex2: "<b>2. Сегмент 60° при R = 6.</b><br>sin(π/3) = √3/2.<br>S = ½·36·(π/3 − √3/2) = 6π − 9√3 ≈ <b>3.26</b>",
+      ex3: "<b>3. Полукруг при R = 5.</b><br>α = π рад, &nbsp;sin π = 0.<br>S = ½·25·π = 12.5π ≈ <b>39.27</b>",
+      ex4: "<b>4. Кольцо R = 8, r = 5.</b><br>S = π·(64 − 25) = 39π ≈ <b>122.52</b><br>Ошибочный вариант π(8 − 5)² = 9π ≈ 28.27 — это площадь круга радиуса 3, а не кольца.",
+      ex5: "<b>5. Сегмент 240° при R = 6.</b><br>Берём меньший сегмент: 360° − 240° = 120°, α = 2π/3.<br>S = ½·36·(2π/3 − √3/2) = 8π − 9√3.<br>Искомый сегмент = π·36 − (8π − 9√3) = 28π + 9√3 ≈ <b>103.55</b>",
+      ex6: "<b>6. Луна из двух дуг.</b> Из круга R = 10 вырезан полукруг радиуса 6.<br>S = ½·100π − ½·36π = 50π − 18π = 32π ≈ <b>100.53</b>",
+      b1n: "Площади многоугольников",
+      b1d: "Прямоугольник, треугольник, ромб, трапеция — у всех есть высота, и площадь находится одним действием. Криволинейные фигуры отличаются только тем, что вместо высоты приходится работать с дугой, а ход рассуждения остаётся тем же.",
+      b2n: "Площади фигур и интегралы",
+      b2d: "Интеграл — тот же приём с суммированием, только полоски становятся бесконечно узкими. Всё, что здесь получалось вычитанием, для произвольной функции пришлось бы уже интегрировать.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "У кола, сектора, сегмента і кільця площі різні, але три з них виводяться з двох формул: πR² для кола і ½R²α для сектора. Усе інше отримується відніманням. Розберемо ці чотири випадки й покажемо, де тут виникає інтеграл.",
+      c1: "1. Сектор",
+      c1p: "Сектор — частина кола, відсічена двома радіусами. Її кут позначають α, радіус — R. Площа сектора — та сама частка від πR², що й α від повного кута.",
+      i1: "<b>S = π·R² · α / 360°</b> &nbsp;&nbsp; або &nbsp; <b>S = ½ · R² · α</b>, якщо α у радіанах",
+      i1n: "Другий запис зручніший: у ньому немає ані числа 360, ані парного ділення. Він прямо пов'язує площу з довжиною дуги, бо дуга при радіусі R має довжину R·α.",
+      i1p: "Перевірка на частинних випадках: α = 180° дає πR²/2 — площу півкруга, α = 90° дає πR²/4 — чверть кола. Логіка рівно та сама, що й із центральним кутом.",
+      c2: "2. Сегмент",
+      c2p: "Сегмент — те, що залишиться від сектора, якщо вирізати трикутник, утворений двома радіусами та хордою. Формула отримується тією самою підстановкою.",
+      o1: "<b>S = ½ · R² · (α − sin α)</b> &nbsp;&nbsp; при 0 ≤ α ≤ 180°",
+      o1n: "Тут sin α береться від того самого центрального кута α, у радіанах. Якщо кут записано у градусах, спершу переведіть: sin 60° = sin(π/3) = √3/2.",
+      o2: "<b>α ≤ 180°</b> — сегмент менший за половину кола.<br><b>α = 180°</b> — сегмент дорівнює півкругу, тобто πR²/2.<br><b>α &gt; 180°</b> — сегмент більший за половину; зручніше S = πR² − S(360° − α).",
+      o2n: "Причина одна: за α більшого за 180° значення sin α стає від'ємним, і формула видає площу «зі знаком». Щоб цього уникнути, рахують менший сегмент — з кутом 360° − α — і віднімають його від усього кола.",
+      c3: "3. Кільце та півмісяць",
+      e1: "<b>S = π · (R² − r²)</b> &nbsp;&nbsp; R — зовнішній радіус, r — внутрішній",
+      e1n: "Це рівно та сама схема: велике коло мінус мале. Спокушає написати π(R − r)², але так неправильно: у вихідній формулі радіус піднесено до квадрата, отже й віднімати треба квадрати, а не самі радіуси.",
+      e2: "<b>Півмісяць</b> — фігура між дугою великого кола та дугою малого. Рахується так само: це різниця двох сегментів або коло мінус сегмент, залежно від того, як проведені хорди.",
+      e2n: "Універсальний прийом: знайдіть точку, де закінчується одна область і починається інша, і порахуйте площу кожної окремо. Майже будь-яка криволінійна фігура в задачі — це коло, сектор, сегмент і кільце в різних комбінаціях.",
+      c4: "4. Де тут з'являється інтеграл",
+      w1: "<b>Смужки замість кривої.</b> Інтеграл робить рівно те саме, що й розбиття на сектори: розрізає область на вузькі частини і складає їх площі.<br><b>Сектор → смужки.</b> Розріжте сектор радіальними променями на тонкі часточки — отримаються сегменти товщини R·Δα, і сума прямує до ½R²·α. Звідси ж і похідна синуса: (sin(α + Δα) − sin α)/Δα → cos α.<br><b>Що запам'ятати.</b> Жодна з формул цього уроку інтеграла не потребує. Він потрібен, коли межа фігури — довільна функція y = f(x), а не дуга кола.",
+      interLabel: "Конструктор — рухайте радіус, кут і другий радіус, перемикайте режим",
+      exTitle: "5. Розбір задач",
+      ex1: "<b>1. Сектор 60° при R = 6.</b><br>α = π/3 рад.<br>S = ½·36·π/3 = 6π ≈ <b>18.85</b>",
+      ex2: "<b>2. Сегмент 60° при R = 6.</b><br>sin(π/3) = √3/2.<br>S = ½·36·(π/3 − √3/2) = 6π − 9√3 ≈ <b>3.26</b>",
+      ex3: "<b>3. Півкруг при R = 5.</b><br>α = π рад, &nbsp;sin π = 0.<br>S = ½·25·π = 12.5π ≈ <b>39.27</b>",
+      ex4: "<b>4. Кільце R = 8, r = 5.</b><br>S = π·(64 − 25) = 39π ≈ <b>122.52</b><br>Хибний варіант π(8 − 5)² = 9π ≈ 28.27 — це площа кола радіуса 3, а не кільця.",
+      ex5: "<b>5. Сегмент 240° при R = 6.</b><br>Беремо менший сегмент: 360° − 240° = 120°, α = 2π/3.<br>S = ½·36·(2π/3 − √3/2) = 8π − 9√3.<br>Потрібний сегмент = π·36 − (8π − 9√3) = 28π + 9√3 ≈ <b>103.55</b>",
+      ex6: "<b>6. Півмісяць із двох дуг.</b> З кола R = 10 вирізано півкруг радіуса 6.<br>S = ½·100π − ½·36π = 50π − 18π = 32π ≈ <b>100.53</b>",
+      b1n: "Площі багатокутників",
+      b1d: "Прямокутник, трикутник, ромб, трапеція — у всіх є висота, і площа знаходиться однією дією. Криволінійні фігури відрізняються лише тим, що замість висоти доводиться працювати з дугою, а хід міркувань лишається тим самим.",
+      b2n: "Площі фігур та інтеграли",
+      b2d: "Інтеграл — той самий прийом із підсумовуванням, тільки смужки стають нескінченно вузькими. Усе, що тут отримувалося відніманням, для довільної функції довелося б уже інтегрувати.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      sect: "Сектор с радиусами OA и OB, центральным углом и вписанным треугольником",
+      ring: "Кольцо между двумя концентрическими окружностями и луна между двумя дугами",
+      live: "Конструктор сектора, сегмента и кольца"
+    },
+    ARIA_UA: {
+      sect: "Сектор із радіусами OA та OB, центральним кутом і вписаним трикутником",
+      ring: "Кільце між двома концентричними колами та півмісяць між двома дугами",
+      live: "Конструктор сектора, сегмента та кільця"
+    },
+    title: {ru: "Площади криволинейных фигур", ua: "Площі криволінійних фігур"},
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <p>${t.c1p}</p>
+      <div class="formula-box">${t.i1}</div>
+      <p>${t.i1n}</p>
+      <div class="formula-box">${t.i1p}</div>
+
+      <h3>${t.c2}</h3>
+      <p>${t.c2p}</p>
+      <div class="formula-box">${t.o1}</div>
+      <p>${t.o1n}</p>
+      <svg id="geoCv-decomp-svg" viewBox="0 0 400 250" role="img" aria-label="${A.sect}" style="width:100%;height:auto;margin-top:8px;"></svg>
+      <div class="formula-box">${t.o2}</div>
+      <p>${t.o2n}</p>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+      <div class="formula-box">${t.e2}</div>
+      <p>${t.e2n}</p>
+      <svg id="geoCv-ring-svg" viewBox="0 0 400 240" role="img" aria-label="${A.ring}" style="width:100%;height:auto;margin-top:8px;"></svg>
+
+      <h3>${t.c4}</h3>
+      <div class="formula-box">${t.w1}</div>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="geoCv-switch"></div>
+        <input type="range" id="geoCv-R" min="1" max="10" step="0.5" value="6" style="width:100%;margin-top:8px;">
+        <input type="range" id="geoCv-ang" min="10" max="350" step="10" value="90" style="width:100%;">
+        <input type="range" id="geoCv-r" min="1" max="9" step="0.5" value="3" style="width:100%;">
+        <div class="readout" id="geoCv-readout"></div>
+        <svg id="geoCv-svg" viewBox="0 0 400 300" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="geoCv-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="geoAreas">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="int3">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>`;
+    },
+
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInk = getComputedStyle(root).getPropertyValue("--ink").trim() || "#243447";
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      const DEG = "\u00b0";
+      function el(tag, at){ const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) n.setAttribute(k, at[k]); return n; }
+      function text(s, str, at){ const n = el("text", at); n.textContent = str; s.appendChild(n); return n; }
+      function seg(s, x1, y1, x2, y2, color, w, dash){
+        const at = {x1:x1, y1:y1, x2:x2, y2:y2, stroke:color, "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("line", at));
+      }
+      function fmtPts(pts){ return pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "); }
+      function poly(s, pts, fill, op){
+        s.appendChild(el("polygon",{points:fmtPts(pts), fill:fill, "fill-opacity":(op===undefined?0.8:op), stroke:"none"}));
+      }
+      function stroke3(s, pts, color, w, dash){
+        const at = {points:fmtPts(pts), fill:"none", stroke:color, "stroke-width":(w||2), "stroke-linejoin":"round", "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("polygon", at));
+      }
+      function circ(s, cx, cy, r, color, w, dash, op){
+        const at = {cx:cx, cy:cy, r:r, fill:"none", stroke:color, "stroke-width":(w||2)};
+        if(dash) at["stroke-dasharray"] = dash;
+        if(op !== undefined){ at["fill"] = color; at["fill-opacity"] = op; }
+        s.appendChild(el("circle", at));
+      }
+      function ringPath(s, cx, cy, R, r, color, op){
+        const d = "M " + (cx - R) + " " + cy +
+          " a " + R + " " + R + " 0 1 0 " + (2*R) + " 0 a " + R + " " + R + " 0 1 0 " + (-2*R) + " 0" +
+          " M " + (cx - r) + " " + cy +
+          " a " + r + " " + r + " 0 1 0 " + (2*r) + " 0 a " + r + " " + r + " 0 1 0 " + (-2*r) + " 0";
+        s.appendChild(el("path",{d:d, fill:color, "fill-opacity":op, "fill-rule":"evenodd", stroke:"none"}));
+      }
+      function dot(s, x, y, color, r){ s.appendChild(el("circle",{cx:x, cy:y, r:(r||4.5), fill:color})); }
+      function lbl(s, str, x, y, color, anchor, size){
+        text(s, str, {x:x, y:y, fill:color, "font-size":(size||13), "font-family":MONO, "text-anchor":(anchor||"middle"), "font-weight":700});
+      }
+      function arcPts(cx, cy, r, a0, a1, n){
+        const p = [];
+        for(let i = 0; i <= n; i++){
+          const a = (a0 + (a1 - a0)*i/n) * Math.PI/180;
+          p.push({x: cx + r*Math.cos(a), y: cy + r*Math.sin(a)});
+        }
+        return p;
+      }
+      function fmt(x){ return Math.round(x*100)/100; }
+      function deg0(x){ return Math.round(x); }
+      const L = {
+        sect:{ru:"S сектор", ua:"S сектор"},
+        segm:{ru:"S сегмент", ua:"S сегм"},
+        tri:{ru:"S треугольник", ua:"S трикутник"},
+        ring:{ru:"S кольцо", ua:"S кільце"},
+        rad:{ru:"в радианах", ua:"у радіанах"},
+        deg:{ru:"в градусах", ua:"у градусах"}
+      };
+
+      /* 1. разложение сектора: сегмент + треугольник */
+      (function drawDecomp(){
+        const s = root.querySelector("#geoCv-decomp-svg");
+        s.innerHTML = "";
+        const cx = 200, cy = 150, R = 95;
+        const a0 = -62, a1 = 38;
+        const arc = arcPts(cx, cy, R, a0, a1, 64);
+        const O = {x:cx, y:cy}, A = arc[0], B = arc[arc.length - 1];
+        const secPts = [O].concat(arc);
+        poly(s, arc, cTealSoft, 0.95);
+        poly(s, [O, A, B], cAccentSoft, 0.95);
+        circ(s, cx, cy, R, cLine, 1.5, "5,4");
+        stroke3(s, secPts, cInkSoft, 1.6, "4,4");
+        stroke3(s, [O, A, B], COL.blue, 2);
+        const mid = arc[Math.round(arc.length/2)];
+        const k = 0.80;
+        lbl(s, L.segm[lang], cx + (mid.x - cx)*k, cy + (mid.y - cy)*k, COL.teal, "middle", 12);
+        lbl(s, L.tri[lang], (cx + A.x + B.x)/3, (cy + A.y + B.y)/3 + 16, COL.blue, "middle", 11);
+        const rMid = (a0 + a1)/2 * Math.PI/180;
+        lbl(s, "R", cx + 46*Math.cos(rMid), cy + 46*Math.sin(rMid), COL.coral, "middle", 12);
+        lbl(s, "\u03b1", cx + 26*Math.cos(rMid), cy + 26*Math.sin(rMid) + 4, COL.coral, "middle", 13);
+        dot(s, cx, cy, cInk, 4);
+        dot(s, A.x, A.y, COL.blue);
+        dot(s, B.x, B.y, COL.blue);
+        lbl(s, "O", cx - 12, cy + 16, cInk, "end", 12);
+        lbl(s, "A", A.x - 6, A.y - 10, COL.blue, "end", 12);
+        lbl(s, "B", B.x + 8, B.y + 4, COL.blue, "start", 12);
+        lbl(s, lang === "ru" ? "S сектор = S треугольник + S сегмент" : "S сектор = S трикутник + S сегм",
+          200, 22, cInkSoft, "middle", 13);
+        lbl(s, lang === "ru" ? "S = ½·R²·(α − sin α)" : "S = ½·R²·(α − sin α)", 200, 236, cInkSoft, "middle", 12);
+      })();
+
+      /* 2. кольцо и луна */
+      (function drawRing(){
+        const s = root.querySelector("#geoCv-ring-svg");
+        s.innerHTML = "";
+        const cx = 92, cy = 118, R = 72, r = 34;
+        ringPath(s, cx, cy, R, r, cTealSoft, 0.95);
+        circ(s, cx, cy, R, COL.blue, 2.5);
+        circ(s, cx, cy, r, COL.blue, 2.5);
+        seg(s, cx, cy, cx + R, cy, COL.coral, 1.6);
+        seg(s, cx, cy, cx + r, cy, COL.coral, 1.6);
+        dot(s, cx, cy, cInk, 4);
+        lbl(s, "R", cx + R/2, cy - 7, COL.coral, "middle", 12);
+        lbl(s, "r", cx + r/2, cy - 7, COL.coral, "middle", 12);
+        lbl(s, "S = \u03c0(R\u00b2 \u2212 r\u00b2)", cx, 212, cInkSoft, "middle", 12);
+        lbl(s, lang === "ru" ? "кольцо" : "кільце", cx, 232, cInkSoft, "middle", 12);
+
+        const baseY = 190, cxL = 300, R1 = 74, R2 = 46;
+        const A = {x:cxL - R1, y:baseY}, B = {x:cxL + R1, y:baseY};
+        const arcBig = arcPts(cxL, baseY, R1, -180, 0, 80);
+        const arcSm = arcPts(cxL, baseY, R2, -180, 0, 60);
+        poly(s, arcBig, cAmberSoft, 0.95);
+        stroke3(s, arcBig, COL.amber, 2.5);
+        stroke3(s, arcSm, COL.purple, 2.5);
+        stroke3(s, arcBig.concat(arcSm.slice().reverse()), COL.coral, 1.6, "5,4");
+        dot(s, A.x, A.y, COL.coral);
+        dot(s, B.x, B.y, COL.coral);
+        lbl(s, "R", cxL, baseY - R1 + 4, COL.amber, "middle", 12);
+        lbl(s, "r", cxL, baseY - R2 - 6, COL.purple, "middle", 12);
+        lbl(s, lang === "ru" ? "луна = круг \u2212 сегмент" : "півмісяць = коло \u2212 сегм", cxL, 212, cInkSoft, "middle", 12);
+      })();
+
+      /* ================= конструктор задачи ================= */
+      (function interactive(){
+        const RIn = root.querySelector("#geoCv-R");
+        const angIn = root.querySelector("#geoCv-ang");
+        const rIn = root.querySelector("#geoCv-r");
+        const out = root.querySelector("#geoCv-readout");
+        const sw = root.querySelector("#geoCv-switch");
+        const s = root.querySelector("#geoCv-svg");
+        const MODES = ["sector", "segment", "ring"];
+        const NAME = {
+          sector:{ru:"Сектор", ua:"Сектор"},
+          segment:{ru:"Сегмент", ua:"Сегмент"},
+          ring:{ru:"Кольцо и луна", ua:"Кільце та півмісяць"}
+        };
+        const NOTE = {
+          sector:{ru:"Сектор отмеряется долей от целого круга. Меняйте угол и смотрите, как полоса расширяется: при α = 360° в неё попадает весь круг, при α = 90° — четверть. Площадь пропорциональна углу линейно, без всяких синусов.",
+                  ua:"Сектор відмірюється часткою від усього кола. Змінюйте кут і дивіться, як смужка розширюється: за α = 360° у неї потрапляє все коло, за α = 90° — чверть. Площа пропорційна куту лінійно, без жодних синусів."},
+          segment:{ru:"Сегмент — это сектор за вычетом треугольника. Пока α меньше 180°, треугольник растёт медленнее сектора, и сегмент остаётся меньше половины круга. Перешагните 180°: sin α станет отрицательным, и формула перестанет работать напрямую — придётся считать S = πR² − S(360° − α).",
+                  ua:"Сегмент — це сектор мінус трикутник. Поки α менше за 180°, трикутник зростає повільніше за сектор, і сегмент лишається меншим за половину кола. Перейдіть 180°: sin α стане від'ємним, і формула перестане працювати напряму — доведеться рахувати S = πR² − S(360° − α)."},
+          ring:{ru:"Кольцо — это π(R² − r²), то есть разность квадратов. Обратите внимание: π(R − r)² дало бы площадь сплошного круга радиуса R − r, и с уменьшением толщины кольца ответ падал бы неправильно. Луна справа устроена так же: круг минус сегмент.",
+                ua:"Кільце — це π(R² − r²), тобто різниця квадратів. Зверніть увагу: π(R − r)² дало б площу суцільного кола радіуса R − r, і зі зменшенням товщини кільця відповідь падала б неправильно. Півмісяць праворуч влаштований так само: коло мінус сегмент."}
+        };
+        let mode = "sector";
+        const btns = {};
+        MODES.forEach(function(k){
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = NAME[k][lang];
+          b.addEventListener("click", function(){
+            mode = k;
+            MODES.forEach(function(x){ btns[x].classList.toggle("active", x === k); });
+            draw();
+          });
+          btns[k] = b;
+          sw.appendChild(b);
+        });
+
+        function draw(){
+          const Rv = +RIn.value, ang = +angIn.value, rv = +rIn.value;
+          const rad = ang*Math.PI/180;
+          const sA = Math.sin(rad);
+          const Sfull = Math.PI*Rv*Rv;
+          const Ssect = 0.5*Rv*Rv*rad;                 /* сектор: ½R²α, α в радианах */
+          const Stri = 0.5*Rv*Rv*Math.abs(sA);         /* треугольник OAB */
+          const Sseg = Ssect - Stri;
+          const rin = Math.min(rv, Math.max(0.2, Rv - 0.2));
+          const Sring = Math.PI*(Rv*Rv - rin*rin);
+          const cx = 200, cy = 155;
+          const sc = Math.min(128/Rv, 1.8);
+          const Rp = Rv*sc;
+
+          s.innerHTML = "";
+          let cells = "", fml = "";
+
+          if(mode === "ring"){
+            ringPath(s, cx, cy, Rp, rin*sc, cTealSoft, 0.9);
+            circ(s, cx, cy, Rp, COL.blue, 2.5);
+            circ(s, cx, cy, rin*sc, COL.blue, 2.5);
+            seg(s, cx, cy, cx + Rp, cy, COL.coral, 1.8);
+            seg(s, cx, cy, cx + rin*sc, cy, COL.coral, 1.8);
+            dot(s, cx, cy, cInk, 4);
+            lbl(s, "R", cx + Rp/2, cy - 8, COL.coral, "middle", 12);
+            lbl(s, "r", cx + rin*sc/2, cy - 8, COL.coral, "middle", 12);
+            const Lx = cx + 112, R2 = 44;
+            const baseY = cy + 62;
+            const arcBig = arcPts(Lx, baseY, R2, -180, 0, 72);
+            const arcSm = arcPts(Lx, baseY, R2*0.62, -180, 0, 56);
+            poly(s, arcBig, cAmberSoft, 0.95);
+            stroke3(s, arcBig, COL.amber, 2.2);
+            stroke3(s, arcSm, COL.purple, 2.2);
+            stroke3(s, arcBig.concat(arcSm.slice().reverse()), COL.coral, 1.4, "5,4");
+            lbl(s, lang === "ru" ? "луна" : "півмісяць", Lx, baseY + 18, cInkSoft, "middle", 11);
+            fml = "S = \u03c0(R\u00b2 \u2212 r\u00b2) = \u03c0(" + fmt(Rv) + "\u00b2 \u2212 " + fmt(rin) + "\u00b2) = " + fmt(Sring);
+            cells += "<div><span>R</span>" + fmt(Rv) + "</div>";
+            cells += "<div><span>r</span>" + fmt(rin) + "</div>";
+            cells += "<div><span>\u03c0R\u00b2</span>" + fmt(Sfull) + "</div>";
+            cells += "<div><span>\u03c0r\u00b2</span>" + fmt(Math.PI*rin*rin) + "</div>";
+            cells += "<div><span>" + L.ring[lang] + "</span>" + fmt(Sring) + "</div>";
+          } else {
+            const a0 = -90 - ang/2, a1 = -90 + ang/2;
+            const arc = arcPts(cx, cy, Rp, a0, a1, 90);
+            const O = {x:cx, y:cy}, A = arc[0], B = arc[arc.length - 1];
+            const rMid = (a0 + a1)/2 * Math.PI/180;
+            if(mode === "sector"){
+              poly(s, [O].concat(arc), cAmberSoft, 0.9);
+              stroke3(s, [O, A, B], cInkSoft, 1.6, "4,4");
+              stroke3(s, [O, A], COL.blue, 2.5);
+              stroke3(s, [O, B], COL.blue, 2.5);
+              lbl(s, L.sect[lang], cx + Rp*0.6*Math.cos(rMid), cy + Rp*0.6*Math.sin(rMid), COL.amber, "middle", 12);
+            } else {
+              poly(s, arc, cTealSoft, 0.95);
+              poly(s, [O, A, B], cAccentSoft, 0.95);
+              stroke3(s, [O, A, B], COL.blue, 2);
+              const mid = arc[Math.round(arc.length/2)];
+              lbl(s, L.segm[lang], cx + (mid.x - cx)*0.82, cy + (mid.y - cy)*0.82, COL.teal, "middle", 12);
+              lbl(s, L.tri[lang], (cx + A.x + B.x)/3, (cy + A.y + B.y)/3 + 16, COL.blue, "middle", 11);
+            }
+            if(ang < 360) circ(s, cx, cy, Rp, cLine, 1.4, "5,4");
+            seg(s, O.x, O.y, cx + Rp*Math.cos(rMid), cy + Rp*Math.sin(rMid), COL.coral, 1.8);
+            const angArc = arcPts(cx, cy, Math.min(30, Rp*0.35), a0, a1, 40);
+            stroke3(s, angArc, COL.coral, 1.8);
+            lbl(s, "\u03b1", cx + Math.min(46, Rp*0.5)*Math.cos(rMid), cy + Math.min(46, Rp*0.5)*Math.sin(rMid) + 4, COL.coral, "middle", 13);
+            lbl(s, "R", cx + Rp*0.62*Math.cos(rMid), cy + Rp*0.62*Math.sin(rMid) - 10, COL.coral, "middle", 12);
+            dot(s, O.x, O.y, cInk, 4);
+            dot(s, A.x, A.y, COL.blue);
+            dot(s, B.x, B.y, COL.blue);
+            lbl(s, "O", cx - 12, cy + 16, cInk, "end", 12);
+            lbl(s, "A", A.x - 4, A.y + (A.y < cy ? -10 : 18), COL.blue, A.x < cx ? "end" : "start", 12);
+            lbl(s, "B", B.x + 6, B.y + (B.y < cy ? -10 : 18), COL.blue, "start", 12);
+
+            if(mode === "sector"){
+              fml = "S = ½·R²·\u03b1 = ½·" + fmt(Rv) + "\u00b2·" + fmt(rad) + " = " + fmt(Ssect);
+              cells += "<div><span>R</span>" + fmt(Rv) + "</div>";
+              cells += "<div><span>\u2220\u03b1 " + L.deg[lang] + "</span>" + deg0(ang) + DEG + "</div>";
+              cells += "<div><span>\u03b1 " + L.rad[lang] + "</span>" + fmt(rad) + "</div>";
+              cells += "<div><span>\u03c0R\u00b2</span>" + fmt(Sfull) + "</div>";
+              cells += "<div><span>" + L.sect[lang] + "</span>" + fmt(Ssect) + "</div>";
+            } else {
+              fml = "S = ½·R²·(\u03b1 \u2212 sin \u03b1) = ½·" + fmt(Rv) + "\u00b2·(" + fmt(rad) + " \u2212 " + fmt(sA) + ") = " + fmt(Sseg);
+              cells += "<div><span>R</span>" + fmt(Rv) + "</div>";
+              cells += "<div><span>\u03b1 " + L.rad[lang] + "</span>" + fmt(rad) + "</div>";
+              cells += "<div><span>sin \u03b1</span>" + fmt(sA) + "</div>";
+              cells += "<div><span>" + L.sect[lang] + "</span>" + fmt(Ssect) + "</div>";
+              cells += "<div><span>" + L.tri[lang] + "</span>" + fmt(Stri) + "</div>";
+              cells += "<div><span>" + L.segm[lang] + "</span>" + fmt(Sseg) + "</div>";
+            }
+          }
+          cells += "<div class=\"wide\"><span>" + (lang === "ru" ? "формула" : "формула") + "</span>" + fml + "</div>";
+          cells += "<div class=\"wide note\">" + NOTE[mode][lang] + "</div>";
+          out.innerHTML = cells;
+        }
+        [RIn, angIn, rIn].forEach(function(i){ i.addEventListener("input", draw); });
+        btns.sector.classList.add("active");
+        draw();
+      })();
+
+      /* ================= типичные ошибки ================= */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#geoCv-mistakes");
+        wrap.innerHTML = "";
+        const ms = [
+          { q:{ru:"Кольцо образовано окружностями радиусов 8 и 5. Чему равна его площадь?",
+              ua:"Кільце утворене колами радіусів 8 і 5. Чому дорівнює його площа?"},
+            opts:[{ru:"39π",ua:"39π"},{ru:"9π",ua:"9π"},{ru:"13π",ua:"13π"},{ru:"64π − 5π",ua:"64π − 5π"}], correct:0,
+            exp:{ru:"Ошибка №1. Кольцо — это πR² − πr², то есть π(64 − 25) = 39π. Вариант 9π получился из π(R − r)² = π·9: здесь радиусы сначала вычли и только потом возвели в квадрат. Так считают площадь сплошного круга радиуса 3, а не кольца. Проверка на здравый смысл: кольцо тонкое, значит площадь должна быть заметно меньше площади большого круга 64π — и 39π этому отвечает, а 9π даже меньше круга радиуса 4.",
+                 ua:"Помилка №1. Кільце — це πR² − πr², тобто π(64 − 25) = 39π. Варіант 9π виник із π(R − r)² = π·9: тут радіуси спершу відняли і лише потім піднесли до квадрата. Так рахують площу суцільного кола радіуса 3, а не кільця. Перевірка на здоровий глузд: кільце тонке, отже площа має бути помітно меншою за площу великого кола 64π — і 39π цьому відповідає, а 9π навіть менше за коло радіуса 4."} },
+          { q:{ru:"Площадь сегмента при центральном угле α = 240°. Какой ход верный?",
+              ua:"Площа сегмента при центральному куті α = 240°. Який хід правильний?"},
+            opts:[{ru:"подставить α = 240° в формулу ½R²(α − sin α)",ua:"підставити α = 240° у формулу ½R²(α − sin α)"},
+                  {ru:"взять S = πR² − S(360° − α)",ua:"взяти S = πR² − S(360° − α)"},
+                  {ru:"взять половину площади круга",ua:"взяти половину площі кола"},
+                  {ru:"посчитать только треть сектора",ua:"порахувати лише третину сектора"}], correct:1,
+            exp:{ru:"Ошибка №2. Прямая подстановка здесь даёт ерунду: sin 240° = −√3/2, значит в скобке α − sin α = 4π/3 + √3/2, и формула выдаст площадь больше сектора. Правильный ход — посчитать меньший сегмент с углом 360° − 240° = 120° и вычесть его из полного круга. Общее правило: если угол больше 180°, работаем с дополнением до полного круга.",
+                 ua:"Помилка №2. Пряма підстановка тут дає нісеніт: sin 240° = −√3/2, отже в дужках α − sin α = 4π/3 + √3/2, і формула видасть площу більшу за сектор. Правильний хід — порахувати менший сегмент із кутом 360° − 240° = 120° і відняти його від повного кола. Загальне правило: якщо кут більший за 180°, працюємо з доповненням до повного кола."} },
+          { q:{ru:"Сегмент при R = 2 и α = 180°. Чему равна его площадь?",
+              ua:"Сегмент при R = 2 та α = 180°. Чому дорівнює його площа?"},
+            opts:[{ru:"2π",ua:"2π"},{ru:"π",ua:"π"},{ru:"4π",ua:"4π"},{ru:"0",ua:"0"}], correct:0,
+            exp:{ru:"Ошибка №3. Здесь sin α = 0, и формула даёт S = ½·4·π = 2π — это полукруг радиуса 2, и всё правильно. Ошибаются здесь обычно в другом: считают, что при α = 180° хорда совпадает с диаметром и «треугольник исчезает», то есть S = 0. Но исчезает не площадь треугольника — она равна нулю, потому что точки лежат на одной прямой, а сам сегмент в этот момент равен ровно полукругу. Проверка: сегмент при 180° должен равняться половине площади круга 4π, то есть 2π.",
+                 ua:"Помилка №3. Тут sin α = 0, і формула дає S = ½·4·π = 2π — це півкруг радіуса 2, і все правильно. Помиляються тут зазвичай у іншому: вважають, що за α = 180° хорда збігається з діаметром і «трикутник зникає», тобто S = 0. Але зникає не площа трикутника — вона дорівнює нулю, бо точки лежать на одній прямій, а сам сегмент у цей момент дорівнює рівно півкругу. Перевірка: сегмент за 180° має дорівнювати половині площі кола 4π, тобто 2π."} }
+        ];
+        ms.forEach(function(m){
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q[lang];
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          m.opts.forEach(function(opt, oi){
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt[lang];
+            b.addEventListener("click", function(){
+              [...opts.children].forEach(c => c.disabled = true);
+              if(oi === m.correct) b.classList.add("correct");
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              const ex = document.createElement("div");
+              ex.className = "mis-exp";
+              ex.textContent = m.exp[lang];
+              item.appendChild(ex);
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Сектор радиуса 6 с углом 60°. Площадь:", ua:"Сектор радіуса 6 з кутом 60°. Площа:"}, opts:["6π","12π","3π","36π"], correct:0 },
+        { q:{ru:"Сегмент того же радиуса и угла. Площадь:", ua:"Сегмент того самого радіуса й кута. Площа:"}, opts:["6π − 9√3","6π","9√3","3π"], correct:0 },
+        { q:{ru:"Площадь полукруга при R = 5:", ua:"Площа півкруга при R = 5:"}, opts:["12.5π","25π","6.25π","50π"], correct:0 },
+        { q:{ru:"Площадь кольца с радиусами 8 и 5:", ua:"Площа кільця з радіусами 8 і 5:"}, opts:["39π","9π","13π","64π − 5π"], correct:0 },
+        { q:{ru:"Сегмент при R = 6 и α = 240° равен:", ua:"Сегмент при R = 6 та α = 240° дорівнює:"},
+          opts:["28π + 9√3","8π − 9√3","36π","28π − 9√3"], correct:0 },
+        { q:{ru:"Чему равен сегмент при α = 180°?",
+              ua:"Чому дорівнює сегмент за α = 180°?"},
+          opts:[{ru:"половине площади круга",ua:"половині площі кола"},{ru:"нулю",ua:"нулю"},
+                {ru:"всей площади круга",ua:"всій площі кола"},{ru:"четверти площади круга",ua:"чверті площі кола"}], correct:0 },
+        { q:{ru:"Формула π(R − r)² даёт площадь:",
+              ua:"Формула π(R − r)² дає площу:"},
+          opts:[{ru:"круга радиуса R − r",ua:"кола радіуса R − r"},{ru:"кольца",ua:"кільця"},
+                {ru:"сектора",ua:"сектора"},{ru:"сегмента",ua:"сегмента"}], correct:0 }
+      ]);
+    }
+  },
+
+/* ---------- LESSON geoRose (полярные кривые. роза) ---------- */
+{
+    id: "geoRose", module: 5,
+    RU: {
+      intro: "Обычная система координат плохо подходит для кругов и волн: чтобы описать окружность, приходится возиться с корнем. Полярная система сделана ровно под это — у точки всего два числа: расстояние до начала и угол. А формулы в ней так просты, что роза с восемью лепестками получается из одной строки.",
+      c1: "1. Полярная система координат",
+      c1p: "Начало координат называется полюсом, а луч вправо — полярной осью. Точка задаётся парой (r, φ): r — расстояние от полюса, φ — угол от полярной оси против часовой стрелки. Связь с обычными координатами прямая, как перевод фразы на другой язык.",
+      i1: "<b>x = r · cos φ</b> &nbsp;&nbsp; <b>y = r · sin φ</b> &nbsp;&nbsp; <b>r = √(x² + y²)</b>",
+      i1n: "Разрешённый угол обычно берут от 0 до 360° (или от −180° до 180°), а расстояние r считают неотрицательным. Иногда удобнее разрешить отрицательные r: точка с r &lt; 0 и углом φ — это та же точка, что с r &gt; 0 и углом φ + 180°. Именно этой вольностью пользуются, когда строят розу.",
+      i1p: "Проверка на частном случае: r = a и φ = 0 даёт точку (a, 0) на самой полярной оси, φ = 90° даёт (0, a) — на вертикали. Всё сходится с обычным прямоугольным треугольником.",
+      c2: "2. Роза: r = a · cos(kφ)",
+      c2p: "Роза — кривая, у которой расстояние до полюса зависит от угла как косинус. Множитель a задаёт длину лепестка, целое число k — их количество. Это самая знаменитая полярная кривая: при k = 4 получается четырёхлепестковая роза, при k = 7 — семилепестковая.",
+      o1: "<b>r = a · cos(kφ)</b> &nbsp;&nbsp; a &gt; 0, &nbsp;k — натуральное число",
+      o2: "<b>k чётное</b> → лепестков <b>2k</b><br><b>k нечётное</b> → лепестков <b>k</b>",
+      o2n: "Правило не запоминают, его считают. Когда cos(kφ) = 0, радиус обращается в ноль — это начало лепестка. При чётном k угол нулевого радиуса проходит мимо полюса чётное число раз, и лепестков вдвое больше. Проверка: k = 1 даёт 2 лепестка по формуле, но на деле выходит одна окружность с центром на оси — это тот же случай, где формула «перестаёт работать», и нужно просто построить график.",
+      o3: "<b>Длина лепестка = a</b>, и достигается она там, где kφ кратно 2π.",
+      c3: "3. Ключевые точки",
+      e1: "<b>Начало лепестка:</b> cos(kφ) = 0 &nbsp;→&nbsp; φ = 90°/k, 270°/k, …<br><b>Вершина лепестка:</b> kφ = 0 &nbsp;→&nbsp; r = a<br><b>Ноль радиуса</b> означает, что кривая проходит через полюс.",
+      e1n: "Вершины удобно находить через производную: dr/dφ = −a·k·sin(kφ) обращается в ноль там, где sin(kφ) = 0, то есть ровно там, где функция достигает максимума и минимума. Получается 2k экстремумов на полном обороте — и это же число, которое отвечает за количество лепестков.",
+      c4: "4. Соседние кривые",
+      e2: "<b>Кардиоида:</b> r = a · (1 + cos φ)<br><b>Улитка:</b> r = a + b · cos φ",
+      e2n: "Кардиоида при φ = 0 уходит вдаль на 2a, а при φ = 180° приходит в полюс — получается фигура с острым кончиком и круглым углублением, похожая на сердце. Улитка устроена гибче: если a больше b, петли не будет и кривая остаётся выпуклой; если a меньше b, внизу образуется внутренняя петля. Случай a = b — как раз кардиоида.",
+      interLabel: "Конструктор — двигайте a, k и угол, переключайте кривую",
+      exTitle: "5. Разбор задач",
+      ex1: "<b>1. r = 3 cos φ.</b><br>Лепесток один, длина 3 — и это, как ни странно, окружность радиуса 1.5 с центром на оси. Формула k = 1 даёт «2 лепестка», но они совпадают.",
+      ex2: "<b>2. r = 2 sin 2φ.</b><br>k = 2 чётное → <b>4 лепестка</b>. Максимумы там, где 2φ = 90°, то есть φ = 45°, 135°, 225°, 315° — лепестки развёрнуты на 45° относительно оси.",
+      ex3: "<b>3. r = 5 cos 3φ.</b><br>k = 3 нечётное → <b>3 лепестка</b>, длина каждого 5. Первый лепесток лежит вдоль полярной оси.",
+      ex4: "<b>4. Найти число лепестков.</b><br>r = a cos 4φ → 2·4 = <b>8</b>. &nbsp;r = a cos 6φ → 2·6 = <b>12</b>. &nbsp;r = a cos 5φ → <b>5</b>.",
+      ex5: "<b>5. Улитка r = 3 + 5 cos φ.</b><br>a = 3 &lt; b = 5, значит есть внутренняя петля.<br>Максимум: r = 3 + 5 = <b>8</b> при φ = 0. &nbsp;Минимум: r = 3 − 5 = <b>−2</b>, то есть точка на расстоянии 2 в противоположную сторону.",
+      ex6: "<b>6. Ключевая точка.</b> r = 4 cos 3φ, найти φ, где r = 0.<br>cos 3φ = 0 → 3φ = 90° + 180°n → φ = <b>30°, 90°, 150°, 210°, 270°, 330°</b> — шесть начал трёх лепестков.",
+      b1n: "Площади криволинейных фигур",
+      b1d: "Сектор, сегмент и кольцо — это частные случаи, когда граница фигуры идёт по дуге окружности. Полярные координаты приводят к тому же через угол: r и φ — это те же длина и угол, только в другой системе.",
+      b2n: "Производная и экстремумы",
+      b2d: "Число лепестков и их длины находятся через производную: dr/dφ = −a·k·sin(kφ) обращается в ноль ровно в вершинах. Тот же приём работает для любой параметрически заданной кривой.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "Звичайна система координат погано підходить для кіл і хвиль: щоб описати коло, доводиться возитися з коренем. Полярна система зроблена саме для цього — у точки всього два числа: відстань до початку та кут. А формули в ній такі прості, що троянда з восьма пелюстками отримується з одного рядка.",
+      c1: "1. Полярна система координат",
+      c1p: "Початок координат називається полюсом, а промінь праворуч — полярною віссю. Точка задається парою (r, φ): r — відстань від полюса, φ — кут від полярної осі проти годинникової стрілки. Зв'язок зі звичайними координатами прямий, як переклад фрази іншою мовою.",
+      i1: "<b>x = r · cos φ</b> &nbsp;&nbsp; <b>y = r · sin φ</b> &nbsp;&nbsp; <b>r = √(x² + y²)</b>",
+      i1n: "Дозволений кут зазвичай беруть від 0 до 360° (або від −180° до 180°), а відстань r вважають невід'ємною. Іноді зручніше дозволити від'ємні r: точка з r &lt; 0 і кутом φ — це та сама точка, що з r &gt; 0 і кутом φ + 180°. Саме цією свободою користуються, коли будують троянду.",
+      i1p: "Перевірка на частинному випадку: r = a і φ = 0 дає точку (a, 0) на самій полярній осі, φ = 90° дає (0, a) — на вертикалі. Усе сходиться зі звичайним прямокутним трикутником.",
+      c2: "2. Троянда: r = a · cos(kφ)",
+      c2p: "Троянда — крива, в якої відстань до полюса залежить від кута як косинус. Множник a задає довжину пелюстка, ціле число k — їхню кількість. Це найвідоміша полярна крива: за k = 4 отримується чотирипелюсткова троянда, за k = 7 — семипелюсткова.",
+      o1: "<b>r = a · cos(kφ)</b> &nbsp;&nbsp; a &gt; 0, &nbsp;k — натуральне число",
+      o2: "<b>k парне</b> → пелюстків <b>2k</b><br><b>k непарне</b> → пелюстків <b>k</b>",
+      o2n: "Правило не запам'ятовують, його рахують. Коли cos(kφ) = 0, радіус обертається на нуль — це початок пелюстка. За парного k кут нульового радіуса проходить повз полюс парну кількість разів, і пелюстків удвічі більше. Перевірка: k = 1 дає 2 пелюстки за формулою, але насправді виходить одне коло з центром на осі — це той самий випадок, де формула «перестає працювати», і треба просто побудувати графік.",
+      o3: "<b>Довжина пелюстка = a</b>, і вона досягається там, де kφ кратне 2π.",
+      c3: "3. Ключові точки",
+      e1: "<b>Початок пелюстка:</b> cos(kφ) = 0 &nbsp;→&nbsp; φ = 90°/k, 270°/k, …<br><b>Вершина пелюстка:</b> kφ = 0 &nbsp;→&nbsp; r = a<br><b>Нуль радіуса</b> означає, що крива проходить через полюс.",
+      e1n: "Вершини зручно знаходити через похідну: dr/dφ = −a·k·sin(kφ) обертається на нуль там, де sin(kφ) = 0, тобто рівно там, де функція досягає максимуму й мінімуму. Отримується 2k екстремумів на повному оберті — і це ж число, яке відповідає за кількість пелюстків.",
+      c4: "4. Сусідні криві",
+      e2: "<b>Кардіоїда:</b> r = a · (1 + cos φ)<br><b>Равлик:</b> r = a + b · cos φ",
+      e2n: "Кардіоїда за φ = 0 відходить далеко на 2a, а за φ = 180° приходить у полюс — виходить фігура з гострим кінчиком і круглим заглибленням, схожа на серце. Равлик влаштований гнучкіше: якщо a більший за b, петлі не буде і крива лишається опуклою; якщо a менший за b, внизу утворюється внутрішня петля. Випадок a = b — це якраз кардіоїда.",
+      interLabel: "Конструктор — рухайте a, k і кут, перемикайте криву",
+      exTitle: "5. Розбір задач",
+      ex1: "<b>1. r = 3 cos φ.</b><br>Пелюсток один, довжина 3 — і це, як не дивно, коло радіуса 1.5 з центром на осі. Формула k = 1 дає «2 пелюстки», але вони збігаються.",
+      ex2: "<b>2. r = 2 sin 2φ.</b><br>k = 2 парне → <b>4 пелюстки</b>. Максимуми там, де 2φ = 90°, тобто φ = 45°, 135°, 225°, 315° — пелюстки розгорнуті на 45° відносно осі.",
+      ex3: "<b>3. r = 5 cos 3φ.</b><br>k = 3 непарне → <b>3 пелюстки</b>, довжина кожного 5. Перший пелюсток лежить уздовж полярної осі.",
+      ex4: "<b>4. Знайти кількість пелюстків.</b><br>r = a cos 4φ → 2·4 = <b>8</b>. &nbsp;r = a cos 6φ → 2·6 = <b>12</b>. &nbsp;r = a cos 5φ → <b>5</b>.",
+      ex5: "<b>5. Равлик r = 3 + 5 cos φ.</b><br>a = 3 &lt; b = 5, отже є внутрішня петля.<br>Максимум: r = 3 + 5 = <b>8</b> за φ = 0. &nbsp;Мінімум: r = 3 − 5 = <b>−2</b>, тобто точка на відстані 2 у протилежний бік.",
+      ex6: "<b>6. Ключова точка.</b> r = 4 cos 3φ, знайти φ, де r = 0.<br>cos 3φ = 0 → 3φ = 90° + 180°n → φ = <b>30°, 90°, 150°, 210°, 270°, 330°</b> — шість початків трьох пелюстків.",
+      b1n: "Площі криволінійних фігур",
+      b1d: "Сектор, сегмент і кільце — це часткові випадки, коли межа фігури йде по дузі кола. Полярні координати ведуть до того самого через кут: r і φ — це ті самі довжина й кут, лише в іншій системі.",
+      b2n: "Похідна та екстремуми",
+      b2d: "Кількість пелюстків і їхні довжини знаходяться через похідну: dr/dφ = −a·k·sin(kφ) обертається на нуль саме у вершинах. Той самий прийом працює для будь-якої параметрично заданої кривої.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      sys: "Полярная система: полюс, полярная ось, точка с радиусом r и углом φ, прямоугольный треугольник с катетами x и y",
+      roses: "Три розы: при k = 1, k = 2 и k = 3",
+      live: "Конструктор полярных кривых: роза, кардиоида и улитка"
+    },
+    ARIA_UA: {
+      sys: "Полярна система: полюс, полярна вісь, точка з радіусом r і кутом φ, прямокутний трикутник із катетами x та y",
+      roses: "Три троянди: за k = 1, k = 2 та k = 3",
+      live: "Конструктор полярних кривих: троянда, кардіоїда та равлик"
+    },
+    title: {ru: "Полярные кривые. Роза", ua: "Полярні криві. Троянди"},
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <p>${t.c1p}</p>
+      <div class="formula-box">${t.i1}</div>
+      <svg id="geoRo-sys-svg" viewBox="0 0 400 250" role="img" aria-label="${A.sys}" style="width:100%;height:auto;margin-top:8px;"></svg>
+      <p>${t.i1n}</p>
+      <div class="formula-box">${t.i1p}</div>
+
+      <h3>${t.c2}</h3>
+      <p>${t.c2p}</p>
+      <div class="formula-box">${t.o1}</div>
+      <div class="formula-box">${t.o2}</div>
+      <p>${t.o2n}</p>
+      <svg id="geoRo-roses-svg" viewBox="0 0 400 230" role="img" aria-label="${A.roses}" style="width:100%;height:auto;margin-top:8px;"></svg>
+      <div class="formula-box">${t.o3}</div>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+
+      <h3>${t.c4}</h3>
+      <div class="formula-box">${t.e2}</div>
+      <p>${t.e2n}</p>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="geoRo-switch"></div>
+        <input type="range" id="geoRo-a" min="0.5" max="5" step="0.5" value="2" style="width:100%;margin-top:8px;">
+        <input type="range" id="geoRo-k" min="1" max="6" step="1" value="2" style="width:100%;">
+        <input type="range" id="geoRo-phi" min="0" max="360" step="5" value="0" style="width:100%;">
+        <div class="readout" id="geoRo-readout"></div>
+        <svg id="geoRo-svg" viewBox="0 0 400 300" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="geoRo-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="geoCurved">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="der3">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>`;
+    },
+
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInk = getComputedStyle(root).getPropertyValue("--ink").trim() || "#243447";
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      const DEG = "\u00b0";
+      function el(tag, at){ const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) n.setAttribute(k, at[k]); return n; }
+      function text(s, str, at){ const n = el("text", at); n.textContent = str; s.appendChild(n); return n; }
+      function seg(s, x1, y1, x2, y2, color, w, dash){
+        const at = {x1:x1, y1:y1, x2:x2, y2:y2, stroke:color, "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("line", at));
+      }
+      function fmtPts(pts){ return pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "); }
+      function poly(s, pts, fill, op){
+        s.appendChild(el("polygon",{points:fmtPts(pts), fill:fill, "fill-opacity":(op===undefined?0.8:op), stroke:"none"}));
+      }
+      function poly3(s, pts, color, w, dash){
+        const at = {points:fmtPts(pts), fill:"none", stroke:color, "stroke-width":(w||2), "stroke-linejoin":"round", "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("polyline", at));
+      }
+      function circ(s, cx, cy, r, color, w, dash, op){
+        const at = {cx:cx, cy:cy, r:r, fill:"none", stroke:color, "stroke-width":(w||2)};
+        if(dash) at["stroke-dasharray"] = dash;
+        if(op !== undefined){ at["fill"] = color; at["fill-opacity"] = op; }
+        s.appendChild(el("circle", at));
+      }
+      function dot(s, x, y, color, r){ s.appendChild(el("circle",{cx:x, cy:y, r:(r||4.5), fill:color})); }
+      function lbl(s, str, x, y, color, anchor, size){
+        text(s, str, {x:x, y:y, fill:color, "font-size":(size||13), "font-family":MONO, "text-anchor":(anchor||"middle"), "font-weight":700});
+      }
+      function arcPts(cx, cy, r, a0, a1, n){
+        const p = [];
+        for(let i = 0; i <= n; i++){
+          const a = (a0 + (a1 - a0)*i/n) * Math.PI/180;
+          p.push({x: cx + r*Math.cos(a), y: cy - r*Math.sin(a)});
+        }
+        return p;
+      }
+      function rosePts(cx, cy, sc, a, k, n){
+        const p = [];
+        const N = n || 720;
+        for(let i = 0; i <= N; i++){
+          const ph = i/N*2*Math.PI;
+          const r = a*Math.cos(k*ph);
+          p.push({x: cx + r*sc*Math.cos(ph), y: cy - r*sc*Math.sin(ph)});
+        }
+        return p;
+      }
+      function limaconPts(cx, cy, sc, a, b, n){
+        const p = [];
+        const N = n || 720;
+        for(let i = 0; i <= N; i++){
+          const ph = i/N*2*Math.PI;
+          const r = a + b*Math.cos(ph);
+          p.push({x: cx + r*sc*Math.cos(ph), y: cy - r*sc*Math.sin(ph)});
+        }
+        return p;
+      }
+      function fmt(x){ return Math.round(x*100)/100; }
+      function deg0(x){ return Math.round(x); }
+      const L = {
+        rose:{ru:"розы", ua:"троянди"},
+        petals:{ru:"лепестков", ua:"пелюстків"},
+        cardioid:{ru:"кардиоида", ua:"кардіоїда"},
+        limacon:{ru:"улитка", ua:"равлик"},
+        loop:{ru:"есть петля", ua:"є петля"},
+        noLoop:{ru:"петли нет", ua:"петлі нема"},
+        convex:{ru:"выпуклая", ua:"опукла"}
+      };
+
+      /* 1. полярная система: r, φ и прямоугольный треугольник */
+      (function drawSys(){
+        const s = root.querySelector("#geoRo-sys-svg");
+        s.innerHTML = "";
+        const O = {x:200, y:130};
+        const phi = 62, R = 105;
+        const rad = phi*Math.PI/180;
+        const P = {x: O.x + R*Math.cos(rad), y: O.y - R*Math.sin(rad)};
+        const fx = P.x, fy = O.y;
+        circ(s, O.x, O.y, R*0.55, cLine, 1.3, "4,4");
+        seg(s, 14, O.y, 386, O.y, cLine, 1.6);
+        seg(s, O.x, 12, O.x, 248, cLine, 1.6);
+        [0, 45, 90, 135, 180, 225, 270, 315].forEach(function(dg){
+          const a = dg*Math.PI/180;
+          const x2 = O.x + R*0.62*Math.cos(a), y2 = O.y - R*0.62*Math.sin(a);
+          seg(s, O.x, O.y, x2, y2, cLine, 1.1, "3,4");
+        });
+        poly(s, [{x:O.x, y:O.y}, {x:fx, y:O.y}, P], cAccentSoft, 0.95);
+        poly3(s, [{x:O.x, y:O.y}, {x:fx, y:O.y}, P], COL.blue, 2);
+        poly3(s, [{x:O.x, y:O.y}, P], COL.coral, 2.5);
+        poly3(s, [{x:O.x, y:O.y}, {x:O.x + R*0.7, y:O.y}], cInkSoft, 1.4, "4,4");
+        circ(s, O.x, O.y, 34, COL.coral, 1.6);
+        dot(s, O.x, O.y, cInk, 4);
+        dot(s, P.x, P.y, COL.blue, 5);
+        lbl(s, "O", O.x - 10, O.y + 16, cInk, "end", 12);
+        lbl(s, "P", P.x + 10, P.y - 6, COL.blue, "start", 12);
+        lbl(s, "r", (O.x + P.x)/2 + 8, (O.y + P.y)/2 - 8, COL.coral, "start", 12);
+        lbl(s, "x", (O.x + fx)/2, O.y + 16, COL.blue, "middle", 12);
+        lbl(s, "y", O.x - 7, (fy + P.y)/2, COL.blue, "end", 12);
+        lbl(s, "\u03c6", O.x + 46, O.y - 12, COL.coral, "middle", 14);
+        lbl(s, deg0(phi) + DEG, O.x + 62, O.y + 4, COL.coral, "start", 11);
+        lbl(s, "x = r\u00b7cos \u03c6,  y = r\u00b7sin \u03c6", 200, 22, cInkSoft, "middle", 13);
+      })();
+
+      /* 2. три розы: k = 1, 2, 3 */
+      (function drawRoses(){
+        const s = root.querySelector("#geoRo-roses-svg");
+        s.innerHTML = "";
+        const OX = [72, 200, 328], OY = 118, R = 46;
+        const LABEL = {
+          1:{ru:"1 лепесток", ua:"1 пелюсток"},
+          2:{ru:"4 лепестка", ua:"4 пелюстки"},
+          3:{ru:"3 лепестка", ua:"3 пелюстки"}
+        };
+        [1, 2, 3].forEach(function(k, i){
+          const cx = OX[i];
+          circ(s, cx, OY, R, cLine, 1.2, "4,4");
+          seg(s, cx - R - 8, OY, cx + R + 8, OY, cLine, 1.2);
+          poly3(s, rosePts(cx, OY, R, 1, k, 480), k === 2 ? COL.amber : (k === 3 ? COL.teal : COL.purple), 2.5);
+          dot(s, cx, OY, cInk, 3.5);
+          lbl(s, "k = " + k, cx, OY + R + 22, cInk, "middle", 13);
+          lbl(s, LABEL[k][lang], cx, OY + R + 40, cInkSoft, "middle", 12);
+        });
+        lbl(s, "r = a\u00b7cos(k\u03c6)", 200, 18, cInkSoft, "middle", 13);
+      })();
+
+      /* ================= конструктор задачи ================= */
+      (function interactive(){
+        const aIn = root.querySelector("#geoRo-a");
+        const kIn = root.querySelector("#geoRo-k");
+        const phIn = root.querySelector("#geoRo-phi");
+        const out = root.querySelector("#geoRo-readout");
+        const sw = root.querySelector("#geoRo-switch");
+        const s = root.querySelector("#geoRo-svg");
+        const MODES = ["rose", "cardioid", "limacon"];
+        const NAME = {
+          rose:{ru:"Роза r = a·cos(kφ)", ua:"Троянда r = a·cos(kφ)"},
+          cardioid:{ru:"Кардиоида r = a(1 + cos φ)", ua:"Кардіоїда r = a(1 + cos φ)"},
+          limacon:{ru:"Улитка r = a + b·cos φ", ua:"Равлик r = a + b·cos φ)"}
+        };
+        const NOTE = {
+          rose:{ru:"Следите за числом лепестков: при k = 2 их четыре, при k = 3 — три, при k = 4 — восемь. Правило: чётное k даёт 2k лепестков, нечётное — k. Проверьте себя на k = 1: там два «лепестка» совпадают, и получается окружность. Меняйте a — лепестки растут или сжимаются, но число их не меняется никогда.",
+                ua:"Стежте за кількістю пелюстків: за k = 2 їх чотири, за k = 3 — три, за k = 4 — вісім. Правило: парне k дає 2k пелюстків, непарне — k. Перевірте себе на k = 1: там два «пелюстки» збігаються, і виходить коло. Змінюйте a — пелюстки ростуть або стискаються, але кількість їх не змінюється ніколи."},
+          cardioid:{ru:"Кардиоида — это улитка с a = b. При φ = 0 радиус максимален и равен 2a, при φ = 180° кривая приходит в полюс, поэтому там получается острый угол. Сравните с розой: у розы радиус меняет знак, здесь он всегда неотрицателен — поэтому у кардиоиды ровно одна петля и она замкнута.",
+                  ua:"Кардіоїда — це равлик з a = b. За φ = 0 радіус максимальний і дорівнює 2a, за φ = 180° крива приходить у полюс, тому там виходить гострий кут. Порівняйте з трояндою: у троянди радіус змінює знак, тут він завжди невід'ємний — тому в кардіоїди рівно одна петля і вона замкнена."},
+          limacon:{ru:"Главное здесь — сравнить a и b. Пока a больше b, внутренней петли нет и кривая выпуклая. При a = b получается кардиоида. Как только b перевалило за a, снизу появляется петля, и часть кривой уходит в отрицательные радиусы: точка с r < 0 лежит на расстоянии |r| в противоположную сторону.",
+                  ua:"Головне тут — порівняти a і b. Поки a більший за b, внутрішньої петлі немає і крива опукла. За a = b отримується кардіоїда. Щойно b перевищило a, знизу з'являється петля, і частина кривої йде у від'ємні радіуси: точка з r < 0 лежить на відстані |r| у протилежний бік."}
+        };
+        let mode = "rose";
+        const btns = {};
+        MODES.forEach(function(k){
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = NAME[k][lang];
+          b.addEventListener("click", function(){
+            mode = k;
+            MODES.forEach(function(x){ btns[x].classList.toggle("active", x === k); });
+            draw();
+          });
+          btns[k] = b;
+          sw.appendChild(b);
+        });
+
+        function draw(){
+          const a = +aIn.value, k = Math.round(+kIn.value), phi = +phIn.value;
+          const b = Math.round(+kIn.value);           /* в режиме улитки это b */
+          const rad = phi*Math.PI/180;
+          if(mode === "rose") kIn.step = 1; else kIn.step = 1;
+
+          const rAt = function(ph){
+            if(mode === "rose") return a*Math.cos(k*ph);
+            if(mode === "cardioid") return a*(1 + Math.cos(ph));
+            return a + b*Math.cos(ph);
+          };
+          const pts = [];
+          const N = 900;
+          for(let i = 0; i <= N; i++){
+            const ph = i/N*2*Math.PI;
+            const r = rAt(ph);
+            pts.push({x: r*Math.cos(ph), y: r*Math.sin(ph)});
+          }
+          let mx = 0;
+          pts.forEach(function(q){ mx = Math.max(mx, Math.hypot(q.x, q.y)); });
+          mx = Math.max(mx, Math.abs(rAt(rad)), a, b);
+          const sc = Math.min(128/Math.max(mx, 0.5), 2.4);
+          const cx = 200, cy = 150;
+          const T = q => ({x: cx + q.x*sc, y: cy - q.y*sc});
+
+          s.innerHTML = "";
+          const L0 = 128/sc;
+          [0.25, 0.5, 0.75, 1].forEach(function(f){
+            circ(s, cx, cy, L0*f, cLine, 1.2, "4,4");
+          });
+          [0, 45, 90, 135, 180, 225, 270, 315].forEach(function(dg){
+            const a2 = dg*Math.PI/180;
+            seg(s, cx, cy, cx + L0*Math.cos(a2), cy - L0*Math.sin(a2), cLine, 1, "3,5");
+          });
+          seg(s, cx - L0, cy, cx + L0, cy, cLine, 1.6);
+          seg(s, cx, cy - L0, cx, cy + L0, cLine, 1.6);
+
+          const drawn = pts.map(T);
+          poly3(s, drawn, mode === "rose" ? COL.amber : (mode === "cardioid" ? COL.teal : COL.purple), 2.8);
+          const rp = rAt(rad);
+          const P = T({x: rp*Math.cos(rad), y: rp*Math.sin(rad)});
+          const O = T({x:0, y:0});
+          const neg = rp < 0;
+          /* отрезок радиуса всегда ведёт к самой точке */
+          poly3(s, [O, P], COL.coral, 2.2);
+          /* при r < 0 пунктиром показываем направление угла φ */
+          if(neg){
+            const dir = T({x: Math.abs(rp)*Math.cos(rad), y: Math.abs(rp)*Math.sin(rad)});
+            poly3(s, [O, dir], COL.coral, 1.6, "5,4");
+            lbl(s, deg0(phi) + DEG, cx + 34*Math.cos(rad), cy - 34*Math.sin(rad) + 4, COL.coral, "middle", 12);
+            lbl(s, (deg0(phi) + 180) % 360 + DEG, cx + 34*Math.cos(rad + Math.PI), cy - 34*Math.sin(rad + Math.PI) + 4, COL.coral, "middle", 12);
+          } else {
+            lbl(s, deg0(phi) + DEG, cx + 34*Math.cos(rad), cy - 34*Math.sin(rad) + 4, COL.coral, "middle", 12);
+          }
+          dot(s, P.x, P.y, COL.blue, 5.5);
+          dot(s, cx, cy, cInk, 4);
+          lbl(s, "r = " + fmt(rp), (cx + P.x)/2 + 10, (cy + P.y)/2 - 8, COL.coral, "start", 12);
+
+          let cells = "", fml = "";
+          if(mode === "rose"){
+            const petals = (k % 2 === 0) ? 2*k : k;
+            fml = "r = " + fmt(a) + "\u00b7cos(" + k + "\u03c6) = " + fmt(a) + "\u00b7cos(" + k + "\u00d7" + fmt(rad) + ") = " + fmt(rp);
+            cells += "<div><span>a</span>" + fmt(a) + "</div>";
+            cells += "<div><span>k</span>" + k + "</div>";
+            cells += "<div><span>" + (k % 2 === 0 ? L.petals[lang] + " = 2k" : L.petals[lang] + " = k") + "</span>" + petals + "</div>";
+            cells += "<div><span>\u03c6 " + (lang === "ru" ? "в градусах" : "у градусах") + "</span>" + deg0(phi) + DEG + "</div>";
+            cells += "<div><span>r</span>" + fmt(rp) + "</div>";
+            cells += "<div><span>x</span>" + fmt(rp*Math.cos(rad)) + "</div>";
+            cells += "<div><span>y</span>" + fmt(rp*Math.sin(rad)) + "</div>";
+            if(rp < 0) cells += "<div class=\"wide warn\">" + (lang === "ru" ? "r отрицателен — точка лежит на расстоянии " + fmt(-rp) + " в противоположную сторону" : "r від'ємний — точка лежить на відстані " + fmt(-rp) + " у протилежний бік") + "</div>";
+          } else if(mode === "cardioid"){
+            fml = "r = " + fmt(a) + "\u00b7(1 + cos \u03c6) = " + fmt(a) + "\u00b7(1 + " + fmt(Math.cos(rad)) + ") = " + fmt(rp);
+            cells += "<div><span>a</span>" + fmt(a) + "</div>";
+            cells += "<div><span>r max = 2a</span>" + fmt(2*a) + "</div>";
+            cells += "<div><span>r min</span>" + fmt(0) + "</div>";
+            cells += "<div><span>r</span>" + fmt(rp) + "</div>";
+            cells += "<div><span>x</span>" + fmt(rp*Math.cos(rad)) + "</div>";
+            cells += "<div><span>y</span>" + fmt(rp*Math.sin(rad)) + "</div>";
+          } else {
+            const rmin = a - b, rmax = a + b;
+            fml = "r = " + fmt(a) + " + " + fmt(b) + "\u00b7cos \u03c6 = " + fmt(a) + " + " + fmt(b) + "\u00b7" + fmt(Math.cos(rad)) + " = " + fmt(rp);
+            cells += "<div><span>a</span>" + fmt(a) + "</div>";
+            cells += "<div><span>b</span>" + fmt(b) + "</div>";
+            cells += "<div><span>r max = a+b</span>" + fmt(rmax) + "</div>";
+            cells += "<div><span>r min = a\u2212b</span>" + fmt(rmin) + "</div>";
+            cells += "<div><span>" + (b > a ? L.loop[lang] : (b === a ? L.cardioid[lang] : L.noLoop[lang] + ", " + L.convex[lang])) + "</span>" + (b > a ? "\u2717" : "\u2713") + "</div>";
+            cells += "<div><span>r</span>" + fmt(rp) + "</div>";
+            if(rp < 0) cells += "<div class=\"wide warn\">" + (lang === "ru" ? "r отрицателен — точка лежит на расстоянии " + fmt(-rp) + " в противоположную сторону" : "r від'ємний — точка лежить на відстані " + fmt(-rp) + " у протилежний бік") + "</div>";
+          }
+          cells += "<div class=\"wide\"><span>" + (lang === "ru" ? "формула" : "формула") + "</span>" + fml + "</div>";
+          cells += "<div class=\"wide note\">" + NOTE[mode][lang] + "</div>";
+          out.innerHTML = cells;
+        }
+        [aIn, kIn, phIn].forEach(function(i){ i.addEventListener("input", draw); });
+        btns.rose.classList.add("active");
+        draw();
+      })();
+
+      /* ================= типичные ошибки ================= */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#geoRo-mistakes");
+        wrap.innerHTML = "";
+        const ms = [
+          { q:{ru:"Сколько лепестков у розы r = a · cos(4φ)?",
+              ua:"Скільки пелюстків у троянди r = a · cos(4φ)?"},
+            opts:[{ru:"4",ua:"4"},{ru:"8",ua:"8"},{ru:"2",ua:"2"},{ru:"16",ua:"16"}], correct:1,
+            exp:{ru:"Ошибка №1. Почти всегда называют k и забывают про чётность. Правило: нечётное k даёт k лепестков, чётное — вдвое больше. При k = 4 получается 2·4 = 8. Проверка через начало лепестка: cos(4φ) = 0 при φ = 22.5°, 67.5°, 112.5° и так далее — всего 8 таких углов на обороте, значит и лепестков восемь.",
+                 ua:"Помилка №1. Майже завжди називають k і забувають про парність. Правило: непарне k дає k пелюстків, парне — удвічі більше. За k = 4 отримується 2·4 = 8. Перевірка через початок пелюстка: cos(4φ) = 0 за φ = 22.5°, 67.5°, 112.5° і так далі — усього 8 таких кутів на оберті, отже й пелюстків вісім."} },
+          { q:{ru:"Улитка r = 2 + 5 · cos φ. Какой у неё вид?",
+              ua:"Равлик r = 2 + 5 · cos φ. Який він має вигляд?"},
+            opts:[{ru:"выпуклая, без петли",ua:"опукла, без петлі"},{ru:"кардиоида",ua:"кардіоїда"},
+                  {ru:"с внутренней петлёй",ua:"з внутрішньою петлею"},{ru:"роза с 5 лепестками",ua:"троянда з 5 пелюстками"}], correct:2,
+            exp:{ru:"Ошибка №2. Всё решает сравнение a и b. Здесь a = 2, b = 5, то есть b больше a — значит внизу появляется внутренняя петля, и часть кривой уходит в отрицательные радиусы (минимум r = 2 − 5 = −3). Если бы b было равно a, получилась бы кардиоида; если b меньше a — обычная выпуклая улитка без петли. Розы это другая формула, здесь о ней и думать не надо.",
+                 ua:"Помилка №2. Усе вирішує порівняння a і b. Тут a = 2, b = 5, тобто b більший за a — отже внизу з'являється внутрішня петля, і частина кривої йде у від'ємні радіуси (мінімум r = 2 − 5 = −3). Якби b дорівнювало a, вийшла б кардіоїда; якщо b менший за a — звичайний опуклий равлик без петлі. Троянда — це інша формула, тут про неї й думати не треба."} },
+          { q:{ru:"На розе r = 3 cos 2φ точка с r = −2. Где она находится?",
+              ua:"На троянді r = 3 cos 2φ точка з r = −2. Де вона розташована?"},
+            opts:[{ru:"на расстоянии 2 в направлении, противоположном углу",ua:"на відстані 2 в напрямку, протилежному куту"},
+                  {ru:"не существует, радиус не может быть отрицательным",ua:"не існує, радіус не може бути від'ємним"},
+                  {ru:"на расстоянии 2 в том же направлении",ua:"на відстані 2 в тому самому напрямку"},
+                  {ru:"на расстоянии −2, то есть в полюсе",ua:"на відстані −2, тобто в полюсі"}], correct:0,
+            exp:{ru:"Ошибка №3. Отрицательный радиус разрешён и именно он делает возможной розу. Знак минус означает, что точка лежит на расстоянии |r| от полюса, но в направлении, развёрнутом на 180°. Иными словами, пара (r, φ) с r < 0 — это та же точка, что (−r, φ + 180°). По этой причине формула r = a·cos(kφ) и рисует лепестки по разные стороны оси: косинус то положителен, то отрицателен.",
+                 ua:"Помилка №3. Від'ємний радіус дозволений і саме він робить можливою троянду. Знак мінус означає, що точка лежить на відстані |r| від полюса, але в напрямку, розгорнутому на 180°. Інакше кажучи, пара (r, φ) з r < 0 — це та сама точка, що (−r, φ + 180°). З цієї причини формула r = a·cos(kφ) і малює пелюстки по різні боки осі: косинус то додатний, то від'ємний."} }
+        ];
+        ms.forEach(function(m){
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q[lang];
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          m.opts.forEach(function(opt, oi){
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt[lang];
+            b.addEventListener("click", function(){
+              [...opts.children].forEach(c => c.disabled = true);
+              if(oi === m.correct) b.classList.add("correct");
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              const ex = document.createElement("div");
+              ex.className = "mis-exp";
+              ex.textContent = m.exp[lang];
+              item.appendChild(ex);
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Сколько лепестков у розы r = a · cos(2φ)?", ua:"Скільки пелюстків у троянди r = a · cos(2φ)?"}, opts:["2","4","3","6"], correct:1 },
+        { q:{ru:"Сколько лепестков у розы r = a · cos(3φ)?", ua:"Скільки пелюстків у троянди r = a · cos(3φ)?"}, opts:["6","3","9","4"], correct:1 },
+        { q:{ru:"Длина лепестка розы r = 7 cos 2φ равна:", ua:"Довжина пелюстка троянди r = 7 cos 2φ дорівнює:"}, opts:["7","14","3.5","2"], correct:0 },
+        { q:{ru:"Чему равен r кардиоиды r = a(1 + cos φ) при φ = 0?",
+              ua:"Чому дорівнює r кардіоїди r = a(1 + cos φ) за φ = 0?"}, opts:["2a","a","0","a/2"], correct:0 },
+        { q:{ru:"Улитка r = 4 + 3 cos φ. Есть ли у неё внутренняя петля?",
+              ua:"Равлик r = 4 + 3 cos φ. Чи є в нього внутрішня петля?"},
+          opts:[{ru:"нет, так как a > b",ua:"ні, бо a > b"},{ru:"да, так как b > a",ua:"так, бо b > a"},
+                {ru:"это кардиоида",ua:"це кардіоїда"},{ru:"это роза",ua:"це троянда"}], correct:0 },
+        { q:{ru:"Как перевести полярные координаты (r, φ) в обычные?",
+              ua:"Як перевести полярні координати (r, φ) у звичайні?"},
+          opts:["x = r·cos φ,  y = r·sin φ","x = r·sin φ,  y = r·cos φ","x = r²·cos φ,  y = r²·sin φ","переводу не поддаются"], correct:0 },
+        { q:{ru:"Сколько экстремумов имеет r = a·cos(kφ) за полный оборот?",
+              ua:"Скільки екстремумів має r = a·cos(kφ) за повний оберт?"}, opts:["2k","k","k/2","2"], correct:0 }
+      ]);
+    }
+  },
+  /* ---------- LESSON geoAxiom (аксиомы стереометрии) ---------- */
+  {
+    id: "geoAxiom", module: 5,
+    RU: {
+      intro: "Простейшие утверждения геометрии принимают на веру — их называют аксиомами, потому что вывести их из чего-то ещё проще нельзя. На плоскости таких утверждений пять, и Евклид обошёлся именно ими. В пространстве этого списка не хватает: появляются вещи, которых на плоскости просто нет, — плоскость, пересечение плоскостей, скрещивающиеся прямые. Их и добавляют отдельными аксиомами.",
+      c1: "1. Что приходится добавлять в пространстве",
+      c1p: "Аксиома — утверждение, которое принимают без доказательства, потому что оно нужно для начала. В пространстве их четыре, и каждая говорит о плоскости.",
+      o1: "<b>А1.</b> Через любые три точки, не лежащие на одной прямой, проходит единственная плоскость.",
+      o2: "<b>А2.</b> Если две пересекающиеся прямые лежат в плоскости, то через их точку пересечения проходит бесконечно много плоскостей.",
+      o3: "<b>А3.</b> Если две параллельные прямые пересечены третьей, то точки пересечения лежат на одной прямой.",
+      o4: "<b>А4.</b> Через любую точку, не лежащую на данной прямой, проходит плоскость, содержащая эту прямую.",
+      o1n: "А1 — рабочая лошадка всей стереометрии: три точки задают плоскость, и никакую другую. Единственность здесь не украшение, а смысл: без неё плоскость через три точки можно было бы провести бесконечно много, и задача не имела бы ответа. Векторная проверка короткая: нормаль n = AB × AC, и она определена ровно тогда, когда точки не коллинеарны.",
+      o2n: "А2 объясняет, почему плоскость нельзя задать двумя точками. Через две точки проходит бесконечно много прямых, а через каждую из них — плоскость. Три неколлинеарные точки ставят в тупик: остаётся единственная.",
+      o4n: "А4 нужна, чтобы построение вообще с чего-то начать. Из неё следует, что через две параллельные прямые проходит плоскость — но это уже теорема, а не аксиома. Разница видна прямо на картинке: плоскость через точку и прямую существует всегда, а вот единственной она будет только если точка не лежит на прямой.",
+      c2: "2. Как называют положения в пространстве",
+      c2p: "Аксиомы дают терминологию: с их помощью различают то, что на плоскости и не различали.",
+      e1: "<b>a ∥ b</b> — прямые лежат в одной плоскости и не пересекаются.<br><b>a ∥ α</b> — прямая и плоскость не имеют общих точек.<br><b>α ∥ β</b> — плоскости не пересекаются.<br><b>a и b скрещиваются</b> — лежат в разных плоскостях и не пересекаются.",
+      e1n: "Скрещивающиеся прямые — главная новизна пространства: на плоскости их не бывает. Проверка на скрещивание идёт в три шага: прямые не параллельны, не пересекаются и не лежат в одной плоскости. Последнее проверяется так — если через точку одной прямой удалось провести прямую, параллельную второй, то прямые компланарны, а если такую провести нельзя, они скрещиваются. И у скрещивающихся прямых есть своя мера: расстояние между ними, то есть длина общего перпендикуляра.",
+      c3: "3. Следствия, которые уже доказывают",
+      c3p: "Из аксиом вырастают теоремы — их можно и нужно доказывать.",
+      a1: "Через две параллельные прямые проходит единственная плоскость.",
+      a2: "Через две пересекающиеся прямые проходит единственная плоскость.",
+      a3: "Через прямую и точку вне неё проходит единственная плоскость.",
+      a4: "Пересечение двух плоскостей, если оно есть, — прямая.",
+      a4n: "Последнее стоит проверить отдельно: две плоскости либо не пересекаются вовсе (параллельны), либо пересекаются по прямой. Варианта «пересекаются в точке» не бывает. Действительно, если плоскости имеют общую точку, то через неё и через любую прямую первой плоскости проходит вторая, а прямых первой плоскости через эту точку можно провести бесконечно много — значит, общая часть не может сойтись в точку.",
+      interLabel: "Конструктор — три точки и плоскость через них",
+      exTitle: "4. Разбор задач",
+      ex1: "<b>1. Три точки лежат на одной прямой. Сколько плоскостей через них можно провести?</b><br>Бесконечно много. А1 говорит о трёх точках, <b>не лежащих на одной прямой</b>, — этот случай там специально исключён, и именно его чаще всего забывают. По А2 плоскость через точку и прямую поворачивается вокруг этой прямой, как дверь на петле.",
+      ex2: "<b>2. Две прямые скрещиваются. Сколько у них общих точек?</b><br>Ни одной — это и есть определение скрещивания. Зато у них есть общая мера: расстояние между скрещивающимися прямыми, то есть длина общего перпендикуляра. В приведённом наверху чертеже это отрезок длиной 2.",
+      ex3: "<b>3. Точки A, B, C не лежат на одной прямой. Сколько плоскостей они задают?</b><br>Ровно одну — это прямо А1. Векторная проверка: n = AB × AC ≠ 0, и тогда плоскость записывается как n·(r − A) = 0.",
+      ex4: "<b>4. Через точку P вне прямой l провели две разные плоскости, содержащие l. Ошибка?</b><br>Ошибка: плоскость через точку и прямую единственна. А вот если точка лежит <b>на</b> прямой, плоскостей бесконечно много — она крутится вокруг прямой. Одно лишнее слово в условии полностью меняет ответ.",
+      ex5: "<b>5. Могут ли плоскости α и β пересекаться в одной точке?</b><br>Нет, не могут. Либо пересечение пусто (параллельные плоскости), либо это целая прямая. Пересечения в одной точке в пространстве не бывает — это стоит запомнить, потому что на плоскости две прямые так ведут себя всегда.",
+      ex6: "<b>6. Заданы A, B, C. Написать уравнение плоскости через них.</b><br>Взять нормаль n = AB × AC и записать n·(r − A) = 0. Если совсем уж коротко — сначала сдвинуть начало координат в одну из точек, тогда уравнение станет n·r = 0.",
+      b1n: "Перпендикулярность в пространстве",
+      b1d: "Общий перпендикуляр к скрещивающимся прямым — уже几何 предмет, но сама идея «прямая и плоскость» рождается здесь: аксиомы задают плоскость, а аксиомы перпендикуляности говорят, как измерять расстояние до неё.",
+      b2n: "Сечения многогранников",
+      b2d: "Сечение строят в одной плоскости, поэтому всё, что касается определения плоскости, работает и здесь: три найденные точки задают секущую плоскость, и никакой другой вариант невозможен.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "Найпростіші твердження геометрії приймають на віру — їх називають аксіомами, бо вивести їх із чогось простішого неможливо. На площині таких тверджень п'ять, і Евклід обійшовся саме ними. У просторі цього списку бракує: з'являються речі, яких на площині просто немає, — площина, перетин площин, скромні прямі. Їх і додають окремими аксіомами.",
+      c1: "1. Що доводиться додавати у просторі",
+      c1p: "Аксіома — твердження, яке приймають без доказу, бо воно потрібне для початку. У просторі їх чотири, і кожне говорить про площину.",
+      o1: "<b>А1.</b> Через будь-які три точки, які не лежать на одній прямій, проходить єдина площина.",
+      o2: "<b>А2.</b> Якщо дві прямі, що перетинаються, лежать у площині, то через їхню точку перетину проходить безліч площин.",
+      o3: "<b>А3.</b> Якщо дві паралельні прямі перетнуто третьою, то точки перетину лежать на одній прямій.",
+      o4: "<b>А4.</b> Через будь-яку точку, що не лежить на даній прямій, проходить площина, яка містить цю пряму.",
+      o1n: "А1 — робоча конячка всієї стереометрії: три точки задають площину, і жодної іншої. Єдиність тут не прикраса, а смисл: без неї площину через три точки можна було б провести безліч, і задача не мала б відповіді. Векторна перевірка коротка: нормаль n = AB × AC, і вона визначена рівно тоді, коли точки не колінеарні.",
+      o2n: "А2 пояснює, чому площину не можна задати двома точками. Через дві точки проходить безліч прямих, а через кожну з них — площина. Три неколінеарні точки ставлять у глухий кут: лишається єдина.",
+      o4n: "А4 потрібна, щоб побудова взагалі з чогось почалася. З неї випливає, що через дві паралельні прямі проходить площина — але це вже теорема, а не аксіома. Різниця видно просто на картинці: площина через точку й пряму існує завжди, а от єдиною вона буде лише тоді, коли точка не лежить на прямій.",
+      c2: "2. Як називають розміщення у просторі",
+      c2p: "Аксіоми дають термінологію: за їхньою допомогою розрізняють те, що на площині й не розрізняли.",
+      e1: "<b>a ∥ b</b> — прямі лежать в одній площині і не перетинаються.<br><b>a ∥ α</b> — пряма й площина не мають спільних точок.<br><b>α ∥ β</b> — площини не перетинаються.<br><b>a і b скромні</b> — лежать у різних площинах і не перетинаються.",
+      e1n: "Скромні прямі — головна новина простору: на площині їх не буває. Перевірка на скромність іде у три кроки: прямі не паралельні, не перетинаються і не лежать в одній площині. Останнє перевіряється так — якщо через точку однієї прямої вдалося провести пряму, паралельну другій, то прямі компланарні, а якщо таку провести не можна, вони скромні. І в скромних прямих є своя міра: відстань між ними, тобто довжина спільного перпендикуляра.",
+      c3: "3. Наслідки, які вже доводять",
+      c3p: "З аксіом виростають теореми — їх можна і треба доводити.",
+      a1: "Через дві паралельні прямі проходить єдина площина.",
+      a2: "Через дві прямі, що перетинаються, проходить єдина площина.",
+      a3: "Через пряму й точку поза нею проходить єдина площина.",
+      a4: "Перетин двох площин, якщо він є, — пряма.",
+      a4n: "Останнє варто перевірити окремо: дві площини або не перетинаються взагалі (паралельні), або перетинаються по прямій. Варіанта «перетинаються в точці» не буває. Справді, якщо площини мають спільну точку, то через неї й через будь-яку пряму першої площини проходить друга, а прямих першої площини через цю точку можна провести безліч — отже, спільна частина не може збігтися в точку.",
+      interLabel: "Конструктор — три точки і площина через них",
+      exTitle: "4. Розбір задач",
+      ex1: "<b>1. Три точки лежать на одній прямій. Скільки площин через них можна провести?</b><br>Безліч. А1 каже про три точки, <b>що не лежать на одній прямій</b>, — цей випадок там спеціально виключений, і саме його найчастіше забувають. За А2 площина через точку й пряму обертається навколо цієї прямої, як двері на завісі.",
+      ex2: "<b>2. Дві прямі скромні. Скільки в них спільних точок?</b><br>Жодної — це й є визначення скромності. Зате в них є спільна міра: відстань між скромними прямими, тобто довжина спільного перпендикуляра. У наведеному вгорі кресленні це відрізок довжиною 2.",
+      ex3: "<b>3. Точки A, B, C не лежать на одній прямій. Скільки площин вони задають?</b><br>Рівно одну — це просто А1. Векторна перевірка: n = AB × AC ≠ 0, і тоді площина записується як n·(r − A) = 0.",
+      ex4: "<b>4. Через точку P поза прямою l провели дві різні площини, що містять l. Помилка?</b><br>Помилка: площина через точку й пряму єдина. А от якщо точка лежить <b>на</b> прямій, площин безліч — вона крутиться навколо прямої. Одне зайве слово в умові повністю змінює відповідь.",
+      ex5: "<b>5. Чи можуть площини α і β перетинатися в одній точці?</b><br>Ні, не можуть. Або перетин порожній (паралельні площини), або це ціла пряма. Перетину в одній точці в просторі не буває — це варто запам'ятати, бо на площині дві прямі так поводяться завжди.",
+      ex6: "<b>6. Задані A, B, C. Написати рівняння площини через них.</b><br>Взяти нормаль n = AB × AC і записати n·(r − A) = 0. Якщо зовсім коротко — спершу зсунути початок координат в одну з точок, тоді рівняння стане n·r = 0.",
+      b1n: "Перпендикулярність у просторі",
+      b1d: "Спільний перпендикуляр до скромних прямих — уже几何 предмет, але сама ідея «пряма й площина» народжується тут: аксіоми задають площину, а аксіоми перпендикулярності кажуть, як вимірювати відстань до неї.",
+      b2n: "Перерізи многогранників",
+      b2d: "Переріз будують в одній площині, тому все, що стосується визначення площини, працює й тут: три знайдені точки задають секущу площину, і жоден інший варіант неможливий.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      planes: "Две плоскости α и β пересекаются по прямой m, точка A не лежит на плоскости β, через точку A и прямую m проведена плоскость",
+      skew: "Две скрещивающиеся прямые a и b и их общий перпендикуляр длиной 2",
+      live: "Конструктор: три точки A, B и C и проходящая через них плоскость"
+    },
+    ARIA_UA: {
+      planes: "Дві площини α і β перетинаються по прямій m, точка A не лежить на площині β, через точку A і пряму m проведена площина",
+      skew: "Дві скромні прямі a і b та їх спільний перпендикуляр довжиною 2",
+      live: "Конструктор: три точки A, B і C і площина, що проходить через них"
+    },
+    title: {ru: "Аксиомы стереометрии", ua: "Аксіоми стереометрії"},
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <p>${t.c1p}</p>
+      <div class="formula-box">${t.o1}</div>
+      <div class="formula-box">${t.o2}</div>
+      <div class="formula-box">${t.o3}</div>
+      <div class="formula-box">${t.o4}</div>
+      <p>${t.o1n}</p>
+      <p>${t.o2n}</p>
+      <svg id="geoAx-planes-svg" viewBox="0 0 400 250" role="img" aria-label="${A.planes}" style="width:100%;height:auto;margin-top:8px;"></svg>
+      <p>${t.o4n}</p>
+
+      <h3>${t.c2}</h3>
+      <p>${t.c2p}</p>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+      <svg id="geoAx-skew-svg" viewBox="0 0 400 210" role="img" aria-label="${A.skew}" style="width:100%;height:auto;margin-top:8px;"></svg>
+
+      <h3>${t.c3}</h3>
+      <p>${t.c3p}</p>
+      <div class="formula-box">${t.a1}</div>
+      <div class="formula-box">${t.a2}</div>
+      <div class="formula-box">${t.a3}</div>
+      <div class="formula-box">${t.a4}</div>
+      <p>${t.a4n}</p>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="geoAx-switch"></div>
+        <input type="range" id="geoAx-cx" min="0" max="6" step="0.5" value="2" style="width:100%;margin-top:8px;">
+        <input type="range" id="geoAx-cy" min="-2" max="5" step="0.5" value="3" style="width:100%;">
+        <input type="range" id="geoAx-cz" min="-2" max="5" step="0.5" value="1" style="width:100%;">
+        <div class="readout" id="geoAx-readout"></div>
+        <svg id="geoAx-svg" viewBox="0 0 400 300" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="geoAx-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="geoPerp">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="stereo4">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>`;
+    },
+
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInk = getComputedStyle(root).getPropertyValue("--ink").trim() || "#243447";
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      function el(tag, at){ const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) n.setAttribute(k, at[k]); return n; }
+      function text(s, str, at){ const n = el("text", at); n.textContent = str; s.appendChild(n); return n; }
+      function seg(s, x1, y1, x2, y2, color, w, dash){
+        const at = {x1:x1, y1:y1, x2:x2, y2:y2, stroke:color, "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("line", at));
+      }
+      function poly(s, pts, fill, op){
+        s.appendChild(el("polygon",{points:pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "), fill:fill, "fill-opacity":(op===undefined?0.75:op), stroke:"none"}));
+      }
+      function line3(s, pts, color, w, dash){
+        const at = {points:pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "), fill:"none", stroke:color, "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("polyline", at));
+      }
+      function dot(s, x, y, color, r){ s.appendChild(el("circle",{cx:x, cy:y, r:(r||4.5), fill:color})); }
+      function lbl(s, str, x, y, color, anchor, size, italic){
+        const at = {x:x, y:y, fill:color, "font-size":(size||13), "font-family":MONO, "text-anchor":(anchor||"middle"), "font-weight":700};
+        if(italic) at["font-style"] = "italic";
+        text(s, str, at);
+      }
+      /* изометрическая проекция: x вправо-вниз, y влево-вниз, z вверх */
+      /* две проекции: для схемы с плоскостями (viewBox 400x250) и для конструктора (400x300) */
+      function isoP(x, y, z){ return {x: 200 + (x - y)*20, y: 185 - (x + y)*8 - z*16}; }
+      function isoC(x, y, z){ return {x: 200 + (x - y)*20, y: 185 - (x + y)*8 - z*14}; }
+      function cross(u, v){ return {x: u.y*v.z - u.z*v.y, y: u.z*v.x - u.x*v.z, z: u.x*v.y - u.y*v.x}; }
+      function sub(u, v){ return {x: u.x - v.x, y: u.y - v.y, z: u.z - v.z}; }
+      function norm(u){ const L = Math.hypot(u.x, u.y, u.z); return L ? {x:u.x/L, y:u.y/L, z:u.z/L} : {x:0,y:0,z:0}; }
+      function len3(u){ return Math.hypot(u.x, u.y, u.z); }
+      function f1(x){ return Math.round(x*10)/10; }
+
+      /* 1. две плоскости, пересекающиеся по прямой, и плоскость через точку и прямую */
+      (function drawPlanes(){
+        const s = root.querySelector("#geoAx-planes-svg");
+        s.innerHTML = "";
+        const I = isoP;
+        const O = I(0, 0, 0);
+        /* α: z = 0 */
+        const aQuad = [I(-1,-3.5,0), I(6,-3.5,0), I(6,3.5,0), I(-1,3.5,0)];
+        /* β: y = 0 */
+        const bQuad = [I(-1,0,-1.2), I(6,0,-1.2), I(6,0,4), I(-1,0,4)];
+        /* γ: через m (ось x) и A */
+        const A = {x:2, y:2.2, z:1.6};
+        function g(u, v){ return I(u + 2*v, 2.2*v, 1.6*v); }
+        const gQuad = [g(-1,-0.9), g(6,-0.9), g(6,0.9), g(-1,0.9)];
+        poly(s, aQuad, cAccentSoft, 0.9);
+        poly(s, bQuad, cAmberSoft, 0.9);
+        poly(s, gQuad, COL.purple, 0.14);
+        line3(s, aQuad.concat([aQuad[0]]), COL.blue, 1.8);
+        line3(s, bQuad.concat([bQuad[0]]), COL.amber, 1.8);
+        line3(s, gQuad.concat([gQuad[0]]), COL.purple, 1.8, "6,4");
+        /* m */
+        line3(s, [I(-1.4,0,0), I(7.4,0,0)], cInk, 2.6);
+        dot(s, O.x, O.y, cInk, 4);
+        const AP = I(A.x, A.y, A.z);
+        dot(s, AP.x, AP.y, COL.purple, 5);
+        seg(s, AP.x, AP.y, I(2,0,0).x, I(2,0,0).y, COL.purple, 1.3, "3,4");
+        lbl(s, "\u03b1", I(-0.4, 2.4, 0).x, I(-0.4, 2.4, 0).y - 8, COL.blue, "middle", 15, true);
+        lbl(s, "\u03b2", I(5.2, 0, 3.6).x + 10, I(5.2, 0, 3.6).y, COL.amber, "middle", 15, true);
+        lbl(s, "\u03b3", g(5.2, 0.8).x + 10, g(5.2, 0.8).y, COL.purple, "middle", 15, true);
+        lbl(s, "m", I(3.6,0,0).x, I(3.6,0,0).y - 10, cInk, "middle", 13, true);
+        lbl(s, "A", AP.x + 10, AP.y - 6, COL.purple, "start", 13);
+        lbl(s, "\u03b1 \u2229 \u03b2 = m", 20, 22, cInkSoft, "start", 13);
+      })();
+
+      /* 2. скрещивающиеся прямые и их общий перпендикуляр */
+      (function drawSkew(){
+        const s = root.querySelector("#geoAx-skew-svg");
+        s.innerHTML = "";
+        const I = isoP;
+        const aDir = {x:1, y:0, z:0}, bDir = {x:0, y:1, z:0};
+        const aPts = [I(-1, 0.6, 0), I(7.2, 0.6, 0)];
+        const bPts = [I(2.6, -1, 2), I(2.6, 5, 2)];
+        line3(s, aPts, COL.blue, 2.4);
+        line3(s, bPts, COL.teal, 2.4);
+        /* общий перпендикуляр: направление a × b */
+        const cpDir = norm(cross(aDir, bDir));
+        const A1 = {x:2.6, y:0.6, z:0}, B1 = {x:2.6, y:0.6, z:2};
+        const A1p = I(A1.x, A1.y, A1.z), B1p = I(B1.x, B1.y, B1.z);
+        line3(s, [A1p, B1p], COL.coral, 2.6);
+        dot(s, A1p.x, A1p.y, COL.blue, 4.5);
+        dot(s, B1p.x, B1p.y, COL.teal, 4.5);
+        /* прямые углы */
+        [0.34, 0.62].forEach(function(t){
+          const p = I(A1.x + 0, A1.y + 0, t*2);
+          seg(s, p.x - 7, p.y, p.x + 7, p.y, COL.coral, 1.2);
+        });
+        lbl(s, "a", aPts[0].x - 10, aPts[0].y - 6, COL.blue, "end", 13, true);
+        lbl(s, "b", bPts[1].x - 10, bPts[1].y - 6, COL.teal, "end", 13, true);
+        lbl(s, "d = 2", (A1p.x + B1p.x)/2 + 12, (A1p.y + B1p.y)/2, COL.coral, "start", 13);
+        lbl(s, "a \u2229 b = \u2205,  \u2223(a, b) = 2", 20, 20, cInkSoft, "start", 12);
+      })();
+
+      /* 3. конструктор: три точки и плоскость через них */
+      (function build(){
+        const sw = root.querySelector("#geoAx-switch");
+        const out = root.querySelector("#geoAx-readout");
+        const svg = root.querySelector("#geoAx-svg");
+        const cxIn = root.querySelector("#geoAx-cx");
+        const cyIn = root.querySelector("#geoAx-cy");
+        const czIn = root.querySelector("#geoAx-cz");
+
+        const PRESET = {
+          flat:{ru:"плоскость z = 0", ua:"площина z = 0", v:{x:2, y:3, z:0}},
+          tilt:{ru:"наклонная плоскость", ua:"похила площина", v:{x:1, y:3, z:2}},
+          line:{ru:"три точки на прямой", ua:"три точки на прямій", v:{x:3, y:0, z:0}}
+        };
+        const btns = {};
+        Object.keys(PRESET).forEach(function(k){
+          const b = document.createElement("button");
+          b.className = "switch-btn";
+          b.textContent = PRESET[k][lang];
+          b.addEventListener("click", function(){
+            cxIn.value = PRESET[k].v.x;
+            cyIn.value = PRESET[k].v.y;
+            czIn.value = PRESET[k].v.z;
+            btns.flat.classList.remove("active");
+            btns.tilt.classList.remove("active");
+            btns.line.classList.toggle("active", k === "line");
+            if(k === "flat") btns.flat.classList.add("active");
+            if(k === "tilt") btns.tilt.classList.add("active");
+            draw();
+          });
+          sw.appendChild(b);
+          btns[k] = b;
+        });
+        btns.flat.classList.add("active");
+
+        function draw(){
+          svg.innerHTML = "";
+          const I = isoC;
+          const A = {x:0, y:0, z:0};
+          const B = {x:5, y:0, z:0};
+          const C = {x:+cxIn.value, y:+cyIn.value, z:+czIn.value};
+          const AB = sub(B, A), AC = sub(C, A);
+          const n = cross(AB, AC);
+          const nL = len3(n);
+          const collinear = nL < 1e-9;
+          const nn = norm(n);
+
+          /* оси */
+          const axEnd = {x:-2.2, y:0, z:0}, ayEnd = {x:0, y:-2.6, z:0}, azEnd = {x:0, y:0, z:3.2};
+          [[axEnd, "x", COL.coral], [ayEnd, "y", COL.teal], [azEnd, "z", COL.blue]].forEach(function(a){
+            const p0 = I(0,0,0), p1 = I(a[0].x, a[0].y, a[0].z);
+            seg(svg, p0.x, p0.y, p1.x, p1.y, cLine, 1.4);
+            lbl(svg, a[1], p1.x + (a[1] === "x" ? 8 : -8), p1.y + 4, a[2], a[1] === "x" ? "start" : "end", 12, true);
+          });
+          /* плоскость через A, B, C */
+          let planeQuads = null;
+          if(!collinear){
+            const u = norm(AB);
+            const v = norm(AC);
+            function q(a, b){ return I(A.x + a*u.x + b*v.x, A.y + a*u.y + b*v.y, A.z + a*u.z + b*v.z); }
+            planeQuads = [q(-5,-3), q(5,-3), q(5,3), q(-5,3)];
+            poly(svg, planeQuads, COL.purple, 0.12);
+            line3(svg, planeQuads.concat([planeQuads[0]]), COL.purple, 1.8, "7,4");
+            lbl(svg, "\u03b1", q(0, 3.3).x, q(0, 3.3).y - 6, COL.purple, "middle", 14, true);
+          }
+          /* отрезки AB, AC, BC */
+          const PA = I(A.x,A.y,A.z), PB = I(B.x,B.y,B.z), PC = I(C.x,C.y,C.z);
+          [[PA,PB,COL.coral],[PA,PC,COL.coral],[PB,PC,COL.coral]].forEach(function(e){
+            seg(svg, e[0].x, e[0].y, e[1].x, e[1].y, COL.coral, collinear ? 2 : 1.6, collinear ? null : "5,4");
+          });
+          /* нормаль */
+          if(!collinear){
+            const tip = I(A.x + nn.x*2.6, A.y + nn.y*2.6, A.z + nn.z*2.6);
+            seg(svg, PA.x, PA.y, tip.x, tip.y, COL.blue, 2.2);
+            line3(svg, [tip, {x:tip.x - (tip.y > PA.y ? 7 : -7), y:tip.y + (tip.y > PA.y ? -7 : 7)},
+                       {x:tip.x + (tip.y > PA.y ? 7 : -7), y:tip.y + (tip.y > PA.y ? -7 : 7)}], COL.blue, 1.6);
+            lbl(svg, "n", tip.x + 10, tip.y - 4, COL.blue, "start", 12, true);
+          }
+          dot(svg, PA.x, PA.y, cInk, 4.5);
+          dot(svg, PB.x, PB.y, COL.coral, 5);
+          dot(svg, PC.x, PC.y, COL.amber, 5);
+          lbl(svg, "A", PA.x - 10, PA.y + 5, cInk, "end", 13);
+          lbl(svg, "B", PB.x + 10, PB.y - 4, COL.coral, "start", 13);
+          lbl(svg, "C", PC.x + 10, PC.y - 4, COL.amber, "start", 13);
+
+          let cells = "";
+          cells += "<div><span>A</span>(0, 0, 0)</div>";
+          cells += "<div><span>B</span>(5, 0, 0)</div>";
+          cells += "<div><span>C</span>(" + f1(C.x) + ", " + f1(C.y) + ", " + f1(C.z) + ")</div>";
+          cells += "<div><span>AB \u00d7 AC</span>(" + f1(n.x) + ", " + f1(n.y) + ", " + f1(n.z) + ")</div>";
+          if(collinear){
+            cells += "<div><span>|n|</span>0</div>";
+            cells += "<div class=\"wide warn\">" + (lang === "ru"
+              ? "Точки лежат на одной прямой — плоскостей через них бесконечно много"
+              : "Точки лежать на одній прямій — площин через них безліч") + "</div>";
+            cells += "<div class=\"wide\">" + (lang === "ru"
+              ? "А1 не применима: она требует трёх точек, не лежащих на одной прямой"
+              : "А1 не застосовна: вона вимагає трьох точок, які не лежать на одній прямій") + "</div>";
+          } else {
+            cells += "<div><span>|n|</span>" + f1(nL) + "</div>";
+            cells += "<div><span>" + (lang === "ru" ? "плоскостей" : "площин") + "</span>1</div>";
+            /* уравнение с правильными знаками: 2x \u2212 5y + z, без плюса перед минусом */
+            let eq = "";
+            [n.x, n.y, n.z].forEach(function(v, k){
+              const r = f1(v);
+              if(r === 0) return;
+              const nm = ["x", "y", "z"][k];
+              eq += (eq === "" ? (r < 0 ? "\u2212" : "") : (r > 0 ? " + " : " \u2212 ")) + Math.abs(r) + nm;
+            });
+            cells += "<div class=\"wide\">" + (lang === "ru"
+              ? "n \u00b7 (r \u2212 A) = 0 \u2192 " + (eq || "0") + " = 0"
+              : "n \u00b7 (r \u2212 A) = 0 \u2192 " + (eq || "0") + " = 0") + "</div>";
+            cells += "<div class=\"wide note\">" + (lang === "ru"
+              ? "Нормаль не нулевая \u2192 точки не коллинеарны \u2192 плоскость единственна (А1)"
+              : "Нормаль ненульова \u2192 точки не колінеарні \u2192 площина єдина (А1)") + "</div>";
+          }
+          out.innerHTML = cells;
+        }
+        [cxIn, cyIn, czIn].forEach(function(i){ i.addEventListener("input", draw); });
+        draw();
+      })();
+
+      /* ================= типичные ошибки ================= */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#geoAx-mistakes");
+        wrap.innerHTML = "";
+        const ms = [
+          { q:{ru:"Три точки задают единственную плоскость. Всегда ли так?",
+              ua:"Три точки задають єдину площину. Завжди так?"},
+            opts:[{ru:"да, это аксиома А1",ua:"так, це аксіома А1"},
+                  {ru:"нет, если точки лежат на одной прямой",ua:"ні, якщо точки лежать на одній прямій"},
+                  {ru:"нет, если точки совпадают",ua:"ні, якщо точки збігаються"},
+                  {ru:"да, но только для точек на плоскости",ua:"так, але лише для точок на площині"}], correct:1,
+            exp:{ru:"Ошибка №1. Формулировку А1 помнят наизусть и опускают концовку. Там есть «не лежащие на одной прямой», и это не украшение, а существенное условие. Три точки на одной прямой задают не плоскость, а прямую, а плоскостей через них бесконечно много — они поворачиваются вокруг этой прямой. Проверка в одну строку: n = AB × AC; если |n| = 0, точки коллинеарны и плоскость не определена.",
+                 ua:"Помилка №1. Формулювання А1 запам'ятовують напам'ять і опускають хвостик. Там є «що не лежать на одній прямій», і це не прикраса, а суттєва умова. Три точки на одній прямій задають не площину, а пряму, а площин через них безліч — вони обертаються навколо цієї прямої. Перевірка в один рядок: n = AB × AC; якщо |n| = 0, точки колінеарні і площина не визначена."} },
+          { q:{ru:"Прямая не пересекает плоскость. Значит, она параллельна этой плоскости?",
+              ua:"Пряма не перетинає площину. Отже, вона паралельна цій площині?"},
+            opts:[{ru:"да, это определение",ua:"так, це визначення"},
+                  {ru:"нет, если она всё же лежит в этой плоскости",ua:"ні, якщо вона все ж лежить у цій площині"},
+                  {ru:"да, потому что общих точек нет",ua:"так, бо спільних точок немає"},
+                  {ru:"нет, параллельность в пространстве не определена",ua:"ні, паралельність у просторі не визначена"}], correct:1,
+            exp:{ru:"Ошибка №2. У определения «прямая параллельна плоскости» есть тонкость, на которой спотыкаются. Параллельны только те прямые, что не имеют с плоскостью общих точек. Прямая, которая не пересекает плоскость, потому что це вся плоскость лежит в ней, параллельной не является — она лежит в плоскости. Признак параллельности другой: прямая, параллельная двум пересекающимся прямым плоскости, параллельна и самой плоскости.",
+                 ua:"Помилка №2. У визначення «пряма паралельна площині» є тонкість, на якій спотикаються. Паралельні лише ті прямі, що не мають із площиною спільних точок. Пряма, яка не перетинає площину, бо це вся площина лежить у ній, паралельною не є — вона лежить у площині. Ознака паралельності інша: пряма, паралельна двом прямім, що перетинаються, площини, паралельна й самій площині."} },
+          { q:{ru:"Две плоскости могут пересекаться в одной точке.",
+              ua:"Дві площини можуть перетинатися в одній точці."},
+            opts:[{ru:"да, если они не параллельны",ua:"так, якщо вони не паралельні"},
+                  {ru:"нет, пересечение двух плоскостей — всегда прямая",ua:"ні, перетин двох площин — завжди пряма"},
+                  {ru:"да, если плоскости не совпадают",ua:"так, якщо площини не збігаються"},
+                  {ru:"нет, потому что такого пересечения не бывает",ua:"ні, бо такого перетину не буває"}], correct:1,
+            exp:{ru:"Ошибка №3. На плоскости две прямые ведут себя так всегда, и этот опыт переносится в пространство автоматически — а зря. В пространстве плоскости либо не пересекаются вовсе, либо пересекаются по целой прямой. Пересечения в одной точке не бывает: если плоскости имеют общую точку, то через неё проходит вся вторая плоскость, а это сразу бесконечно много прямых первой. Проверка на координатах: система из двух уравнений плоскостей либо несовместна, либо её решение — прямая.",
+                 ua:"Помилка №3. На площині дві прямі поводяться так завжди, і цей досвід переноситься у простір автоматично — а даремно. У просторі площини або не перетинаються взагалі, або перетинаються по цілій прямій. Перетину в одній точці не буває: якщо площини мають спільну точку, то через неї проходить вся друга площина, а це відразу безліч прямих першої. Перевірка на координатах: система з двох рівнянь площин або несумісна, або її розв'язок — пряма."} }
+        ];
+        ms.forEach(function(m){
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q[lang];
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          m.opts.forEach(function(opt, oi){
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt[lang];
+            b.addEventListener("click", function(){
+              [...opts.children].forEach(c => c.disabled = true);
+              if(oi === m.correct) b.classList.add("correct");
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              const ex = document.createElement("div");
+              ex.className = "mis-exp";
+              ex.textContent = m.exp[lang];
+              item.appendChild(ex);
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Через сколько точек, не лежащих на одной прямой, проходит единственная плоскость?",
+              ua:"Через скільки точок, які не лежать на одній прямій, проходить єдина площина?"},
+          opts:["две","три","четыре","одну"], correct:1 },
+        { q:{ru:"Три точки лежат на одной прямой. Сколько плоскостей можно провести через них?",
+              ua:"Три точки лежать на одній прямій. Скільки площин можна провести через них?"},
+          opts:[{ru:"одна",ua:"одна"},{ru:"ни одной",ua:"жодної"},{ru:"бесконечно много",ua:"безліч"},{ru:"две",ua:"дві"}], correct:2 },
+        { q:{ru:"Прямая лежит в плоскости. Она параллельна этой плоскости?",
+              ua:"Пряма лежить у площині. Вона паралельна цій площині?"},
+          opts:[{ru:"да",ua:"так"},{ru:"нет",ua:"ні"},{ru:"только если она не лежит в ней",ua:"лише якщо вона не лежить у ній"},{ru:"зависит от плоскости",ua:"залежить від площини"}], correct:1 },
+        { q:{ru:"Как называются прямые, лежащие в разных плоскостях и не пересекающиеся?",
+              ua:"Як називаються прямі, які лежать у різних площинах і не перетинаються?"},
+          opts:[{ru:"параллельные",ua:"паралельні"},{ru:"перпендикулярные",ua:"перпендикулярні"},
+                {ru:"скрещивающиеся",ua:"скромні"},{ru:"сонаправленные",ua:"сонапрямлені"}], correct:2 },
+        { q:{ru:"Через точку, лежащую на прямой, и эту прямую проходит сколько плоскостей?",
+              ua:"Через точку, що лежить на прямій, і цю пряму проходить скільки площин?"},
+          opts:["одна","бесконечно много","ни одной","две"], correct:1 },
+        { q:{ru:"Что является пересечением двух непараллельных плоскостей?",
+              ua:"Що є перетином двох непаралельних площин?"},
+          opts:[{ru:"точка",ua:"точка"},{ru:"прямая",ua:"пряма"},{ru:"окружность",ua:"коло"},{ru:"угол",ua:"кут"}], correct:1 },
+        { q:{ru:"Векторное произведение AB × AC даёт:", ua:"Векторний добуток AB × AC дає:"},
+          opts:[{ru:"уравнение плоскости ABC",ua:"рівняння площини ABC"},
+                {ru:"длину площади треугольника",ua:"довжину площі трикутника"},
+                {ru:"перпендикуляр к плоскости ABC",ua:"перпендикуляр до площини ABC"},
+                {ru:"длину высоты треугольника",ua:"довжину висоти трикутника"}], correct:2 }
+      ]);
+    }
+  },
+  /* ---------- LESSON geoPerp (перпендикулярность в пространстве) ---------- */
+  {
+    id: "geoPerp", module: 5,
+    RU: {
+      intro: "На плоскости всё просто: перпендикулярные прямые пересекаются под прямым углом, и доказательство занимает три строки. В пространстве прямые могут и не пересекаться, поэтому определение приходится переписывать с нуля. Зато появляется вещь, которой на плоскости нет вовсе: расстояние от точки до плоскости, и вся стереометрия дальше стоит на ней.",
+      c1: "1. Прямая, перпендикулярная плоскости",
+      c1p: "Прямая a перпендикулярна плоскости α, если она перпендикулярна каждой прямой плоскости. Перпендикулярность прямой и плоскости обозначают a ⊥ α.",
+      o1: "<b>a ⊥ α</b> &nbsp;прямая a перпендикулярна плоскости α",
+      o2: "<b>Признак:</b> прямая перпендикулярна плоскости, если она перпендикулярна <b>двум пересекающимся</b> прямым этой плоскости, проходящим через их точку пересечения.",
+      o2n: "Условие «две пересекающиеся» здесь не для красоты, а обязательно. Одна прямая в плоскости ничего не говорит: через любую точку вне плоскости можно провести прямую, перпендикулярную выбранной прямой в плоскости, и это ничего не значит. Перпендикулярность прямой и плоскости — свойство всей плоскости сразу, а не одной её прямой.",
+      o3: "<b>Теорема:</b> из точки вне плоскости к этой плоскости можно провести <b>единственный</b> перпендикуляр. Его длина и есть расстояние от точки до плоскости.",
+      c2: "2. Свойства перпендикуляра",
+      e1: "<b>Свойство 1.</b> Прямая, перпендикулярная плоскости, перпендикулярна всякой прямой плоскости, проходящей через точку пересечения, и параллельна любой другой прямой плоскости.<br><b>Свойство 2.</b> Все прямые, перпендикулярные одной и той же плоскости, параллельны друг другу.",
+      e1n: "Свойство 1 доказывается через прямоугольный треугольник, и в нём вся суть: пусть AH ⊥ α и BH лежит в α. Тогда в треугольнике ABH два угла по 90°, значит третий тоже 90° — то есть BH ⊥ AH. Для прямой, не проходящей через H, рассуждение то же: сперва доказывают для параллельной ей прямой через H, а потом пользуются единственностью перпендикуляра.",
+      e2n: "Свойство 2 объясняет, почему высоты зданий параллельны друг другу: они все перпендикулярны одной плоскости — земле.",
+      c3: "3. Теорема о трёх перпендикулярах",
+      e3: "Пусть из точки S проведён перпендикуляр SH на плоскость, а HB — произвольная прямая в плоскости, проходящая через H. Тогда:<br><b>SB ⊥ HB ⟹ SH ⊥ HB</b>",
+      e3n: "Читать её надо аккуратно: HB — это <b>проекция</b> косой SB на плоскость, поэтому SB ⊥ HB сама по себе невозможно, ведь HB и SB пересекаются под острым углом. Верно лишь обратное рассуждение: если косая SB перпендикулярна прямой HB в плоскости, то и сам перпендикуляр SH ей перпендикулярен. Теорема связывает пространство с плоскостью: она позволяет проверять перпендикулярность косой в пространстве через прямоугольные треугольники на плоскости. Из неё следует и важный факт: кратчайшее расстояние от точки до плоскости измеряется именно по SH, а не по отрезку под другим углом.",
+      c4: "4. Угол между прямой и плоскостью",
+      e4: "<b>Угол φ между прямой и плоскостью</b> — угол между прямой и её проекцией на плоскость.<br><b>sin φ = |a·n| / (|a|·|n|)</b>, где n — нормаль плоскости.",
+      e4n: "Нормаль n перпендикулярна плоскости, поэтому угол между прямой и нормалью — это 90° минус угол между прямой и плоскостью. Отсюда формула. Проверка на частном случае: прямая лежит в плоскости, тогда a·n = 0 и φ = 0; прямая перпендикулярна плоскости, тогда a ∥ n и φ = 90°. Обе границы сходятся, значит формула написана верно.",
+      c5: "5. Расстояние между скрещивающимися прямыми",
+      e5: "<b>d(a, b) = |AB|</b>, где AB — общий перпендикуляр скрещивающихся прямых: отрезок, перпендикулярный каждой из них.",
+      e5n: "Общий перпендикуляр находят параллельным переносом: проводят через точку одной прямой прямую, параллельную второй, и находят общий перпендикуляр уже к двум пересекающимся — это плоская задача.",
+      interLabel: "Конструктор — три задачи на перпендикулярность",
+      exTitle: "6. Разбор задач",
+      ex1: "<b>1. Точка A(4, 1, 7), плоскость z = 0. Найти расстояние и основание перпендикуляра.</b><br>Расстояние = |7| = <b>7</b>. Основание H = (4, 1, 0) — та же точка с нулевой координатой z.",
+      ex2: "<b>2. Прямая a направлена вдоль вектора (1, 0, 2), плоскость z = 0. Найти угол.</b><br>Нормаль n = (0, 0, 1). <b>sin φ = |a·n| / (|a|·|n|) = 2 / √5 ≈ 0.894</b>, откуда <b>φ ≈ 63.4°</b>.",
+      ex3: "<b>3. Прямая параллельна оси x и лежит на высоте 3. Найти угол с плоскостью y = 0.</b><br>Прямая <b>параллельна</b> плоскости, значит φ = <b>0°</b>. Типичная ловушка: «высота 3» здесь ни при чём, угол зависит только от направления.",
+      ex4: "<b>4. SH ⊥ α, HB ⊂ α, SB ⊥ HB. Доказать, что SH ⊥ HB.</b><br>Пусть l — прямая плоскости α через B, перпендикулярная HB. Так как SH ⊥ α, то SH ⊥ l; и по условию HB ⊥ l. Значит l ⊥ SHB, а отсюда l ⊥ SB. Но SB ⊥ l и l ⊂ α ⟹ по теореме о трёх перпендикулярах <b>SH ⊥ HB</b>. Именно в эту сторону работает теорема: перпендикулярность косой даёт перпендикулярность её проекции, а не наоборот.",
+      ex5: "<b>5. Две прямые перпендикулярны одной плоскости. Что между ними?</b><br>Они <b>параллельны</b>. Это свойство 2, и оно проверяется на кубах: вертикальные рёбра паралельны, потому что все они перпендикулярны основанию.",
+      ex6: "<b>6. Плоскость 2x + 3y + 6z = 12. Найти расстояние от начала координат.</b><br>Нормаль n = (2, 3, 6), |n| = 7. Расстояние = <b>|0 − 12| / 7 = 12/7</b>.",
+      b1n: "Аксиомы стереометрии",
+      b1d: "Всё держится на понятии плоскости: доказательство свойства 1 начинается с того, что плоскость задана. Без аксиом о единственности плоскости эти теоремы просто не о чем говорить.",
+      b2n: "Многогранники: призма и пирамида",
+      b2d: "Высота многогранника — это ровно то самое расстояние от точки до плоскости основания, то есть длина перпендикуляра. Апофема правильной пирамиды — длина перпендикуляра к боковой грани.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "На площині все просто: перпендикулярні прямі перетинаються під прямим кутом, і доведення займає три рядки. У просторі прямі можуть і не перетинатися, тому визначення доводиться переписувати з нуля. Зате з'являється річ, якої на площині немає взагалі: відстань від точки до площини, і вся стереометрія далі стоїть на ній.",
+      c1: "1. Пряма, перпендикулярна площині",
+      c1p: "Пряма a перпендикулярна площині α, якщо вона перпендикулярна кожній прямій площини. Перпендикулярність прямої та площини позначають a ⊥ α.",
+      o1: "<b>a ⊥ α</b> &nbsp;пряма a перпендикулярна площині α",
+      o2: "<b>Ознака:</b> пряма перпендикулярна площині, якщо вона перпендикулярна <b>двом прямим, що перетинаються</b>, цієї площини, які проходять через їхню точку перетину.",
+      o2n: "Умова «дві прямі, що перетинаються» тут не для краси, а обов'язкова. Одна пряма в площині нічого не каже: через будь-яку точку поза площиною можна провести пряму, перпендикулярну вибраній прямій у площині, і це нічого не означає. Перпендикулярність прямої та площини — властивість усієї площини одразу, а не однієї її прямої.",
+      o3: "<b>Теорема:</b> з точки поза площиною до цієї площини можна провести <b>єдиний</b> перпендикуляр. Його довжина і є відстанню від точки до площини.",
+      c2: "2. Властивості перпендикуляра",
+      e1: "<b>Властивість 1.</b> Пряма, перпендикулярна площині, перпендикулярна кожній прямій площини, яка проходить через точку перетину, і паралельна будь-якій іншій прямій площини.<br><b>Властивість 2.</b> Усі прямі, перпендикулярні одній і тій самій площині, паралельні між собою.",
+      e1n: "Властивість 1 доводиться через прямокутний трикутник, і в ньому вся суть: нехай AH ⊥ α і BH лежить у α. Тоді в трикутнику ABH два кути по 90°, отже третій теж 90° — тобто BH ⊥ AH. Для прямої, що не проходить через H, міркування те саме: спершу доводять для паралельної їй прямої через H, а потім користуються єдиністю перпендикуляра.",
+      e2n: "Властивість 2 пояснює, чому висоти будівель паралельні одна одній: усі вони перпендикулярні одній площині — землі.",
+      c3: "3. Теорема про три перпендикуляри",
+      e3: "Нехай із точки S проведено перпендикуляр SH на площину, а HB — довільна пряма в площині, яка проходить через H. Тоді:<br><b>SB ⊥ HB ⟹ SH ⊥ HB</b>",
+      e3n: "Читати її треба обережно: HB — це <b>проєкція</b> косої SB на площину, тому SB ⊥ HB сама по собі неможлива, адже HB і SB перетинаються під гострим кутом. Правильне лише зворотне міркування: якщо коса SB перпендикулярна прямій HB у площині, то і сам перпендикуляр SH їй перпендикулярний. Теорема пов'язує простір із площиною: вона дозволяє перевіряти перпендикулярність косої у просторі через прямокутні трикутники на площині. З неї випливає й важливий факт: найкоротша відстань від точки до площини вимірюється саме по SH, а не за відрізком під іншим кутом.",
+      c4: "4. Кут між прямою та площиною",
+      e4: "<b>Кут φ між прямою та площиною</b> — кут між прямою та її проєкцією на площину.<br><b>sin φ = |a·n| / (|a|·|n|)</b>, де n — нормаль площини.",
+      e4n: "Нормаль n перпендикулярна площині, тому кут між прямою та нормаллю — це 90° мінус кут між прямою та площиною. Звідси формула. Перевірка на частинному випадку: пряма лежить у площині, тоді a·n = 0 і φ = 0; пряма перпендикулярна площині, тоді a ∥ n і φ = 90°. Обидві межі сходяться, отже формулу написано правильно.",
+      c5: "5. Відстань між скісними прямими",
+      e5: "<b>d(a, b) = |AB|</b>, де AB — спільний перпендикуляр скісних прямих: відрізок, перпендикулярний кожній із них.",
+      e5n: "Спільний перпендикуляр знаходять паралельним перенесенням: проводять через точку однієї прямої пряму, паралельну другій, і знаходять спільний перпендикуляр уже до двох прямих, що перетинаються, — це плоска задача.",
+      interLabel: "Конструктор — три задачі на перпендикулярність",
+      exTitle: "6. Розбір задач",
+      ex1: "<b>1. Точка A(4, 1, 7), площина z = 0. Знайти відстань і основу перпендикуляра.</b><br>Відстань = |7| = <b>7</b>. Основа H = (4, 1, 0) — та сама точка з нульовою координатою z.",
+      ex2: "<b>2. Пряма a напрямлена вздовж вектора (1, 0, 2), площина z = 0. Знайти кут.</b><br>Нормаль n = (0, 0, 1). <b>sin φ = |a·n| / (|a|·|n|) = 2 / √5 ≈ 0.894</b>, звідки <b>φ ≈ 63.4°</b>.",
+      ex3: "<b>3. Пряма паралельна осі x і лежить на висоті 3. Знайти кут із площиною y = 0.</b><br>Пряма <b>паралельна</b> площині, отже φ = <b>0°</b>. Типова пастка: «висота 3» тут ні до чого, кут залежить лише від напрямку.",
+      ex4: "<b>4. SH ⊥ α, HB ⊂ α, SB ⊥ HB. Довести, що SH ⊥ HB.</b><br>Нехай l — пряма площини α через B, перпендикулярна HB. Оскільки SH ⊥ α, то SH ⊥ l; і за умовою HB ⊥ l. Отже l ⊥ SHB, а звідси l ⊥ SB. Але SB ⊥ l і l ⊂ α ⟹ за теоремою про три перпендикуляри <b>SH ⊥ HB</b>. Саме в цей бік працює теорема: перпендикулярність косої дає перпендикулярність її проєкції, а не навпаки.",
+      ex5: "<b>5. Дві прямі перпендикулярні одній площині. Що між ними?</b><br>Вони <b>паралельні</b>. Це властивість 2, і вона перевіряється на кубах: вертикальні ребра паралельні, бо всі вони перпендикулярні основі.",
+      ex6: "<b>6. Площина 2x + 3y + 6z = 12. Знайти відстань від початку координат.</b><br>Нормаль n = (2, 3, 6), |n| = 7. Відстань = <b>|0 − 12| / 7 = 12/7</b>.",
+      b1n: "Аксіоми стереометрії",
+      b1d: "Усе тримається на понятті площини: доведення властивості 1 починається з того, що площина задана. Без аксіом про єдиність площини ці теореми просто нема про що говорити.",
+      b2n: "Многогранники: призма і піраміда",
+      b2d: "Висота многогранника — це рівно та сама відстань від точки до площини основи, тобто довжина перпендикуляра. Апофема правильної піраміди — довжина перпендикуляра до бічної грані.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      perp: "Пряма, перпендикулярная плоскости, и две пересекающиеся прямые в плоскости с отмеченными прямыми углами",
+      three: "Теорема о трёх перпендикулярах: перпендикуляр SH на плоскость и прямоугольный треугольник SHB",
+      live: "Конструктор: расстояние от точки до плоскости, угол между прямой и плоскостью, расстояние между скрещивающимися прямыми"
+    },
+    ARIA_UA: {
+      perp: "Пряма, перпендикулярна площині, і дві прямі, що перетинаються, у площині з позначеними прямими кутами",
+      three: "Теорема про три перпендикуляри: перпендикуляр SH на площину та прямокутний трикутник SHB",
+      live: "Конструктор: відстань від точки до площини, кут між прямою та площиною, відстань між скісними прямими"
+    },
+    title: {ru: "Перпендикулярность в пространстве", ua: "Перпендикулярність у просторі"},
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <p>${t.c1p}</p>
+      <div class="formula-box">${t.o1}</div>
+      <svg id="geoPe-perp-svg" viewBox="0 0 400 240" role="img" aria-label="${A.perp}" style="width:100%;height:auto;margin-top:8px;"></svg>
+      <div class="formula-box">${t.o2}</div>
+      <p>${t.o2n}</p>
+      <div class="formula-box">${t.o3}</div>
+
+      <h3>${t.c2}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+      <p>${t.e2n}</p>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e3}</div>
+      <p>${t.e3n}</p>
+      <svg id="geoPe-three-svg" viewBox="0 0 400 230" role="img" aria-label="${A.three}" style="width:100%;height:auto;margin-top:8px;"></svg>
+
+      <h3>${t.c4}</h3>
+      <div class="formula-box">${t.e4}</div>
+      <p>${t.e4n}</p>
+
+      <h3>${t.c5}</h3>
+      <div class="formula-box">${t.e5}</div>
+      <p>${t.e5n}</p>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="geoPe-switch"></div>
+        <input type="range" id="geoPe-a" min="-3" max="3" step="0.5" value="1.5" style="width:100%;margin-top:8px;">
+        <input type="range" id="geoPe-b" min="-2" max="4" step="0.5" value="2" style="width:100%;">
+        <input type="range" id="geoPe-c" min="0" max="6" step="0.5" value="4" style="width:100%;">
+        <div class="readout" id="geoPe-readout"></div>
+        <svg id="geoPe-svg" viewBox="0 0 400 300" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="geoPe-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="geoAxiom">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="geoPrism">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>`;
+    },
+
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInk = getComputedStyle(root).getPropertyValue("--ink").trim() || "#243447";
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      const DEG = "\u00b0";
+      function el(tag, at){ const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) n.setAttribute(k, at[k]); return n; }
+      function text(s, str, at){ const n = el("text", at); n.textContent = str; s.appendChild(n); return n; }
+      function seg(s, x1, y1, x2, y2, color, w, dash){
+        const at = {x1:x1, y1:y1, x2:x2, y2:y2, stroke:color, "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("line", at));
+      }
+      function poly(s, pts, fill, op){
+        s.appendChild(el("polygon",{points:pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "), fill:fill, "fill-opacity":(op===undefined?0.8:op), stroke:"none"}));
+      }
+      function line3(s, pts, color, w, dash){
+        const at = {points:pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "), fill:"none", stroke:color, "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("polyline", at));
+      }
+      function dot(s, x, y, color, r){ s.appendChild(el("circle",{cx:x, cy:y, r:(r||4.5), fill:color})); }
+      function lbl(s, str, x, y, color, anchor, size, italic){
+        const at = {x:x, y:y, fill:color, "font-size":(size||13), "font-family":MONO, "text-anchor":(anchor||"middle"), "font-weight":700};
+        if(italic) at["font-style"] = "italic";
+        text(s, str, at);
+      }
+      /* прямой угол: маленький уголок в точке p, между направлениями */
+      function rightAngle(s, p, d1, d2, size, color){
+        size = size || 8;
+        const a1 = {x: p.x + d1.x*size, y: p.y + d1.y*size};
+        const a2 = {x: p.x + d2.x*size, y: p.y + d2.y*size};
+        const mid = {x: p.x + d1.x*size + d2.x*size, y: p.y + d1.y*size + d2.y*size};
+        line3(s, [p, a1, mid, a2], color, 1.3);
+      }
+      function unit(v){
+        const L = Math.hypot(v.x, v.y) || 1;
+        return {x: v.x/L, y: v.y/L};
+      }
+      /* изометрия: x — вправо-вниз, y — влево-вниз, z — вверх */
+      function isoS(x, y, z){ return {x: 200 + (x - y)*20, y: 175 - (x + y)*8 - z*14}; }
+      function isoL(x, y, z){ return {x: 200 + (x - y)*20, y: 185 - (x + y)*8 - z*14}; }
+      function f1(x){ return Math.round(x*10)/10; }
+      function f2(x){ return Math.round(x*100)/100; }
+
+      /* 1. a ⊥ α: вертикальная прямая и две пересекающиеся прямые в плоскости */
+      (function drawPerp(){
+        const s = root.querySelector("#geoPe-perp-svg");
+        s.innerHTML = "";
+        const I = isoS;
+        const plane = [I(-1.5,-3,0), I(5.5,-3,0), I(5.5,3,0), I(-1.5,3,0)];
+        poly(s, plane, cAccentSoft, 0.9);
+        line3(s, plane.concat([plane[0]]), COL.blue, 1.7);
+        const H = I(1,0,0), A = I(1,0,5);
+        /* две пересекающиеся прямые плоскости через H */
+        const m1 = I(-1.5,0,0), m2 = I(5.5,0,0), n1 = I(1,-3,0), n2 = I(1,3,0);
+        line3(s, [m1, m2], COL.teal, 1.9);
+        line3(s, [n1, n2], COL.purple, 1.9);
+        line3(s, [H, A], COL.coral, 2.6);
+        dot(s, H.x, H.y, cInk, 4);
+        dot(s, A.x, A.y, COL.coral, 5);
+        /* прямые углы: AH против m и против n */
+        rightAngle(s, H, unit({x:m2.x-m1.x, y:m2.y-m1.y}), unit({x:A.x-H.x, y:A.y-H.y}), 10, COL.coral);
+        rightAngle(s, H, unit({x:n2.x-n1.x, y:n2.y-n1.y}), unit({x:A.x-H.x, y:A.y-H.y}), 10, COL.coral);
+        lbl(s, "m", m1.x + 12, m1.y + 14, COL.teal, "start", 13, true);
+        lbl(s, "n", n2.x - 10, n2.y + 14, COL.purple, "end", 13, true);
+        lbl(s, "a", A.x + 9, A.y, COL.coral, "start", 13, true);
+        lbl(s, "H", H.x - 10, H.y + 16, cInk, "end", 13);
+        lbl(s, "\u03b1", I(4.6, 2.2, 0).x, I(4.6, 2.2, 0).y + 4, COL.blue, "middle", 15, true);
+        lbl(s, "a \u22a5 \u03b1", 16, 20, cInkSoft, "start", 13);
+      })();
+
+      /* 2. теорема о трёх перпендикулярах */
+      (function drawThree(){
+        const s = root.querySelector("#geoPe-three-svg");
+        s.innerHTML = "";
+        const I = isoS;
+        const plane = [I(-1,-3,0), I(6,-3,0), I(6,3,0), I(-1,3,0)];
+        poly(s, plane, cTealSoft, 0.9);
+        line3(s, plane.concat([plane[0]]), COL.teal, 1.7);
+        const H = I(2.5,0,0), S = I(2.5,0,4.5), B = I(6,1.5,0);
+        /* l в плоскости через B, перпендикулярная HB: направление (-1.5, 3.5, 0) */
+        const C = I(5.409,2.879,0);
+        line3(s, [H, S], COL.coral, 2.4);
+        line3(s, [H, B], COL.blue, 2.2);
+        line3(s, [S, B], COL.purple, 2.4);
+        line3(s, [B, C], COL.teal, 2.2);
+        rightAngle(s, H, unit({x:S.x-H.x, y:S.y-H.y}), unit({x:B.x-H.x, y:B.y-H.y}), 10, COL.coral);
+        rightAngle(s, B, unit({x:C.x-B.x, y:C.y-B.y}), unit({x:H.x-B.x, y:H.y-B.y}), 9, COL.teal);
+        rightAngle(s, B, unit({x:C.x-B.x, y:C.y-B.y}), unit({x:S.x-B.x, y:S.y-B.y}), 9, COL.purple);
+        dot(s, H.x, H.y, cInk, 4);
+        dot(s, S.x, S.y, COL.coral, 5);
+        dot(s, B.x, B.y, COL.blue, 5);
+        lbl(s, "S", S.x + 9, S.y - 4, COL.coral, "start", 13);
+        lbl(s, "H", H.x - 10, H.y + 16, cInk, "end", 13);
+        lbl(s, "B", B.x + 8, B.y + 14, COL.blue, "start", 13);
+        lbl(s, "SH", (H.x+S.x)/2 + 8, (H.y+S.y)/2, COL.coral, "start", 12);
+        lbl(s, "HB", (H.x+B.x)/2, (H.y+B.y)/2 + 14, COL.blue, "middle", 12);
+        lbl(s, "SB", (S.x+B.x)/2 + 6, (S.y+B.y)/2, COL.purple, "start", 12);
+        lbl(s, "l", (B.x+C.x)/2 + 8, (B.y+C.y)/2 + 4, COL.teal, "start", 12);
+        lbl(s, "l \u22a5 HB \u21d2 l \u22a5 SB", 16, 20, cInkSoft, "start", 13);
+      })();
+
+      /* 3. конструктор: расстояние до плоскости, угол прямой и плоскости, скрещивающиеся */
+      (function build(){
+        const sw = root.querySelector("#geoPe-switch");
+        const out = root.querySelector("#geoPe-readout");
+        const svg = root.querySelector("#geoPe-svg");
+        const aIn = root.querySelector("#geoPe-a");
+        const bIn = root.querySelector("#geoPe-b");
+        const cIn = root.querySelector("#geoPe-c");
+
+        const MODE = {
+          dist:{ru:"расстояние до плоскости", ua:"відстань до площини"},
+          angle:{ru:"угол прямой и плоскости", ua:"кут прямої та площини"},
+          skew:{ru:"скрещивающиеся прямые", ua:"скісні прямі"}
+        };
+        let mode = "dist";
+        const btns = {};
+        Object.keys(MODE).forEach(function(k){
+          const b = document.createElement("button");
+          b.className = "switch-btn";
+          b.textContent = MODE[k][lang];
+          b.addEventListener("click", function(){
+            mode = k;
+            Object.keys(btns).forEach(x => btns[x].classList.toggle("active", x === k));
+            setRanges();
+            draw();
+          });
+          sw.appendChild(b);
+          btns[k] = b;
+        });
+        btns.dist.classList.add("active");
+
+        /* у каждого режима своя интерпретация ползунков */
+        function setRanges(){
+          if(mode === "dist"){
+            aIn.min = "-3"; aIn.max = "3"; aIn.step = "0.5";
+            bIn.min = "-2"; bIn.max = "4"; bIn.step = "0.5";
+            cIn.min = "0";  cIn.max = "6"; cIn.step = "0.5";
+          } else if(mode === "angle"){
+            aIn.min = "-4"; aIn.max = "4"; aIn.step = "0.25";
+            bIn.min = "-4"; bIn.max = "4"; bIn.step = "0.25";
+            cIn.min = "0";  cIn.max = "6"; cIn.step = "0.5";
+          } else {
+            aIn.min = "-1"; aIn.max = "5"; aIn.step = "0.5";
+            bIn.min = "-3"; bIn.max = "3"; bIn.step = "0.5";
+            cIn.min = "0";  cIn.max = "6"; cIn.step = "0.5";
+          }
+        }
+
+        function drawPlane(I, x0, y0, x1, y1){
+          const q = [I(x0,y0,0), I(x1,y0,0), I(x1,y1,0), I(x0,y1,0)];
+          poly(svg, q, cAccentSoft, 0.85);
+          line3(svg, q.concat([q[0]]), COL.blue, 1.6);
+          return q;
+        }
+
+        function draw(){
+          svg.innerHTML = "";
+          const I = isoL;
+          const a = +aIn.value, b = +bIn.value, c = +cIn.value;
+          let cells = "", fml = "";
+
+          if(mode === "dist"){
+            /* точка A(a,b,c), плоскость z = 0, перпендикуляр AH */
+            drawPlane(I, -2.5, -3, 5, 3);
+            const A = I(a,b,c), H = I(a,b,0);
+            line3(svg, [H, A], COL.coral, 2.6);
+            line3(svg, [I(a,b,c), I(a,b,0)], COL.coral, 1.6, "4,3");
+            dot(svg, H.x, H.y, cInk, 4.5);
+            dot(svg, A.x, A.y, COL.coral, 5.5);
+            lbl(svg, "A", A.x + 9, A.y - 4, COL.coral, "start", 13);
+            lbl(svg, "H", H.x - 10, H.y + 16, cInk, "end", 13);
+            lbl(svg, "z=0", I(4.2, 2.4, 0).x, I(4.2, 2.4, 0).y + 4, COL.blue, "middle", 12);
+            const d = Math.abs(c);
+            fml = "d(A, \u03b1) = |c| = " + f1(c) + " = " + f1(d);
+            cells += "<div><span>A</span>(" + f1(a) + ", " + f1(b) + ", " + f1(c) + ")</div>";
+            cells += "<div><span>H</span>(" + f1(a) + ", " + f1(b) + ", 0)</div>";
+            cells += "<div><span>d</span>" + f1(d) + "</div>";
+            if(c === 0) cells += "<div class=\"wide warn\">" + (lang === "ru"
+              ? "Точка лежит в плоскости — расстояние нулевое"
+              : "Точка лежить у площині — відстань нульова") + "</div>";
+          } else if(mode === "angle"){
+            /* прямая через O с направлением (a, b, c), плоскость z = 0 */
+            drawPlane(I, -3.5, -3, 4.5, 3);
+            const L3 = Math.hypot(a, b, c);
+            const T = 4 / Math.max(1, L3);
+            const O = I(0,0,0), P1 = I(a*T, b*T, c*T), P2 = I(-a*T, -b*T, -c*T);
+            /* проекция на плоскость */
+            line3(svg, [P1, I(a*T, b*T, 0)], COL.amber, 1.8, "5,4");
+            line3(svg, [P2, I(-a*T, -b*T, 0)], COL.amber, 1.8, "5,4");
+            line3(svg, [O, P1], COL.coral, 2.6);
+            line3(svg, [O, P2], COL.coral, 2.6);
+            /* нормаль */
+            line3(svg, [O, I(0,0,4)], COL.teal, 1.8, "4,3");
+            lbl(svg, "n", I(0,0,4).x - 8, I(0,0,4).y, COL.teal, "end", 12, true);
+            /* проекции */
+            line3(svg, [O, I(a*T, b*T, 0)], COL.amber, 1.6, "4,3");
+            dot(svg, O.x, O.y, cInk, 4);
+            dot(svg, P1.x, P1.y, COL.coral, 5);
+            dot(svg, I(a*T, b*T, 0).x, I(a*T, b*T, 0).y, COL.amber, 4);
+            /* угол φ между прямой и её проекцией */
+            const sp = Math.hypot(a*T, b*T);
+            const phi = Math.atan2(Math.abs(c), sp)*180/Math.PI;
+            if(sp > 0.01){
+              const uA = unit({x:P1.x-O.x, y:P1.y-O.y});
+              const uP = unit({x:(I(a*T,b*T,0).x-O.x), y:(I(a*T,b*T,0).y-O.y)});
+              /* дуга угла */
+              const R = 34;
+              const a0 = Math.atan2(uP.y, uP.x), a1 = Math.atan2(uA.y, uA.x);
+              const arc = [];
+              for(let i = 0; i <= 12; i++){
+                const t = a0 + (a1 - a0)*i/12;
+                arc.push({x: O.x + R*Math.cos(t), y: O.y + R*Math.sin(t)});
+              }
+              line3(svg, arc, COL.purple, 1.8);
+              const mid = arc[6];
+              lbl(svg, f1(phi) + DEG, mid.x + 10, mid.y - 4, COL.purple, "start", 12);
+            }
+            const sinPhi = L3 ? Math.abs(c)/L3 : 0;
+            fml = "sin \u03c6 = |a\u00b7n| / (|a|\u00b7|n|) = |c| / " + f1(L3) + " = " + f2(sinPhi);
+            cells += "<div><span>a</span>(" + f1(a) + ", " + f1(b) + ", " + f1(c) + ")</div>";
+            cells += "<div><span>|a|</span>" + f1(L3) + "</div>";
+            cells += "<div><span>sin \u03c6</span>" + f2(sinPhi) + "</div>";
+            cells += "<div><span>\u03c6</span>" + f1(phi) + DEG + "</div>";
+            if(L3 < 0.001) cells += "<div class=\"wide warn\">" + (lang === "ru"
+              ? "Нулевой вектор направления — прямая не задана"
+              : "Нульовий вектор напряму — пряма не задана") + "</div>";
+            else if(sp < 0.01) cells += "<div class=\"wide note\">" + (lang === "ru"
+              ? "Прямая перпендикулярна плоскости — угол 90°"
+              : "Пряма перпендикулярна площині — кут 90°") + "</div>";
+            else if(phi < 0.05) cells += "<div class=\"wide note\">" + (lang === "ru"
+              ? "Прямая лежит в плоскости — угол с ней нулевой"
+              : "Пряма лежить у площині — кут із нею нульовий") + "</div>";
+          } else {
+            /* скрещивающиеся: a вдоль x при y=b, z=0; b вдоль y при x=a, z=c */
+            const q = [I(-1.5,-3.5,0), I(5.5,-3.5,0), I(5.5,2.5,0), I(-1.5,2.5,0)];
+            poly(svg, q, cAmberSoft, 0.85);
+            line3(svg, q.concat([q[0]]), COL.blue, 1.5);
+            const a1 = I(-1, b, 0), a2 = I(5, b, 0);
+            const b1 = I(a, -1, c), b2 = I(a, 3, c);
+            line3(svg, [a1, a2], COL.blue, 2.5);
+            line3(svg, [b1, b2], COL.teal, 2.5);
+            /* общий перпендикуляр вдоль z */
+            const P = I(a, b, 0), Q = I(a, b, c);
+            line3(svg, [P, Q], COL.coral, 2.6);
+            dot(svg, P.x, P.y, COL.blue, 4.5);
+            dot(svg, Q.x, Q.y, COL.teal, 4.5);
+            rightAngle(svg, P, unit({x:a2.x-a1.x, y:a2.y-a1.y}), unit({x:Q.x-P.x, y:Q.y-P.y}), 9, COL.coral);
+            rightAngle(svg, Q, unit({x:b2.x-b1.x, y:b2.y-b1.y}), unit({x:P.x-Q.x, y:P.y-Q.y}), 9, COL.coral);
+            lbl(svg, "a", a1.x - 8, a1.y + 14, COL.blue, "end", 13, true);
+            lbl(svg, "b", b2.x - 8, b2.y + 14, COL.teal, "end", 13, true);
+            lbl(svg, "d", (P.x+Q.x)/2 + 10, (P.y+Q.y)/2, COL.coral, "start", 13);
+            fml = "d(a, b) = |AB| = " + f1(c);
+            cells += "<div><span>a</span>" + (lang === "ru" ? "вдоль x" : "вздовж x") + "</div>";
+            cells += "<div><span>b</span>" + (lang === "ru" ? "вдоль y" : "вздовж y") + "</div>";
+            cells += "<div><span>d</span>" + f1(c) + "</div>";
+            cells += "<div class=\"wide\"><span>a\u00b7d</span>0 \u2192 \u22a5</div>";
+            cells += "<div class=\"wide\"><span>b\u00b7d</span>0 \u2192 \u22a5</div>";
+            if(c === 0) cells += "<div class=\"wide warn\">" + (lang === "ru"
+              ? "Прямые лежат в одной плоскости — они не скрещиваются"
+              : "Прямі лежать в одній площині — вони не скісні") + "</div>";
+          }
+
+          cells += "<div class=\"wide\"><span>" + (lang === "ru" ? "формула" : "формула") + "</span>" + fml + "</div>";
+          out.innerHTML = cells;
+        }
+        [aIn, bIn, cIn].forEach(function(i){ i.addEventListener("input", draw); });
+        setRanges();
+        draw();
+      })();
+
+      /* ================= типичные ошибки ================= */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#geoPe-mistakes");
+        wrap.innerHTML = "";
+        const ms = [
+          { q:{ru:"Прямая перпендикулярна одной прямой плоскости. Значит, она перпендикулярна плоскости?",
+              ua:"Пряма перпендикулярна одній прямій площині. Отже, вона перпендикулярна площині?"},
+            opts:[{ru:"да",ua:"так"},
+                  {ru:"нет, нужны две пересекающиеся прямые",ua:"ні, потрібні дві прямі, що перетинаються"},
+                  {ru:"да, если точка пересечения лежит в плоскости",ua:"так, якщо точка перетину лежить у площині"},
+                  {ru:"да, потому что прямая и плоскость — одно и то же",ua:"так, бо пряма й площина — одне й те саме"}], correct:1,
+            exp:{ru:"Ошибка №1. Перпендикулярность одной прямой ничего не даёт — и в этом легко убедиться. Возьмите плоскость и наклоните прямую так, чтобы она стала перпендикулярна одной прямой в плоскости, но не самой плоскости: это делается поворотом вокруг точки. Прямая перестанет быть перпендикулярна плоскости, хотя условие выполнено. Нужно, чтобы прямая была перпендикулярна двум пересекающимся прямым — тогда поворот невозможен, и положение вынужденно.",
+                 ua:"Помилка №1. Перпендикулярність однієї прямої нічого не дає — і в цьому легко переконатися. Візьміть площину й нахиліть пряму так, щоб вона стала перпендикулярна одній прямій у площині, але не самій площині: це робиться поворотом навколо точки. Пряма перестане бути перпендикулярна площині, хоча умова виконана. Потрібно, щоб пряма була перпендикулярна двом прямим, що перетинаються, — тоді поворот неможливий, і положення примусове."} },
+          { q:{ru:"Две прямые перпендикулярны одной плоскости. Как они расположены друг к другу?",
+              ua:"Дві прямі перпендикулярні одній площині. Як вони розташовані одна до одної?"},
+            opts:[{ru:"перпендикулярны",ua:"перпендикулярні"},
+                  {ru:"параллельны",ua:"паралельні"},
+                  {ru:"скрещиваются",ua:"скісні"},
+                  {ru:"зависит от положения",ua:"залежить від розташування"}], correct:1,
+            exp:{ru:"Ошибка №2. Здесь путают перпендикулярность с параллельностью, и это самая частая ошибка на первых задачах. Проверка на кубе: вертикальные рёбра куба перпендикулярны плоскости основания, и при этом все они параллельны друг другу. Ни одно из вертикальных рёбер не пересекает другое и не перпендикулярно ему. Перпендикулярность одной и той же плоскости у прямых означает параллельность, а не взаимную перпендикулярность.",
+                 ua:"Помилка №2. Тут плутають перпендикулярність із паралельністю, і це найчастіша помилка на перших задачах. Перевірка на кубі: вертикальні ребра куба перпендикулярні площині основи, і при цьому всі вони паралельні між собою. Жодне з вертикальних ребер не перетинає інше і не перпендикулярне йому. Перпендикулярність однієї й тієї самої площини у прямих означає паралельність, а не взаємну перпендикулярність."} },
+          { q:{ru:"Расстояние от точки до плоскости измеряется по перпендикуляру. А если провести наклонную?",
+              ua:"Відстань від точки до площини вимірюється по перпендикуляру. А якщо провести похилу?"},
+            opts:[{ru:"получится то же самое",ua:"вийде те саме"},
+                  {ru:"получится больше — это минимальное расстояние",ua:"вийде більше — це мінімальна відстань"},
+                  {ru:"получится меньше",ua:"вийде менше"},
+                  {ru:"зависит от угла наклона",ua:"залежить від кута нахилу"}], correct:1,
+            exp:{ru:"Ошибка №3. Наклонная даёт всегда бо́льшую длину, и перпендикуляр — единственный кратчайший путь. Это тот же принцип, что и с расстоянием между точкой и прямой на плоскости. Перпендикуляр удобен ещё и тем, что его длина не зависит от того, где именно на плоскости выбрана точка проекции: для наклонной длина меняется вместе с выбором. Проверка: возьмите точку на расстоянии 3 от плоскости и посчитайте по теореме Пифагора для точки проекции, отстоящей на 4 — получится 5, то есть больше 3.",
+                 ua:"Помилка №3. Похила завжди дає більшу довжину, і перпендикуляр — єдиний найкоротший шлях. Це той самий принцип, що й відстань від точки до прямої на площині. Перпендикуляр зручний ще й тим, що його довжина не залежить від того, де саме на площині вибрано точку проекції: для похилої довжина змінюється разом з вибором. Перевірка: візьміть точку на відстані 3 від площини й порахуйте за теоремою Піфагора для точки проекції, віддаленої на 4 — вийде 5, тобто більше за 3."} }
+        ];
+        ms.forEach(function(m){
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q[lang];
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          m.opts.forEach(function(opt, oi){
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt[lang];
+            b.addEventListener("click", function(){
+              [...opts.children].forEach(c => c.disabled = true);
+              if(oi === m.correct) b.classList.add("correct");
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              const ex = document.createElement("div");
+              ex.className = "mis-exp";
+              ex.textContent = m.exp[lang];
+              item.appendChild(ex);
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Прямая a перпендикулярна плоскости α. Что можно сказать о прямой b, лежащей в α и не проходящей через точку пересечения?",
+              ua:"Пряма a перпендикулярна площині α. Що можна сказати про пряму b, що лежить у α і не проходить через точку перетину?"},
+          opts:[{ru:"b параллельна a",ua:"b паралельна a"},{ru:"b перпендикулярна a",ua:"b перпендикулярна a"},
+                {ru:"b скрещивается с a",ua:"b скісна до a"},{ru:"ничего определить нельзя",ua:"нічого визначити не можна"}], correct:0 },
+        { q:{ru:"Две прямые перпендикулярны одной плоскости. Как они расположены друг к другу?",
+              ua:"Дві прямі перпендикулярні одній площині. Як вони розташовані одна до одної?"},
+          opts:[{ru:"перпендикулярны",ua:"перпендикулярні"},{ru:"параллельны",ua:"паралельні"},
+                {ru:"скрещиваются",ua:"скісні"},{ru:"зависит от положения",ua:"залежить від розташування"}], correct:1 },
+        { q:{ru:"Из точки A проведён перпендикуляр AH на плоскость α. Какая точка ближе всего к A?",
+              ua:"З точки A проведено перпендикуляр AH на площину α. Яка точка найближча до A?"},
+          opts:[{ru:"H", ua:"H"},{ru:"любая точка вне плоскости", ua:"будь-яка точка поза площиною"},
+                {ru:"точка на расстоянии AH в другом направлении", ua:"точка на відстані AH в іншому напрямку"},
+                {ru:"это зависит от формы плоскости", ua:"це залежить від форми площини"}], correct:0 },
+        { q:{ru:"Угол между прямой и плоскостью — это:", ua:"Кут між прямою та площиною — це:"},
+          opts:[{ru:"угол между прямой и нормалью к плоскости",ua:"кут між прямою та нормаллю до площини"},
+                {ru:"угол между прямой и её проекцией на плоскость",ua:"кут між прямою та її проєкцією на площину"},
+                {ru:"угол между прямой и любой прямой плоскости",ua:"кут між прямою та будь-якою прямою площини"},
+                {ru:"90° минус угол между прямой и нормалью",ua:"90° мінус кут між прямою та нормаллю"}], correct:1 },
+        { q:{ru:"Какова длина перпендикуляра из точки A(1, 2, 5) на плоскость z = 0?",
+              ua:"Яка довжина перпендикуляра з точки A(1, 2, 5) на площину z = 0?"},
+          opts:["1","2","5","√30"], correct:2 },
+        { q:{ru:"Прямая параллельна плоскости. Каков угол между ними?",
+              ua:"Пряма паралельна площині. Який кут між ними?"},
+          opts:[{ru:"0°", ua:"0°"},{ru:"90°", ua:"90°"},{ru:"45°", ua:"45°"},{ru:"зависит от расстояния", ua:"залежить від відстані"}], correct:0 },
+        { q:{ru:"SH ⊥ α, HB — проекция SB на α, l ⊂ α проходит через B и l ⊥ HB. Что из этого следует?",
+              ua:"SH ⊥ α, HB — проєкція SB на α, l ⊂ α проходить через B і l ⊥ HB. Що з цього випливає?"},
+          opts:[{ru:"l ⊥ SB",ua:"l ⊥ SB"},{ru:"SB ⊥ HB",ua:"SB ⊥ HB"},
+                {ru:"SH ∥ HB",ua:"SH ∥ HB"},{ru:"ничего", ua:"нічого"}], correct:0 }
+      ]);
+    }
+  }
+  ,
+  /* ---------- LESSON geoPrism (многогранники: призма и пирамида) ---------- */
+  {
+    id: "geoPrism", module: 5,
+    RU: {
+      intro: "Стереометрия 10 класса держится на двух объёмах: объём призмы и объём пирамиды. Формулы здесь короткие, а вот понять, почему у пирамиды именно 1/3, а не 1/2, — самая интересная часть. Здесь же живёт конструктор: правильная призма и правильная пирамида на одном основании, развёртка боковой поверхности и сечение на любой высоте.",
+      c1: "1. Призма и её элементы",
+      c1p: "Призма — многогранник, в основе которого лежит многоугольник, а боковые грани — параллелограммы. Две грани оснований лежат в параллельных плоскостях, боковые рёбра параллельны и равны.",
+      o1: "<b>V = S<sub>осн</sub> · h</b> &nbsp;&nbsp;<b>V<sub>пир</sub> = ⅓ S<sub>осн</sub> · h</b>",
+      o1n: "Это всё, что нужно для объёма. Заметьте: высота h входит в обе формулы одинаково, и вся разница — в множителе 1/3.",
+      o2: "<b>Прямая призма</b> — боковые рёбра перпендикулярны основанию. Тогда высота равна ребру, и h не нужно искать отдельно.",
+      o2n: "У наклонной призмы боковое ребро длиннее высоты, потому что гипотенуза всегда длиннее катета: h = ребро · sin α, где α — двугранный угол при боковом ребре. Объём от наклона не меняется — а вот площадь боковой поверхности меняется, ведь грани уже не прямоугольники, а параллелограммы.",
+      o3: "<b>Площади:</b> S<sub>бок</sub> = P · l &nbsp;·&nbsp; S<sub>полн</sub> = 2S<sub>осн</sub> + S<sub>бок</sub>, где P — периметр основания, l — апофема (высота боковой грани).",
+      c2: "2. Пирамида и откуда берётся 1/3",
+      e1: "<b>Пирамида</b> — многогранник, в основе которого лежит многоугольник, а все остальные грани — треугольники с общей вершиной S. Точка S не лежит в плоскости основания.",
+      e1n: "Главное отличие от призмы: у пирамиды одна вершина вместо второй такой же копии основания. Именно поэтому объёмы разные — во всех множителях разница одна и та же, 1/3, и происходит она именно из-за одной вершины.",
+      e2: "<b>Почему ⅓.</b> Сечение пирамиды на высоте доли t от вершины подобно основанию с коэффициентом t, поэтому его площадь равна <b>t²·S<sub>осн</sub></b>.<br>Объём — это интеграл площадей сечений: <b>V = ∫₀¹ t²·S dt = S · ⅓</b>.",
+      e2n: "Если разрезать пирамиду на 1000 тонких пластинок и сложить их столбиком, толщина столбика у основания окажется заметно больше, чем у вершины: площади растут как квадрат высоты, а не линейно. Средняя площадь пластинки получается заметно меньше основания, и в интеграле остаётся множитель 1/3. Проверка на простом примере: у правильного тетраэдра с ребром a = 4 основание имеет площадь 4√3 ≈ 6.93, высота 4√(2/3) ≈ 3.27, и V = 6.93 · 3.27 / 3 ≈ 7.54 — как раз a³/(6√2).",
+      e3: "<b>Полезное свойство:</b> треугольную призму можно разбить на <b>3</b> равновеликих тетраэдра.",
+      e3n: "Разбиение делается по диагонали основания: берут вершину верхнего основания и соединяют её с вершинами нижнего — получаются тетраэдры, у каждого своё основание в плоскости основания и своя высота, а сумма объёмов равна объёму призмы. Вот где появляется множитель 1/3: у каждой из трёх частей высота своя, и сумма множителей ⅓ компенсируется тем, что основания трёх частей вместе дают 3·S<sub>осн</sub>, а не S<sub>осн</sub>. Важная оговорка: «на 3 части» верно только для <b>треугольной</b> призмы. У n-угольной призмы частей столько, сколько треугольников в разбиении основания, поэтому общая формулировка «любую призму — на 3 пирамиды» неверна.",
+      c3: "3. Правильные многогранники",
+      e4: "<b>Правильная призма</b> — прямая, основание — правильный многоугольник. Тогда S<sub>бок</sub> = P · h: боковые грани прямоугольники, и их высота равна высоте призмы.",
+      e4n: "У правильной призмы все рёбра основания равны, поэтому для основания работает формула S = ½ · P · r, где r — апофема основания (расстояние от центра до стороны). Это не то же самое, что описанный радиус R: у квадрата R = a√2/2, а r = a/2. Путаница между ними — источник половины ошибок в площадях.",
+      e5: "<b>Правильная пирамида</b> — основание правильное, вершина проектируется в центр. Тогда все боковые грани равны, апофема l = √(h² + r²).",
+      e5n: "То же разделение: боковая грань — равнобедренный треугольник, и его высота l считается по теореме Пифагора из высоты пирамиды h и апофемы основания r, а не из описанного радиуса.",
+      c4: "4. Свойства и применение",
+      e6: "<b>Диагонали и углы.</b> Диагональ сечения прямой призмы = √(h² + d²), где d — диагональ основания. Диагональ куба a = a√3 ≈ 1.73a. Угол наклона диагонали к основанию: <b>sin φ = h / диагональ</b>.",
+      e6n: "У куба диагональ проходит через центр, поэтому она равна пространственной: √(a² + a² + a²) = a√3. Это самая известная длина в задачах про куб, и она же объясняет, почему куб не вписывается в шар так плотно, как кажется.",
+      e7: "<b>Усечённая пирамида:</b> V = (h/3)(S₁ + √(S₁S₂) + S₂), где S₁ и S₂ — площади оснований.",
+      e7n: "Формула выглядит загадочно, но это всё тот же интеграл, только для усечённой пирамиды: площади сечений растут линейно от S₁ до S₂, среднее интегрируется как их среднее арифметическое по корню. Проверка на правильном усечённом конусе с r₁ = 4, r₂ = 2, h = 3: V = π·3/3·(16 + 8 + 4) = π·28 ≈ 87.96.",
+      interLabel: "Конструктор — правильные многогранники",
+      exTitle: "5. Разбор задач",
+      ex1: "<b>1. Прямая призма, в основании правильный шестиугольник со стороной 4, высота 5. Объём.</b><br>Основание: r = 4·√3/2 ≈ 3.46, S = (6·4·3.46)/2 = <b>41.57</b>. Объём V = 41.57 · 5 ≈ <b>207.85</b>.",
+      ex2: "<b>2. Правильная четырёхугольная пирамида: сторона основания 6, высота 4. Полная поверхность.</b><br>Основание S = 36. Апофема l = √(4² + 3²) = <b>5</b>. Боковая S = 24 · 5 / 2 = <b>60</b>. Полная = 36 + 60 = <b>96</b>.",
+      ex3: "<b>3. Наклонная призма: в основании квадрат 5 × 5, боковое ребро 6, угол наклона ребра к основанию sin α = 2/3. Объём.</b><br>Высота h = 6 · 2/3 = <b>4</b>, значит V = 25 · 4 = <b>100</b>. Объём не зависит от наклона — вот в чём приятность этой задачи.",
+      ex4: "<b>4. Правильный тетраэдр с ребром 6. Объём и высота.</b><br>S основания = 6²√3/4 = 9√3 ≈ <b>15.59</b>, высота h = 6√(2/3) = 2√6 ≈ <b>4.90</b>, объём V = 15.59 · 4.90 / 3 ≈ <b>25.46</b>.",
+      ex5: "<b>5. Правильная призма с основанием — правильный восьмиугольник с описанным радиусом 4 и высотой 5. Объём.</b><br>a = 2·4·sin(22.5°) ≈ <b>3.06</b>, апофема r = 4·cos(22.5°) ≈ <b>3.70</b>, S = ½ · 8 · 3.06 · 3.70 ≈ <b>45.25</b>, V = 45.25 · 5 ≈ <b>226.27</b>.",
+      ex6: "<b>6. Усечённая пирамида: в основаниях квадраты со сторонами 6 и 3, высота 5. Объём.</b><br>V = (5/3)(36 + √(36·9) + 9) = (5/3)(63) = <b>105</b>.",
+      b1n: "Тела вращения",
+      b1d: "Пирамида и конус устроены одинаково — отличаются только основанием. Множитель ⅓ тот же самый, и сечение конуса тоже растёт как t².",
+      b2n: "Перпендикулярность в пространстве",
+      b2d: "Высота любого многогранника — это перпендикуляр к плоскости основания, а апофема — перпендикуляр к боковой грани. Обе длины считаются по теореме Пифагора.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "Стереометрія 10 класу тримається на двох об’ємах: об’єм призми та об’єм піраміди. Формули тут короткі, а ось зрозуміти, чому в піраміди саме 1/3, а не 1/2, — найцікавіша частина. Тут же живе конструктор: правильна призма та правильна піраміда на одній основі, розгортка бічної поверхні та переріз на будь-якій висоті.",
+      c1: "1. Призма та її елементи",
+      c1p: "Призма — многогранник, в основі якого лежить багатокутник, а бічні грані — паралелограми. Дві грані основ лежать у паралельних площинах, бічні ребра паралельні та рівні.",
+      o1: "<b>V = S<sub>осн</sub> · h</b> &nbsp;&nbsp;<b>V<sub>пір</sub> = ⅓ S<sub>осн</sub> · h</b>",
+      o1n: "Це все, що потрібно для об’єму. Зверніть увагу: висота h входить в обидві формули однаково, і вся різниця — у множнику 1/3.",
+      o2: "<b>Пряма призма</b> — бічні ребра перпендикулярні основі. Тоді висота дорівнює ребру, і h не треба шукати окремо.",
+      o2n: "У похилої призми бічне ребро довше за висоту, бо гіпотенуза завжди довша за катет: h = ребро · sin α, де α — двогранний кут при бічному ребрі. Об’єм від нахилу не змінюється — а от площа бічної поверхні змінюється, бо грані вже не прямокутники, а паралелограми.",
+      o3: "<b>Площі:</b> S<sub>біч</sub> = P · l &nbsp;·&nbsp; S<sub>пов</sub> = 2S<sub>осн</sub> + S<sub>біч</sub>, де P — периметр основи, l — апофема (висота бічної грані).",
+      c2: "2. Піраміда та звідки береться 1/3",
+      e1: "<b>Піраміда</b> — многогранник, в основі якого лежить багатокутник, а всі інші грані — трикутники зі спільною вершиною S. Точка S не лежить у площині основи.",
+      e1n: "Головна відмінність від призми: у піраміди одна вершина замість другої такої самої копії основи. Саме тому об’єми різні — у всіх множниках різниця одна й та сама, 1/3, і походить вона саме через одну вершину.",
+      e2: "<b>Чому ⅓.</b> Переріз піраміди на висоті частки t від вершини подібний основі з коефіцієнтом t, тому його площа дорівнює <b>t²·S<sub>осн</sub></b>.<br>Об’єм — це інтеграл площ перерізів: <b>V = ∫₀¹ t²·S dt = S · ⅓</b>.",
+      e2n: "Якщо розрізати піраміду на 1000 тонких пластинок і скласти їх стовпчиком, товщина стовпчика біля основи виявиться помітно більшою, ніж біля вершини: площі зростають як квадрат висоти, а не лінійно. Середня площа пластинки виходить помітно меншою за основу, і в інтегралі лишається множник 1/3. Перевірка на простому прикладі: у правильного тетраедра з ребром a = 4 основа має площу 4√3 ≈ 6.93, висота 4√(2/3) ≈ 3.27, і V = 6.93 · 3.27 / 3 ≈ 7.54 — саме a³/(6√2).",
+      e3: "<b>Корисна властивість:</b> трикутну призму можна розбити на <b>3</b> рівновеликі тетраедри.",
+      e3n: "Розбиття робиться по діагоналі основи: беруть вершину верхньої основи й з’єднують її з вершинами нижньої — виходять тетраедри, у кожного своя основа в площині основи й своя висота, а сума об’ємів дорівнює об’єму призми. Ось де з’являється множник 1/3: у кожної з трьох частин висота своя, і сума множників ⅓ компенсується тим, що основи трьох частин разом дають 3·S_осн, а не S_осн. Важливе застереження: «на 3 частини» правильно лише для <b>трикутної</b> призми. У n-кутної призми частин стільки, скільки трикутників у розбитті основи, тож загальне формулювання «будь-яку призму — на 3 піраміди» хибне.",
+      c3: "3. Правильні многогранники",
+      e4: "<b>Правильна призма</b> — пряма, основа — правильний багатокутник. Тоді S<sub>біч</sub> = P · h: бічні грані прямокутники, і їхня висота дорівнює висоті призми.",
+      e4n: "У правильної призми всі ребра основи рівні, тому для основи працює формула S = ½ · P · r, де r — апофема основи (відстань від центра до сторони). Це не те саме, що описаний радіус R: у квадрата R = a√2/2, а r = a/2. Плутанина між ними — джерело половини помилок у площах.",
+      e5: "<b>Правильна піраміда</b> — основа правильна, вершина проектується в центр. Тоді всі бічні грані рівні, апофема l = √(h² + r²).",
+      e5n: "Те саме розділення: бічна грань — рівнобічний трикутник, і його висота l рахується за теоремою Піфагора з висоти піраміди h та апофеми основи r, а не з описаного радіуса.",
+      c4: "4. Властивості та застосування",
+      e6: "<b>Діагоналі та кути.</b> Діагональ перерізу прямої призми = √(h² + d²), де d — діагональ основи. Діагональ куба a = a√3 ≈ 1.73a. Кут нахилу діагоналі до основи: <b>sin φ = h / діагональ</b>.",
+      e6n: "У куба діагональ проходить через центр, тому вона дорівнює просторовій: √(a² + a² + a²) = a√3. Це найвідоміша довжина в задачах про куб, і вона ж пояснює, чому куб не вписується в кулю так щільно, як здається.",
+      e7: "<b>Зрізана піраміда:</b> V = (h/3)(S₁ + √(S₁S₂) + S₂), де S₁ та S₂ — площі основ.",
+      e7n: "Формула виглядає загадково, але це той самий інтеграл, тільки для зрізаної піраміди: площі перерізів зростають лінійно від S₁ до S₂, середнє інтегрується як їхнє середнє арифметичне за коренем. Перевірка на правильному зрізаному конусі з r₁ = 4, r₂ = 2, h = 3: V = π·3/3·(16 + 8 + 4) = π·28 ≈ 87.96.",
+      interLabel: "Конструктор — правильні многогранники",
+      exTitle: "5. Розбір задач",
+      ex1: "<b>1. Пряма призма, в основі правильний шестикутник зі стороною 4, висота 5. Об’єм.</b><br>Основа: r = 4·√3/2 ≈ 3.46, S = (6·4·3.46)/2 = <b>41.57</b>. Об’єм V = 41.57 · 5 ≈ <b>207.85</b>.",
+      ex2: "<b>2. Правильна чотирикутна піраміда: сторона основи 6, висота 4. Повна поверхня.</b><br>Основа S = 36. Апофема l = √(4² + 3²) = <b>5</b>. Бічна S = 24 · 5 / 2 = <b>60</b>. Повна = 36 + 60 = <b>96</b>.",
+      ex3: "<b>3. Похила призма: в основі квадрат 5 × 5, бічне ребро 6, кут нахилу ребра до основи sin α = 2/3. Об’єм.</b><br>Висота h = 6 · 2/3 = <b>4</b>, отже V = 25 · 4 = <b>100</b>. Об’єм не залежить від нахилу — ось у чому приємність цієї задачі.",
+      ex4: "<b>4. Правильний тетраедр з ребром 6. Об’єм і висота.</b><br>S основи = 6²√3/4 = 9√3 ≈ <b>15.59</b>, висота h = 6√(2/3) = 2√6 ≈ <b>4.90</b>, об’єм V = 15.59 · 4.90 / 3 ≈ <b>25.46</b>.",
+      ex5: "<b>5. Правильна призма з основою — правильний восьмикутник з описаним радіусом 4 і висотою 5. Об’єм.</b><br>a = 2·4·sin(22.5°) ≈ <b>3.06</b>, апофема r = 4·cos(22.5°) ≈ <b>3.70</b>, S = ½ · 8 · 3.06 · 3.70 ≈ <b>45.25</b>, V = 45.25 · 5 ≈ <b>226.27</b>.",
+      ex6: "<b>6. Зрізана піраміда: в основах квадрати зі сторонами 6 і 3, висота 5. Об’єм.</b><br>V = (5/3)(36 + √(36·9) + 9) = (5/3)(63) = <b>105</b>.",
+      b1n: "Тіла обертання",
+      b1d: "Піраміда й конус влаштовані однаково — відрізняються лише основою. Множник ⅓ той самий, і переріз конуса теж зростає як t².",
+      b2n: "Перпендикулярність у просторі",
+      b2d: "Висота будь-якого многогранника — це перпендикуляр до площини основи, а апофема — перпендикуляр до бічної грані. Обидві довжини рахуються за теоремою Піфагора.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      prism: "Прямая призма с правильным многоугольником в основании и выделенными боковыми рёбрами",
+      pyr: "Правильная пирамида с сечениями на разных высотах: площади сечений растут пропорционально квадрату высоты",
+      net: "Развёртка боковой поверхности призмы: прямоугольники разложены в полосу по периметру основания"
+    },
+    ARIA_UA: {
+      prism: "Пряма призма з правильним багатокутником в основі та виділеними бічними ребрами",
+      pyr: "Правильна піраміда з перерізами на різних висотах: площі перерізів зростають пропорційно квадрату висоти",
+      net: "Розгортка бічної поверхні призми: прямокутники розкладені в стрічку по периметру основи"
+    },
+    title: {ru: "Многогранники: призма и пирамида", ua: "Многогранники: призма і піраміда"},
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <p>${t.c1p}</p>
+      <svg id="geoPr-prism-svg" viewBox="0 0 400 300" role="img" aria-label="${A.prism}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      <div class="formula-box">${t.o1}</div>
+      <p>${t.o1n}</p>
+      <div class="formula-box">${t.o2}</div>
+      <p>${t.o2n}</p>
+      <div class="formula-box">${t.o3}</div>
+
+      <h3>${t.c2}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+      <svg id="geoPr-pyr-svg" viewBox="0 0 400 300" role="img" aria-label="${A.pyr}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      <div class="formula-box">${t.e2}</div>
+      <p>${t.e2n}</p>
+      <div class="formula-box">${t.e3}</div>
+      <p>${t.e3n}</p>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e4}</div>
+      <p>${t.e4n}</p>
+      <div class="formula-box">${t.e5}</div>
+      <p>${t.e5n}</p>
+
+      <h3>${t.c4}</h3>
+      <div class="formula-box">${t.e6}</div>
+      <p>${t.e6n}</p>
+      <div class="formula-box">${t.e7}</div>
+      <p>${t.e7n}</p>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="geoPr-switch"></div>
+        <input type="range" id="geoPr-n" min="3" max="8" step="1" value="6" style="width:100%;margin-top:8px;">
+        <input type="range" id="geoPr-R" min="2" max="5" step="0.5" value="4" style="width:100%;">
+        <input type="range" id="geoPr-h" min="1" max="7" step="0.5" value="5" style="width:100%;">
+        <div class="readout" id="geoPr-readout"></div>
+        <svg id="geoPr-svg" viewBox="0 0 400 300" role="img" aria-label="${A.prism}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="geoPr-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="geoRevolve">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="geoPerp">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>`;
+    },
+
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInk = getComputedStyle(root).getPropertyValue("--ink").trim() || "#243447";
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      function el(tag, at){ const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) n.setAttribute(k, at[k]); return n; }
+      function text(s, str, at){ const n = el("text", at); n.textContent = str; s.appendChild(n); return n; }
+      function seg(s, x1, y1, x2, y2, color, w, dash){
+        const at = {x1:x1, y1:y1, x2:x2, y2:y2, stroke:color, "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("line", at));
+      }
+      function poly(s, pts, fill, op){
+        s.appendChild(el("polygon",{points:pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "), fill:fill, "fill-opacity":(op===undefined?0.8:op), stroke:"none"}));
+      }
+      function line3(s, pts, color, w, dash, op){
+        const at = {points:pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "), fill:"none", stroke:color, "stroke-width":(w||2), "stroke-linecap":"round", "stroke-linejoin":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        if(op !== undefined) at["stroke-opacity"] = op;
+        s.appendChild(el("polyline", at));
+      }
+      function dot(s, x, y, color, r){ s.appendChild(el("circle",{cx:x, cy:y, r:(r||4.5), fill:color})); }
+      function lbl(s, str, x, y, color, anchor, size, italic){
+        const at = {x:x, y:y, fill:color, "font-size":(size||13), "font-family":MONO, "text-anchor":(anchor||"middle"), "font-weight":700};
+        if(italic) at["font-style"] = "italic";
+        text(s, str, at);
+      }
+      function unit(v){ const L = Math.hypot(v.x, v.y) || 1; return {x: v.x/L, y: v.y/L}; }
+      function rightAngle(s, p, d1, d2, size, color){
+        size = size || 9;
+        const a1 = {x: p.x + d1.x*size, y: p.y + d1.y*size};
+        const mid = {x: p.x + d1.x*size + d2.x*size, y: p.y + d1.y*size + d2.y*size};
+        const a2 = {x: p.x + d2.x*size, y: p.y + d2.y*size};
+        line3(s, [p, a1, mid, a2], color, 1.3);
+      }
+      function iso(x, y, z){ return {x: 200 + (x - y)*20, y: 185 - (x + y)*8 - z*14}; }
+      function f1(x){ return Math.round(x*10)/10; }
+      function f2(x){ return Math.round(x*100)/100; }
+      /* правильный n-угольник: описанный радиус R */
+      function ngon(n, R, z){
+        const p = [];
+        for(let i = 0; i < n; i++){
+          const a = -Math.PI/2 + 2*Math.PI*i/n;
+          p.push({x: R*Math.cos(a), y: R*Math.sin(a), z:(z||0)});
+        }
+        return p;
+      }
+      /* площадь правильного n-угольника: S = ½·P·r, r — апофема */
+      function ngonArea(n, R){ return n*R*R*Math.sin(2*Math.PI/n)/2; }
+      function ngonSide(n, R){ return 2*R*Math.sin(Math.PI/n); }
+
+      /* статичная схема 1: прямая призма, основание — шестиугольник */
+      (function drawStaticPrism(){
+        const s = root.querySelector("#geoPr-prism-svg");
+        s.innerHTML = "";
+        const n = 6, R = 3, h = 5;
+        const base = ngon(n, R, 0), top = ngon(n, R, h);
+        const B = base.map(p => iso(p.x, p.y, p.z)), T = top.map(p => iso(p.x, p.y, p.z));
+        poly(s, B, cAccentSoft, 0.9);
+        line3(s, B.concat([B[0]]), COL.blue, 1.8);
+        line3(s, T.concat([T[0]]), COL.blue, 1.8);
+        /* боковые рёбра */
+        for(let i = 0; i < n; i++){
+          const visible = (i === 0 || i === Math.floor(n/2) || i === n-1);
+          line3(s, [B[i], T[i]], visible ? COL.coral : cInkSoft, visible ? 2.4 : 1.3, null, visible ? 1 : 0.4);
+        }
+        /* дальние боковые грани — лёгкая заливка */
+        poly(s, [B[1], T[1], T[2], B[2]], cTealSoft, 0.7);
+        /* высота */
+        const O = iso(0,0,0), Ot = iso(0,0,h);
+        line3(s, [O, Ot], COL.purple, 2.2, "5,3");
+        dot(s, O.x, O.y, cInk, 4);
+        rightAngle(s, O, unit({x:B[0].x-O.x, y:B[0].y-O.y}), unit({x:Ot.x-O.x, y:Ot.y-O.y}), 9, COL.purple);
+        lbl(s, "h", (O.x+Ot.x)/2 + 10, (O.y+Ot.y)/2, COL.purple, "start", 12);
+        lbl(s, "S_осн", O.x + 34, O.y + 20, COL.blue, "start", 12);
+        lbl(s, lang === "ru" ? "прямая призма" : "пряма призма", 12, 20, cInkSoft, "start", 13);
+      })();
+
+      /* статичная схема 2: пирамида с сечениями, площади растут как t² */
+      (function drawStaticPyr(){
+        const s = root.querySelector("#geoPr-pyr-svg");
+        s.innerHTML = "";
+        const n = 4, R = 3.2, h = 5.5;
+        const S = ngonArea(n, R);
+        const base = ngon(n, R, 0);
+        const B = base.map(p => iso(p.x, p.y, p.z));
+        const Sp = iso(0,0,h);
+        poly(s, B, cAmberSoft, 0.9);
+        line3(s, B.concat([B[0]]), COL.blue, 1.8);
+        /* три сечения t = 0.25, 0.5, 0.75 */
+        [0.75, 0.5, 0.25].forEach(function(t, i){
+          const ring = ngon(n, R*t, 0).map(p => iso(p.x, p.y, h*t));
+          const col = [COL.teal, COL.amber, COL.purple][i];
+          line3(s, ring.concat([ring[0]]), col, 1.8, "4,3", 0.9);
+          const q = {x: iso(R*t, 0, h*t).x + 8, y: iso(R*t, 0, h*t).y - 4};
+          lbl(s, "t=" + t, q.x, q.y, col, "start", 11);
+          lbl(s, "S=" + f1(t*t*S), q.x, q.y + 12, col, "start", 11);
+        });
+        /* рёбра к вершине */
+        for(let i = 0; i < n; i++) line3(s, [B[i], Sp], COL.coral, 2.2, null, i === 1 || i === 3 ? 1 : 0.55);
+        dot(s, Sp.x, Sp.y, COL.coral, 5.5);
+        lbl(s, "S", Sp.x + 10, Sp.y - 4, COL.coral, "start", 13);
+        /* высота */
+        const O = iso(0,0,0);
+        line3(s, [O, Sp], COL.purple, 1.8, "4,3");
+        lbl(s, "h", (O.x+Sp.x)/2 - 10, (O.y+Sp.y)/2, COL.purple, "end", 12);
+      })();
+
+      /* ================= конструктор ================= */
+      (function build(){
+        const sw = root.querySelector("#geoPr-switch");
+        const out = root.querySelector("#geoPr-readout");
+        const svg = root.querySelector("#geoPr-svg");
+        const nIn = root.querySelector("#geoPr-n");
+        const rIn = root.querySelector("#geoPr-R");
+        const hIn = root.querySelector("#geoPr-h");
+
+        const MODE = {
+          prism:{ru:"призма", ua:"призма"},
+          pyr:{ru:"пирамида", ua:"піраміда"},
+          net:{ru:"развёртка", ua:"розгортка"}
+        };
+        let mode = "prism";
+        const btns = {};
+        Object.keys(MODE).forEach(function(k){
+          const b = document.createElement("button");
+          b.className = "switch-btn";
+          b.textContent = MODE[k][lang];
+          b.addEventListener("click", function(){
+            mode = k;
+            Object.keys(btns).forEach(x => btns[x].classList.toggle("active", x === k));
+            setRanges();
+            draw();
+          });
+          sw.appendChild(b);
+          btns[k] = b;
+        });
+        btns.prism.classList.add("active");
+
+        /* в режиме развёртки высоту показываем, остальное то же */
+        function setRanges(){
+          nIn.min = "3"; nIn.max = "8"; nIn.step = "1";
+          rIn.min = "2"; rIn.max = "5"; rIn.step = "0.5";
+          hIn.min = "1"; hIn.max = "7"; hIn.step = "0.5";
+        }
+
+        function clamp(inp, lo, hi, fallback){
+          let v = parseFloat(inp.value);
+          if(!Number.isFinite(v)) v = fallback;
+          if(v < lo) v = lo;
+          if(v > hi) v = hi;
+          return v;
+        }
+        function draw(){
+          svg.innerHTML = "";
+          const n = Math.round(clamp(nIn, 3, 8, 6));
+          const R = clamp(rIn, 2, 5, 4);
+          const h = clamp(hIn, 1, 7, 5);
+          const side = ngonSide(n, R);
+          const apo  = R*Math.cos(Math.PI/n);
+          const S    = ngonArea(n, R);
+          const P    = n*side;
+          const Vprism = S*h;
+          const Vpyr   = S*h/3;
+          const Slat   = P*h;
+          const Sfull  = 2*S + Slat;
+          let cells = "";
+
+          if(mode === "prism"){
+            const base = ngon(n, R, 0), top = ngon(n, R, h);
+            const B = base.map(p => iso(p.x, p.y, p.z)), T = top.map(p => iso(p.x, p.y, p.z));
+            poly(svg, B, cAccentSoft, 0.9);
+            line3(svg, B.concat([B[0]]), COL.blue, 1.8);
+            line3(svg, T.concat([T[0]]), COL.blue, 1.8);
+            /* передние боковые грани затеняем */
+            const order = [];
+            for(let i = 0; i < n; i++) order.push(i);
+            /* сортируем по «глубине»: (x+y) больше — ближе к зрителю в нашей изометрии */
+            order.sort(function(a, b){ return (base[a].x + base[a].y) - (base[b].x + base[b].y); });
+            order.forEach(function(i, k){
+              const j = (i+1) % n;
+              if(k >= n-2){
+                poly(svg, [B[i], T[i], T[j], B[j]], cTealSoft, 0.55);
+                line3(svg, [B[i], T[i]], COL.coral, 2.4);
+                line3(svg, [B[j], T[j]], COL.coral, 2.4);
+              } else {
+                line3(svg, [B[i], T[i]], cInkSoft, 1.3, null, 0.4);
+              }
+            });
+            /* высота */
+            const O = iso(0,0,0), Ot = iso(0,0,h);
+            line3(svg, [O, Ot], COL.purple, 2.2, "5,3");
+            dot(svg, O.x, O.y, cInk, 4);
+            /* прямой угол: радиус основания ⊥ высоте (работает при любом n) */
+            rightAngle(svg, O, unit({x:B[0].x-O.x, y:B[0].y-O.y}), unit({x:Ot.x-O.x, y:Ot.y-O.y}), 9, COL.purple);
+            lbl(svg, "h", (O.x+Ot.x)/2 + 10, (O.y+Ot.y)/2, COL.purple, "start", 12);
+            lbl(svg, "S_осн", O.x + 30, O.y + 22, COL.blue, "start", 11);
+
+            cells += "<div><span>n</span>" + n + "</div>";
+            cells += "<div><span>a</span>" + f2(side) + "</div>";
+            cells += "<div><span>r</span>" + f2(apo) + "</div>";
+            cells += "<div><span>S</span>" + f2(S) + "</div>";
+            cells += "<div><span>h</span>" + f1(h) + "</div>";
+            cells += "<div><span>V = S·h</span>" + f2(Vprism) + "</div>";
+          } else if(mode === "pyr"){
+            const base = ngon(n, R, 0);
+            const B = base.map(p => iso(p.x, p.y, p.z));
+            const Sp = iso(0,0,h);
+            poly(svg, B, cAmberSoft, 0.9);
+            line3(svg, B.concat([B[0]]), COL.blue, 1.8);
+            /* сечение на 40% высоты */
+            const t = 0.4;
+            const ring = ngon(n, R*t, 0).map(p => iso(p.x, p.y, h*t));
+            line3(svg, ring.concat([ring[0]]), COL.teal, 2, "5,3");
+            /* рёбра */
+            for(let i = 0; i < n; i++) line3(svg, [B[i], Sp], COL.coral, 2.1);
+            dot(svg, Sp.x, Sp.y, COL.coral, 5.5);
+            lbl(svg, "S", Sp.x + 10, Sp.y - 4, COL.coral, "start", 13);
+            const O = iso(0,0,0);
+            line3(svg, [O, Sp], COL.purple, 1.8, "4,3");
+            lbl(svg, "h", (O.x+Sp.x)/2 - 10, (O.y+Sp.y)/2, COL.purple, "end", 12);
+            /* подпись сечения */
+            const q = iso(R*t, 0, h*t);
+            lbl(svg, "t=0.4 → S=" + f2(t*t*S), q.x + 8, q.y - 2, COL.teal, "start", 11);
+
+            cells += "<div><span>n</span>" + n + "</div>";
+            cells += "<div><span>S</span>" + f2(S) + "</div>";
+            cells += "<div><span>h</span>" + f1(h) + "</div>";
+            cells += "<div><span>V = S·h/3</span>" + f2(Vpyr) + "</div>";
+            cells += "<div><span>S(0.4)</span>" + f2(0.16*S) + "</div>";
+            cells += "<div><span>V_призмы</span>" + f2(Vprism) + "</div>";
+            cells += "<div class=\"wide\"><span>" + (lang === "ru" ? "отношение" : "відношення") + "</span>1/3</div>";
+          } else {
+            /* развёртка: n прямоугольников a × h в полосу + основание сверху */
+            const total = P;               // периметр = ширина полосы в единицах a
+            const scale = Math.min(300/total, 60/h);
+            const W = total*scale, Hh = h*scale;
+            const x0 = 200 - W/2, y0 = 150;
+            /* основание как «шапка» */
+            const baseR = 30;
+            poly(svg, ngon(n, baseR, 0).map(p => ({x: 200 + p.x, y: 70 + p.y})), cAccentSoft, 0.9);
+            line3(svg, ngon(n, baseR, 0).map(p => ({x: 200 + p.x, y: 70 + p.y})).concat([{x:200+ngon(n,baseR,0)[0].x, y:70+ngon(n,baseR,0)[0].y}]), COL.blue, 1.6);
+            lbl(svg, lang === "ru" ? "основание" : "основа", 200, 30, COL.blue, "middle", 12);
+            /* полоса боковых граней */
+            for(let i = 0; i < n; i++){
+              const xa = x0 + i*side*scale, xb = xa + side*scale;
+              poly(svg, [{x:xa, y:y0}, {x:xb, y:y0}, {x:xb, y:y0+Hh}, {x:xa, y:y0+Hh}],
+                   i % 2 ? cTealSoft : cAccentSoft, 0.75);
+              line3(svg, [{x:xa, y:y0}, {x:xa, y:y0+Hh}], cInkSoft, 1.2);
+              line3(svg, [{x:xb, y:y0}, {x:xb, y:y0+Hh}], cInkSoft, 1.2);
+              /* складка внутри грани */
+              line3(svg, [{x:(xa+xb)/2, y:y0+2}, {x:(xa+xb)/2, y:y0+Hh-2}], COL.amber, 1, "3,3", 0.7);
+            }
+            line3(svg, [{x:x0, y:y0}, {x:x0+W, y:y0}], COL.coral, 2);
+            line3(svg, [{x:x0, y:y0+Hh}, {x:x0+W, y:y0+Hh}], COL.coral, 2);
+            lbl(svg, "P = " + f1(P), 200, y0 - 8, COL.coral, "middle", 12);
+            lbl(svg, "h = " + f1(h), x0 + W + 6, y0 + Hh/2, COL.coral, "start", 12);
+            lbl(svg, (lang === "ru" ? "развёртка боковой поверхности" : "розгортка бічної поверхні"), 200, 288, cInkSoft, "middle", 12);
+
+            cells += "<div><span>n</span>" + n + "</div>";
+            cells += "<div><span>a</span>" + f2(side) + "</div>";
+            cells += "<div><span>P</span>" + f1(P) + "</div>";
+            cells += "<div><span>S_бок</span>" + f2(Slat) + "</div>";
+            cells += "<div><span>S_полн</span>" + f2(Sfull) + "</div>";
+          }
+
+          cells += "<div class=\"wide\"><span>V</span>" +
+            (lang === "ru" ? ("призма " + f2(Vprism) + " · пирамида " + f2(Vpyr)) :
+                              ("призма " + f2(Vprism) + " · піраміда " + f2(Vpyr))) + "</div>";
+          out.innerHTML = cells;
+        }
+        [nIn, rIn, hIn].forEach(function(i){ i.addEventListener("input", draw); });
+        setRanges();
+        draw();
+      })();
+
+      /* ================= типичные ошибки ================= */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#geoPr-mistakes");
+        wrap.innerHTML = "";
+        const ms = [
+          { q:{ru:"У наклонной призме боковое ребро 6, высота 4. Чему равен объём при площади основания 10?",
+              ua:"У похилої призми бічне ребро 6, висота 4. Чому дорівнює об’єм при площі основи 10?"},
+            opts:[{ru:"240 — в формуле стоит ребро",ua:"240 — у формулі стоїть ребро"},
+                  {ru:"40 — в формуле стоит высота",ua:"40 — у формулі стоїть висота"},
+                  {ru:"60",ua:"60"},
+                  {ru:"зависит от угла наклона",ua:"залежить від кута нахилу"}], correct:1,
+            exp:{ru:"Ошибка №1. В формуле объёма стоит именно высота, то есть длина перпендикуляра к основанию, а не длина бокового ребра. Для наклонной призмы эти длины разные: ребро — гипотенуза прямоугольного треугольника, а высота — катет. Здесь h = 4, значит V = 10 · 4 = 40. Меняется при наклоне не объём, а площадь боковой поверхности.",
+                 ua:"Помилка №1. У формулі об’єму стоїть саме висота, тобто довжина перпендикуляра до основи, а не довжина бічного ребра. Для похилої призми ці довжини різні: ребро — гіпотенуза прямокутного трикутника, а висота — катет. Тут h = 4, отже V = 10 · 4 = 40. Змінюється при нахилі не об’єм, а площа бічної поверхні."} },
+          { q:{ru:"Почему в формуле объёма пирамиды множитель 1/3?",
+              ua:"Чому у формулі об’єму піраміди множник 1/3?"},
+            opts:[{ru:"потому что у пирамиды одна вершина: объём растёт как куб высоты, а не как сама высота",ua:"тому що в піраміди одна вершина: об’єм зростає як куб висоти, а не як сама висота"},
+                  {ru:"потому что основание пирамиды всегда меньше",ua:"тому що основа піраміди завжди менша"},
+                  {ru:"потому что пирамида «легче» призмы",ua:"тому що піраміда «легша» за призму"},
+                  {ru:"это просто постулат, доказать нельзя",ua:"це просто постулат, довести неможливо"}], correct:0,
+            exp:{ru:"Ошибка №2. Множитель 1/3 — следствие одной вершины, а не выдуманная константа. Честный путь: разобьём <b>треугольную</b> призму на три тетраэдра, взяв вершину верхнего основания и соединив её с вершинами нижнего. У каждого тетраэдра своя высота, и сумма их объёмов равна объёму призмы — отсюда и появляется 1/3. Другой путь — интеграл площадей сечений: площадь растёт как t², а ∫₀¹t²dt = 1/3. Типичная ошибка в доказательстве — указать «общую вершину в основании»: такая вершина лежит в плоскости основания, и высоты пирамид тогда в сумме дают 0, а не h.",
+                 ua:"Помилка №2. Множник 1/3 — наслідок однієї вершини, а не вигадана стала. Чесний шлях: розіб’ємо <b>трикутну</b> призму на три тетраедри, взявши вершину верхньої основи й з’єднавши її з вершинами нижньої. У кожного тетраедра своя висота, і сума їхніх об’ємів дорівнює об’єму призми — звідси й появляється 1/3. Інший шлях — інтеграл площ перерізів: площа зростає як t², а ∫₀¹t²dt = 1/3. Типова помилка в доведенні — вказати «спільну вершину в основі»: така вершина лежить у площині основи, і висоти пірамід тоді у сумі дають 0, а не h."} },
+          { q:{ru:"У правильной призмы описанный радиус основания R = 4. Верно ли, что площадь основания равна P·R/2?",
+              ua:"У правильної призми описаний радіус основи R = 4. Чи правильно, що площа основи дорівнює P·R/2?"},
+            opts:[{ru:"да, R и есть высота треугольника", ua:"так, R і є висота трикутника"},
+                  {ru:"нет, нужна апофема r, а не описанный радиус R",ua:"ні, потрібна апофема r, а не описаний радіус R"},
+                  {ru:"да, но только для треугольника",ua:"так, але тільки для трикутника"},
+                  {ru:"да, потому что центр — общий",ua:"так, бо центр — спільний"}], correct:1,
+            exp:{ru:"Ошибка №3. В формуле S = ½·P·r расстояние от центра основания до стороны называется апофемой r, а не описанным радиусом R. Это разные отрезки: у квадрата со стороной a имеем R = a√2/2 и r = a/2, то есть R больше r в √2 раз. Подставив R вместо r, вы завысите площадь основания в √2 ≈ 1.41 раза — и такой ответ потом не сойдётся с объёмом. Проверка на кубе: S = 6a², а формула даст 6√2a². Запомните: апофема основания и высота призмы — разные вещи, хотя обе называются «высотами».",
+                 ua:"Помилка №3. У формулі S = ½·P·r відстань від центра основи до сторони називається апофемою r, а не описаним радіусом R. Це різні відрізки: у квадрата зі стороною a маємо R = a√2/2 і r = a/2, тобто R більший за r у √2 разів. Підставивши R замість r, ви завищите площу основи в √2 ≈ 1.41 раза — і така відповідь потім не зійдеться з об’ємом. Запам’ятайте: апофема основи і висота призми — різні речі, хоча обидві називаються «висотами»."} }
+        ];
+        ms.forEach(function(m){
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q[lang];
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          m.opts.forEach(function(opt, oi){
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt[lang];
+            b.addEventListener("click", function(){
+              [...opts.children].forEach(c => c.disabled = true);
+              if(oi === m.correct) b.classList.add("correct");
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              const ex = document.createElement("div");
+              ex.className = "mis-exp";
+              ex.textContent = m.exp[lang];
+              item.appendChild(ex);
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Формула объёма пирамиды отличается от формулы объёма призмы:", ua:"Формула об’єму піраміди відрізняється від формули об’єму призми:"},
+          opts:[{ru:"только основанием", ua:"тільки основою"},{ru:"только высотой", ua:"тільки висотою"},
+                {ru:"множителем 1/3 при той же площади и высоте", ua:"множником 1/3 при тій самій площі та висоті"},
+                {ru:"ничем, это одна и та же формула", ua:"нічим, це одна й та сама формула"}], correct:2 },
+        { q:{ru:"На какую величину множитель 1/3 меньше, чем у призмы? На сколько процентов объём пирамиды меньше объёма призмы с тем же основанием и высотой?",
+              ua:"На яку величину множник 1/3 менший, ніж у призми? На скільки відсотків об’єм піраміди менший за об’єм призми з тією самою основою та висотою?"},
+          opts:["1/3","50%","~67%","~33%"], correct:2 },
+        { q:{ru:"В основании правильной призмы правильный восьмиугольник с описанным радиусом R. Как связаны R и апофема основания?",
+              ua:"В основі правильної призми правильний восьмикутник з описаним радіусом R. Як пов’язані R та апофема основи?"},
+          opts:[{ru:"r = R", ua:"r = R"},{ru:"r = R·cos(22.5°)", ua:"r = R·cos(22.5°)"},
+                {ru:"r = R·sin(22.5°)", ua:"r = R·sin(22.5°)"},{ru:"r = R/2", ua:"r = R/2"}], correct:1 },
+        { q:{ru:"Площадь сечения пирамиды на высоте доли t от вершины равна:",
+              ua:"Площа перерізу піраміди на висоті частки t від вершини дорівнює:"},
+          opts:[{ru:"t·S", ua:"t·S"},{ru:"t²·S", ua:"t²·S"},{ru:"S/t²", ua:"S/t²"},{ru:"t³·S", ua:"t³·S"}], correct:1 },
+        { q:{ru:"Высота правильной пирамиды 4, апофема основания 3. Чему равна апофема пирамиды?",
+              ua:"Висота правильної піраміди 4, апофема основи 3. Чому дорівнює апофема піраміди?"},
+          opts:["5","7","25","√7"], correct:0 },
+        { q:{ru:"Чему равна полная поверхность правильной четырехугольной призмы со стороной основания 2 и высотой 5?",
+              ua:"Чому дорівнює повна поверхня правильної чотирикутної призми зі стороною основи 2 та висотою 5?"},
+          opts:["48","28","40","44"], correct:0 },
+        { q:{ru:"Диагональ куба с ребром a равна:", ua:"Діагональ куба з ребром a дорівнює:"},
+          opts:[{ru:"a√2", ua:"a√2"},{ru:"a√3", ua:"a√3"},{ru:"2a", ua:"2a"},{ru:"a√6", ua:"a√6"}], correct:1 }
+      ]);
+    }
+  }
+  ,
+  /* ---------- LESSON geoRevolve (тела вращения) ---------- */
+  {
+    id: "geoRevolve", module: 5,
+    RU: {
+      intro: "Все тела вращения выглядят по-разному, но у них один общий секрет: они получаются вращением плоской фигуры вокруг оси. Достаточно понять этот один механизм — и цилиндр, конус, шар и усечённый конус перестают быть четырьмя разными телами, которые надо запоминать наизусть. Наполовину формулы стереометрии вы уже знаете: объём пирамиды. Осталось довести её до конуса и увидеть, как из неё получается шар.",
+      c1: "1. Что такое тело вращения",
+      e1: "<b>Тело вращения</b> — тело, полученное вращением плоской фигуры вокруг прямой, лежащей в её плоскости (оси вращения).",
+      e1n: "Ось не обязана проходить через центр фигуры. Например, вращая треугольник вокруг одного из его катетов, получаем конус; вокруг гипотенузы — два конуса, соединённые основаниями (биконус); вокруг внешней прямой — тело с полостью внутри. Так что сначала полезно спросить себя: вокруг чего именно вращается фигура?",
+      e2: "<b>Главный признак:</b> у тела вращения есть ось симметрии, и каждое горизонтальное сечение — круг (диск или кольцо), центр которого лежит на оси.",
+      e2n: "Именно это свойство делает объёмы сравнительно простыми. Разрежем тело на тонкие пластинки толщиной dx: каждая превращается в диск радиуса f(x), и объём получается сложением дисков. Остаётся выбрать функцию f(x) — радиус в зависимости от высоты.",
+      c2: "2. Цилиндр и конус",
+      o1: "<b>Цилиндр:</b> V = πr²h &nbsp;&nbsp; S<sub>полн</sub> = 2πr(r + h)<br><b>Конус:</b> l = √(r² + h²) &nbsp;&nbsp; V = ⅓πr²h &nbsp;&nbsp; S<sub>полн</sub> = πr(r + l)",
+      o1n: "Формула конуса та же, что у пирамиды, и это не совпадение. Конус получается вращением прямоугольного треугольника вокруг катета, а пирамида — поворотом того же треугольника в другой плоскости. Стоит запомнить одно: объём конуса ровно втрое меньше объёма цилиндра с тем же основанием и высотой.",
+      o2: "<b>Усечённый конус:</b> l = √((r₁ − r₂)² + h²) &nbsp;&nbsp; V = (πh/3)(r₁² + r₁r₂ + r₂²) &nbsp;&nbsp; S<sub>бок</sub> = π(r₁ + r₂)l",
+      o2n: "Усечённый конус удобно понимать как разность двух конусов с общей вершиной — тогда формула объёма получается сама собой. Проверка на числах: r₁ = 4, r₂ = 2, h = 3 даёт V = π·3/3·(16 + 8 + 4) = 28π ≈ 87.97. Если положить r₂ = 0, формула превращается в объём полного конуса, а если r₁ = r₂ — в объём цилиндра.",
+      c3: "3. Шар",
+      e3: "<b>Шар:</b> V = ⁴/₃πR³ &nbsp;&nbsp; S = 4πR² &nbsp;&nbsp; <b>Полусфера:</b> V = ⅔πR³",
+      e3n: "Шар удобно получить из формулы конуса или из цилиндра. Описанный вокруг шара цилиндр имеет r = R и h = 2R; объём шара составляет ровно ⅔ объёма этого цилиндра. Множитель ⅔ объясняется интегралом по полуокружности: V = ∫₋ᴿ^ᴿ π(R² − x²)dx = ⁴/₃πR³. Площадь поверхности шара равна 4πR² — обратите внимание, что площади здесь впервые за урок получились без множителя ⅓: шар отличается от своей полусферы именно тем, что у него нет плоских оснований.",
+      c4: "4. Почему объёмы считаются так",
+      e4: "<b>Метод Кавальери и интеграл дисков:</b> V = ∫ π f(x)² dx, где f(x) — радиус сечения на высоте x.",
+      e4n: "Разберём все три случая и убедимся, что получаются известные формулы. Конус: f(x) = rx/h, значит V = ∫₀ʰ πr²x²/h² dx = πr²/h² · h³/3 = ⅓πr²h — множитель ⅓ появился сам. Цилиндр: f(x) = r постоянно, V = ∫₀ʰ πr²dx = πr²h. Шар: f(x) = √(R² − x²), V = ⁴/₃πR³. Общее правило: объём пропорционален интегралу от квадрата радиуса, а не от самого радиуса. Именно поэтому при удвоении радиуса объём растёт в 8 раз, а площадь поверхности — только в 4.",
+      interLabel: "Конструктор — тела вращения",
+      exTitle: "5. Разбор задач",
+      ex1: "<b>1. Цилиндр r = 3, h = 5. Объём и полная поверхность.</b><br>V = π·9·5 = <b>45π ≈ 141.37</b>. S = 2π·3·(3+5) = <b>48π ≈ 150.80</b>.",
+      ex2: "<b>2. Конус r = 3, h = 4. Образующая, объём, полная поверхность.</b><br>l = √(9 + 16) = <b>5</b>. V = ⅓π·9·4 = <b>12π ≈ 37.70</b>. S = π·3·(3+5) = <b>24π ≈ 75.40</b>.",
+      ex3: "<b>3. Шар R = 5. Объём и площадь поверхности.</b><br>V = ⁴/₃π·125 = <b>500π/3 ≈ 523.60</b>. S = 4π·25 = <b>100π ≈ 314.16</b>.",
+      ex4: "<b>4. Полусфера R = 3. Объём и площадь полной поверхности.</b><br>V = ⅔π·27 = <b>18π ≈ 56.55</b>. S = 2πR² + πR² = <b>3πR² = 27π ≈ 84.82</b>.",
+      ex5: "<b>5. Усечённый конус r₁ = 4, r₂ = 2, h = 3. Объём и боковая площадь.</b><br>l = √(4 + 9) = <b>5</b>. V = (π·3/3)·28 = <b>28π ≈ 87.97</b>. S<sub>бок</sub> = π·6·5 = <b>30π ≈ 94.25</b>.",
+      ex6: "<b>6. Радиус шара увеличили вдвое. Как изменились объём и площадь?</b><br>Объём вырос в <b>8 раз</b> (R³), площадь — в <b>4 раза</b> (R²). Поэтому шар и шар с радиусом вдвое больше — это не то же самое, что две такие же фигуры рядом.",
+      b1n: "Призма и пирамида",
+      b1d: "Множитель ⅓ у конуса и у пирамиды один и тот же — оба тела имеют единственную вершину. А у цилиндра и шара вершин нет вовсе, и множителя ⅓ тоже нет.",
+      b2n: "Стереометрия: объёмы и поверхности",
+      b2d: "Все формулы объёмов и площадей сведены в одну таблицу, и тела вращения занимают в ней ровно то место, которое занимают цилиндр, конус и шар в школьных задачах.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "Усі тіла обертання виглядають по-різному, але в них один спільний секрет: вони отримуються обертанням плоскої фігури навколо осі. Достаточно зрозуміти цей один механізм — і циліндр, конус, куля та зрізаний конус перестають бути чотирма різними тілами, які треба запам'ятовувати напам'ять. Наполовину формули стереометрії ви вже знаєте: об'єм піраміди. Залишилося довести її до конуса й побачити, як із неї виходить куля.",
+      c1: "1. Що таке тіло обертання",
+      e1: "<b>Тіло обертання</b> — тіло, отримане обертанням плоскої фігури навколо прямої, що лежить у її площині (осі обертання).",
+      e1n: "Вісь не обов'язково проходить через центр фігури. Наприклад, обертаючи трикутник навколо одного з його катетів, отримуємо конус; навколо гіпотенузи — два конуси, з'єднані основами (біконус); навколо зовнішньої прямої — тіло з порожниною всередині. Тож спершу корисно запитати себе: навколо чого саме обертається фігура?",
+      e2: "<b>Головна ознака:</b> у тіла обертання є вісь симетрії, і кожен горизонтальний переріз — коло (диск або кільце), центр якого лежить на осі.",
+      e2n: "Саме ця властивість робить об'єми порівняно простими. Розріжемо тіло на тонкі пластинки товщиною dx: кожна перетворюється на диск радіуса f(x), і об'єм отримується додаванням дисків. Залишається вибрати функцію f(x) — радіус залежно від висоти.",
+      c2: "2. Циліндр і конус",
+      o1: "<b>Циліндр:</b> V = πr²h &nbsp;&nbsp; S<sub>пов</sub> = 2πr(r + h)<br><b>Конус:</b> l = √(r² + h²) &nbsp;&nbsp; V = ⅓πr²h &nbsp;&nbsp; S<sub>пов</sub> = πr(r + l)",
+      o1n: "Формула конуса та сама, що в піраміди, і це не збіг. Конус отримується обертанням прямокутного трикутника навколо катета, а піраміда — поворотом того самого трикутника в іншій площині. Варто запам'ятати одне: об'єм конуса рівно втричі менший за об'єм циліндра з тим самим основанням і висотою.",
+      o2: "<b>Зрізаний конус:</b> l = √((r₁ − r₂)² + h²) &nbsp;&nbsp; V = (πh/3)(r₁² + r₁r₂ + r₂²) &nbsp;&nbsp; S<sub>біч</sub> = π(r₁ + r₂)l",
+      o2n: "Зрізаний конус зручно розуміти як різницю двох конусів зі спільною вершиною — тоді формула об'єму випливає сама собою. Перевірка на числах: r₁ = 4, r₂ = 2, h = 3 дає V = π·3/3·(16 + 8 + 4) = 28π ≈ 87.97. Якщо покласти r₂ = 0, формула перетворюється на об'єм повного конуса, а якщо r₁ = r₂ — на об'єм циліндра.",
+      c3: "3. Куля",
+      e3: "<b>Куля:</b> V = ⁴/₃πR³ &nbsp;&nbsp; S = 4πR² &nbsp;&nbsp; <b>Півкуля:</b> V = ⅔πR³",
+      e3n: "Кулю зручно отримати з формули конуса або з циліндра. Описаний навколо кулі циліндр має r = R і h = 2R; об'єм кулі становить рівно ⅔ об'єму цього циліндра. Множник ⅔ пояснюється інтегралом по півколо: V = ∫₋ᴿ^ᴿ π(R² − x²)dx = ⁴/₃πR³. Площа поверхні кулі дорівнює 4πR² — зверніть увагу, що площі тут уперше за урок вийшли без множника ⅓: куля відрізняється від своєї «напівкулі» саме тим, що в неї немає плоских основ.",
+      c4: "4. Чому об'єми рахуються саме так",
+      e4: "<b>Метод Кавальєрі та інтеграл дисків:</b> V = ∫ π f(x)² dx, де f(x) — радіус перерізу на висоті x.",
+      e4n: "Розберемо всі три випадки й переконаємося, що виходять відомі формули. Конус: f(x) = rx/h, отже V = ∫₀ʰ πr²x²/h² dx = πr²/h² · h³/3 = ⅓πr²h — множник ⅓ з'явився сам. Циліндр: f(x) = r стале, V = ∫₀ʰ πr²dx = πr²h. Куля: f(x) = √(R² − x²), V = ⁴/₃πR³. Спільне правило: об'єм пропорційний інтегралу від квадрата радіуса, а не від самого радіуса. Саме тому при подвоєнні радіуса об'єм зростає у 8 разів, а площа поверхні — лише у 4 рази.",
+      interLabel: "Конструктор — тіла обертання",
+      exTitle: "5. Розбір задач",
+      ex1: "<b>1. Циліндр r = 3, h = 5. Об’єм і повна поверхня.</b><br>V = π·9·5 = <b>45π ≈ 141.37</b>. S = 2π·3·(3+5) = <b>48π ≈ 150.80</b>.",
+      ex2: "<b>2. Конус r = 3, h = 4. Твірна, об’єм, повна поверхня.</b><br>l = √(9 + 16) = <b>5</b>. V = ⅓π·9·4 = <b>12π ≈ 37.70</b>. S = π·3·(3+5) = <b>24π ≈ 75.40</b>.",
+      ex3: "<b>3. Куля R = 5. Об’єм і площа поверхні.</b><br>V = ⁴/₃π·125 = <b>500π/3 ≈ 523.60</b>. S = 4π·25 = <b>100π ≈ 314.16</b>.",
+      ex4: "<b>4. Півкуля R = 3. Об’єм і площа повної поверхні.</b><br>V = ⅔π·27 = <b>18π ≈ 56.55</b>. S = 2πR² + πR² = <b>3πR² = 27π ≈ 84.82</b>.",
+      ex5: "<b>5. Зрізаний конус r₁ = 4, r₂ = 2, h = 3. Об’єм і бічна площа.</b><br>l = √(4 + 9) = <b>5</b>. V = (π·3/3)·28 = <b>28π ≈ 87.97</b>. S<sub>біч</sub> = π·6·5 = <b>30π ≈ 94.25</b>.",
+      ex6: "<b>6. Радіус кулі збільшили вдвічі. Як змінилися об’єм і площа?</b><br>Об’єм виріс у <b>8 разів</b> (R³), площа — у <b>4 рази</b> (R²). Тому куля й куля з радіусом удвічі більшим — це не те саме, що дві такі самі фігури поруч.",
+      b1n: "Призма і піраміда",
+      b1d: "Множник ⅓ у конуса й у піраміди той самий — обидва тіла мають єдину вершину. А в циліндра й кулі вершин узагалі немає, і множника ⅓ теж немає.",
+      b2n: "Стереометрія: об’єми та поверхні",
+      b2d: "Усі формули об’ємів і площ зведені в одну таблицю, і тіла обертання посідають у ній рівно те місце, яке посідають циліндр, конус і куля у шкільних задачах.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      bodies: "Три тела вращения: цилиндр, конус и шар, изображённые как профили с осью вращения",
+      slices: "Тело вращения, разрезанное на тонкие диски: их радиусы показаны стрелками, объём складывается из дисков",
+      live: "Конструктор: цилиндр, конус, усечённый конус, шар и полусфера с вычислением объёма и поверхности"
+    },
+    ARIA_UA: {
+      bodies: "Три тіла обертання: циліндр, конус і куля, зображені як профілі з віссю обертання",
+      slices: "Тіло обертання, розрізане на тонкі диски: їхні радіуси показані стрілками, об’єм складається з дисків",
+      live: "Конструктор: циліндр, конус, зрізаний конус, куля та півкуля з обчисленням об’єму та поверхні"
+    },
+    title: {ru: "Тела вращения", ua: "Тіла обертання"},
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+      <div class="formula-box">${t.e2}</div>
+      <p>${t.e2n}</p>
+      <svg id="geoRe-bodies-svg" viewBox="0 0 400 240" role="img" aria-label="${A.bodies}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+
+      <h3>${t.c2}</h3>
+      <div class="formula-box">${t.o1}</div>
+      <p>${t.o1n}</p>
+      <div class="formula-box">${t.o2}</div>
+      <p>${t.o2n}</p>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e3}</div>
+      <p>${t.e3n}</p>
+
+      <h3>${t.c4}</h3>
+      <div class="formula-box">${t.e4}</div>
+      <p>${t.e4n}</p>
+      <svg id="geoRe-slices-svg" viewBox="0 0 400 280" role="img" aria-label="${A.slices}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="geoRe-switch"></div>
+        <input type="range" id="geoRe-r" min="1" max="5" step="0.5" value="3" style="width:100%;margin-top:8px;">
+        <input type="range" id="geoRe-h" min="1" max="6" step="0.5" value="4" style="width:100%;">
+        <input type="range" id="geoRe-r2" min="0" max="5" step="0.5" value="2" style="width:100%;">
+        <div class="readout" id="geoRe-readout"></div>
+        <svg id="geoRe-svg" viewBox="0 0 400 300" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="geoRe-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="geoPrism">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="stereo2">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>`;
+    },
+
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInk = getComputedStyle(root).getPropertyValue("--ink").trim() || "#243447";
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      const CX = 200, CY = 185, SC = 22;
+      function el(tag, at){ const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) n.setAttribute(k, at[k]); return n; }
+      function text(s, str, at){ const n = el("text", at); n.textContent = str; s.appendChild(n); return n; }
+      function seg(s, x1, y1, x2, y2, color, w, dash){
+        const at = {x1:x1, y1:y1, x2:x2, y2:y2, stroke:color, "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("line", at));
+      }
+      function poly(s, pts, fill, op){
+        s.appendChild(el("polygon",{points:pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "), fill:fill, "fill-opacity":(op===undefined?0.8:op), stroke:"none"}));
+      }
+      function line3(s, pts, color, w, dash, op){
+        const at = {points:pts.map(p=>p.x.toFixed(1)+","+p.y.toFixed(1)).join(" "), fill:"none", stroke:color, "stroke-width":(w||2), "stroke-linecap":"round", "stroke-linejoin":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        if(op !== undefined) at["stroke-opacity"] = op;
+        s.appendChild(el("polyline", at));
+      }
+      function disc(s, cx, cy, rr, fill, op){
+        s.appendChild(el("ellipse",{cx:cx.toFixed(1), cy:cy.toFixed(1), rx:rr.toFixed(1), ry:Math.max(2, rr*0.32).toFixed(1),
+                                    fill:fill, "fill-opacity":(op===undefined?0.7:op), stroke:"none"}));
+      }
+      function dot(s, x, y, color, r){ s.appendChild(el("circle",{cx:x, cy:y, r:(r||4.5), fill:color})); }
+      function lbl(s, str, x, y, color, anchor, size, italic){
+        const at = {x:x, y:y, fill:color, "font-size":(size||13), "font-family":MONO, "text-anchor":(anchor||"middle"), "font-weight":700};
+        if(italic) at["font-style"] = "italic";
+        text(s, str, at);
+      }
+      function unit(v){ const L = Math.hypot(v.x, v.y) || 1; return {x: v.x/L, y: v.y/L}; }
+      function rightAngle(s, p, d1, d2, size, color){
+        size = size || 9;
+        const a1 = {x: p.x + d1.x*size, y: p.y + d1.y*size};
+        const mid = {x: p.x + d1.x*size + d2.x*size, y: p.y + d1.y*size + d2.y*size};
+        const a2 = {x: p.x + d2.x*size, y: p.y + d2.y*size};
+        line3(s, [p, a1, mid, a2], color, 1.3);
+      }
+      /* экранная проекция: математические (x, y) → пиксели */
+      function P(x, y){ return {x: CX + x*SC, y: CY - y*SC}; }
+      function f1(x){ return Math.round(x*10)/10; }
+      function f2(x){ return Math.round(x*100)/100; }
+
+      /* 1. три тела: цилиндр, конус, шар — профили с осью */
+      (function drawBodies(){
+        const s = root.querySelector("#geoRe-bodies-svg");
+        s.innerHTML = "";
+        const W2 = 400, H2 = 240, CX2 = 200, CY2 = 170, SC2 = 20;
+        function Q(x, y){ return {x: CX2 + x*SC2, y: CY2 - y*SC2}; }
+        function panel(cx){
+          /* рамка панели */
+          const x0 = cx - 58, x1 = cx + 58, y0 = 30, y1 = 205;
+          s.appendChild(el("rect",{x:x0, y:y0, width:x1-x0, height:y1-y0, rx:8,
+                                    fill:cAccentSoft, "fill-opacity":0.35, stroke:cLine, "stroke-width":1}));
+          return {ox: cx - CX2, oy: CY2 - y0};
+        }
+        /* цилиндр */
+        {
+          const c = 70, r = 2, h = 5.5;
+          panel(c);
+          const A = {x:c - r*SC2, y:205 - 14}, B = {x:c + r*SC2, y:205 - 14};
+          const A2 = {x:c - r*SC2, y:205 - 14 - h*SC2}, B2 = {x:c + r*SC2, y:205 - 14 - h*SC2};
+          poly(s, [A, B, B2, A2], cTealSoft, 0.85);
+          line3(s, [A2, B2], COL.teal, 2.4);
+          line3(s, [A, B], COL.teal, 2.4);
+          line3(s, [A, A2], COL.coral, 2.4);
+          line3(s, [B, B2], COL.coral, 2.4);
+          disc(s, c, 205 - 14 - h*SC2, r*SC2, cTealSoft, 0.95);
+          lbl(s, "r", c + r*SC2 + 6, 205 - 10, COL.blue, "start", 12);
+          lbl(s, "h", c - 6, 205 - 14 - h*SC2/2, COL.coral, "end", 12);
+          lbl(s, lang === "ru" ? "цилиндр" : "циліндр", c, 222, cInkSoft, "middle", 12);
+        }
+        /* конус */
+        {
+          const c = 200, r = 2.6, h = 5.5;
+          panel(c);
+          const base = 205 - 14;
+          const apex = base - h*SC2;
+          poly(s, [{x:c - r*SC2, y:base}, {x:c + r*SC2, y:base}, {x:c, y:apex}], cAmberSoft, 0.9);
+          line3(s, [{x:c - r*SC2, y:base}, {x:c + r*SC2, y:base}], COL.blue, 2.4);
+          line3(s, [{x:c - r*SC2, y:base}, {x:c, y:apex}, {x:c + r*SC2, y:base}], COL.coral, 2.4);
+          lbl(s, "r", c + r*SC2 + 6, base + 4, COL.blue, "start", 12);
+          lbl(s, "h", c - 6, apex + h*SC2/2, COL.coral, "end", 12);
+          lbl(s, "l", c + r*SC2*0.62, apex + h*SC2*0.34, COL.purple, "start", 12);
+          lbl(s, lang === "ru" ? "конус" : "конус", c, 222, cInkSoft, "middle", 12);
+        }
+        /* шар */
+        {
+          const c = 330, R = 2.6, cy = 205 - 14 - R*SC2;
+          panel(c);
+          s.appendChild(el("circle",{cx:c, cy:cy, r:R*SC2, fill:cAccentSoft, "fill-opacity":0.9, stroke:COL.blue, "stroke-width":2.4}));
+          /* экватор */
+          seg(s, c - R*SC2, cy, c + R*SC2, cy, COL.purple, 1.6, "5,3");
+          seg(s, c, cy - R*SC2, c, cy + R*SC2, COL.coral, 1.6, "5,3");
+          lbl(s, "R", c + R*SC2 - 8, cy - 5, COL.purple, "start", 12);
+          lbl(s, lang === "ru" ? "шар" : "куля", c, 222, cInkSoft, "middle", 12);
+        }
+        lbl(s, lang === "ru" ? "профиль слева, тело после вращения" : "профіль зліва, тіло після обертання", 14, 16, cInkSoft, "start", 12);
+      })();
+
+      /* 2. конус, разрезанный на диски */
+      (function drawSlices(){
+        const s = root.querySelector("#geoRe-slices-svg");
+        s.innerHTML = "";
+        const CXa = 200, CYa = 168, SCa = 22, r = 4, h = 6.4, N = 9;
+        function Z(x, y){ return {x: CXa + x*SCa, y: CYa - y*SCa}; }
+        const base = Z(0, 0).y, top = Z(0, h).y;
+        /* диски снизу вверх */
+        for(let i = 0; i < N; i++){
+          const y0 = h*(i+1)/N, y1 = h*i/N;
+          const ym = (y0 + y1)/2;
+          const rad = r*ym/h;
+          const yy = Z(0, ym).y;
+          disc(s, CXa, yy, rad*SCa, i % 2 ? cTealSoft : cAccentSoft, 0.9);
+          /* радиус диска */
+          seg(s, CXa, yy, CXa + rad*SCa, yy, COL.blue, 1.4);
+          lbl(s, "f(x)", CXa + rad*SCa/2, yy - 4, COL.blue, "middle", 10);
+        }
+        /* контур конуса */
+        line3(s, [Z(-r, 0), Z(0, h), Z(r, 0)], COL.coral, 2.6);
+        line3(s, [Z(-r, 0), Z(r, 0)], COL.coral, 2.6);
+        /* ось */
+        seg(s, CXa, base + 12, CXa, top - 14, COL.purple, 1.6, "5,3");
+        lbl(s, "h", CXa + 6, top + 2, COL.purple, "start", 12);
+        lbl(s, "x", CXa - 8, base + 12, cInkSoft, "end", 11, true);
+        lbl(s, lang === "ru" ? "объём = сумма объёмов дисков" : "об’єм = сума об’ємів дисків", 14, 16, cInkSoft, "start", 12);
+        lbl(s, "V = ∫ π f(x)² dx", 386, 268, COL.coral, "end", 13);
+      })();
+
+      /* ================= конструктор ================= */
+      (function build(){
+        const sw = root.querySelector("#geoRe-switch");
+        const out = root.querySelector("#geoRe-readout");
+        const svg = root.querySelector("#geoRe-svg");
+        const rIn = root.querySelector("#geoRe-r");
+        const hIn = root.querySelector("#geoRe-h");
+        const r2In = root.querySelector("#geoRe-r2");
+
+        const MODE = {
+          cyl:{ru:"цилиндр", ua:"циліндр"},
+          cone:{ru:"конус", ua:"конус"},
+          frustum:{ru:"усечённый конус", ua:"зрізаний конус"},
+          sphere:{ru:"шар и полусфера", ua:"куля та півкуля"}
+        };
+        let mode = "cyl";
+        const btns = {};
+        Object.keys(MODE).forEach(function(k){
+          const b = document.createElement("button");
+          b.className = "switch-btn";
+          b.textContent = MODE[k][lang];
+          b.addEventListener("click", function(){
+            mode = k;
+            Object.keys(btns).forEach(x => btns[x].classList.toggle("active", x === k));
+            setRanges();
+            draw();
+          });
+          sw.appendChild(b);
+          btns[k] = b;
+        });
+        btns.cyl.classList.add("active");
+
+        function clamp(inp, lo, hi, fallback){
+          let v = parseFloat(inp.value);
+          if(!Number.isFinite(v)) v = fallback;
+          if(v < lo) v = lo;
+          if(v > hi) v = hi;
+          return v;
+        }
+        /* в режиме шара радиус идёт по первому ползунку, высота не нужна */
+        function setRanges(){
+          rIn.min = "1"; rIn.max = "5"; rIn.step = "0.5";
+          hIn.min = "1"; hIn.max = "6"; hIn.step = "0.5";
+          r2In.min = "0"; r2In.max = "5"; r2In.step = "0.5";
+        }
+
+        /* рисует профиль тела слева от оси и заштриховывает его */
+        function profile(s, pts2d, fill){
+          const px = pts2d.map(p => P(p[0], p[1]));
+          poly(s, px, fill, 0.8);
+          line3(s, px.concat([px[0]]), COL.coral, 2.4);
+          return px;
+        }
+        function drawAxis(s, h){
+          seg(s, CX, CY + 12, CX, CY - h*SC - 14, COL.purple, 1.6, "5,3");
+        }
+        function drawBase(s, r){
+          const y = CY - 0;
+          seg(s, CX - r*SC, y, CX + r*SC, y, COL.blue, 2.4);
+          seg(s, CX - r*SC, y, CX + r*SC*0.5, y - r*SC*0.28, COL.blue, 1.3, null, 0.6);
+          seg(s, CX + r*SC, y, CX - r*SC*0.5, y - r*SC*0.28, COL.blue, 1.3, null, 0.6);
+        }
+
+        function draw(){
+          svg.innerHTML = "";
+          const r = clamp(rIn, 1, 5, 3);
+          const h = clamp(hIn, 1, 6, 4);
+          let r2 = clamp(r2In, 0, 5, 2);
+          if (r2 > r) r2 = r;
+          let cells = "";
+
+          if(mode === "cyl"){
+            drawAxis(svg, h);
+            profile(svg, [[-r, 0], [-r, h], [r, h], [r, 0]], cTealSoft);
+            drawBase(svg, r);
+            /* верхний эллипс */
+            s2(svg, r, h, cTealSoft);
+            lbl(svg, "r", CX + r*SC + 8, CY + 4, COL.blue, "start", 12);
+            lbl(svg, "h", CX - 8, CY - h*SC + 4, COL.purple, "end", 12);
+            const V = Math.PI*r*r*h, S = 2*Math.PI*r*(r+h);
+            cells += "<div><span>r</span>" + f1(r) + "</div>";
+            cells += "<div><span>h</span>" + f1(h) + "</div>";
+            cells += "<div><span>V = πr²h</span>" + f2(V) + "</div>";
+            cells += "<div><span>S = 2πr(r+h)</span>" + f2(S) + "</div>";
+          } else if(mode === "cone"){
+            drawAxis(svg, h);
+            profile(svg, [[-r, 0], [0, h], [r, 0]], cAmberSoft);
+            drawBase(svg, r);
+            const l = Math.hypot(r, h);
+            lbl(svg, "l", CX + r*SC*0.55, CY - h*SC*0.4, COL.coral, "start", 12);
+            lbl(svg, "h", CX - 8, CY - h*SC + 4, COL.purple, "end", 12);
+            const V = Math.PI*r*r*h/3, S = Math.PI*r*(r+l);
+            cells += "<div><span>r</span>" + f1(r) + "</div>";
+            cells += "<div><span>h</span>" + f1(h) + "</div>";
+            cells += "<div><span>l = √(r²+h²)</span>" + f2(l) + "</div>";
+            cells += "<div><span>V = ⅓πr²h</span>" + f2(V) + "</div>";
+            cells += "<div><span>S = πr(r+l)</span>" + f2(S) + "</div>";
+          } else if(mode === "frustum"){
+            drawAxis(svg, h);
+            profile(svg, [[-r, 0], [-r2, h], [r2, h], [r, 0]], cAccentSoft);
+            drawBase(svg, r);
+            s2(svg, r2, h, cAccentSoft);
+            const l = Math.hypot(r - r2, h);
+            lbl(svg, "l", CX + r*SC*0.6, CY - h*SC*0.45, COL.coral, "start", 12);
+            lbl(svg, "h", CX - 8, CY - h*SC + 4, COL.purple, "end", 12);
+            if (r2 > 0) lbl(svg, "r₂", CX + r2*SC + 8, CY - h*SC + 4, COL.blue, "start", 12);
+            const V = Math.PI*h/3*(r*r + r*r2 + r2*r2);
+            const Sb = Math.PI*(r + r2)*l;
+            cells += "<div><span>r₁</span>" + f1(r) + "</div>";
+            cells += "<div><span>r₂</span>" + f1(r2) + "</div>";
+            cells += "<div><span>h</span>" + f1(h) + "</div>";
+            cells += "<div><span>V = πh/3(...)</span>" + f2(V) + "</div>";
+            cells += "<div><span>S_бок</span>" + f2(Sb) + "</div>";
+            if (r2 === 0) cells += "<div class=\"wide note\">" + (lang === "ru"
+              ? "r₂ = 0 — это полный конус, не усечённый"
+              : "r₂ = 0 — це повний конус, не зрізаний") + "</div>";
+            if (r2 === r) cells += "<div class=\"wide note\">" + (lang === "ru"
+              ? "r₁ = r₂ — это цилиндр, а не усечённый конус"
+              : "r₁ = r₂ — це циліндр, а не зрізаний конус") + "</div>";
+          } else {
+            const cy = CY - r*SC, Rr = r*SC, ERy = Math.max(3, Rr*0.28);
+            /* купол полусферы (сплошной) */
+            svg.appendChild(el("path",{d: semiPath(CX, cy, Rr), fill:cAccentSoft, "fill-opacity":0.9,
+                                    stroke:COL.blue, "stroke-width":2.4}));
+            /* окружность шара — нижняя (скрытая) половина пунктиром */
+            svg.appendChild(el("path",{d: halfDiscPath(CX, cy, Rr), fill:"none", stroke:COL.coral,
+                                    "stroke-width":2.2, "stroke-dasharray":"5,3"}));
+            /* основание полусферы: задняя дуга эллипса (пунктир) и передняя (сплошная) */
+            svg.appendChild(el("path",{d: "M " + (CX-Rr).toFixed(1) + " " + cy +
+                                      " A " + Rr.toFixed(1) + " " + ERy.toFixed(1) + " 0 0 1 " +
+                                      (CX+Rr).toFixed(1) + " " + cy,
+                                    fill:"none", stroke:COL.teal, "stroke-width":2,
+                                    "stroke-dasharray":"4,3"}));
+            svg.appendChild(el("path",{d: "M " + (CX-Rr).toFixed(1) + " " + cy +
+                                      " A " + Rr.toFixed(1) + " " + ERy.toFixed(1) + " 0 0 0 " +
+                                      (CX+Rr).toFixed(1) + " " + cy,
+                                    fill:"none", stroke:COL.teal, "stroke-width":2.2}));
+            /* ось вращения */
+            seg(svg, CX, CY + 12, CX, cy - Rr - 14, COL.purple, 1.6, "5,3");
+            /* радиус от центра к краю */
+            seg(svg, CX, cy, CX + Rr, cy, COL.purple, 1.8);
+            dot(svg, CX, cy, COL.purple, 3);
+            lbl(svg, "R", CX + Rr*0.55, cy - 7, COL.purple, "middle", 12);
+            const Vsph = 4/3*Math.PI*r*r*r;
+            const Sshp = 4*Math.PI*r*r;
+            const Vhalf = 2/3*Math.PI*r*r*r;
+            const Shalf = 3*Math.PI*r*r;
+            cells += "<div><span>R</span>" + f1(r) + "</div>";
+            cells += "<div><span>V_шара</span>" + f2(Vsph) + "</div>";
+            cells += "<div><span>S_шара</span>" + f2(Sshp) + "</div>";
+            cells += "<div><span>V_полусферы</span>" + f2(Vhalf) + "</div>";
+            cells += "<div><span>S_полусферы</span>" + f2(Shalf) + "</div>";
+            if (h !== 4) cells += "<div class=\"wide note\">" + (lang === "ru"
+              ? "В этом режиме работает только радиус R"
+              : "У цьому режимі працює лише радіус R") + "</div>";
+          }
+          out.innerHTML = cells;
+        }
+        /* верхний эллипс (основание/верх усечённого) */
+        function s2(s, rr, hh, fill){
+          disc(s, CX, CY - hh*SC, rr*SC, fill, 0.95);
+          s.appendChild(el("ellipse",{cx:CX, cy:CY - hh*SC, rx:(rr*SC).toFixed(1), ry:Math.max(2, rr*SC*0.28).toFixed(1),
+                                      fill:"none", stroke:COL.blue, "stroke-width":2.2}));
+        }
+        /* полуокружность как замкнутый контур (верх) */
+        function semiPath(cx, cy, R){
+          return "M " + (cx - R).toFixed(1) + " " + cy.toFixed(1) +
+                 " A " + R.toFixed(1) + " " + R.toFixed(1) + " 0 0 1 " + (cx + R).toFixed(1) + " " + cy.toFixed(1) +
+                 " Z";
+        }
+        /* нижняя половина окружности (пунктир) */
+        function halfDiscPath(cx, cy, R){
+          return "M " + (cx - R).toFixed(1) + " " + cy.toFixed(1) +
+                 " A " + R.toFixed(1) + " " + R.toFixed(1) + " 0 0 0 " + (cx + R).toFixed(1) + " " + cy.toFixed(1);
+        }
+        [rIn, hIn, r2In].forEach(function(i){ i.addEventListener("input", draw); });
+        setRanges();
+        draw();
+      })();
+
+      /* ================= типичные ошибки ================= */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#geoRe-mistakes");
+        wrap.innerHTML = "";
+        const ms = [
+          { q:{ru:"Радиус и высоту конуса удвоили. Что произойдёт с объёмом?",
+              ua:"Радіус і висоту конуса подвоїли. Що станеться з об’ємом?"},
+            opts:[{ru:"вырастет в 2 раза",ua:"зросте у 2 рази"},{ru:"вырастет в 4 раза",ua:"зросте у 4 рази"},
+                  {ru:"вырастет в 8 раз",ua:"зросте у 8 разів"},{ru:"вырастет в 16 раз",ua:"зросте у 16 разів"}], correct:2,
+            exp:{ru:"Ошибка №1. В формуле объёма конуса V = ⅓πr²h радиус стоит в квадрате, показатель 2. Кубического радиуса в стереометрии не бывает, и путать его с кубом объёма — самая частая ошибка. Разложим по шагам: удвоение только радиуса увеличивает площадь основания вчетверо, а значит и объём вчетверо. Удвоение ещё и высоты добавляет множитель 2 — вместе выходит 8. Проверьте на числах: r = 1, h = 4 → V ≈ 4.19; r = 2, h = 8 → V ≈ 33.51, отношение ровно 8.",
+                 ua:"Помилка №1. У формулі об’єму конуса V = ⅓πr²h радіус стоїть у квадраті, показник 2. Кубічного радіуса в стереометрії не буває, і плутати його з кубом об’єму — найчастіша помилка. Розкладемо по кроках: подвоєння лише радіуса збільшує площу основи учетверо, а отже й об’єм учетверо. Подвоєння ще й висоти додає множник 2 — разом виходить 8. Перевірте на числах: r = 1, h = 4 → V ≈ 4.19; r = 2, h = 8 → V ≈ 33.51, відношення рівно 8."} },
+          { q:{ru:"Почему объём конуса втрое меньше объёма цилиндра с тем же основанием и высотой?",
+              ua:"Чому об’єм конуса втричі менший за об’єм циліндра з тим самим основанням і висотою?"},
+            opts:[{ru:"конус уже в основании",ua:"конус вужчий в основі"},
+                  {ru:"у конуса одна вершина — там же нужен множитель ⅓",ua:"у конуса одна вершина — там же потрібен множник ⅓"},
+                  {ru:"у конуса нет дна",ua:"у конуса немає дна"},
+                  {ru:"конус получается поворотом, а цилиндр — нет",ua:"конус отримується поворотом, а циліндр — ні"}], correct:1,
+            exp:{ru:"Ошибка №2. Основания у них одинаковые — одна и та же окружность, — так что причина не в ширине. Дело в вершине: у конуса она одна, как у пирамиды, и множитель ⅓ появляется ровно по той же причине. Проверка без формул: впишите в цилиндр правильную пирамиду с той же вершиной и тем же основанием — её объём ровно ⅓ объёма цилиндра. Это самая честная проверка: усечённую пирамиду с тремя вершинами можно достроить до конуса, и разность покажет, сколько места «съедает» вершина.",
+                 ua:"Помилка №2. Основи в них однакові — те самі коло, — тож причина не в ширині. Річ у вершині: у конуса вона одна, як у піраміди, і множник ⅓ з’являється з тієї ж причини. Перевірка без формул: впишіть у циліндр правильну піраміду з тією вершиною і тим самим основанням — її об’єм рівно ⅓ об’єму циліндра. Це найчесніша перевірка: зрізану піраміду з трьома вершинами можна добудувати до конуса, і різниця покаже, скільки місця «з’їдає» вершина."} },
+          { q:{ru:"У полусферы R = 3. Какова площадь полной поверхности?",
+              ua:"У півкулі R = 3. Яка площа повної поверхні?"},
+            opts:[{ru:"4πR² = 36π",ua:"4πR² = 36π"},{ru:"3πR² = 27π",ua:"3πR² = 27π"},
+                  {ru:"2πR² = 18π",ua:"2πR² = 18π"},{ru:"πR² = 9π",ua:"πR² = 9π"}], correct:1,
+            exp:{ru:"Ошибка №3. Про полусферу часто забывают, что у неё есть плоское основание — круг с площадью πR². Сфера даёт 4πR², основание добавляет ещё πR², и получается 3πR² = 27π при R = 3. Проверка на числах: 3π·9 = 27π ≈ 84.82. Заметьте и другое: полной поверхности у цилиндра тоже два основания плюс боковая часть, поэтому обе формулы несимметричны — их стоит запомнить именно как «два круга плюс остальное».",
+                 ua:"Помилка №3. Про півкулю часто забувають, що в неї є плоска основа — коло з площею πR². Сфера дає 4πR², основа додає ще πR², і виходить 3πR² = 27π при R = 3. Перевірка на числах: 3π·9 = 27π ≈ 84.82. Зверніть увагу й на інше: повної поверхні в циліндра теж два основи плюс бічна частина, тому обидві формули несиметричні — їх варто запам’ятати саме як «два кола плюс решту»."} }
+        ];
+        ms.forEach(function(m){
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q[lang];
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          m.opts.forEach(function(opt, oi){
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt[lang];
+            b.addEventListener("click", function(){
+              [...opts.children].forEach(c => c.disabled = true);
+              if(oi === m.correct) b.classList.add("correct");
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              const ex = document.createElement("div");
+              ex.className = "mis-exp";
+              ex.textContent = m.exp[lang];
+              item.appendChild(ex);
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Какое тело получается вращением прямоугольника вокруг одной из его сторон?",
+              ua:"Яке тіло отримується обертанням прямокутника навколо однієї з його сторін?"},
+          opts:[{ru:"конус", ua:"конус"},{ru:"цилиндр", ua:"циліндр"},
+                {ru:"шар", ua:"куля"},{ru:"усечённый конус", ua:"зрізаний конус"}], correct:1 },
+        { q:{ru:"Во сколько раз объём шара больше объёма полусферы того же радиуса?",
+              ua:"У скільки разів об’єм кулі більший за об’єм півкулі того самого радіуса?"},
+          opts:["1","2","3","4"], correct:1 },
+        { q:{ru:"Все линейные размеры тела вращения увеличили в 3 раза. Объём увеличится в:",
+              ua:"Усі лінійні розміри тіла обертання збільшили у 3 рази. Об’єм збільшиться у:"},
+          opts:["3","6","9","27"], correct:3 },
+        { q:{ru:"Формула объёма усечённого конуса при r₂ = 0 превращается в формулу:",
+              ua:"Формула об’єму зрізаного конуса при r₂ = 0 перетворюється на формулу:"},
+          opts:[{ru:"конуса", ua:"конуса"},{ru:"цилиндра", ua:"циліндра"},
+                {ru:"сферы", ua:"сфери"},{ru:"пирамиды", ua:"піраміди"}], correct:0 },
+        { q:{ru:"Чему равна образующая конуса, если r = 3 и h = 4?",
+              ua:"Чому дорівнює твірна конуса, якщо r = 3 та h = 4?"},
+          opts:["3","4","5","7"], correct:2 },
+        { q:{ru:"Чему равна полная поверхность цилиндра r = 1, h = 2?",
+              ua:"Чому дорівнює повна поверхня циліндра r = 1, h = 2?"},
+          opts:[{ru:"2π", ua:"2π"},{ru:"4π", ua:"4π"},{ru:"6π", ua:"6π"},{ru:"8π", ua:"8π"}], correct:2 },
+        { q:{ru:"Почему у объёма формула стоит интеграл от f(x)², а не от f(x)?",
+              ua:"Чому в формулі об’єму стоїть інтеграл від f(x)², а не від f(x)?"},
+          opts:[{ru:"потому что сечение — круг, его площадь пропорциональна квадрату радиуса", ua:"тому що переріз — коло, його площа пропорційна квадрату радіуса"},
+                {ru:"потому что радиус меняется по высоте", ua:"тому що радіус змінюється по висоті"},
+                {ru:"потому что объём измеряется в кубических единицах", ua:"тому що об’єм вимірюється в кубічних одиницях"},
+                {ru:"потому что так красивее", ua:"тому що так красивіше"}], correct:0 }
+      ]);
+    }
+  },
+  {
+    id: "comb1", module: 6,
+    title: {ru:"Правила умножения и сложения", ua:"Правила множення і додавання"},
+    RU: {
+      intro: "Комбинаторика начинается с двух простых действий — сложения и умножения. Звучит наивно, но почти каждая задача на подсчёт вариантов решается одним из этих двух действий, и главная ошибка состоит не в вычислениях, а в выборе действия. Научитесь отличать ситуации, где варианты нужно складывать, от ситуаций, где их нужно перемножать, — и половина задач станет очевидной.",
+      c1: "1. Правило умножения",
+      e1: "<b>Правило умножения:</b> если первый выбор можно сделать <b>m</b> способами, а второй — <b>n</b> способами, то вместе эти два выбора дают <b>m · n</b> вариантов.",
+      e1n: "Ключевое условие: <b>порядок выборов неважен</b> — купить синюю рубашку и серые брюки или серые брюки и синюю рубашку — это один и тот же вариант. Если каждый из двух этапов делается обязательно, варианты перемножаются. Проверить формулу легко: на втором этапе вариантов столько же, сколько на первом, для каждого из них. Значит, каждый из m вариантов «размножается» в n раз, и всего получается m·n.",
+      e2: "<b>Правило умножения для трёх этапов:</b> m · n · k — столько же, сколько вариантов на третьем этапе, умноженное на результат двух первых.",
+      c2: "2. Правило сложения",
+      e3: "<b>Правило сложения:</b> если варианты разбиты на <b>непересекающиеся</b> группы размером m₁, m₂, …, mₖ, то всего вариантов <b>m₁ + m₂ + … + mₖ</b>.",
+      e3n: "Складывать можно только тогда, когда группы <b>не пересекаются</b>: ни один вариант не попал в две группы сразу, иначе его посчитали бы дважды. Классический пример — бросок кубика: шесть граней образуют шесть взаимно исключающих групп, поэтому вариантов шесть, а не двенадцать и не ноль. Если группы пересекаются, сложение даст завышенный ответ и понадобится уже другая техника.",
+      e4: "<b>Проверка на простом примере:</b> на рукаве 5 рубашек и 4 брюк. Вариантов «рубашка + брюки» <b>5 · 4 = 20</b>, потому что для каждой рубашки подходят все 4 пары брюк. А вариантов «рубашка <i>или</i> брюк» всего <b>5 + 4 = 9</b>: это две непересекающиеся группы, и вместе они дают 9 предметов. Одно условие — разные вопросы, разные ответы, и оба получены правильно.",
+      c3: "3. Дерево решений",
+      e5: "<b>Дерево решений</b> — рисунок, который раскладывает задачу на этапы: слева стартовая точка, дальше ветвление по числу вариантов на первом шаге, от каждой ветви — своё ветвление по второму шагу, и так далее. Число листьев в конце дерева и есть искомое количество вариантов.",
+      e5n: "Дерево полезно именно тем, что делает выбор действия наглядным: если ветвление идёт <b>на каждом пути</b> (сначала выбрал то, потом выбрал другое) — считаем произведение чисел на ветвях вдоль одного пути. Если варианты образуют <b>параллельные ветви</b>, не требующие второго выбора, — считаем сумму. Это нагляднее любого текстового рассуждения, поэтому в спорных задачах полезно сначала нарисовать дерево, а потом считать.",
+      interLabel: "Конструктор — правила умножения и сложения",
+      exTitle: "4. Разбор задач",
+      ex1: "<b>1. Рубашки и брюки.</b> В шкафу 5 рубашек и 4 пары брюк. Сколько образуют комплектов?<br>Каждая рубашка подходит к каждой паре брюк → <b>5 · 4 = 20</b>. Порядок не важен, поэтому складывать нельзя.",
+      ex2: "<b>2. Двузначные числа из цифр 1, 2, 3.</b> Первая цифра: 3 варианта. Вторая цифра: тоже 3 (повторы разрешены).<br><b>3 · 3 = 9</b>. Если повторы запретить, вторая цифра зависит от первой — это уже другая задача, и там вариантов 3 · 2 = 6.",
+      ex3: "<b>3. Бросок двух кубиков.</b> Сколько всего возможных исходов?<br>Первый кубик даёт 6 равновероятных исходов, и для каждого из них второй даёт 6 → <b>6 · 6 = 36</b> равновероятных пар. Число 36 и есть знаменатель во всех задачах на сумму костей.",
+      ex4: "<b>4. Сумма равна 7.</b> Сколько исходов дают сумму 7?<br>Перебираем: (1;6), (2;5), (3;4), (4;3), (5;2), (6;1) — таких исходов <b>6</b>, и все они равновероятны, поэтому вероятность равна <b>6/36 = 1/6</b>.",
+      ex5: "<b>5. Прямоугольники в сетке.</b> Сколько прямоугольников в сетке 4 × 4 клетки?<br>В сетке 5 вертикальных и 5 горизонтальных линий. Выбрать пару линий одного направления можно 10 способами (это уже сочетания — разберём их в следующем уроке), а направления выбираются независимо → <b>10 · 10 = 100</b>. Проверка: прямоугольник 1 × 1 — 16, 1 × 2 и 2 × 1 — по 12, и так далее, в сумме действительно 100.",
+      ex6: "<b>6. Оценка «или».</b> В классе 14 учеников, из них 9 девочек. Сколько учеников можно выбрать так, чтобы это был мальчик или девочка с оценкой «5»?<br>Мальчиков — 5, это первая группа. Девочек с пятёркой — 4, это вторая группа. Группы не пересекаются, поэтому <b>5 + 4 = 9</b>.",
+      b1n: "Перестановки и сочетания",
+      b1d: "Умножение на одинаковые числа даёт факториал, а разделение на лишние варианты — сочетания. Именно эти два приёма превращают правило умножения в формулу n! и C(n; k).",
+      b2n: "Вероятность по равновероятным исходам",
+      b2d: "Если все исходы равновероятны, то вероятность события — это просто отношение числа благоприятных исходов к числу всех. Значит, подсчёт вариантов — это и есть половина теории вероятностей.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "Комбінаторика починається з двох простих дій — додавання і множення. Звучить наївно, але майже кожна задача на підрахунок варіантів розв'язується однією з цих двох дій, і головна помилка полягає не в обчисленнях, а у виборі дії. Навчіться відрізняти ситуації, де варіанти треба додавати, від ситуацій, де їх треба множити, — і половина задач стане очевидною.",
+      c1: "1. Правило множення",
+      e1: "<b>Правило множення:</b> якщо перший вибір можна зробити <b>m</b> способами, а другий — <b>n</b> способами, то разом ці два вибори дають <b>m · n</b> варіантів.",
+      e1n: "Ключова умова: <b>порядок виборів неважливий</b> — купити синю сорочку й сірі штани або сірі штани й синю сорочку — це той самий варіант. Якщо кожен із двох етапів відбувається обов'язково, варіанти множаться. Перевірити формулу легко: на другому етапі варіантів стільки ж, скільки на першому, для кожного з них. Отже, кожен із m варіантів «розмножується» в n разів, і всього виходить m·n.",
+      e2: "<b>Правило множення для трьох етапів:</b> m · n · k — стільки ж, скільки варіантів на третьому етапі, помножено на результат двох перших.",
+      c2: "2. Правило додавання",
+      e3: "<b>Правило додавання:</b> якщо варіанти розбиті на <b>неперетинні</b> групи розміром m₁, m₂, …, mₖ, то всього варіантів <b>m₁ + m₂ + … + mₖ</b>.",
+      e3n: "Додавати можна лише тоді, коли групи <b>не перетинаються</b>: жоден варіант не потрапив у дві групи одразу, інакше його порахували б двічі. Класичний приклад — кидок кубика: шість граней утворюють шість взаємно виключних груп, тому варіантів шість, а не дванадцять і не нуль. Якщо групи перетинаються, додавання даде завищений результат і знадобиться вже інша техніка.",
+      e4: "<b>Перевірка на простому прикладі:</b> на рукаві 5 сорочок і 4 пари штанів. Варіантів «сорочка + штани» <b>5 · 4 = 20</b>, бо до кожної сорочки підходять усі 4 пари штанів. А варіантів «сорочка <i>або</i> штани» усього <b>5 + 4 = 9</b>: це дві неперетинні групи, і разом вони дають 9 предметів. Одна умова — різні запитання, різні відповіді, і обидві отримані правильно.",
+      c3: "3. Дерево рішень",
+      e5: "<b>Дерево рішень</b> — малюнок, який розкладає задачу на етапи: ліворуч стартова точка, далі розгалуження за кількістю варіантів на першому кроці, від кожної гілки — своє розгалуження за другим кроком, і так далі. Кількість листків у кінці дерева і є потрібна кількість варіантів.",
+      e5n: "Дерево корисне тим, що робить вибір дії наочним: якщо розгалуження відбувається <b>на кожному шляху</b> (спершу вибрав одне, потім вибрав інше) — рахуємо добуток чисел на гілках вздовж одного шляху. Якщо варіанти утворюють <b>паралельні гілки</b>, що не потребують другого вибору, — рахуємо суму. Це наочніше за будь-яке текстове міркування, тому в спірних задачах корисно спершу намалювати дерево, а потім рахувати.",
+      interLabel: "Конструктор — правила множення і додавання",
+      exTitle: "4. Розбір задач",
+      ex1: "<b>1. Сорочки і штани.</b> У шафі 5 сорочок і 4 пари штанів. Скільки утворюють комплектів?<br>Кожна сорочка пасує до кожної пари штанів → <b>5 · 4 = 20</b>. Порядок неважливий, тому додавати не можна.",
+      ex2: "<b>2. Двоцифрові числа з цифр 1, 2, 3.</b> Перша цифра: 3 варіанти. Друга цифра: теж 3 (повтори дозволені).<br><b>3 · 3 = 9</b>. Якщо повтори заборонити, друга цифра залежить від першої — це вже інша задача, і там варіантів 3 · 2 = 6.",
+      ex3: "<b>3. Кидок двох кубиків.</b> Скільки всього можливих результатів?<br>Перший кубик дає 6 рівноймовірних результатів, і для кожного з них другий дає 6 → <b>6 · 6 = 36</b> рівноймовірних пар. Число 36 і є знаменником у всіх задачах на суму кісток.",
+      ex4: "<b>4. Сума дорівнює 7.</b> Скільки результатів дають суму 7?<br>Перебираємо: (1;6), (2;5), (3;4), (4;3), (5;2), (6;1) — таких результатів <b>6</b>, і всі вони рівноймовірні, тому ймовірність дорівнює <b>6/36 = 1/6</b>.",
+      ex5: "<b>5. Прямокутники в сітці.</b> Скільки прямокутників у сітці 4 × 4 клітинки?<br>У сітці 5 вертикальних і 5 горизонтальних ліній. Обрати пару ліній одного напрямку можна 10 способами (це вже сполучення — розберемо їх у наступному уроці), а напрямки обираються незалежно → <b>10 · 10 = 100</b>. Перевірка: прямокутник 1 × 1 — 16, 1 × 2 і 2 × 1 — по 12, і так далі, у сумі справді 100.",
+      ex6: "<b>6. Оцінка «або».</b> У класі 14 учнів, з них 9 дівчат. Скільки учнів можна вибрати так, щоб це був хлопець або дівчина з оцінкою «5»?<br>Хлопців — 5, це перша група. Дівчат із п'ятіркою — 4, це друга група. Групи не перетинаються, тому <b>5 + 4 = 9</b>.",
+      b1n: "Розстановки та сполучення",
+      b1d: "Множення на однакові числа дає факторіал, а поділ на зайві варіанти — сполучення. Саме ці два прийоми перетворюють правило множення на формулу n! і C(n; k).",
+      b2n: "Ймовірність за рівноймовірними результатами",
+      b2d: "Якщо всі результати рівноймовірні, то ймовірність події — це просто відношення кількості сприятливих результатів до кількості всіх. Отже, підрахунок варіантів — це і є половина теорії ймовірностей.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      tree: "Дерево решений: два этапа выбора, каждый этап ветвится на несколько вариантов",
+      sum: "Две непересекающиеся группы вариантов, их количества складываются",
+      live: "Конструктор: правило умножения, правило сложения и их сочетание с подсчётом вариантов"
+    },
+    ARIA_UA: {
+      tree: "Дерево рішень: два етапи вибору, кожен етап розгалужується на кілька варіантів",
+      sum: "Дві неперетинні групи варіантів, їхні кількості додаються",
+      live: "Конструктор: правило множення, правило додавання та їхнє поєднання з підрахунком варіантів"
+    },
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+      <div class="formula-box">${t.e2}</div>
+
+      <h3>${t.c2}</h3>
+      <div class="formula-box">${t.e3}</div>
+      <p>${t.e3n}</p>
+      <div class="formula-box">${t.e4}</div>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e5}</div>
+      <p>${t.e5n}</p>
+      <svg id="cb1-tree-svg" viewBox="0 0 400 260" role="img" aria-label="${A.tree}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      <svg id="cb1-sum-svg" viewBox="0 0 400 170" role="img" aria-label="${A.sum}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="cb1-switch"></div>
+        <input type="range" id="cb1-n" min="2" max="8" step="1" value="3" style="width:100%;margin-top:8px;">
+        <input type="range" id="cb1-m" min="2" max="8" step="1" value="4" style="width:100%;">
+        <input type="range" id="cb1-k" min="2" max="8" step="1" value="5" style="width:100%;">
+        <div class="readout" id="cb1-readout"></div>
+        <svg id="cb1-svg" viewBox="0 0 400 260" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="cb1-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="comb2">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="prob1">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>
+    `;
+    },
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      function el(tag, at){ const nd = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) nd.setAttribute(k, at[k]); return nd; }
+      function txt(s, str, at){ const nd = el("text", at); nd.textContent = str; s.appendChild(nd); return nd; }
+      function ln(s, x1, y1, x2, y2, color, w, dash){
+        const at = {x1:x1, y1:y1, x2:x2, y2:y2, stroke:color, "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("line", at));
+      }
+      function lbl(s, str, x, y, color, anchor, size){
+        txt(s, str, {x:x, y:y, fill:color, "font-size":(size||12), "font-family":MONO, "text-anchor":(anchor||"middle"), "font-weight":700});
+      }
+      function chip(s, cx, cy, w, h, fill, stroke){
+        s.appendChild(el("rect",{x:(cx-w/2).toFixed(1), y:(cy-h/2).toFixed(1), width:w.toFixed(1), height:h.toFixed(1), rx:7,
+                                 fill:fill, "fill-opacity":0.85, stroke:stroke, "stroke-width":1.6}));
+      }
+
+      /* 1. статичное дерево решений: 2 ветви, на каждой по 3 листа */
+      (function drawTree(){
+        const s = root.querySelector("#cb1-tree-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        const X0 = 40, Y0 = 78, d1 = 120, d2 = 130;
+        chip(s, X0, Y0, 34, 24, cAccentSoft, COL.blue);
+        lbl(s, lang === "ru" ? "старт" : "старт", X0, Y0 + 4, COL.blue, "middle", 11);
+        const midX = X0 + d1;
+        for(let i=0;i<2;i++){
+          const y1 = Y0 + (i===0 ? -30 : 30);
+          ln(s, X0 + 17, Y0, midX, y1, i===0 ? COL.teal : COL.coral, 2);
+          chip(s, midX + 14, y1, 28, 22, i===0 ? cTealSoft : cAmberSoft, i===0 ? COL.teal : COL.coral);
+          lbl(s, (i+1)+"", midX + 14, y1 + 4, i===0 ? COL.teal : COL.coral, "middle", 12);
+          for(let j=0;j<3;j++){
+            const y2 = y1 + (j-1)*26;
+            ln(s, midX + 28, y1, X0 + d1 + d2, y2, i===0 ? COL.teal : COL.coral, 1.6);
+            s.appendChild(el("circle",{cx:(X0 + d1 + d2).toFixed(1), cy:y2.toFixed(1), r:5.5, fill:cAccentSoft, stroke:COL.purple, "stroke-width":1.6}));
+          }
+        }
+        lbl(s, lang === "ru" ? "2 ветви" : "2 гілки", X0 + 30, Y0 + 52, cInkSoft, "middle", 12);
+        lbl(s, lang === "ru" ? "по 3 варианта" : "по 3 варіанти", X0 + d1 + d2 + 4, Y0 + 58, cInkSoft, "start", 12);
+        lbl(s, lang === "ru" ? "листьев: 2 · 3 = 6 → умножение" : "листків: 2 · 3 = 6 → множення",
+            200, 226, COL.purple, "middle", 14);
+      })();
+
+      /* 2. статичное сложение: две непересекающиеся группы */
+      (function drawSum(){
+        const s = root.querySelector("#cb1-sum-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        const names = lang === "ru" ? ["группа A", "группа B"] : ["група A", "група B"];
+        const counts = [5, 4];
+        [130, 290].forEach((cx, gi) => {
+          s.appendChild(el("rect",{x:(cx-70).toFixed(1), y:24, width:140, height:92, rx:9,
+                                   fill:gi===0 ? cTealSoft : cAmberSoft, "fill-opacity":0.7,
+                                   stroke:gi===0 ? COL.teal : COL.coral, "stroke-width":1.8}));
+          lbl(s, names[gi], cx, 46, gi===0 ? COL.teal : COL.coral, "middle", 14);
+          for(let j=0;j<counts[gi];j++){
+            const row = Math.floor(j/3), col = j%3;
+            s.appendChild(el("circle",{cx:(cx - 34 + col*34).toFixed(1), cy:(68 + row*20).toFixed(1), r:8,
+                                       fill:gi===0 ? COL.teal : COL.coral, "fill-opacity":0.55, stroke:"none"}));
+          }
+          lbl(s, counts[gi]+"", cx, 136, gi===0 ? COL.teal : COL.coral, "middle", 16);
+        });
+        lbl(s, "+", 210, 90, cInkSoft, "middle", 26);
+        lbl(s, lang === "ru" ? "группы не пересекаются: 5 + 4 = 9" : "групи не перетинаються: 5 + 4 = 9",
+            200, 160, COL.purple, "middle", 14);
+      })();
+
+      /* 3. конструктор */
+      (function buildConstructor(){
+        const sw = root.querySelector("#cb1-switch");
+        const svg = root.querySelector("#cb1-svg");
+        const out = root.querySelector("#cb1-readout");
+        if(!sw || !svg || !out) return;
+        const nIn = root.querySelector("#cb1-n");
+        const mIn = root.querySelector("#cb1-m");
+        const kIn = root.querySelector("#cb1-k");
+        const MODES = [
+          {id:"prod", ru:"умножение", ua:"множення"},
+          {id:"sum",  ru:"сложение",  ua:"додавання"},
+          {id:"mix",  ru:"смесь",     ua:"суміш"}
+        ];
+        let mode = "prod";
+        function clamp(v, lo, hi, d){ const x = Math.round(Number(v)); return isFinite(x) ? Math.min(hi, Math.max(lo, x)) : d; }
+        function setMode(m){ mode = m; draw(); }
+        MODES.forEach((m, i) => {
+          const b = document.createElement("button");
+          b.className = "shape-btn" + (i === 0 ? " active" : "");
+          b.textContent = lang === "ru" ? m.ru : m.ua;
+          b.addEventListener("click", () => {
+            [...sw.children].forEach(c => c.classList.remove("active"));
+            b.classList.add("active");
+            setMode(m.id);
+          });
+          sw.appendChild(b);
+        });
+        [nIn, mIn, kIn].forEach(i => i.addEventListener("input", draw));
+
+        function draw(){
+          svg.innerHTML = "";
+          const n = clamp(nIn && nIn.value, 2, 8, 3);
+          const m = clamp(mIn && mIn.value, 2, 8, 4);
+          const k = clamp(kIn && kIn.value, 2, 8, 5);
+          let total = 0, cells = "";
+          const Y = 46;
+          if(mode === "prod"){
+            total = n * m;
+            const step = Math.min(26, 300 / Math.max(n, 1));
+            const y2 = 160;
+            chip(svg, 34, Y, 30, 24, cAccentSoft, COL.blue);
+            const xs = [];
+            for(let i=0;i<n;i++){
+              const x = 100 + i*step;
+              xs.push(x);
+              ln(svg, 49, Y, x, y2, COL.teal, 1.6);
+              s_svgDot(svg, x, y2, 6);
+              if(m <= 4) lbl(svg, String(i+1), x, y2 + 20, COL.teal, "middle", 11);
+            }
+            lbl(svg, lang === "ru" ? "вариант 1-го этапа" : "варіант 1-го етапу", 34, Y + 42, cInkSoft, "middle", 11);
+            if(m <= 4){
+              for(let i=0;i<n;i++){
+                for(let j=0;j<m;j++){
+                  const x = xs[i] + (j - (m-1)/2)*16;
+                  const y = 210;
+                  ln(svg, xs[i], y2 + 6, x, y, COL.coral, 1.1);
+                  s_svgDot(svg, x, y, 4.5);
+                }
+              }
+              lbl(svg, lang === "ru" ? "умножаем на " + m : "множимо на " + m, 200, 240, cInkSoft, "middle", 12);
+            } else {
+              lbl(svg, lang === "ru" ? "на каждом листе по " + m + " продолжений" : "на кожному листку по " + m + " продовжень",
+                  200, 236, cInkSoft, "middle", 12);
+            }
+            cells = "<div><span>n</span>" + n + "</div><div><span>m</span>" + m + "</div>"
+                  + "<div><span>n · m</span><b>" + total + "</b></div>";
+          } else if(mode === "sum"){
+            total = n + m;
+            const gx = [120, 280];
+            [0, 1].forEach(gi => {
+              const cnt = gi === 0 ? n : m;
+              const col = gi === 0 ? COL.teal : COL.coral;
+              const fill = gi === 0 ? cTealSoft : cAmberSoft;
+              s_rect(svg, gx[gi]-62, 24, 124, 130, 9, fill, col);
+              for(let j=0;j<cnt;j++){
+                const row = Math.floor(j/4), c2 = j%4;
+                s_svgDot(svg, gx[gi]-40 + c2*27, 56 + row*24, 9, col, 0.45);
+              }
+              lbl(svg, (gi === 0 ? "A" : "B") + " = " + cnt, gx[gi], 176, col, "middle", 15);
+            });
+            lbl(svg, "+", 200, 90, cInkSoft, "middle", 24);
+            lbl(svg, lang === "ru" ? "группы не пересекаются" : "групи не перетинаються", 200, 206, cInkSoft, "middle", 12);
+            lbl(svg, n + " + " + m + " = " + total, 200, 234, COL.purple, "middle", 16);
+            cells = "<div><span>n</span>" + n + "</div><div><span>m</span>" + m + "</div>"
+                  + "<div><span>n + m</span><b>" + total + "</b></div>";
+          } else {
+            total = n * m + k;
+            s_rect(svg, 20, 24, 150, 130, 9, cTealSoft, COL.teal);
+            for(let j=0;j<n;j++){
+              const row = Math.floor(j/3), c2 = j%3;
+              s_svgDot(svg, 46 + c2*30, 58 + row*26, 9, COL.teal, 0.45);
+            }
+            lbl(svg, (lang === "ru" ? "группа A: " : "група A: ") + n + " · " + m, 95, 176, COL.teal, "middle", 14);
+            s_rect(svg, 230, 24, 150, 130, 9, cAmberSoft, COL.coral);
+            for(let j=0;j<k;j++){
+              const row = Math.floor(j/4), c2 = j%4;
+              s_svgDot(svg, 256 + c2*30, 58 + row*26, 9, COL.coral, 0.45);
+            }
+            lbl(svg, (lang === "ru" ? "группа B: " : "група B: ") + k, 305, 176, COL.coral, "middle", 14);
+            lbl(svg, "+", 200, 90, cInkSoft, "middle", 24);
+            lbl(svg, n + "·" + m + " + " + k + " = " + total, 200, 234, COL.purple, "middle", 16);
+            cells = "<div><span>n · m</span>" + (n*m) + "</div><div><span>k</span>" + k + "</div>"
+                  + "<div><span>всего</span><b>" + total + "</b></div>";
+          }
+          out.innerHTML = cells;
+        }
+        function s_svgDot(s, x, y, r, color, op){
+          s.appendChild(el("circle",{cx:x.toFixed(1), cy:y.toFixed(1), r:r, fill:(color||COL.purple),
+                                     "fill-opacity":(op===undefined?0.9:op), stroke:"none"}));
+        }
+        function s_rect(s, x, y, w, h, rx, fill, stroke){
+          s.appendChild(el("rect",{x:x.toFixed(1), y:y.toFixed(1), width:w.toFixed(1), height:h.toFixed(1), rx:rx,
+                                   fill:fill, "fill-opacity":0.7, stroke:stroke, "stroke-width":1.8}));
+        }
+        draw();
+      })();
+
+      /* типичные ошибки */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#cb1-mistakes");
+        if(!wrap) return;
+        wrap.innerHTML = "";
+        const ms = lang === "ru" ? [
+          { q:"На рукаве 5 рубашек и 4 пары брюк. Сколько комплектов?",
+            opts:["5 + 4 = 9","5 · 4 = 20","5 · 4 = 9","20 · 5 = 100"], correct:1,
+            exp:"Ошибка №1. Сложили вместо умножения. Комплект — это рубашка И брюки одновременно, то есть два обязательных выбора подряд. Для каждой из 5 рубашек подходят все 4 пары брюк, поэтому вариантов 5 · 4 = 20. Складывать здесь нельзя: варианты «рубашка + брюки» не разбиты на группы, они образуют декартово произведение. Сложение дало бы ответ на другой вопрос — «сколько предметов всего висит на рукаве»." },
+          { q:"В классе 10 мальчиков и 12 девочек, из них 6 мальчиков и 4 девочки отличники. Сколько всего отличников?",
+            opts:["10","22","20","16"], correct:0,
+            exp:"Ошибка №2. Взяли не ту группу. Числа 10 и 12 — это все мальчики и все девочки, а вопрос про отличников. Правильный подход — сложить две непересекающиеся группы по признаку «отличник»: 6 отличников-мальчиков и 4 отличницы-девочки → <b>6 + 4 = 10</b>. Общее правило: перед сложением проверяйте, что группы описывают именно то, о чём спрашивают, и что они не пересекаются, иначе часть вариантов будет посчитана дважды." },
+          { q:"Из цифр 1, 2, 3, 4 составляют двузначное число, цифры не повторяются. Сколько таких чисел?",
+            opts:["12","8","16","4"], correct:1,
+            exp:"Ошибка №3. Умножили 4 · 4 = 16, забыв про запрет повторов. Первая цифра: 4 варианта. Вторая цифра зависит от первой — на одно значение меньше, то есть 3 варианта. Именно здесь работает главная тонкость правила умножения: множители не обязаны быть равны, если выборы зависят друг от друга. Ответ 4 · 3 = 8. Если повторы разрешить, множители сравняются и получится 4 · 4 = 16." }
+        ] : [
+          { q:"На рукаві 5 сорочок і 4 пари штанів. Скільки комплектів?",
+            opts:["5 + 4 = 9","5 · 4 = 20","5 · 4 = 9","20 · 5 = 100"], correct:1,
+            exp:"Помилка №1. Додали замість множення. Комплект — це сорочка І штани одночасно, тобто два обов'язкові вибори поспіль. До кожної з 5 сорочок підходять усі 4 пари штанів, тому варіантів 5 · 4 = 20. Додавати тут не можна: варіанти «сорочка + штани» не розбиті на групи, вони утворюють декартів добуток. Додавання дало б відповідь на інше запитання — «скільки предметів усього висить на рукаві»." },
+          { q:"У класі 10 хлопців і 12 дівчат, з них 6 хлопців і 4 дівчата відмінники. Скільки всього відмінників?",
+            opts:["10","22","20","16"], correct:0,
+            exp:"Помилка №2. Взяли не ту групу. Числа 10 і 12 — це всі хлопці й усі дівчата, а запитання про відмінників. Правильний підхід — додати дві неперетинні групи за ознакою «відмінник»: 6 відмінників-хлопців і 4 відмінниці-дівчата → <b>6 + 4 = 10</b>. Загальне правило: перед додаванням перевіряйте, чи групи описують саме те, про що питають, і чи не перетинаються вони, інакше частину варіантів буде пораховано двічі." },
+          { q:"З цифр 1, 2, 3, 4 складають двоцифрове число, цифри не повторюються. Скільки таких чисел?",
+            opts:["12","8","16","4"], correct:1,
+            exp:"Помилка №3. Помножили 4 · 4 = 16, забувши про заборону повторів. Перша цифра: 4 варіанти. Друга цифра залежить від першої — на одне значення менше, тобто 3 варіанти. Саме тут працює головна тонкість правила множення: множники не обов'язково рівні, якщо вибори залежать один від одного. Відповідь 4 · 3 = 8. Якщо повтори дозволити, множники зрівняються і вийде 4 · 4 = 16." }
+        ];
+        ms.forEach(m => {
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q;
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          const exp = document.createElement("div");
+          exp.className = "mis-exp";
+          exp.style.display = "none";
+          exp.innerHTML = "<b>" + (lang === "ru" ? "Разбор: " : "Розбір: ") + "</b>" + m.exp;
+          m.opts.forEach((opt, oi) => {
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt;
+            b.addEventListener("click", () => {
+              [...opts.children].forEach(c => { c.disabled = true; });
+              if(oi === m.correct){ b.classList.add("correct"); }
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              exp.style.display = "block";
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          item.appendChild(exp);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"В шкафу 5 рубашек и 4 пары брюк. Сколько комплектов?",
+              ua:"У шафі 5 сорочок і 4 пари штанів. Скільки комплектів?"},
+          opts:["9","20","24","10"], correct:1 },
+        { q:{ru:"Правило сложения применимо, когда группы вариантов:",
+              ua:"Правило додавання застосовне, коли групи варіантів:"},
+          opts:[{ru:"не пересекаются",ua:"не перетинаються"},{ru:"пересекаются",ua:"перетинаються"},
+                {ru:"равны по размеру",ua:"рівні за розміром"},{ru:"содержат по одному элементу",ua:"містять по одному елементу"}], correct:0 },
+        { q:{ru:"Сколько двузначных чисел можно составить из цифр 1, 2, 3, если повторы разрешены?",
+              ua:"Скільки двоцифрових чисел можна скласти з цифр 1, 2, 3, якщо повтори дозволені?"},
+          opts:["3","6","9","12"], correct:2 },
+        { q:{ru:"В коробке 4 красных и 6 синих шаров. Сколько способов выбрать красный и синий?",
+              ua:"У коробці 4 червоні та 6 синіх кульок. Скільки способів вибрати червону й синю?"},
+          opts:["10","24","40","48"], correct:1 },
+        { q:{ru:"При бросе двух кубиков всего равновероятных исходов:",
+              ua:"При кидку двох кубиків усього рівноймовірних результатів:"},
+          opts:["12","36","18","24"], correct:1 },
+        { q:{ru:"Три независимых выбора: 3, 5 и 4 варианта. Сколько всего вариантов?",
+              ua:"Три незалежні вибори: 3, 5 і 4 варіанти. Скільки всього варіантів?"},
+          opts:["12","24","60","48"], correct:2 },
+        { q:{ru:"Группы A и B не пересекаются, |A| = 4, |B| = 7. Тогда |A ∪ B| равно:",
+              ua:"Групи A і B не перетинаються, |A| = 4, |B| = 7. Тоді |A ∪ B| дорівнює:"},
+          opts:["3","11","28","7"], correct:1 }
+      ]);
+    }
+  },
+
+  {
+    id: "comb2", module: 6,
+    title: {ru:"Факториал, перестановки и сочетания", ua:"Факторіал, розстановки та сполучення"},
+    RU: {
+      intro: "Три формулы, которые чаще всего встречаются в комбинаторике, выглядят пугающе, пока не поймёшь, из чего они собраны. На самом деле это всё тот же подсчёт вариантов из предыдущего урока — просто выполненный для очень больших чисел. Разница между ними одна: важно ли, в каком порядке выбраны элементы.",
+      c1: "1. Факториал — это произведение подряд идущих чисел",
+      e1: "<b>n! = 1 · 2 · 3 · … · n</b> &nbsp;&nbsp; <b>0! = 1</b> (по соглашению)",
+      e1n: "Факториал растёт очень быстро: 5! = 120, 10! = 3 628 800, 20! уже больше 2,4 · 10¹⁸. Именно поэтому в задачах почти всегда требуется не сам факториал, а <b>отношение факториалов</b> — оно сокращается до небольшого числа. Полезные значения: 0! = 1, 1! = 1, 2! = 2, 3! = 6, 4! = 24, 5! = 120, 6! = 720, 7! = 5040, 8! = 40320, 9! = 362880, 10! = 3628800. Их достаточно помнить наизусть — это почти всегда выручает на контрольной.",
+      c2: "2. Перестановки и размещения",
+      e2: "<b>Перестановки</b> P(n) = n! — это число способов расположить все n элементов в определённом порядке.<br><b>Размещения</b> A(n; k) = n·(n−1)·…·(n−k+1) = <b>n! / (n−k)!</b> — число способов выбрать и упорядочить k элементов из n.",
+      e2n: "Разница только в том, взяли ли вы все элементы или часть. Если элементов n и взяли все — это перестановка, частный случай размещения при k = n. Ключевое свойство размещений: <b>порядок важен</b>. Два способа, в которых одни и те же два элемента стоят на разных местах, считаются разными. Пример: из трёх учеников А, Б, В выбрать двух и посадить за парту — способов 3 · 2 = 6, а не 3, потому что А-Б и Б-А это разные рассадки.",
+      c3: "3. Сочетания",
+      e3: "<b>Сочетания</b> C(n; k) = <b>n! / (k! · (n−k)!)</b> — число способов выбрать k элементов из n <b>без учёта порядка</b>.",
+      e3n: "Это самая частая формула комбинаторики, и её всегда отличает от размещений один вопрос: <b>важен ли порядок выбора</b>? Если вы тянете k карт из колоды и вас интересует только набор — это сочетание. Если вы кладёте их в ряд по возрастанию достоинства — это уже размещение, но порядок там задан однозначно, поэтому множитель k! просто сокращается. Формулу удобно запомнить так: <b>C(n; k) = C(n; n−k)</b>, то есть выбрать 2 шара из 8 то же самое, что невзятыми оставить 6 из 8. Именно поэтому в задачах при k больше половины n значение меняют на n−k, чтобы считать было легче.",
+      c4: "4. Биномиальная формула и число подмножеств",
+      e4: "<b>Число подмножеств</b> множества из n элементов равно <b>2ⁿ</b>. <b>Биномиальная формула:</b> (a + b)ⁿ = Σ C(n; k) · aⁿ⁻ᵏ · bᵏ, где коэффициенты C(n; k) образуют <b>треугольник Паскаля</b>.",
+      e4n: "Число 2ⁿ из первого урока получено здесь: каждый элемент независимо либо входит в подмножество, либо нет — две возможности на элемент. Треугольник Паскаля задаёт биномиальные коэффициенты, и его свойства (числа на границах равны 1, внутри складываются из двух верхних) следуют ровно из формулы сочетаний: C(n; k) = C(n−1; k−1) + C(n−1; k).",
+      interLabel: "Конструктор — размещения и сочетания",
+      exTitle: "5. Разбор задач",
+      ex1: "<b>1. Сколько перестановок трёх элементов?</b><br>По формуле 3! = <b>6</b>. Проверка вручную: на первое место 3 варианта, на второе 2, на третье 1 → 3 · 2 · 1 = 6. ✓",
+      ex2: "<b>2. Из 8 человек выбрать комиссию из 3 человек.</b><br>Порядок не важен, поэтому это сочетание: C(8; 3) = 8·7·6 / (3·2·1) = <b>56</b>.",
+      ex3: "<b>3. На первую и вторую позицию выбирают из 8 человек.</b><br>Позиции различаются, порядок важен → размещение: A(8; 2) = 8 · 7 = <b>56</b>. Интересно, что ответ совпал с предыдущим примером: там было C(8; 3) = 8·7·6/(3·2·1) = 56, а здесь A(8; 2) = 8·7 = 56. Совпадение численное, но формулы разные. Для сравнения: C(8; 2) = 28, а не 56 — если считать комиссию из двух человек, нужно делить ещё и на 2! = 2.",
+      ex4: "<b>4. Карточки с числами от 1 до 9.</b> Выбирают три карточки так, чтобы сумма чисел была равна 12. Сколько способов?<br>Перебираем наименьшую карточку: с 1 получаем (1;2;9), (1;3;8), (1;4;7), (1;5;6) — 4 способа; с 2 — (2;3;7), (2;4;6) — 2 способа; с 3 — (3;4;5) — 1 способ. Итого <b>7</b> способов. Порядок карточек в сумме не важен, поэтому перестановки одной тройки повторно не считаем.",
+      ex5: "<b>5. Все подмножества множества из 5 элементов.</b><br>2⁵ = <b>32</b>. Проверка через разбиение по размеру: 1 пустое + 5 по одному + C(5;2) = 10 + C(5;3) = 10 + C(5;4) = 5 + 1 полное = 1+5+10+10+5+1 = 32 ✓",
+      ex6: "<b>6. Пять учеников встают в очередь. Сколько будет разных очередей?</b><br>5! = <b>120</b>. Обратный вопрос: сколько способов поставить пять учеников в очередь так, чтобы А стоял первым? Тогда остальных 4! = <b>24</b>. Именно 120/24 = 5 — столько позиций мог занять А.",
+      b1n: "Классическая вероятность",
+      b1d: "Все три формулы отвечают на один вопрос: сколько исходов. Остаётся разделить число благоприятных исходов на число равновероятных — и получается вероятность.",
+      b2n: "Правило умножения и сложения",
+      b2d: "Факториал — это просто n последовательных умножений, а сочетание — это размещение, из которого убрали лишний порядок. Поэтому, решая задачу, всегда полезно сначала прикинуть, какая из трёх формул подходит.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "Три формули, які найчастіше трапляються в комбінаториці, виглядають страшно, доки не зрозумієш, з чого вони зібрані. Насправді це все той самий підрахунок варіантів із попереднього уроку — просто виконаний для дуже великих чисел. Різниця між ними одна: чи важливий порядок, у якому вибрані елементи.",
+      c1: "1. Факторіал — це добуток послідовних чисел",
+      e1: "<b>n! = 1 · 2 · 3 · … · n</b> &nbsp;&nbsp; <b>0! = 1</b> (за домовленістю)",
+      e1n: "Факторіал зростає дуже швидко: 5! = 120, 10! = 3 628 800, 20! уже понад 2,4 · 10¹⁸. Саме тому в задачах майже завжди потрібне не сам факторіал, а <b>відношення факторіалів</b> — воно скорочується до невеликого числа. Корисні значення: 0! = 1, 1! = 1, 2! = 2, 3! = 6, 4! = 24, 5! = 120, 6! = 720, 7! = 5040, 8! = 40320, 9! = 362880, 10! = 3628800. Їх достатньо пам'ятати напам'ять — це майже завжди виручає на контрольній.",
+      c2: "2. Розстановки та розміщення",
+      e2: "<b>Розстановки</b> P(n) = n! — це число способів розташувати всі n елементів у певному порядку.<br><b>Розміщення</b> A(n; k) = n·(n−1)·…·(n−k+1) = <b>n! / (n−k)!</b> — число способів вибрати й упорядкувати k елементів із n.",
+      e2n: "Різниця лише в тому, чи взяли ви всі елементи, чи частину. Якщо елементів n і взяли всі — це розстановка, частинний випадок розміщення при k = n. Ключова властивість розміщень: <b>порядок важливий</b>. Два способи, у яких одні й ті самі два елементи стоять на різних місцях, вважаються різними. Приклад: із трьох учнів А, Б, В вибрати двох і посадити за парту — способів 3 · 2 = 6, а не 3, бо А-Б і Б-А — це різні розсадки.",
+      c3: "3. Сполучення",
+      e3: "<b>Сполучення</b> C(n; k) = <b>n! / (k! · (n−k)!)</b> — число способів вибрати k елементів із n <b>без урахування порядку</b>.",
+      e3n: "Це найчастіша формула комбінаторики, і її завжди відрізняє від розміщення одне питання: <b>чи важливий порядок вибору</b>? Якщо ви тягнете k карт із колоди і вас цікавить лише набір — це сполучення. Якщо ви складаєте їх у ряд за зростанням вартості — це вже розміщення, але порядок там заданий однозначно, тому множник k! просто скорочується. Формулу зручно запам'ятати так: <b>C(n; k) = C(n; n−k)</b>, тобто вибрати 2 кулі з 8 те саме, що залишити не взятими 6 із 8. Саме тому в задачах при k більше за половину n значення змінюють на n−k, щоб рахувати було легше.",
+      c4: "4. Біноміальна формула та число підмножин",
+      e4: "<b>Число підмножин</b> множини з n елементів дорівнює <b>2ⁿ</b>. <b>Біноміальна формула:</b> (a + b)ⁿ = Σ C(n; k) · aⁿ⁻ᵏ · bᵏ, де коефіцієнти C(n; k) утворюють <b>трикутник Паскаля</b>.",
+      e4n: "Число 2ⁿ з першого уроку отримано тут: кожен елемент незалежно або входить у підмножину, або ні — дві можливості на елемент. Трикутник Паскаля задає біноміальні коефіцієнти, і його властивості (числа на межах дорівнюють 1, усередині складаються з двох верхніх) випливають рівно з формули сполучень: C(n; k) = C(n−1; k−1) + C(n−1; k).",
+      interLabel: "Конструктор — розміщення та сполучення",
+      exTitle: "5. Розбір задач",
+      ex1: "<b>1. Скільки розстановок трьох елементів?</b><br>За формулою 3! = <b>6</b>. Перевірка вручну: на перше місце 3 варіанти, на друге 2, на третє 1 → 3 · 2 · 1 = 6. ✓",
+      ex2: "<b>2. Із 8 людей обрати комісію з 3 осіб.</b><br>Порядок неважливий, тож це сполучення: C(8; 3) = 8·7·6 / (3·2·1) = <b>56</b>.",
+      ex3: "<b>3. На першу та другу позицію обирають із 8 людей.</b><br>Позиції різняться, порядок важливий → розміщення: A(8; 2) = 8 · 7 = <b>56</b>. Цікаво, що відповідь збіглася з попереднім прикладом: там було C(8; 3) = 8·7·6/(3·2·1) = 56, а тут A(8; 2) = 8·7 = 56. Збіг числовий, але формули різні. Для порівняння: C(8; 2) = 28, а не 56 — якщо рахувати комісію з двох осіб, треба ще й поділити на 2! = 2.",
+      ex4: "<b>4. Картки з числами від 1 до 9.</b> Обирають три картки так, щоб сума чисел дорівнювала 12. Скільки способів?<br>Перебираємо найменшу картку: з 1 отримуємо (1;2;9), (1;3;8), (1;4;7), (1;5;6) — 4 способи; з 2 — (2;3;7), (2;4;6) — 2 способи; з 3 — (3;4;5) — 1 спосіб. Разом <b>7</b> способів. Порядок карток у сумі неважливий, тому перестановки однієї трійки повторно не рахуємо.",
+      ex5: "<b>5. Усі підмножини множини з 5 елементів.</b><br>2⁵ = <b>32</b>. Перевірка через розбиття за розміром: 1 порожня + 5 по одному + C(5;2) = 10 + C(5;3) = 10 + C(5;4) = 5 + 1 повна = 1+5+10+10+5+1 = 32 ✓",
+      ex6: "<b>6. П'ять учнів ставляться в чергу. Скільки буде різних черг?</b><br>5! = <b>120</b>. Зворотне питання: скільки способів поставити п'ятьох учнів у чергу так, щоб А стояв першим? Тоді решту 4! = <b>24</b>. Саме 120/24 = 5 — стільки позицій міг посісти А.",
+      b1n: "Класична ймовірність",
+      b1d: "Усі три формули відповідають на одне питання: скільки результатів. Лишається поділити кількість сприятливих результатів на кількість рівноймовірних — і отримаємо ймовірність.",
+      b2n: "Правило множення і додавання",
+      b2d: "Факторіал — це просто n послідовних множень, а сполучення — це розміщення, з якого прибрали зайвий порядок. Тому, розв'язуючи задачу, завжди корисно спершу прикинути, яка з трьох формул підходить.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      fact: "Разложение формулы сочетаний на множители с сокращением числителя и знаменателя",
+      triangles: "Треугольник Паскаля: числа на границах равны единице, каждое внутреннее число равно сумме двух верхних",
+      live: "Конструктор: сравнение перестановок, размещений и сочетаний для заданных n и k"
+    },
+    ARIA_UA: {
+      fact: "Розкладання формули сполучень на множники зі скороченням чисельника та знаменника",
+      triangles: "Трикутник Паскаля: числа на межах дорівнюють одиниці, кожне внутрішнє число дорівнює сумі двох верхніх",
+      live: "Конструктор: порівняння розстановок, розміщень та сполучень для заданих n і k"
+    },
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+
+      <h3>${t.c2}</h3>
+      <div class="formula-box">${t.e2}</div>
+      <p>${t.e2n}</p>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e3}</div>
+      <p>${t.e3n}</p>
+
+      <h3>${t.c4}</h3>
+      <div class="formula-box">${t.e4}</div>
+      <p>${t.e4n}</p>
+      <svg id="cb2-fact-svg" viewBox="0 0 400 210" role="img" aria-label="${A.fact}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      <svg id="cb2-pascal-svg" viewBox="0 0 400 190" role="img" aria-label="${A.triangles}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="cb2-switch"></div>
+        <input type="range" id="cb2-n" min="2" max="10" step="1" value="6" style="width:100%;margin-top:8px;">
+        <input type="range" id="cb2-k" min="1" max="10" step="1" value="3" style="width:100%;">
+        <div class="readout" id="cb2-readout"></div>
+        <svg id="cb2-svg" viewBox="0 0 400 260" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="cb2-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="comb1">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="prob1">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+      </div>
+    `;
+    },
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      function el(tag, at){ const nd = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) nd.setAttribute(k, at[k]); return nd; }
+      function lbl(s, str, x, y, color, anchor, size){
+        const nd = el("text", {x:x, y:y, fill:color, "font-size":(size||12), "font-family":MONO,
+                               "text-anchor":(anchor||"middle"), "font-weight":700});
+        nd.textContent = str;
+        s.appendChild(nd);
+        return nd;
+      }
+      function dot(s, x, y, r, fill, stroke){
+        s.appendChild(el("circle",{cx:x.toFixed(1), cy:y.toFixed(1), r:r, fill:fill, stroke:(stroke||"none"), "stroke-width":1.5}));
+      }
+      function box(s, x, y, w, h, fill, stroke){
+        s.appendChild(el("rect",{x:x.toFixed(1), y:y.toFixed(1), width:w.toFixed(1), height:h.toFixed(1), rx:8,
+                                 fill:fill, "fill-opacity":0.72, stroke:(stroke||"none"), "stroke-width":1.7}));
+      }
+
+      /* 1. разложение C(6;2) */
+      (function drawFact(){
+        const s = root.querySelector("#cb2-fact-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        const y1 = 46, y2 = 132;
+        lbl(s, "C(6; 2) = 6·5 / (2·1)", 200, y1 - 14, COL.purple, "middle", 16);
+        lbl(s, "n! = 6 · 5 · 4 · 3 · 2 · 1", 60, y1 + 4, cInkSoft, "start", 12);
+        lbl(s, "k! = 2 · 1", 300, y1 + 4, cInkSoft, "end", 12);
+        lbl(s, "6", 92, y1 + 34, COL.teal, "middle", 15);
+        lbl(s, "5", 128, y1 + 34, COL.teal, "middle", 15);
+        lbl(s, "4", 164, y1 + 34, cInkSoft, "middle", 15);
+        lbl(s, "3", 200, y1 + 34, cInkSoft, "middle", 15);
+        lbl(s, "2", 236, y1 + 34, cInkSoft, "middle", 15);
+        lbl(s, "1", 272, y1 + 34, cInkSoft, "middle", 15);
+        lbl(s, "2", 316, y1 + 34, COL.coral, "middle", 15);
+        lbl(s, "1", 348, y1 + 34, COL.coral, "middle", 15);
+        lbl(s, lang === "ru" ? "числитель сокращаем с знаменателем" : "чисельник скорочуємо зі знаменником",
+            200, y1 + 62, cInkSoft, "middle", 12);
+        /* показываем несокращённое произведение и результат */
+        const terms = ["6", "5", "4", "3", "2", "1"];
+        let acc = 1;
+        terms.forEach((t, i) => {
+          const x = 70 + i*52;
+          box(s, x - 18, y2 - 18, 36, 36, i < 2 ? cTealSoft : "#f4f6f9", i < 2 ? COL.teal : cLine);
+          lbl(s, t, x, y2 + 4, i < 2 ? COL.teal : cInkSoft, "middle", 14);
+        });
+        acc = 6*5*4*3*2*1;
+        lbl(s, "6! = " + acc, 200, y2 + 44, COL.blue, "middle", 14);
+        lbl(s, "C(6; 2) = " + (6*5/(2*1)), 200, y2 + 68, COL.purple, "middle", 16);
+        lbl(s, lang === "ru" ? "сокращаем 2 и 1, получаем 30/2" : "скорочуємо 2 і 1, отримуємо 30/2", 200, y2 + 90, cInkSoft, "middle", 11);
+      })();
+
+      /* 2. треугольник Паскаля */
+      (function drawPascal(){
+        const s = root.querySelector("#cb2-pascal-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        const rows = [1, 1,1, 1,2,1, 1,3,3,1, 1,4,6,4,1];
+        const R = 5, gapX = 34, gapY = 27;
+        const cx0 = 200;
+        for(let r=0;r<R;r++){
+          const y = 30 + r*gapY;
+          const n = r+1;
+          const off = (n-1)*gapX/2;
+          for(let c=0;c<n;c++){
+            const x = cx0 - off + c*gapX;
+            const v = rows.slice(r*(r+1)/2, (r+1)*(r+2)/2)[c];
+            const edge = (c === 0 || c === n-1);
+            box(s, x - 13, y - 11, 26, 22, edge ? cAmberSoft : cAccentSoft, edge ? COL.amber : COL.blue);
+            lbl(s, String(v), x, y + 4, edge ? COL.coral : COL.blue, "middle", 12);
+          }
+        }
+        lbl(s, lang === "ru" ? "C(n; k) = C(n−1; k−1) + C(n−1; k)" : "C(n; k) = C(n−1; k−1) + C(n−1; k)",
+            200, 172, COL.purple, "middle", 14);
+      })();
+
+      /* 3. конструктор */
+      (function buildConstructor(){
+        const sw = root.querySelector("#cb2-switch");
+        const svg = root.querySelector("#cb2-svg");
+        const out = root.querySelector("#cb2-readout");
+        if(!sw || !svg || !out) return;
+        const nIn = root.querySelector("#cb2-n");
+        const kIn = root.querySelector("#cb2-k");
+        const MODES = [
+          {id:"all", ru:"перестановки n!", ua:"розстановки n!"},
+          {id:"ak",   ru:"размещения A(n;k)", ua:"розміщення A(n;k)"},
+          {id:"ck",   ru:"сочетания C(n;k)", ua:"сполучення C(n;k)"}
+        ];
+        let mode = "all";
+        function fact(n){ let r = 1; for(let i=2;i<=n;i++) r *= i; return r; }
+        function C(n, k){ return fact(n) / (fact(k) * fact(n-k)); }
+        function A(n, k){ let r = 1; for(let i=0;i<k;i++) r *= (n-i); return r; }
+        function clamp(v, lo, hi, d){ const x = Math.round(Number(v)); return isFinite(x) ? Math.min(hi, Math.max(lo, x)) : d; }
+        MODES.forEach((m, i) => {
+          const b = document.createElement("button");
+          b.className = "shape-btn" + (i === 0 ? " active" : "");
+          b.textContent = lang === "ru" ? m.ru : m.ua;
+          b.addEventListener("click", () => {
+            [...sw.children].forEach(c => c.classList.remove("active"));
+            b.classList.add("active");
+            mode = m.id;
+            draw();
+          });
+          sw.appendChild(b);
+        });
+        [nIn, kIn].forEach(i => i.addEventListener("input", draw));
+
+        function draw(){
+          svg.innerHTML = "";
+          const n = clamp(nIn && nIn.value, 2, 10, 6);
+          let k = clamp(kIn && kIn.value, 1, 10, 3);
+          if(k > n) k = n;
+          let val = 0, label = "", cells = "";
+          if(mode === "all"){
+            val = fact(n);
+            label = lang === "ru" ? "все " + n + " элементов в ряд" : "усі " + n + " елементів у ряд";
+            const step = Math.min(34, 300/Math.max(n,1));
+            for(let i=0;i<n;i++){
+              const x = 50 + i*step + step/2;
+              box(svg, x - 14, 40, 28, 28, cAccentSoft, COL.blue);
+              lbl(svg, String(i+1), x, 59, COL.blue, "middle", 12);
+              if(i < n-1) lbl(svg, "×", x + step/2, 59, cInkSoft, "middle", 12);
+            }
+            lbl(svg, n + "!", 200, 104, COL.purple, "middle", 20);
+            lbl(svg, label, 200, 130, cInkSoft, "middle", 12);
+          } else if(mode === "ak"){
+            val = A(n, k);
+            label = lang === "ru" ? (k + " места из " + n + ", порядок важен") : (k + " місця з " + n + ", порядок важливий");
+            lbl(svg, "A(" + n + "; " + k + ")", 200, 34, COL.purple, "middle", 15);
+            const mult = [];
+            for(let i=0;i<k;i++) mult.push(n - i);
+            mult.forEach((v, i) => {
+              const x = 200 - ((mult.length-1)*44)/2 + i*44;
+              box(svg, x - 17, 56, 34, 34, cTealSoft, COL.teal);
+              lbl(svg, String(v), x, 78, COL.teal, "middle", 15);
+            });
+            lbl(svg, lang === "ru" ? "порядок важен → все способы различны" : "порядок важливий → усі способи різні",
+                200, 118, cInkSoft, "middle", 12);
+          } else {
+            val = C(n, k);
+            label = lang === "ru" ? (k + " из " + n + ", порядок Н важен") : (k + " з " + n + ", порядок Н важливий");
+            lbl(svg, "C(" + n + "; " + k + ")", 200, 34, COL.purple, "middle", 15);
+            lbl(svg, lang === "ru" ? "числитель" : "чисельник", 76, 68, cInkSoft, "middle", 11);
+            lbl(svg, lang === "ru" ? "знаменатель" : "знаменник", 316, 68, cInkSoft, "middle", 11);
+            const num = [];
+            for(let i=0;i<k;i++) num.push(n - i);
+            num.forEach((v, i) => {
+              const y = 84 + i*17;
+              lbl(svg, String(v), 76, y, COL.teal, "middle", 12);
+              lbl(svg, "·", 96, y, cInkSoft, "middle", 12);
+            });
+            let acc = 1;
+            for(let i=0;i<k;i++) acc *= (n - i);
+            lbl(svg, String(acc), 140, 84 + (k-1)*17 + 6, COL.teal, "start", 13);
+            lbl(svg, "─────────────", 240, 96, cInkSoft, "middle", 12);
+            let den = fact(k);
+            lbl(svg, String(den) + " = " + k + "!", 316, 96, COL.coral, "middle", 13);
+            lbl(svg, lang === "ru" ? "порядок не важен → делим на k!" : "порядок не важливий → ділимо на k!",
+                200, 148, cInkSoft, "middle", 12);
+          }
+          lbl(svg, "= " + val, 200, 176, COL.blue, "middle", 20);
+          lbl(svg, label, 200, 202, cInkSoft, "middle", 12);
+          if(mode === "ck"){
+            lbl(svg, lang === "ru" ? "C(" + n + "; " + k + ") = C(" + n + "; " + (n-k) + ")"
+                                  : "C(" + n + "; " + k + ") = C(" + n + "; " + (n-k) + ")",
+                200, 230, COL.purple, "middle", 13);
+          } else if(mode === "ak" && k < n){
+            lbl(svg, lang === "ru" ? "остальные " + (n-k) + " элементов не выбираем" : "решту " + (n-k) + " елементів не обираємо",
+                200, 230, COL.purple, "middle", 12);
+          } else {
+            lbl(svg, lang === "ru" ? "k = n → это полная перестановка" : "k = n → це повна розстановка",
+                200, 230, COL.purple, "middle", 12);
+          }
+          cells = "<div><span>n</span>" + n + "</div><div><span>k</span>" + k + "</div>"
+                + "<div><span>" + (lang === "ru" ? "значение" : "значення") + "</span><b>" + val + "</b></div>";
+          out.innerHTML = cells;
+        }
+        draw();
+      })();
+
+      /* типичные ошибки */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#cb2-mistakes");
+        if(!wrap) return;
+        wrap.innerHTML = "";
+        const ms = lang === "ru" ? [
+          { q:"Из 10 человек выбирают 3. Порядок людей не важен. Сколько вариантов?",
+            opts:["720","210","120","5040"], correct:2,
+            exp:"Ошибка №1. Использовали перестановки P(10) = 10! вместо сочетаний. Порядок здесь прямо сказано, что не важен: комиссия из трёх человек — это набор, а не очередь. Правильная формула C(10; 3) = 10·9·8 / (3·2·1) = <b>720/6 = 120</b>. Число 720 = 10! здесь как раз и стоит в числителе формулы сочетания — характерная ошибка: факториал появляется в задаче, но делить на k! забывают." },
+          { q:"Из 8 человек выбирают 2 для награждения, причём первое место и второе место различаются. Сколько вариантов?",
+            opts:["28","56","8","64"], correct:1,
+            exp:"Ошибка №2. Применили сочетание, хотя места различаются. Первое место и второе место — это разные роли, значит порядок важен и нужны размещения: A(8; 2) = 8 · 7 = <b>56</b>. Сочетание C(8; 2) = 28 дало бы в два раза меньше: оно перечисляет наборы людей, забывая, кто получил первое место. Совет: если в условии есть слова «первое место», «капитан команды», «председатель» — это всегда размещения." },
+          { q:"Найдите C(8; 6).",
+            opts:["56","28","40320","20"], correct:1,
+            exp:"Ошибка №3. Применили формулу буквально и застряли на больших числах. Но работает симметрия <b>C(n; k) = C(n; n−k)</b>: C(8; 6) = C(8; 8−6) = C(8; 2) = 8 · 7 / 2 = <b>28</b>. Число 40320 = 8! здесь тоже отвлекает — оно появилось бы, только если бы вы забыли разделить на 6! = 720, то есть фактически посчитали бы C(8; 8) = 1 и потом умножили на лишнее. Общее правило экономит время: всегда меняйте k на n−k, если k больше половины n." }
+        ] : [
+          { q:"Із 10 людей обирають 3. Порядок людей неважливий. Скільки варіантів?",
+            opts:["720","210","120","5040"], correct:2,
+            exp:"Помилка №1. Використали розстановки P(10) = 10! замість сполучень. Порядок тут прямо сказано, що неважливий: комісія з трьох осіб — це набір, а не черга. Правильна формула C(10; 3) = 10·9·8 / (3·2·1) = <b>720/6 = 120</b>. Число 720 = 10! тут якраз і стоїть у чисельнику формули сполучення — характерна помилка: факторіал у задачі з'являється, але ділити на k! забувають." },
+          { q:"Із 8 людей обирають 2 для нагородження, причому перше місце і друге місце відрізняються. Скільки варіантів?",
+            opts:["28","56","8","64"], correct:1,
+            exp:"Помилка №2. Застосували сполучення, хоча місця відрізняються. Перше місце і друге місце — це різні ролі, отже порядок важливий і потрібні розміщення: A(8; 2) = 8 · 7 = <b>56</b>. Сполучення C(8; 2) = 28 дало б удвічі менше: воно перелічує набори людей, забуваючи, хто отримав перше місце. Порада: якщо в умові є слова «перше місце», «капітан команди», «голова» — це завжди розміщення." },
+          { q:"Знайдіть C(8; 6).",
+            opts:["56","28","40320","20"], correct:1,
+            exp:"Помилка №3. Застосували формулу буквально і застрягли на великих числах. Але працює симетрія <b>C(n; k) = C(n; n−k)</b>: C(8; 6) = C(8; 8−6) = C(8; 2) = 8 · 7 / 2 = <b>28</b>. Число 40320 = 8! тут теж відвертає увагу — воно з'явилося б, лише якби ви забули поділити на 6! = 720, тобто фактично порахували б C(8; 8) = 1 і помножили на зайве. Загальне правило економить час: завжди замінюйте k на n−k, якщо k більше за половину n." }
+        ];
+        ms.forEach(m => {
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q;
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          const exp = document.createElement("div");
+          exp.className = "mis-exp";
+          exp.style.display = "none";
+          exp.innerHTML = "<b>" + (lang === "ru" ? "Разбор: " : "Розбір: ") + "</b>" + m.exp;
+          m.opts.forEach((opt, oi) => {
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt;
+            b.addEventListener("click", () => {
+              [...opts.children].forEach(c => { c.disabled = true; });
+              if(oi === m.correct){ b.classList.add("correct"); }
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              exp.style.display = "block";
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          item.appendChild(exp);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Чему равно 0!?", ua:"Чому дорівнює 0!?"},
+          opts:["0","1",{ru:"не определено", ua:"не визначено"},"2"], correct:1 },
+        { q:{ru:"Сколькими способами можно переставить 4 элемента?",
+              ua:"Скількома способами можна переставити 4 елементи?"},
+          opts:["4","16","24","12"], correct:2 },
+        { q:{ru:"Из 10 человек выбрать 3, порядок не важен. Ответ:",
+              ua:"Із 10 людей обрати 3, порядок неважливий. Відповідь:"},
+          opts:["720","120","210","90"], correct:1 },
+        { q:{ru:"A(6; 2) равно:", ua:"A(6; 2) дорівнює:"}, opts:["15","30","36","720"], correct:1 },
+        { q:{ru:"Число подмножеств множества из 4 элементов равно:",
+              ua:"Число підмножин множини з 4 елементів дорівнює:"},
+          opts:["4","8","16","24"], correct:2 },
+        { q:{ru:"Чему равно C(9; 1)?", ua:"Чому дорівнює C(9; 1)?"}, opts:["1","9","81","8"], correct:1 },
+        { q:{ru:"В треугольнике Паскаля внутреннее число равно сумме:",
+              ua:"У трикутнику Паскаля внутрішнє число дорівнює сумі:"},
+          opts:[{ru:"двух верхних",ua:"двох верхніх"},{ru:"двух нижних",ua:"двох нижніх"},
+                {ru:"двух боковых",ua:"двох бічних"},{ru:"всех строк",ua:"усіх рядків"}], correct:0 }
+      ]);
+    }
+  },
+
+  {
+    id: "prob1", module: 6,
+    title: {ru:"Классическая вероятность", ua:"Класична ймовірність"},
+    RU: {
+      intro: "Вероятность — это доля. Звучит так просто, что кажется, будто здесь нечего изучать. На самом деле вся сложность в одном слове: равновероятные. Если исходы не равновероятны, то делить нацело нельзя и нужно сначала приводить их к равным. Разберёмся, как это делается, и научимся отличать вероятность от доли и от шанса.",
+      c1: "1. Классическое определение",
+      e1: "<b>Если все исходы равновероятны</b>, то вероятность события A равна<br><b>P(A) = m / n</b>, &nbsp;&nbsp; где m — число благоприятных исходов, n — общее число равновероятных исходов.",
+      e1n: "Два важных следствия. Первое: всегда 0 ≤ P ≤ 1, потому что 0 ≤ m ≤ n. Второе, более тонкое: <b>числитель и знаменатель можно сокращать</b>, но только если это не меняет смысл. Задача «какова вероятность выпадения шестёрки на кубике» имеет ответ 1/6, а не 6/36 — оба числа правильны, но 1/6 полезнее, потому что сразу виден масштаб.",
+      c2: "2. Свойства вероятности",
+      e2: "<b>P(Ā) = 1 − P(A)</b> &nbsp;(противоположное событие)<br><b>P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</b> &nbsp;(непересекающиеся: без последнего слагаемого)",
+      e2n: "Смысл первого свойства очевиден: событие и его противоположность вместе исчерпывают все исходы. Второе свойство объясняет, почему в задачах на объединение так часто возникает вычитание. Возьмём два кубика и события A = «сумма 7» и B = «первый кубик чётный». P(A) = 6/36, P(B) = 18/36, но складывать их нельзя: исходы (2;5), (4;3), (6;1) посчитаны дважды. Общая часть A ∩ B содержит 3 исхода, поэтому P(A ∪ B) = 6/36 + 18/36 − 3/36 = 21/36. Вычитаемое здесь всегда неотрицательно — иначе формула была бы нарушена.",
+      c3: "3. Частота и статистическая вероятность",
+      e3: "<b>Частота события</b> = число благоприятных испытаний / общее число испытаний.<br><b>Статистическая вероятность</b> — предел частоты при числе испытаний, стремящемся к бесконечности.",
+      e3n: "Здесь важно не спутать два понятия. Классическая вероятность — это отношение <b>равновероятных</b> исходов, оно точное и не зависит от испытаний. Частота — это то, что можно посчитать в реальном опыте, и она лишь приближается к вероятности. Правило большого чисел говорит: чем больше испытаний, тем ближе частота к вероятности. Именно поэтому монетка в первых десяти бросках может дать шесть орлов — но это ничего не говорит о вероятности 1/2.",
+      c4: "4. Почему важна равновероятность",
+      e4: "<b>Пример с костями.</b> У двух кубиков сумма может выпасть от 2 до 12, то есть 11 разных значений. Значит ли это, что каждая сумма равновероятна? <b>Нет.</b> Равновероятны 36 <b>пар</b> исходов, а не 11 значений суммы. Сумма 7 выпадает в 6 парах (вероятность 6/36 = 1/6), а сумма 2 — только в одной (вероятность 1/36). Разница между 1/6 и 1/36 в шесть раз возникает ровно из-за того, что «значений суммы» и «исходов» — разные вещи.",
+      e4n: "Отсюда практический вывод: <b>считать исходы, а не значения</b>. Если исходов много и они не равновероятны, приводите их к равным с помощью комбинаторики из предыдущих уроков — тогда и появляется знаменатель, в котором можно по-настоящему разделить.",
+      interLabel: "Конструктор — вероятность на кубиках и картах",
+      exTitle: "5. Разбор задач",
+      ex1: "<b>1. Шестёрка на кубике.</b><br>P = 1/6 ≈ <b>0.167</b>. Один благоприятный исход из шести равновероятных.",
+      ex2: "<b>2. Сумма двух кубиков равна 7.</b><br>Благоприятные пары: (1;6), (2;5), (3;4), (4;3), (5;2), (6;1) — их 6. Всего пар 6 · 6 = 36.<br>P = 6/36 = <b>1/6</b>.",
+      ex3: "<b>3. Нечётное число.</b><br>На кубике три нечётные грани из шести → P = <b>1/2</b>. Нечётных чисел на кубике столько же, сколько чётных, поэтому сумма равна единице.",
+      ex4: "<b>4. Карты: туз или дама.</b><br>В колоде 36 карт, из них 4 туза и 4 дамы. Эти группы не пересекаются (туз и дама — разные карты), поэтому P = 8/36 = <b>2/9 ≈ 0.222</b>.",
+      ex5: "<b>5. Карты: и туз, и дама.</b><br>Теперь нужно и то и другое. Благоприятный выбор — 4 способа взять туза и 4 способа взять даму → 4 · 4 = 16. P = 16/36 = <b>4/9 ≈ 0.444</b>. Сравните с прошлым примером: «или» и «и» — разные события с разными ответами.",
+      ex6: "<b>6. Выбрать один шар из урны.</b><br>В урне 4 красных и 6 синих. P(красный) = 4/10 = <b>0.4</b>, P(синий) = 6/10 = <b>0.6</b>. Проверка на комплементарность: 0.4 + 0.6 = 1 ✓",
+      b1n: "Условная вероятность",
+      b1d: "До сих пор исходы считались равновероятными. Стоит узнать дополнительную информацию — и равновероятность ломается. Условная вероятность это и учитывает.",
+      b2n: "Сочетания и размещения",
+      b2d: "Знаменатель во всех задачах считается комбинаторически. Умение быстро найти число равновероятных исходов — половина решения.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "Ймовірність — це частка. Звучить так просто, що здається, ніби тут нічого вивчати. Насправді вся складність в одному слові: рівноймовірні. Якщо результати нерівноймовірні, то ділити націло не можна і треба спершу звести їх до рівних. Розберемося, як це робиться, і навчимося відрізняти ймовірність від частки та від шансу.",
+      c1: "1. Класичне визначення",
+      e1: "<b>Якщо всі результати рівноймовірні</b>, то ймовірність події A дорівнює<br><b>P(A) = m / n</b>, &nbsp;&nbsp; де m — кількість сприятливих результатів, n — загальна кількість рівноймовірних результатів.",
+      e1n: "Два важливі наслідки. Перше: завжди 0 ≤ P ≤ 1, бо 0 ≤ m ≤ n. Друге, тоншіше: <b>чисельник і знаменник можна скорочувати</b>, але лише якщо це не змінює сенс. Задача «яка ймовірність випадання шістки на кубику» має відповідь 1/6, а не 6/36 — обидва числа правильні, але 1/6 корисніше, бо одразу видно масштаб.",
+      c2: "2. Властивості ймовірності",
+      e2: "<b>P(Ā) = 1 − P(A)</b> &nbsp;(протилежна подія)<br><b>P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</b> &nbsp;(неперетинні: без останнього доданка)",
+      e2n: "Сенс першої властивості очевидний: подія та її протилежність разом вичерпують усі результати. Друга властивість пояснює, чому в задачах на об'єднання так часто виникає віднімання. Візьмемо два кубики та події A = «сума 7» і B = «перший кубик парний». P(A) = 6/36, P(B) = 18/36, але додавати їх не можна: результати (2;5), (4;3), (6;1) пораховано двічі. Спільна частина A ∩ B містить 3 результати, тому P(A ∪ B) = 6/36 + 18/36 − 3/36 = 21/36. Віднімане завжди додатне — інакше формула була б порушена.",
+      c3: "3. Частота та статистична ймовірність",
+      e3: "<b>Частота події</b> = кількість сприятливих випробувань / загальна кількість випробувань.<br><b>Статистична ймовірність</b> — границя частоти при кількості випробувань, що прямує до нескінченності.",
+      e3n: "Тут важливо не сплутати два поняття. Класична ймовірність — це відношення <b>рівноймовірних</b> результатів, вона точна і не залежить від випробувань. Частота — це те, що можна порахувати в реальному досвіді, і вона лише наближається до ймовірності. Правило великих чисел каже: чим більше випробувань, тим ближче частота до ймовірності. Саме тому монетка в перших десяти кидках може дати шість орлів — але це нічого не каже про ймовірність 1/2.",
+      c4: "4. Чому важлива рівноймовірність",
+      e4: "<b>Приклад із кістками.</b> У двох кубиків сума може випасти від 2 до 12, тобто 11 різних значень. Чи означає це, що кожна сума рівноймовірна? <b>Ні.</b> Рівноймовірні 36 <b>пар</b> результатів, а не 11 значень суми. Сума 7 випадає у 6 парах (ймовірність 6/36 = 1/6), а сума 2 — лише в одній (ймовірність 1/36). Різниця між 1/6 і 1/36 у шість раз виникає рівно через те, що «значень суми» і «результатів» — різні речі.",
+      e4n: "Звідси практичний висновок: <b>рахувати результати, а не значення</b>. Якщо результатів багато і вони нерівноймовірні, зводьте їх до рівних за допомогою комбінаторики з попередніх уроків — тоді й з'явиться знаменник, у якому можна по-справжньому поділити.",
+      interLabel: "Конструктор — ймовірність на кубиках і картах",
+      exTitle: "5. Розбір задач",
+      ex1: "<b>1. Шістка на кубику.</b><br>P = 1/6 ≈ <b>0.167</b>. Один сприятливий результат із шести рівноймовірних.",
+      ex2: "<b>2. Сума двох кубиків дорівнює 7.</b><br>Сприятливі пари: (1;6), (2;5), (3;4), (4;3), (5;2), (6;1) — їх 6. Усього пар 6 · 6 = 36.<br>P = 6/36 = <b>1/6</b>.",
+      ex3: "<b>3. Непарне число.</b><br>На кубику три непарні грані з шести → P = <b>1/2</b>. Непарних чисел на кубику стільки ж, скільки парних, тому сума дорівнює одиниці.",
+      ex4: "<b>4. Карти: туз або дама.</b><br>У колоді 36 карт, з них 4 тузи і 4 дами. Ці групи не перетинаються (туз і дама — різні карти), тому P = 8/36 = <b>2/9 ≈ 0.222</b>.",
+      ex5: "<b>5. Карти: і туз, і дама.</b><br>Тепер потрібно і те, й інше. Сприятливий вибір — 4 способи взяти туза і 4 способи взяти даму → 4 · 4 = 16. P = 16/36 = <b>4/9 ≈ 0.444</b>. Порівняйте з попереднім прикладом: «або» і «і» — різні події з різними відповідями.",
+      ex6: "<b>6. Обрати одну кулю з урни.</b><br>В урні 4 червоні та 6 синіх. P(червона) = 4/10 = <b>0.4</b>, P(синя) = 6/10 = <b>0.6</b>. Перевірка на комплементарність: 0.4 + 0.6 = 1 ✓",
+      b1n: "Умовна ймовірність",
+      b1d: "До сих пір результати вважалися рівноймовірними. Варто дізнатися додаткову інформацію — і рівноймовірність ламається. Умовна ймовірність це й враховує.",
+      b2n: "Сполучення та розміщення",
+      b2d: "Знаменник у всіх задачах рахується комбінаторно. Уміння швидко знайти кількість рівноймовірних результатів — половина розв'язку.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      grid: "Таблица всех исходов двух кубиков: 36 равновероятных пар, благоприятные выделены",
+      sums: "Столбиковая диаграмма распределения суммы двух костей от 2 до 12",
+      live: "Конструктор: сумма двух костей и число благоприятных исходов с вычислением вероятности"
+    },
+    ARIA_UA: {
+      grid: "Таблиця всіх результатів двох кубиків: 36 рівноймовірних пар, сприятливі виділені",
+      sums: "Стовпчикова діаграма розподілу суми двох кісток від 2 до 12",
+      live: "Конструктор: сума двох кісток і кількість сприятливих результатів з обчисленням ймовірності"
+    },
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+
+      <h3>${t.c2}</h3>
+      <div class="formula-box">${t.e2}</div>
+      <p>${t.e2n}</p>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e3}</div>
+      <p>${t.e3n}</p>
+
+      <h3>${t.c4}</h3>
+      <div class="formula-box">${t.e4}</div>
+      <p>${t.e4n}</p>
+      <svg id="pr1-grid-svg" viewBox="0 0 400 240" role="img" aria-label="${A.grid}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      <svg id="pr1-sums-svg" viewBox="0 0 400 200" role="img" aria-label="${A.sums}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="pr1-switch"></div>
+        <input type="range" id="pr1-s" min="2" max="12" step="1" value="7" style="width:100%;margin-top:8px;">
+        <input type="range" id="pr1-a" min="4" max="10" step="1" value="6" style="width:100%;">
+        <div class="readout" id="pr1-readout"></div>
+        <svg id="pr1-svg" viewBox="0 0 400 260" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="pr1-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="prob2">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="comb2">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>
+    `;
+    },
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      function el(tag, at){ const nd = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) nd.setAttribute(k, at[k]); return nd; }
+      function lbl(s, str, x, y, color, anchor, size){
+        const nd = el("text", {x:x, y:y, fill:color, "font-size":(size||12), "font-family":MONO,
+                               "text-anchor":(anchor||"middle"), "font-weight":700});
+        nd.textContent = str;
+        s.appendChild(nd);
+        return nd;
+      }
+      function box(s, x, y, w, h, fill, stroke, rx){
+        s.appendChild(el("rect",{x:x.toFixed(1), y:y.toFixed(1), width:w.toFixed(1), height:h.toFixed(1), rx:(rx===undefined?5:rx),
+                                 fill:fill, "fill-opacity":0.85, stroke:(stroke||"none"), "stroke-width":1.5}));
+      }
+      /* число благоприятных пар (a,b) с a,b из 1..n и a+b = s */
+      function fav(n, s){
+        let c = 0;
+        for(let a = 1; a <= n; a++){
+          const b = s - a;
+          if(b >= 1 && b <= n) c++;
+        }
+        return c;
+      }
+
+      /* 1. таблица исходов 6 × 6 */
+      (function drawGrid(){
+        const s = root.querySelector("#pr1-grid-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        const x0 = 68, y0 = 30, cw = 30, ch = 26;
+        for(let i = 0; i <= 6; i++){
+          lbl(s, String(i), x0 - 14, y0 + i*ch + 17, cInkSoft, "middle", 11);
+          lbl(s, String(i), x0 + i*cw + 15, y0 - 8, cInkSoft, "middle", 11);
+        }
+        for(let a = 1; a <= 6; a++){
+          for(let b = 1; b <= 6; b++){
+            const good = (a + b === 7);
+            box(s, x0 + (b-1)*cw, y0 + (a-1)*ch, cw - 2, ch - 2,
+                good ? cTealSoft : cAccentSoft, good ? COL.teal : cLine, 4);
+            lbl(s, String(a + b), x0 + (b-1)*cw + cw/2 - 1, y0 + (a-1)*ch + 17,
+                good ? COL.teal : cInkSoft, "middle", 11);
+          }
+        }
+        lbl(s, lang === "ru" ? "сумма" : "сума", x0 + 3*cw, y0 + 6*ch + 22, cInkSoft, "middle", 11);
+        lbl(s, lang === "ru" ? "первый кубик ↓, второй →" : "перший кубик ↓, другий →", x0 + 3*cw, y0 + 6*ch + 40, cInkSoft, "middle", 11);
+        lbl(s, lang === "ru" ? "подсвечено 6 пар из 36 → P(сумма 7) = 6/36 = 1/6"
+                              : "підсвічено 6 пар із 36 → P(сума 7) = 6/36 = 1/6",
+            200, y0 + 6*ch + 66, COL.purple, "middle", 13);
+      })();
+
+      /* 2. распределение сумм */
+      (function drawSums(){
+        const s = root.querySelector("#pr1-sums-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        const x0 = 40, y0 = 24, bw = 27, gap = 7, maxH = 118;
+        const counts = [];
+        for(let v = 2; v <= 12; v++) counts.push([v, fav(6, v)]);
+        const maxC = 6;
+        counts.forEach((pair, i) => {
+          const [v, c] = pair;
+          const h = c / maxC * maxH;
+          const x = x0 + i*(bw + gap);
+          box(s, x, y0 + maxH - h, bw, h, c >= 4 ? cTealSoft : cAccentSoft, c >= 4 ? COL.teal : COL.blue, 4);
+          lbl(s, String(c), x + bw/2, y0 + maxH - h - 6, c >= 4 ? COL.teal : COL.blue, "middle", 11);
+          lbl(s, String(v), x + bw/2, y0 + maxH + 18, cInkSoft, "middle", 11);
+        });
+        lbl(s, lang === "ru" ? "сумма" : "сума", 200, y0 + maxH + 38, cInkSoft, "middle", 12);
+        lbl(s, lang === "ru" ? "всего пар 36; суммы не равновероятны: 6 против 1"
+                              : "усього пар 36; суми нерівноймовірні: 6 проти 1",
+            200, y0 + maxH + 60, COL.purple, "middle", 13);
+      })();
+
+      /* 3. конструктор */
+      (function buildConstructor(){
+        const sw = root.querySelector("#pr1-switch");
+        const svg = root.querySelector("#pr1-svg");
+        const out = root.querySelector("#pr1-readout");
+        if(!sw || !svg || !out) return;
+        const sIn = root.querySelector("#pr1-s");
+        const aIn = root.querySelector("#pr1-a");
+        const MODES = [
+          {id:"grid", ru:"таблица исходов", ua:"таблиця результатів"},
+          {id:"bars", ru:"распределение сумм", ua:"розподіл сум"},
+          {id:"frac", ru:"дробь и десятичная", ua:"дріб і десятковий"}
+        ];
+        let mode = "grid";
+        function clamp(v, lo, hi, d){ const x = Math.round(Number(v)); return isFinite(x) ? Math.min(hi, Math.max(lo, x)) : d; }
+        MODES.forEach((m, i) => {
+          const b = document.createElement("button");
+          b.className = "shape-btn" + (i === 0 ? " active" : "");
+          b.textContent = lang === "ru" ? m.ru : m.ua;
+          b.addEventListener("click", () => {
+            [...sw.children].forEach(c => c.classList.remove("active"));
+            b.classList.add("active");
+            mode = m.id;
+            draw();
+          });
+          sw.appendChild(b);
+        });
+        [sIn, aIn].forEach(i => i.addEventListener("input", draw));
+
+        function draw(){
+          svg.innerHTML = "";
+          const n = clamp(aIn && aIn.value, 4, 10, 6);
+          const sum = clamp(sIn && sIn.value, 2, 2*n, 7);
+          const total = n*n;
+          const f = fav(n, sum);
+          let cells = "";
+          if(mode === "grid"){
+            const cw = Math.min(26, 320/Math.max(n,1));
+            const ch = Math.min(22, 170/Math.max(n,1));
+            const x0 = 200 - (n*cw)/2, y0 = 26;
+            for(let a = 1; a <= n; a++){
+              for(let b = 1; b <= n; b++){
+                const good = (a + b === sum);
+                box(svg, x0 + (b-1)*cw, y0 + (a-1)*ch, cw - 2, ch - 2,
+                    good ? cTealSoft : cAccentSoft, good ? COL.teal : cLine, 4);
+                if(cw >= 18) lbl(svg, String(a+b), x0 + (b-1)*cw + cw/2 - 1, y0 + (a-1)*ch + ch/2 + 4,
+                                 good ? COL.teal : cInkSoft, "middle", 10);
+              }
+            }
+            lbl(svg, lang === "ru" ? "сумма = " + sum : "сума = " + sum, 200, y0 + n*ch + 22, cInkSoft, "middle", 12);
+            lbl(svg, lang === "ru" ? "выделено " + f + " из " + total : "виділено " + f + " із " + total,
+                200, y0 + n*ch + 44, COL.purple, "middle", 14);
+          } else if(mode === "bars"){
+            const maxH = 116, bw = Math.min(22, 330/Math.max(2*n-1,1)), gap = 4;
+            const vals = [];
+            for(let v = 2; v <= 2*n; v++) vals.push(fav(n, v));
+            const maxC = Math.max(1, ...vals);
+            const x0 = 200 - ((2*n-1)*(bw+gap))/2;
+            const y0 = 26;
+            vals.forEach((c, i) => {
+              const v = i + 2;
+              const h = c / maxC * maxH;
+              const good = (v === sum);
+              box(svg, x0 + i*(bw+gap), y0 + maxH - h, bw, Math.max(h, 1),
+                  good ? cTealSoft : cAccentSoft, good ? COL.teal : COL.blue, 3);
+              lbl(svg, String(v), x0 + i*(bw+gap) + bw/2, y0 + maxH + 16, good ? COL.teal : cInkSoft, "middle", 9);
+            });
+            lbl(svg, lang === "ru" ? "суммы от 2 до " + (2*n) : "суми від 2 до " + (2*n), 200, y0 + maxH + 34, cInkSoft, "middle", 12);
+            lbl(svg, lang === "ru" ? "максимум при сумме " + (n+1) : "максимум при сумі " + (n+1), 200, y0 + maxH + 54, COL.purple, "middle", 12);
+          } else {
+            lbl(svg, "P = " + f + " / " + total, 200, 48, COL.purple, "middle", 22);
+            const g = (function gcd(a, b){ while(b){ const t = b; b = a % b; a = t; } return a || 1; })(f, total);
+            const num = f / g, den = total / g;
+            lbl(svg, lang === "ru" ? "= " + num + " / " + den : "= " + num + " / " + den, 200, 82, COL.blue, "middle", 22);
+            lbl(svg, "≈ " + (f/total).toFixed(4), 200, 116, COL.blue, "middle", 18);
+            lbl(svg, lang === "ru" ? "0 ≤ P ≤ 1 — верно" : "0 ≤ P ≤ 1 — правильно", 200, 152, cInkSoft, "middle", 13);
+            lbl(svg, lang === "ru" ? "дополнительное: 1 − P = " + (total - f) + "/" + total
+                                   : "додаткове: 1 − P = " + (total - f) + "/" + total,
+                200, 178, cInkSoft, "middle", 12);
+            lbl(svg, lang === "ru" ? "исходы равновероятны — деление законно" : "результати рівноймовірні — ділення законне",
+                200, 206, COL.teal, "middle", 12);
+          }
+          cells = "<div><span>" + (lang === "ru" ? "исходов" : "результатів") + "</span>" + total + "</div>"
+                + "<div><span>" + (lang === "ru" ? "благоприятных" : "сприятливих") + "</span>" + f + "</div>"
+                + "<div><span>P</span><b>" + (f/total).toFixed(4) + "</b></div>";
+          out.innerHTML = cells;
+        }
+        draw();
+      })();
+
+      /* типичные ошибки */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#pr1-mistakes");
+        if(!wrap) return;
+        wrap.innerHTML = "";
+        const ms = lang === "ru" ? [
+          { q:"Сумма двух костей может принять значения от 2 до 12. Сколько равновероятных значений?",
+            opts:["11","36","6","21"], correct:1,
+            exp:"Ошибка №1. Приняли число значений за число исходов. Значений суммы действительно 11, но равновероятны не они, а <b>пары</b>: 6 · 6 = 36. Каждая конкретная пара (3;4), (4;3) и так далее появляется с вероятностью 1/36, а к значению 7 относятся сразу шесть пар. Отсюда P = 6/36 = 1/6, а не 1/11. Правило простое: считайте всегда исходы — то, что можно назвать одним элементарным равновероятным случаем." },
+          { q:"В урне 3 красных и 5 синих шаров. P(вытащить красный или синий):",
+            opts:["1","3/8","5/8","0"], correct:0,
+            exp:"Ошибка №2. Искали не то событие. «Красный <b>или</b> синий» — это не два исхода, а все восемь исходов: любой вынутый шар либо красный, либо синий. Значит P = 3/8 + 5/8 = 1. Это прямое следствие свойства комплементарности: противоположных событий тут просто нет. Полезно перед решением спросить себя: может ли такое событие вообще не произойти? Если не может — ответ 1." },
+          { q:"Монета брошена 10 раз, выпало 8 орлов. Чему равна вероятность орла?",
+            opts:["8/10 = 0.8","1/2 = 0.5","8/20","1/10"], correct:1,
+            exp:"Ошибка №3. Спутали вероятность с частотой. 8 из 10 — это частота в конкретной серии испытаний, а вероятность орла равна <b>1/2</b> по определению: у равновероятных исходов «орёл» и «решка» ровно по одному. Частота лишь приближается к вероятности, и в коротких сериях отклоняется сильно — именно поэтому в серии из 10 бросков 8 орлов совершенно не доказывают, что монета нечестная. По правилу большого чисел при тысячах бросков доля орлов приблизится к 1/2." }
+        ] : [
+          { q:"Сума двох кісток може набувати значень від 2 до 12. Скільки рівноймовірних значень?",
+            opts:["11","36","6","21"], correct:1,
+            exp:"Помилка №1. Прийняли кількість значень за кількість результатів. Значень суми справді 11, але рівноймовірні не вони, а <b>пари</b>: 6 · 6 = 36. Кожна конкретна пара (3;4), (4;3) і так далі з'являється з ймовірністю 1/36, а до значення 7 відносяться одразу шість пар. Звідси P = 6/36 = 1/6, а не 1/11. Правило просте: рахуйте завжди результати — те, що можна назвати одним елементарним рівноймовірним випадком." },
+          { q:"В урні 3 червоні та 5 синіх кульок. P(витягнути червону або синю):",
+            opts:["1","3/8","5/8","0"], correct:0,
+            exp:"Помилка №2. Шукали не ту подію. «Червона <b>або</b> синя» — це не два результати, а всі вісім результатів: будь-яка витягнута кулька або червона, або синя. Отже P = 3/8 + 5/8 = 1. Це пряме наслідок властивості комплементарності: протилежних подій тут просто немає. Корисно перед розв'язком запитати себе: чи може така подія взагалі не статися? Якщо ні — відповідь 1." },
+          { q:"Монета кинута 10 разів, випало 8 орлів. Чому дорівнює ймовірність орла?",
+            opts:["8/10 = 0.8","1/2 = 0.5","8/20","1/10"], correct:1,
+            exp:"Помилка №3. Сплутали ймовірність із частотою. 8 із 10 — це частота в конкретній серії випробувань, а ймовірність орла дорівнює <b>1/2</b> за визначенням: у рівноймовірних результатів «орёл» і «решка» рівно по одному. Частота лише наближається до ймовірності, і в коротких серіях відхиляється сильно — саме тому в серії з 10 кидків 8 орлів узагалі не доводять, що монета нечесна. За правилом великих чисел при тисячах кидків частка орлів наблизиться до 1/2." }
+        ];
+        ms.forEach(m => {
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q;
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          const exp = document.createElement("div");
+          exp.className = "mis-exp";
+          exp.style.display = "none";
+          exp.innerHTML = "<b>" + (lang === "ru" ? "Разбор: " : "Розбір: ") + "</b>" + m.exp;
+          m.opts.forEach((opt, oi) => {
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt;
+            b.addEventListener("click", () => {
+              [...opts.children].forEach(c => { c.disabled = true; });
+              if(oi === m.correct){ b.classList.add("correct"); }
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              exp.style.display = "block";
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          item.appendChild(exp);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Вероятность всегда лежит в промежутке:", ua:"Ймовірність завжди лежить у проміжку:"},
+          opts:[{ru:"0 ≤ P ≤ 1",ua:"0 ≤ P ≤ 1"},{ru:"0 < P < 1",ua:"0 < P < 1"},
+                {ru:"P ≥ 1",ua:"P ≥ 1"},{ru:"−1 ≤ P ≤ 1",ua:"−1 ≤ P ≤ 1"}], correct:0 },
+        { q:{ru:"Бросок кубика. Вероятность выпадения чётного числа:", ua:"Кидок кубика. Ймовірність випадання парного числа:"},
+          opts:["1/2","1/3","1/6","2/3"], correct:0 },
+        { q:{ru:"Сумма двух костей равна 12. Вероятность:", ua:"Сума двох кісток дорівнює 12. Ймовірність:"},
+          opts:["1/36","1/12","1/11","1/6"], correct:0 },
+        { q:{ru:"В колоде 36 карт. Вероятность вытянуть туз:", ua:"У колоді 36 карт. Ймовірність витягнути туза:"},
+          opts:["4/36","1/9","1/36","1/6"], correct:0 },
+        { q:{ru:"P(A) = 0.3. Чему равна P(Ā)?", ua:"P(A) = 0.3. Чому дорівнює P(Ā)?"},
+          opts:["0.3","0.7","0.03","1.3"], correct:1 },
+        { q:{ru:"Монета брошена 100 раз, орлов 47. Вероятность орла равна:",
+              ua:"Монета кинута 100 разів, орлів 47. Ймовірність орла дорівнює:"},
+          opts:["0.47","1/2","47/1000","47"], correct:1 },
+        { q:{ru:"Что нужно проверить перед делением m/n?",
+              ua:"Що треба перевірити перед діленням m/n?"},
+          opts:[{ru:"равновероятность исходов",ua:"рівноймовірність результатів"},
+                {ru:"чётность числа m",ua:"парність числа m"},
+                {ru:"m > n",ua:"m > n"},
+                {ru:"кратность n",ua:"кратність n"}], correct:0 }
+      ]);
+    }
+  },
+
+  {
+    id: "prob2", module: 6,
+    title: {ru:"Условная вероятность и независимость", ua:"Умовна ймовірність і незалежність"},
+    RU: {
+      intro: "Классическая вероятность работает, пока все исходы равновероятны. Стоит узнать, что часть исходов уже произошла, — и это предположение рассыпается. Условная вероятность и независимость описывают именно эту ситуацию: как меняется ответ, когда мы уже кое-что знаем.",
+      c1: "1. Условная вероятность",
+      e1: "<b>P(A | B) = P(A ∩ B) / P(B)</b> &nbsp;&nbsp; при P(B) > 0.<br>Читается: «вероятность A при условии, что B уже произошло».",
+      e1n: "Смысл формулы в том, что знаменатель меняется с n на m: мы считаем вероятность не среди всех исходов, а только среди тех, что совместимы с условием B. Классический пример — колода из 36 карт. «Вытянута карта пиковой масти» оставляет не 36 исходов, а только 9, и именно поэтому вероятность туза после этого условия равна 4/9, а не 4/36.",
+      c2: "2. Произведение и независимость",
+      e2: "<b>P(A ∩ B) = P(A) · P(B | A)</b> &nbsp;(условное произведение)<br><b>События A и B независимы</b>, если P(A ∩ B) = P(A) · P(B), то есть P(A | B) = P(A).",
+      e2n: "Независимость — это очень сильное утверждение, и оно неверно для большинства бытовых ситуаций. Два броска монеты независимы: знание первого броска ничего не говорит о втором. А вот «вытянута карта пиковой масти» и «карта — туз» зависимы: после первого условия вероятность второго выросла с 1/9 до 4/9. Проверка независимости всегда одна: посчитайте P(A | B) и сравните с P(A). Если значения разные — события связаны.",
+      c3: "3. Формула полной вероятности и формула Байеса",
+      e3: "<b>Формула полной вероятности:</b> если исходы разбиты на группы H₁, …, Hₙ, то<br><b>P(A) = Σ P(Hᵢ) · P(A | Hᵢ)</b>.",
+      e3n: "Идея в том, что любое сложное событие можно разложить на простые ветки: сначала выбираем группу, затем считаем вероятность внутри неё. Пример: в классе 10 девочек и 6 мальчиков, отличников среди них 4 и 3. Тогда P(отличник) = (10/16)·(4/10) + (6/16)·(3/6) = 1/4 + 3/16 = <b>7/16</b>.",
+      c4: "4. Пример с заводами",
+      e4: "<b>Формула Байеса</b> показывает, как пересчитать вероятность, когда стало известно дополнительное событие:<br>P(детали A | признак) = P(признак | A) · P(A) / P(признак).",
+      e4n: "Числитель отвечает на вопрос «какова вероятность, что деталь с признаком сделана заводом A», знаменатель — «какова вообще вероятность признака». Классическая задача: завод A даёт 40% деталей, и 5% его деталей бракованные; завод B даёт остальные 60%, брак 1%. Тогда P(брак) = 0.4 · 0.05 + 0.6 · 0.01 = 0.026, а P(A | брак) = 0.4 · 0.05 / 0.026 ≈ <b>0.769</b>. То есть среди бракованных почти четыре пятых — детали завода A, хотя он выпускает лишь 40% продукции.",
+      c4n: "Обратите внимание на вывод: условие не просто меняет числа, а перекашивает распределение. Редкое событие (брак) сильно концентрируется на источнике, который чаще его порождает. Именно поэтому формулу Байеса называют «мостом между априорной и апостериорной вероятностью»: она отвечает на вопрос «что вероятнее теперь, зная результат».",
+      interLabel: "Конструктор — условная вероятность",
+      exTitle: "5. Разбор задач",
+      ex1: "<b>1. Урна с возвращением и без.</b><br>В урне 3 красных и 5 синих. Вытянули шар, сообщили, что он красный, и <b>вернули шар в урну</b>. Какова вероятность, что при следующем извлечении шар снова красный?<br>Состав урны не изменился: 3 красных из 8. Кроме того, второе извлечение независимо от первого. Поэтому P = <b>3/8 = 0.375</b> — столько же, сколько было бы без условия. Для сравнения: если бы шар <b>не возвращали</b>, то красных осталось бы 2 из 7 и P = 2/7 ≈ 0.286.",
+      ex2: "<b>2. Карты.</b> Из колоды вытянута карта пиковой масти. Вероятность, что это туз:<br>Пиковых карт 9, из них 4 туза → P = 4/9 ≈ <b>0.444</b>. Без условия было бы 4/36 = 1/9, то есть условие увеличило вероятность вчетверо.",
+      ex3: "<b>3. Два события, независимость.</b> Бросили монету и кубик. Вероятность, что выпали орёл и шестёрка:<br>1/2 · 1/6 = <b>1/12</b>. События независимы: исход кубика не связан с исходом монеты.",
+      ex4: "<b>4. Два события, зависимость.</b> Из 36 карт вытягивают две. Вероятность, что обе пиковые:<br>(9/36) · (8/35) = <b>72/1260 ≈ 0.0571</b>. Второе условие зависит от первого: если первая карта пиковая, пиковых осталось 8, а не 9.",
+      ex5: "<b>5. Полная вероятность.</b> В коробке 20 красных и 12 синих шаров. Вероятность красного при одном извлечении:<br>(20/32) · 1 + (12/32) · 0 = <b>20/32 = 0.625</b>. Формула работает и тогда, когда одно из слагаемых равно нулю.",
+      ex6: "<b>6. Условная вероятность через пересечение.</b> В классе 16 человек: 9 девочек и 7 юношей. Отличников среди девочек 4, среди юношей 3. Известно, что выбрана девочка. Вероятность, что она отличница:<br>Считаем только среди девочек: пересечение — 4 отличницы. P = 4/9 ≈ <b>0.444</b>. Без условия было бы 7/16 = 0.4375, то есть условие почти не изменило ответ — девочек и так больше.",
+      b1n: "Комбинаторика",
+      b1d: "Знаменатель P(B) и числитель P(A ∩ B) считаются комбинаторно: это число исходов, совместимых с условием, и число исходов, попавших в пересечение.",
+      b2n: "Частота и статистика",
+      b2d: "Слова «вероятность» и «частота» рядом не случайны: обе величины оценивают долю, но одна точная, а другая приближённая и зависит от выборки.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "Класична ймовірність працює, поки всі результати рівноймовірні. Варто дізнатися, що частина результатів уже відбулася, — і це припущення розсипається. Умовна ймовірність і незалежність описують саме цю ситуацію: як змінюється відповідь, коли ми вже щось знаємо.",
+      c1: "1. Умовна ймовірність",
+      e1: "<b>P(A | B) = P(A ∩ B) / P(B)</b> &nbsp;&nbsp; за P(B) > 0.<br>Читається: «ймовірність A за умови, що B вже відбулося».",
+      e1n: "Сенс формули в тому, що знаменник змінюється з n на m: ми рахуємо ймовірність не серед усіх результатів, а лише серед тих, що сумісні з умовою B. Класичний приклад — колода з 36 карт. «Витягнута карта пікової масті» залишає не 36 результатів, а лише 9, і саме тому ймовірність туза після цієї умови дорівнює 4/9, а не 4/36.",
+      c2: "2. Добуток і незалежність",
+      e2: "<b>P(A ∩ B) = P(A) · P(B | A)</b> &nbsp;(умовний добуток)<br><b>Події A і B незалежні</b>, якщо P(A ∩ B) = P(A) · P(B), тобто P(A | B) = P(A).",
+      e2n: "Незалежність — це дуже сильне твердження, і воно хибне для більшості побутових ситуацій. Два кидки монети незалежні: знання першого кидка нічого не каже про другий. А ось «витягнута карта пікової масті» і «карта — туз» залежні: після першої умови ймовірність другої зросла з 1/9 до 4/9. Перевірка незалежності завжди одна: обчисліть P(A | B) і порівняйте з P(A). Якщо значення різні — події пов’язані.",
+      c3: "3. Формула повної ймовірності та формула Байеса",
+      e3: "<b>Формула повної ймовірності:</b> якщо результати розбиті на групи H₁, …, Hₙ, то<br><b>P(A) = Σ P(Hᵢ) · P(A | Hᵢ)</b>.",
+      e3n: "Ідея в тому, що будь-яку складну подію можна розкласти на прості гілки: спершу обираємо групу, потім рахуємо ймовірність усередині неї. Приклад: у класі 10 дівчат і 6 хлопців, відмінників серед них 4 і 3. Тоді P(відмінник) = (10/16)·(4/10) + (6/16)·(3/6) = 1/4 + 3/16 = <b>7/16</b>.",
+      c4: "4. Приклад із заводами",
+      e4: "<b>Формула Байеса</b> показує, як перерахувати ймовірність, коли стало відоме додаткове явище:<br>P(деталі A | ознака) = P(ознака | A) · P(A) / P(ознака).",
+      e4n: "Чисельник відповідає на запитання «яка ймовірність, що деталь з ознакою зроблена заводом A», знаменник — «яка загалом ймовірність ознаки». Класична задача: завод A дає 40% деталей, і 5% його деталей браковані; завод B дає решту 60%, брак 1%. Тоді P(брак) = 0.4 · 0.05 + 0.6 · 0.01 = 0.026, а P(A | брак) = 0.4 · 0.05 / 0.026 ≈ <b>0.769</b>. Тобто серед бракованих майже чотири п’ятих — деталі заводу A, хоча він випускає лише 40% продукції.",
+      c4n: "Зверніть увагу на висновок: умова не просто змінює числа, а перекошує розподіл. Рідкісна подія (брак) сильно концентрується на джерелі, яке частіше її породжує. Саме тому формулу Байеса називають «мостом між апріорною та апостеріорною ймовірністю»: вона відповідає на запитання «що ймовірніше тепер, знаючи результат».",
+      interLabel: "Конструктор — умовна ймовірність",
+      exTitle: "5. Розбір задач",
+      ex1: "<b>1. Урна з поверненням і без.</b><br>В урні 3 червоні та 5 синіх. Витягнули кулю, повідомили, що вона червона, і <b>повернули кульку в урну</b>. Яка ймовірність, що при наступному витягуванні кулька знову червона?<br>Склад урни не змінився: 3 червоні з 8. Крім того, друге витягування незалежне від першого. Отже P = <b>3/8 = 0.375</b> — стільки ж, скільки було б без умови. Для порівняння: якби кульку <b>не повертали</b>, то червоних залишилося б 2 з 7 і P = 2/7 ≈ 0.286.",
+      ex2: "<b>2. Карти.</b> З колоди витягнута карта пікової масті. Ймовірність, що це туз:<br>Пікових карт 9, з них 4 тузи → P = 4/9 ≈ <b>0.444</b>. Без умови було б 4/36 = 1/9, тобто умова збільшила ймовірність учетверо.",
+      ex3: "<b>3. Дві події, незалежність.</b> Кинули монету й кубик. Ймовірність, що випали орел і шістка:<br>1/2 · 1/6 = <b>1/12</b>. Події незалежні: результат кубика не пов’язаний із результатом монети.",
+      ex4: "<b>4. Дві події, залежність.</b> Із 36 карт витягують дві. Ймовірність, що обидві пікові:<br>(9/36) · (8/35) = <b>72/1260 ≈ 0.0571</b>. Друга умова залежить від першої: якщо перша карта пікова, пікових залишилося 8, а не 9.",
+      ex5: "<b>5. Повна ймовірність.</b> У коробці 20 червоних і 12 синіх кульок. Ймовірність червоної за одного витягування:<br>(20/32) · 1 + (12/32) · 0 = <b>20/32 = 0.625</b>. Формула працює і тоді, коли один із доданків дорівнює нулю.",
+      ex6: "<b>6. Умовна ймовірність через перетин.</b> У класі 16 осіб: 9 дівчат і 7 хлопців. Відмінниць серед дівчат 4, серед хлопців 3. Відомо, що обрано дівчину. Ймовірність, що вона відмінниця:<br>Рахуємо лише серед дівчат: перетин — 4 відмінниці. P = 4/9 ≈ <b>0.444</b>. Без умови було б 7/16 = 0.4375, тобто умова майже не змінила відповідь — дівчат і так більше.",
+      b1n: "Комбінаторика",
+      b1d: "Знаменник P(B) і чисельник P(A ∩ B) рахуються комбінаторно: це кількість результатів, сумісних з умовою, і кількість результатів, що потрапили в перетин.",
+      b2n: "Частота та статистика",
+      b2d: "Слова «ймовірність» і «частота» поруч не випадково: обидві величини оцінюють частку, але одна точна, а інша наближена й залежить від вибірки.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      tree: "Дерево условных вероятностей: сначала условие B, затем событие A внутри него",
+      bays: "Схема Байеса: заводы A и B с долями продукции и долями брака, стрелки к исходу брак",
+      live: "Конструктор: изменение вероятности события при дополнительном условии"
+    },
+    ARIA_UA: {
+      tree: "Дерево умовних ймовірностей: спершу умова B, потім подія A усередині неї",
+      bays: "Схема Байеса: заводи A і B з частками продукції та частками браку, стрілки до результату брак",
+      live: "Конструктор: зміна ймовірності події за додатковою умовою"
+    },
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+      <svg id="pr2-tree-svg" viewBox="0 0 400 210" role="img" aria-label="${A.tree}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+
+      <h3>${t.c2}</h3>
+      <div class="formula-box">${t.e2}</div>
+      <p>${t.e2n}</p>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e3}</div>
+      <p>${t.e3n}</p>
+
+      <h3>${t.c4}</h3>
+      <div class="formula-box">${t.e4}</div>
+      <p>${t.e4n}</p>
+      <p>${t.c4n}</p>
+      <svg id="pr2-bayes-svg" viewBox="0 0 400 200" role="img" aria-label="${A.bays}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="pr2-switch"></div>
+        <input type="range" id="pr2-total" min="4" max="12" step="1" value="8" style="width:100%;margin-top:8px;">
+        <input type="range" id="pr2-good" min="1" max="12" step="1" value="3" style="width:100%;">
+        <div class="readout" id="pr2-readout"></div>
+        <svg id="pr2-svg" viewBox="0 0 400 260" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="pr2-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="comb2">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="stat1">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>
+    `;
+    },
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      function el(tag, at){ const nd = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) nd.setAttribute(k, at[k]); return nd; }
+      function lbl(s, str, x, y, color, anchor, size, weight){
+        const nd = el("text", {x:x.toFixed(1), y:y.toFixed(1), fill:color, "font-size":(size||12), "font-family":MONO,
+                               "text-anchor":(anchor||"middle"), "font-weight":(weight||700)});
+        nd.textContent = str;
+        s.appendChild(nd);
+        return nd;
+      }
+      function box(s, x, y, w, h, fill, stroke, rx){
+        s.appendChild(el("rect",{x:x.toFixed(1), y:y.toFixed(1), width:w.toFixed(1), height:h.toFixed(1), rx:(rx===undefined?7:rx),
+                                 fill:fill, "fill-opacity":0.8, stroke:(stroke||"none"), "stroke-width":1.7}));
+      }
+      function ln(s, x1, y1, x2, y2, color, w, dash){
+        const at = {x1:x1.toFixed(1), y1:y1.toFixed(1), x2:x2.toFixed(1), y2:y2.toFixed(1), stroke:color,
+                    "stroke-width":(w||2), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("line", at));
+      }
+      function dot(s, x, y, r, fill, stroke){
+        s.appendChild(el("circle",{cx:x.toFixed(1), cy:y.toFixed(1), r:r, fill:fill, stroke:(stroke||"none"), "stroke-width":1.5}));
+      }
+
+      /* 1. дерево условной вероятности: P(A) → P(A|B) */
+      (function drawTree(){
+        const s = root.querySelector("#pr2-tree-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        dot(s, 46, 84, 16, cAccentSoft, COL.blue);
+        lbl(s, lang === "ru" ? "старт" : "старт", 46, 88, COL.blue, "middle", 10);
+        const xB = 150;
+        ln(s, 62, 84, xB - 16, 44, COL.teal, 2);
+        ln(s, 62, 84, xB - 16, 124, COL.coral, 2);
+        box(s, xB, 30, 54, 28, cTealSoft, COL.teal);
+        lbl(s, "B", xB + 27, 48, COL.teal, "middle", 14);
+        box(s, xB, 110, 54, 28, cAmberSoft, COL.coral);
+        lbl(s, lang === "ru" ? "B̅" : "B̅", xB + 27, 128, COL.coral, "middle", 14);
+        lbl(s, lang === "ru" ? "произошло B" : "сталося B", xB + 27, 74, cInkSoft, "middle", 11);
+        const xA = 300;
+        ln(s, xB + 54, 44, xA - 16, 44, COL.teal, 2);
+        dot(s, xA, 44, 13, cTealSoft, COL.teal);
+        lbl(s, "A", xA, 48, COL.teal, "middle", 12);
+        ln(s, xB + 54, 44, xA - 16, 96, COL.coral, 1.6, "4 3");
+        dot(s, xA, 96, 13, cAccentSoft, COL.coral);
+        lbl(s, lang === "ru" ? "A̅" : "A̅", xA, 100, COL.coral, "middle", 12);
+        lbl(s, lang === "ru" ? "условие сузило выбор" : "умова звузила вибір", xA + 22, 96, cInkSoft, "start", 11);
+        lbl(s, lang === "ru" ? "P(A | B) считается только среди исходов B"
+                              : "P(A | B) рахується лише серед результатів B",
+            200, 178, COL.purple, "middle", 13);
+        lbl(s, "P(A ∩ B) / P(B)", 200, 198, COL.blue, "middle", 13);
+      })();
+
+      /* 2. схема Байеса для двух заводов */
+      (function drawBayes(){
+        const s = root.querySelector("#pr2-bayes-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        const yA = 46, yB = 118, xR = 340;
+        const node = (x, y, title, sub, fill, col) => {
+          box(s, x - 46, y - 21, 92, 42, fill, col, 9);
+          lbl(s, title, x, y - 2, col, "middle", 14);
+          lbl(s, sub, x, y + 14, cInkSoft, "middle", 10);
+        };
+        node(58, yA, "A", "P = 0.4", cTealSoft, COL.teal);
+        node(58, yB, "B", "P = 0.6", cAmberSoft, COL.coral);
+        box(s, xR - 46, 78, 92, 42, cAccentSoft, COL.purple, 9);
+        lbl(s, lang === "ru" ? "брак" : "брак", xR, 96, COL.purple, "middle", 14);
+        lbl(s, "P = 0.026", xR, 112, cInkSoft, "middle", 10);
+        ln(s, 104, yA + 4, xR - 48, 86, COL.teal, 2);
+        ln(s, 104, yB - 4, xR - 48, 112, COL.coral, 2);
+        lbl(s, "0.05", 200, 52, COL.teal, "middle", 12);
+        lbl(s, "0.01", 200, 124, COL.coral, "middle", 12);
+        lbl(s, lang === "ru" ? "P(A | брак) = 0.02 / 0.026 ≈ 0.77" : "P(A | брак) = 0.02 / 0.026 ≈ 0.77",
+            200, 170, COL.purple, "middle", 13);
+      })();
+
+      /* 3. конструктор */
+      (function buildConstructor(){
+        const sw = root.querySelector("#pr2-switch");
+        const svg = root.querySelector("#pr2-svg");
+        const out = root.querySelector("#pr2-readout");
+        if(!sw || !svg || !out) return;
+        const totalIn = root.querySelector("#pr2-total");
+        const goodIn = root.querySelector("#pr2-good");
+        const MODES = [
+          {id:"cond", ru:"без условия → с условием", ua:"без умови → з умовою"},
+          {id:"tree", ru:"дерево исходов", ua:"дерево результатів"},
+          {id:"indep", ru:"независимость", ua:"незалежність"}
+        ];
+        let mode = "cond";
+        function clamp(v, lo, hi, d){ const x = Math.round(Number(v)); return isFinite(x) ? Math.min(hi, Math.max(lo, x)) : d; }
+        MODES.forEach((m, i) => {
+          const b = document.createElement("button");
+          b.className = "shape-btn" + (i === 0 ? " active" : "");
+          b.textContent = lang === "ru" ? m.ru : m.ua;
+          b.addEventListener("click", () => {
+            [...sw.children].forEach(c => c.classList.remove("active"));
+            b.classList.add("active");
+            mode = m.id;
+            draw();
+          });
+          sw.appendChild(b);
+        });
+        [totalIn, goodIn].forEach(i => i.addEventListener("input", draw));
+
+        function draw(){
+          svg.innerHTML = "";
+          const n = clamp(totalIn && totalIn.value, 4, 12, 8);
+          let g = clamp(goodIn && goodIn.value, 1, 12, 3);
+          if(g > n) g = n;
+          const p0 = g / n;
+          /* условие B = «первый шар красный»; два варианта развития события */
+          const pRet = g / n;                 /* с возвращением: состав не изменился */
+          const pNoRet = n > 1 ? (g - 1) / (n - 1) : 1;   /* без возврата: осталось g−1 из n−1 */
+          const p1 = pNoRet;
+          let cells = "";
+          if(mode === "cond"){
+            const rows = n;
+            const cols = 4;
+            const cw = 46, ch = 24;
+            const x0 = 74, y0 = 30;
+            for(let i=0;i<rows;i++){
+              const good = i < g;
+              for(let j=0;j<cols;j++){
+                const used = good && j < 1;
+                box(svg, x0 + j*(cw+4), y0 + i*(ch+4), cw, ch,
+                    used ? cTealSoft : cAccentSoft, used ? COL.teal : cLine, 5);
+              }
+            }
+            lbl(svg, lang === "ru" ? "зелёная клетка = пересечение A ∩ B" : "зелена клітинка = перетин A ∩ B",
+                200, y0 + rows*(ch+4) + 20, cInkSoft, "middle", 11);
+            lbl(svg, "P(A) = " + g + "/" + n + " = " + p0.toFixed(4), 200, 26, COL.blue, "middle", 15);
+            const yB = y0 + rows*(ch+4) + 46;
+            lbl(svg, lang === "ru" ? "с возвращением: P(A | B) = " + g + "/" + n + " = " + pRet.toFixed(4)
+                                   : "із поверненням: P(A | B) = " + g + "/" + n + " = " + pRet.toFixed(4),
+                200, yB, COL.teal, "middle", 12);
+            lbl(svg, lang === "ru" ? "без возврата: P(A | B) = " + (g-1) + "/" + (n-1) + " = " + pNoRet.toFixed(4)
+                                   : "без повернення: P(A | B) = " + (g-1) + "/" + (n-1) + " = " + pNoRet.toFixed(4),
+                200, yB + 22, COL.coral, "middle", 12);
+          } else if(mode === "tree"){
+            const x0 = 40, yB = 30, xA = 190, xEnd = 330;
+            dot(svg, x0, 100, 15, cAccentSoft, COL.blue);
+            ln(svg, x0 + 15, 100, xA - 16, yB + 14, COL.teal, 2);
+            ln(svg, x0 + 15, 100, xA - 16, yB + 58, COL.coral, 2);
+            box(svg, xA, yB, 46, 28, cTealSoft, COL.teal);
+            lbl(svg, "B", xA + 23, yB + 18, COL.teal, "middle", 14);
+            box(svg, xA, yB + 44, 46, 28, cAmberSoft, COL.coral);
+            lbl(svg, lang === "ru" ? "B̅" : "B̅", xA + 23, yB + 62, COL.coral, "middle", 14);
+            ln(svg, xA + 46, yB + 14, xEnd - 14, yB + 4, COL.teal, 1.8);
+            ln(svg, xA + 46, yB + 14, xEnd - 14, yB + 24, COL.teal, 1.8);
+            ln(svg, xA + 46, yB + 58, xEnd - 14, yB + 48, COL.coral, 1.8);
+            ln(svg, xA + 46, yB + 58, xEnd - 14, yB + 68, COL.coral, 1.8);
+            dot(svg, xEnd, yB + 4, 10, cTealSoft, COL.teal);
+            dot(svg, xEnd, yB + 24, 10, cTealSoft, COL.teal);
+            dot(svg, xEnd, yB + 48, 10, cAccentSoft, COL.coral);
+            dot(svg, xEnd, yB + 68, 10, cAccentSoft, COL.coral);
+            lbl(svg, "A", xEnd - 26, yB + 8, COL.teal, "middle", 11);
+            lbl(svg, lang === "ru" ? "A̅" : "A̅", xEnd - 26, yB + 52, COL.coral, "middle", 11);
+            lbl(svg, lang === "ru" ? "после условия B у внутренних ветвей свой набор" : "після умови B у внутрішніх гілок свій набір",
+                200, 150, cInkSoft, "middle", 12);
+            lbl(svg, lang === "ru" ? "исходов до условия: " + n : "результатів до умови: " + n,
+                200, 176, cInkSoft, "middle", 12);
+          } else {
+            const pA = p0, pB = 0.5;
+            const pAnd = pA * pB;
+            const pCond = pB > 0 ? pAnd / pB : 0;
+            lbl(svg, "P(A) = " + pA.toFixed(4), 110, 44, COL.teal, "middle", 15);
+            lbl(svg, "P(B) = " + pB.toFixed(4), 290, 44, COL.coral, "middle", 15);
+            lbl(svg, lang === "ru" ? "независимо" : "незалежно", 200, 66, cInkSoft, "middle", 11);
+            lbl(svg, "P(A ∩ B) = " + pAnd.toFixed(4), 200, 100, COL.purple, "middle", 15);
+            lbl(svg, "P(A | B) = " + pCond.toFixed(4), 200, 132, COL.blue, "middle", 15);
+            lbl(svg, lang === "ru" ? (Math.abs(pCond - pA) < 1e-9
+                    ? "P(A | B) = P(A) → независимы"
+                    : "P(A | B) ≠ P(A) → зависимы")
+                                 : (Math.abs(pCond - pA) < 1e-9
+                    ? "P(A | B) = P(A) → незалежні"
+                    : "P(A | B) ≠ P(A) → залежні"),
+                200, 168, COL.purple, "middle", 13);
+            lbl(svg, lang === "ru" ? "критерий: меняется ли P(A) после условия" : "критерій: чи змінюється P(A) після умови",
+                200, 196, cInkSoft, "middle", 11);
+            lbl(svg, lang === "ru" ? "зависимость ≠ случайность, это структура опыта" : "залежність ≠ випадковість, це структура досвіду",
+                200, 220, COL.coral, "middle", 11);
+          }
+          cells = "<div><span>" + (lang === "ru" ? "исходов n" : "результатів n") + "</span>" + n + "</div>"
+                + "<div><span>" + (lang === "ru" ? "благоприятных" : "сприятливих") + "</span>" + g + "</div>"
+                + "<div><span>P(A)</span><b>" + p0.toFixed(4) + "</b></div>"
+                + "<div><span>P(A|B) " + (lang === "ru" ? "без возврата" : "без повернення") + "</span><b>" + p1.toFixed(4) + "</b></div>"
+                + "<div><span>P(A|B) " + (lang === "ru" ? "с возвратом" : "із поверненням") + "</span><b>" + pRet.toFixed(4) + "</b></div>";
+          out.innerHTML = cells;
+        }
+        draw();
+      })();
+
+      /* типичные ошибки */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#pr2-mistakes");
+        if(!wrap) return;
+        wrap.innerHTML = "";
+        const ms = lang === "ru" ? [
+          { q:"Из 36 карт вытянута карта пиковой масти. Вероятность, что она туз:",
+            opts:["1/9","4/9","4/36","1/4"], correct:1,
+            exp:"Ошибка №1. В знаменателе осталось общее число карт. После условия «карта пиковая» возможны уже только <b>9</b> исходов, а не 36. Значит знаменатель меняется: P = 4/9 ≈ 0.444. Значение 4/36 = 1/9 — это вероятность туза <b>без</b> условия, то есть ответ на другой вопрос. Условная вероятность всегда меняет знаменатель на число исходов, совместимых с условием." },
+          { q:"В коробке 5 красных и 5 синих шаров. Известно, что вытянут красный шар, его вернули. Вероятность, что следующий шар красный:",
+            opts:["5/10","4/9","5/9","9/10"], correct:0,
+            exp:"Ошибка №2. Вычеркнули первый шар, хотя его вернули. Возврат означает, что состав урны не изменился: по-прежнему <b>5 красных из 10</b>. Второе извлечение независимо от первого, поэтому P = 5/10 = <b>1/2</b> — столько же, сколько без условия. Значение 4/9 было бы верным, если бы шар <b>не возвращали</b>: тогда красных осталось бы 4 из 9. В условии всегда надо уточнять «с возвращением» или «без возврата»." },
+          { q:"Два независимых события с вероятностями 0.3 и 0.5. Вероятность их одновременного наступления:",
+            opts:["0.15","0.8","0.65","0.5"], correct:0,
+            exp:"Ошибка №3. Сложили вместо умножения — это было бы сложение независимых событий «или». Для одновременного наступления независимых событий работает произведение: P(A ∩ B) = 0.3 · 0.5 = <b>0.15</b>. Проверка на разум: произведение двух вероятностей из [0; 1] всегда не больше каждой из них, а сумма 0.8 наоборот больше обеих. Значение 0.8 отвечало бы на вопрос «наступит хотя бы одно»." },
+          { q:"Событие A влечёт за собой событие B. Что верно?",
+            opts:[{ru:"P(B | A) = 1", ua:"P(B | A) = 1"},{ru:"события независимы", ua:"події незалежні"},
+                  {ru:"P(A | B) = 1", ua:"P(A | B) = 1"},{ru:"P(A) = 0", ua:"P(A) = 0"}], correct:0,
+            exp:"Ошибка №4. Спутали направление импликации. Если A влечёт B, то зная A, мы наверняка получаем B — значит условная вероятность P(B | A) = 1. Обратное неверно: из B не следует A, поэтому P(A | B) может быть любой от 0 до 1. Полезный пример: «идёт дождь» влечёт за собой «мокрый асфальт», но «мокрый асфальт» не влечёт дождь — по асфальту могли полить из шланга." }
+        ] : [
+          { q:"Із 36 карт витягнута карта пікової масті. Ймовірність, що вона туз:",
+            opts:["1/9","4/9","4/36","1/4"], correct:1,
+            exp:"Помилка №1. У знаменнику залишилося загальне число карт. Після умови «карта пікова» можливі лише <b>9</b> результатів, а не 36. Отже знаменник змінюється: P = 4/9 ≈ 0.444. Значення 4/36 = 1/9 — це ймовірність туза <b>без</b> умови, тобто відповідь на інше запитання. Умовна ймовірність завжди змінює знаменник на кількість результатів, сумісних з умовою." },
+          { q:"У коробці 5 червоних і 5 синіх кульок. Відомо, що витягнуто червону кульку, її повернули. Ймовірність, що наступна кулька червона:",
+            opts:["5/10","4/9","5/9","9/10"], correct:0,
+            exp:"Помилка №2. Викреслили першу кульку, хоча її повернули. Повернення означає, що склад урни не змінився: як і раніше, <b>5 червоних із 10</b>. Друге витягування незалежне від першого, отже P = 5/10 = <b>1/2</b> — стільки ж, скільки без умови. Значення 4/9 було б правильним, якби кульку <b>не повертали</b>: тоді червоних залишилося б 4 з 9. В умові завжди треба уточнювати «із поверненням» чи «без повернення»." },
+          { q:"Дві незалежні події з ймовірностями 0.3 і 0.5. Ймовірність їх одночасного настання:",
+            opts:["0.15","0.8","0.65","0.5"], correct:0,
+            exp:"Помилка №3. Додали замість множення — це було б додавання незалежних подій «або». Для одночасного настання незалежних подій працює добуток: P(A ∩ B) = 0.3 · 0.5 = <b>0.15</b>. Перевірка на розум: добуток двох ймовірностей із [0; 1] завжди не більший за кожну з них, а сума 0.8 навпаки більша за обидві. Значення 0.8 відповідало б на запитання «настане хоча б одне»." },
+          { q:"Подія A тягне за собою подію B. Що правильно?",
+            opts:[{ru:"P(B | A) = 1", ua:"P(B | A) = 1"},{ru:"події незалежні", ua:"події незалежні"},
+                  {ru:"P(A | B) = 1", ua:"P(A | B) = 1"},{ru:"P(A) = 0", ua:"P(A) = 0"}], correct:0,
+            exp:"Помилка №4. Сплутали напрям імплікації. Якщо A тягне за собою B, то знаючи A, ми напевно отримуємо B — отже умовна ймовірність P(B | A) = 1. Зворотне хибне: із B не випливає A, тому P(A | B) може бути будь-якою від 0 до 1. Корисний приклад: «йде дощ» тягне за собою «мокрий асфальт», але «мокрий асфальт» не тягне за собою дощ — по асфальту могли полити зі шланга." }
+        ];
+        ms.forEach(m => {
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q;
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          const exp = document.createElement("div");
+          exp.className = "mis-exp";
+          exp.style.display = "none";
+          exp.innerHTML = "<b>" + (lang === "ru" ? "Разбор: " : "Розбір: ") + "</b>" + m.exp;
+          m.opts.forEach((opt, oi) => {
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = (opt && typeof opt === "object") ? opt[lang] : opt;
+            b.addEventListener("click", () => {
+              [...opts.children].forEach(c => { c.disabled = true; });
+              if(oi === m.correct){ b.classList.add("correct"); }
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              exp.style.display = "block";
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          item.appendChild(exp);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Формула условной вероятности имеет вид:", ua:"Формула умовної ймовірності має вигляд:"},
+          opts:["P(A) = P(B) · P(A | B)","P(A | B) = P(A ∩ B) / P(B)","P(A | B) = P(A) · P(B)","P(A | B) = P(B)"], correct:1 },
+        { q:{ru:"Два независимых события с вероятностями 0.4 и 0.5 дают P(A ∩ B):",
+              ua:"Дві незалежні події з ймовірностями 0.4 і 0.5 дають P(A ∩ B):"},
+          opts:["0.2","0.9","0.45","0.1"], correct:0 },
+        { q:{ru:"Событие A произошло. Может ли условная вероятность P(B | A) быть больше безусловной P(B)?",
+              ua:"Подія A відбулася. Чи може умовна ймовірність P(B | A) бути більшою за безумовну P(B)?"},
+          opts:[{ru:"да, это зависимость", ua:"так, це залежність"},{ru:"нет, всегда равны", ua:"ні, завжди рівні"},
+                {ru:"нет, всегда меньше", ua:"ні, завжди менші"},{ru:"только при P(A) = 1", ua:"лише при P(A) = 1"}], correct:0 },
+        { q:{ru:"В урне 3 красных и 7 синих. Известно, что вытянут красный шар, его вернули. Вероятность, что следующий тоже красный:",
+              ua:"В урні 3 червоні та 7 синіх. Відомо, що витягнуто червону кульку, її повернули. Ймовірність, що наступна теж червона:"},
+          opts:["3/10","3/9","2/9","1/3"], correct:0 },
+        { q:{ru:"Завод A даёт 60% продукции, брак 2%; завод B — 40%, брак 5%. P(брак):",
+              ua:"Завод A дає 60% продукції, брак 2%; завод B — 40%, брак 5%. P(брак):"},
+          opts:["0.032","0.028","0.07","0.35"], correct:1 },
+        { q:{ru:"Вероятность «событие A влечёт B» означает:",
+              ua:"Ймовірність «подія A тягне за собою B» означає:"},
+          opts:["P(A) = P(B)","P(B | A) = 1","P(A | B) = 1","P(A ∪ B) = 1"], correct:1 },
+        { q:{ru:"Что делает формула полной вероятности?",
+              ua:"Що робить формула повної ймовірності?"},
+          opts:[{ru:"разбивает сложное событие на независимые ветки", ua:"розкладає складну подію на незалежні гілки"},
+                {ru:"заменяет умножение сложением", ua:"замінює множення додаванням"},
+                {ru:"считает только равновероятные исходы", ua:"рахує лише рівноймовірні результати"},
+                {ru:"находит математическое ожидание", ua:"знаходить математичне сподівання"}], correct:0 }
+      ]);
+    }
+  },
+
+  {
+    id: "stat1", module: 6,
+    title: {ru:"Статистика: среднее, медиана и разброс", ua:"Статистика: середнє, медіана та розкид"},
+    RU: {
+      intro: "Вероятность отвечает на вопрос «как часто», а статистика — на вопрос «насколько это стабильно». Одна выборка может давать среднее 8, а другая — 5 при том же количестве данных, и обе будут правдой. Умение читать эти различия — это то, что отличает человека, просто считающего среднее, от человека, который понимает данные.",
+      c1: "1. Среднее арифметическое",
+      e1: "<b>Среднее арифметическое</b> x̄ = (x₁ + x₂ + … + xₙ) / n — сумма всех значений, делённая на их количество.",
+      e1n: "Среднее всегда лежит между минимумом и максимумом и «притягивается» к выбросам: одно очень большое значение способно заметно сместить результат. Пример: оценки 5, 6, 7, 7, 8 дают среднее 6.6, а если вместо 8 написать 30, среднее станет 11. Данные не изменились по количеству, но среднее уже ни о чём не говорит. Поэтому в любой статистической задаче полезно смотреть не только на среднее.",
+      c2: "2. Медиана и мода",
+      e2: "<b>Медиана</b> — значение, которое делит упорядоченный ряд пополам.<br><b>Мода</b> — значение, встречающееся чаще всего.",
+      e2n: "Если элементов чётное число, медиана — среднее двух центральных значений: для 3, 5, 8, 9 это (5 + 8)/2 = 6.5. Медиана и среднее совпадают не всегда, и расхождение между ними — лучший индикатор неравномерности данных. Если среднее заметно больше медианы, значит справа «хвост» из нескольких больших значений.",
+      c3: "3. Размах и дисперсия",
+      e3: "<b>Размах</b> R = x_max − x_min.<br><b>Дисперсия</b> D = (1/n)·Σ(xᵢ − x̄)², <b>среднее квадратическое отклонение</b> σ = √D.",
+      e3n: "Дисперсия измеряет, насколько значения разбросаны вокруг среднего, и всегда неотрицательна: квадрат не может быть отрицательным. Дисперсия в квадратных единицах, поэтому для сравнения с исходными данными берут корень — σ. Практическое правило: если почти все значения лежат в промежутке x̄ − 2σ … x̄ + 2σ, то данные распределены достаточно равномерно; сильное отклонение от этого правила говорит о выбросах.",
+      c4: "4. Частота и относительная частота",
+      e4: "<b>Относительная частота</b> = частота события / общее число испытаний. Это и есть статистическая оценка вероятности.",
+      e4n: "Именно сюда смыкается теория вероятностей: относительная частота при растущем числе испытаний стремится к вероятности. Поэтому график частот в задачах монетки или кубика рисуют именно для того, чтобы увидеть, как из шумной картины проступает число 0.5 или 1/6. Разница с вероятностью принципиальна: вероятность 1/6 точное, а относительная частота — приближённая оценка.",
+      interLabel: "Конструктор — статистические показатели",
+      exTitle: "5. Разбор задач",
+      ex1: "<b>1. Среднее оценок.</b> Оценки: 5, 7, 8, 4, 6.<br>Сумма 30, количество 5 → x̄ = <b>6</b>.",
+      ex2: "<b>2. Медиана и мода.</b> Ряд 3, 5, 5, 8, 9, 12.<br>Элементов 6, центральные 5 и 8 → медиана <b>6.5</b>. Мода — <b>5</b>, встречается дважды, остальные по разу.",
+      ex3: "<b>3. Размах.</b> Температуры в течение недели: 12, 15, 14, 20, 9, 13, 16.<br>R = 20 − 9 = <b>11</b>.",
+      ex4: "<b>4. Дисперсия.</b> Значения 2, 4, 6.<br>Среднее 4. Отклонения: −2, 0, 2. Квадраты: 4, 0, 4. D = (4+0+4)/3 = <b>8/3 ≈ 2.67</b>, σ = √(8/3) ≈ <b>1.63</b>.",
+      ex5: "<b>5. Относительная частота.</b> Монету бросили 200 раз, орлов 94.<br>Относительная частота = 94/200 = <b>0.47</b> при вероятности 1/2 = 0.5. Расхождение 0.03 показывает, что выборка пока небольшая.",
+      ex6: "<b>6. Данные с выбросом.</b> Оценки 6, 7, 7, 8 и 40.<br>Среднее 13.6, медиана 7. Расхождение почти вдвое говорит о том, что значение 40 нужно проверить — скорее всего, это опечатка.",
+      b1n: "Теория вероятностей",
+      b1d: "Относительная частота — мост между статистикой и вероятностью: при большом числе испытаний она даёт приближение к вероятности события.",
+      b2n: "Графики и таблицы",
+      b2d: "Полигон частот, гистограмма и круговая диаграмма показывают одно и то же, но под разными углами: распределение, долю и сравнение категорий.",
+      checkTitle: "Проверь себя",
+      misTitle: "Частые ошибки"
+    },
+    UA: {
+      intro: "Ймовірність відповідає на запитання «як часто», а статистика — на запитання «наскільки це стабільно». Одна вибірка може давати середнє 8, а інша — 5 за тієї самої кількості даних, і обидві будуть правдою. Уміння читати ці відмінності — це те, що відрізняє людину, яка просто рахує середнє, від людини, яка розуміє дані.",
+      c1: "1. Середнє арифметичне",
+      e1: "<b>Середнє арифметичне</b> x̄ = (x₁ + x₂ + … + xₙ) / n — сума всіх значень, поділена на їхню кількість.",
+      e1n: "Середнє завжди лежить між мінімумом і максимумом і «тягне» до викидів: одне дуже велике значение здатне помітно змістити результат. Приклад: оцінки 5, 6, 7, 7, 8 дають середнє 6.6, а якщо замість 8 написати 30, середнє стане 11. Кількість даних не змінилася, але середнє вже ні про що не говорить. Тому в будь-якій статистичній задачі корисно дивитися не лише на середнє.",
+      c2: "2. Медіана та мода",
+      e2: "<b>Медіана</b> — значення, яке ділить впорядкований ряд навпіл.<br><b>Мода</b> — значення, що трапляється найчастіше.",
+      e2n: "Якщо елементів парна кількість, медіана — середнє двох центральних значень: для 3, 5, 8, 9 це (5 + 8)/2 = 6.5. Медіана і середнє збігаються не завжди, і розбіжність між ними — найкращий індикатор нерівномірності даних. Якщо середнє помітно більше за медіану, значить праворуч є «хвіст» із кількох великих значень.",
+      c3: "3. Розмах і дисперсія",
+      e3: "<b>Розмах</b> R = x_max − x_min.<br><b>Дисперсія</b> D = (1/n)·Σ(xᵢ − x̄)², <b>середнє квадратичне відхилення</b> σ = √D.",
+      e3n: "Дисперсія вимірює, наскільки значення розкидані навколо середнього, і завжди невід'ємна: квадрат не може бути від'ємним. Дисперсія має одиниці в квадраті, тому для порівняння з вихідними даними беруть корінь — σ. Практичне правило: якщо майже всі значення лежать у проміжку x̄ − 2σ … x̄ + 2σ, то дані розподілені достатньо рівномірно; сильне відхилення від цього правила говорить про викиди.",
+      c4: "4. Частота та відносна частота",
+      e4: "<b>Відносна частота</b> = частота події / загальна кількість випробувань. Це і є статистична оцінка ймовірності.",
+      e4n: "Саме сюди смыкається теорія ймовірностей: відносна частота зі зростанням кількості випробувань прямує до ймовірності. Тому графік частот у задачах про монетку чи кубик малюють саме для того, щоб побачити, як із шумної картини проступає число 0.5 або 1/6. Різниця з ймовірністю принципова: ймовірність 1/6 точна, а відносна частота — наближена оцінка.",
+      interLabel: "Конструктор — статистичні показники",
+      exTitle: "5. Розбір задач",
+      ex1: "<b>1. Середнє оцінок.</b> Оцінки: 5, 7, 8, 4, 6.<br>Сума 30, кількість 5 → x̄ = <b>6</b>.",
+      ex2: "<b>2. Медіана та мода.</b> Ряд 3, 5, 5, 8, 9, 12.<br>Елементів 6, центральні 5 і 8 → медіана <b>6.5</b>. Мода — <b>5</b>, трапляється двічі, решта по разу.",
+      ex3: "<b>3. Розмах.</b> Температури протягом тижня: 12, 15, 14, 20, 9, 13, 16.<br>R = 20 − 9 = <b>11</b>.",
+      ex4: "<b>4. Дисперсія.</b> Значення 2, 4, 6.<br>Середнє 4. Відхилення: −2, 0, 2. Квадрати: 4, 0, 4. D = (4+0+4)/3 = <b>8/3 ≈ 2.67</b>, σ = √(8/3) ≈ <b>1.63</b>.",
+      ex5: "<b>5. Відносна частота.</b> Монету кинули 200 разів, орлів 94.<br>Відносна частота = 94/200 = <b>0.47</b> за ймовірності 1/2 = 0.5. Розбіжність 0.03 показує, що вибірка поки невелика.",
+      ex6: "<b>6. Дані з викидом.</b> Оцінки 6, 7, 7, 8 і 40.<br>Середнє 13.6, медіана 7. Розбіжність майже вдвічі говорить про те, що значення 40 треба перевірити — швидше за все, це помилка в наборі.",
+      b1n: "Теорія ймовірностей",
+      b1d: "Відносна частота — міст між статистикою та ймовірністю: за великої кількості випробувань вона дає наближення до ймовірності події.",
+      b2n: "Графіки та таблиці",
+      b2d: "Полігон частот, гістограма та кругова діаграма показують одне й те саме, але під різними кутами: розподіл, частку і порівняння категорій.",
+      checkTitle: "Перевір себе",
+      misTitle: "Часті помилки"
+    },
+    ARIA_RU: {
+      demo: "Столбиковая диаграмма набора данных с отмеченными средним, медианой и минимумом, максимумом",
+      bands: "Разбиение числовой оси на интервалы с подсчётом частот, гистограмма распределения",
+      live: "Конструктор: изменение данных и пересчёт среднего, медианы, размаха и дисперсии"
+    },
+    ARIA_UA: {
+      demo: "Стовпчикова діаграма набору даних із позначеними середнім, медіаною, мінімумом і максимумом",
+      bands: "Розбиття числової осі на інтервали з підрахунком частот, гістограма розподілу",
+      live: "Конструктор: зміна даних і перерахунок середнього, медіани, розмаху та дисперсії"
+    },
+    html(lang){
+      const t = lang === "ru" ? this.RU : this.UA;
+      const A = lang === "ru" ? this.ARIA_RU : this.ARIA_UA;
+      return `
+      <p>${t.intro}</p>
+
+      <h3>${t.c1}</h3>
+      <div class="formula-box">${t.e1}</div>
+      <p>${t.e1n}</p>
+      <svg id="st1-demo-svg" viewBox="0 0 400 210" role="img" aria-label="${A.demo}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+
+      <h3>${t.c2}</h3>
+      <div class="formula-box">${t.e2}</div>
+      <p>${t.e2n}</p>
+
+      <h3>${t.c3}</h3>
+      <div class="formula-box">${t.e3}</div>
+      <p>${t.e3n}</p>
+
+      <h3>${t.c4}</h3>
+      <div class="formula-box">${t.e4}</div>
+      <p>${t.e4n}</p>
+      <svg id="st1-bands-svg" viewBox="0 0 400 200" role="img" aria-label="${A.bands}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+
+      <div class="interactive-block">
+        <div class="interactive-label">${t.interLabel}</div>
+        <div class="shape-switch" id="st1-switch"></div>
+        <input type="range" id="st1-a" min="0" max="20" step="1" value="6" style="width:100%;margin-top:8px;">
+        <input type="range" id="st1-b" min="0" max="20" step="1" value="12" style="width:100%;">
+        <input type="range" id="st1-c" min="0" max="20" step="1" value="18" style="width:100%;">
+        <div class="readout" id="st1-readout"></div>
+        <svg id="st1-svg" viewBox="0 0 400 270" role="img" aria-label="${A.live}" style="width:100%;height:auto;margin-top:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;"></svg>
+      </div>
+
+      <h3>${t.exTitle}</h3>
+      <div class="example-box"><div class="ex-label">1</div><div class="ex-math">${t.ex1}</div></div>
+      <div class="example-box"><div class="ex-label">2</div><div class="ex-math">${t.ex2}</div></div>
+      <div class="example-box"><div class="ex-label">3</div><div class="ex-math">${t.ex3}</div></div>
+      <div class="example-box"><div class="ex-label">4</div><div class="ex-math">${t.ex4}</div></div>
+      <div class="example-box"><div class="ex-label">5</div><div class="ex-math">${t.ex5}</div></div>
+      <div class="example-box"><div class="ex-label">6</div><div class="ex-math">${t.ex6}</div></div>
+
+      <h3>${t.b1n}</h3>
+      <p>${t.b1d}</p>
+      <h3>${t.b2n}</h3>
+      <p>${t.b2d}</p>
+      <h3>${t.misTitle}</h3>
+      <div id="st1-mistakes"></div>
+      <div class="check-block"><h3>${t.checkTitle}</h3><div id="mini-check"></div></div>
+      <div class="bridges">
+        <a class="bridge-card" href="#" data-goto="prob2">
+          <div class="bridge-name">${t.b1n}</div>
+          <div class="bridge-desc">${t.b1d}</div>
+        </a>
+        <a class="bridge-card" href="#" data-goto="comb1">
+          <div class="bridge-name">${t.b2n}</div>
+          <div class="bridge-desc">${t.b2d}</div>
+        </a>
+      </div>
+    `;
+    },
+    mount(root, lang){
+      const COL = {amber:"#e8a33d", teal:"#2aa79b", blue:"#3b82c4", purple:"#8b5fbf", coral:"#e2685f"};
+      const cInkSoft = getComputedStyle(root).getPropertyValue("--ink-soft").trim() || "#5d6b7f";
+      const cLine = getComputedStyle(root).getPropertyValue("--line").trim() || "#dde3ea";
+      const cAccentSoft = getComputedStyle(root).getPropertyValue("--accent-soft").trim() || "#e8f0fb";
+      const cTealSoft = getComputedStyle(root).getPropertyValue("--teal-soft").trim() || "#d8fbf0";
+      const cAmberSoft = getComputedStyle(root).getPropertyValue("--amber-soft").trim() || "#fdf1dc";
+      const MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,monospace";
+      function el(tag, at){ const nd = document.createElementNS("http://www.w3.org/2000/svg", tag); for(const k in at) nd.setAttribute(k, at[k]); return nd; }
+      function lbl(s, str, x, y, color, anchor, size, weight){
+        const nd = el("text", {x:x.toFixed(1), y:y.toFixed(1), fill:color, "font-size":(size||12), "font-family":MONO,
+                               "text-anchor":(anchor||"middle"), "font-weight":(weight||700)});
+        nd.textContent = str;
+        s.appendChild(nd);
+        return nd;
+      }
+      function ln(s, x1, y1, x2, y2, color, w, dash){
+        const at = {x1:x1.toFixed(1), y1:y1.toFixed(1), x2:x2.toFixed(1), y2:y2.toFixed(1), stroke:color,
+                    "stroke-width":(w||1.6), "stroke-linecap":"round"};
+        if(dash) at["stroke-dasharray"] = dash;
+        s.appendChild(el("line", at));
+      }
+      function box(s, x, y, w, h, fill, stroke, rx){
+        s.appendChild(el("rect",{x:x.toFixed(1), y:y.toFixed(1), width:w.toFixed(1), height:h.toFixed(1), rx:(rx===undefined?5:rx),
+                                 fill:fill, "fill-opacity":0.8, stroke:(stroke||"none"), "stroke-width":1.6}));
+      }
+      function stats(arr){
+        const n = arr.length;
+        const s = arr.slice().sort((x, y) => x - y);
+        const mean = arr.reduce((p, c) => p + c, 0) / n;
+        const med = n % 2 ? s[(n - 1) / 2] : (s[n/2 - 1] + s[n/2]) / 2;
+        const mn = s[0], mx = s[n - 1];
+        const D = arr.reduce((p, c) => p + (c - mean) * (c - mean), 0) / n;
+        const counts = {};
+        arr.forEach(v => { counts[v] = (counts[v] || 0) + 1; });
+        let mode = s[0], best = 0;
+        for(const key in counts){ if(counts[key] > best){ best = counts[key]; mode = Number(key); } }
+        return {n:n, mean:mean, med:med, mn:mn, mx:mx, R:mx - mn, D:D, sigma:Math.sqrt(D), mode:mode};
+      }
+
+      /* 1. статичная демонстрация на данных 6, 12, 18 */
+      (function drawDemo(){
+        const s = root.querySelector("#st1-demo-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        const data = [6, 12, 18];
+        const st = stats(data);
+        const x0 = 46, y0 = 40, bw = 30, gap = 6, maxH = 108;
+        ln(s, x0 - 8, y0 + maxH, 366, y0 + maxH, cLine, 1.6);
+        data.forEach((v, i) => {
+          const h = v / 20 * maxH;
+          box(s, x0 + i*(bw + gap), y0 + maxH - h, bw, h, cTealSoft, COL.teal, 4);
+          lbl(s, String(v), x0 + i*(bw + gap) + bw/2, y0 + maxH - h - 7, COL.teal, "middle", 12);
+        });
+        const yMean = y0 + maxH - st.mean / 20 * maxH;
+        ln(s, x0 - 4, yMean, 366, yMean, COL.purple, 2, "6 4");
+        lbl(s, "x̄ = " + st.mean.toFixed(1), 360, yMean - 7, COL.purple, "end", 12);
+        lbl(s, lang === "ru" ? "медиана = " + st.med.toFixed(1) + " (совпала со средним)"
+                              : "медіана = " + st.med.toFixed(1) + " (збілася із середнім)",
+            200, 26, COL.blue, "middle", 12);
+        lbl(s, lang === "ru" ? "размах R = " + st.R + ", дисперсия D = " + st.D.toFixed(2) + ", σ = " + st.sigma.toFixed(2)
+                              : "розмах R = " + st.R + ", дисперсія D = " + st.D.toFixed(2) + ", σ = " + st.sigma.toFixed(2),
+            200, 184, cInkSoft, "middle", 13);
+      })();
+
+      /* 2. интервалы и частоты: равномерный набор */
+      (function drawBands(){
+        const s = root.querySelector("#st1-bands-svg");
+        if(!s) return;
+        s.innerHTML = "";
+        const data = [2, 3, 5, 6, 7, 8, 9, 10, 12, 14];
+        const lo = 0, hi = 15, step = 3;
+        const bins = [];
+        for(let v = lo; v < hi; v += step) bins.push([v, v + step, 0]);
+        data.forEach(v => {
+          const i = Math.min(bins.length - 1, Math.floor((v - lo) / step));
+          bins[i][2]++;
+        });
+        const maxC = Math.max(1, ...bins.map(b => b[2]));
+        const y0 = 26, maxH = 104, bw = 96;
+        bins.forEach((b, i) => {
+          const h = b[2] / maxC * maxH;
+          const x = 30 + i*(bw + 12);
+          box(s, x, y0 + maxH - h, bw, Math.max(h, 2), cAccentSoft, COL.blue, 4);
+          lbl(s, String(b[2]), x + bw/2, y0 + maxH - h - 6, COL.blue, "middle", 11);
+          lbl(s, b[0] + "–" + b[1], x + bw/2, y0 + maxH + 16, cInkSoft, "middle", 10);
+        });
+        lbl(s, lang === "ru" ? "интервалы шириной 3, всего 10 данных, 5 интервалов"
+                              : "інтервали шириною 3, усього 10 даних, 5 інтервалів",
+            200, y0 + maxH + 40, cInkSoft, "middle", 12);
+        lbl(s, lang === "ru" ? "сумма частот = 10 = числу данных" : "сума частот = 10 = кількості даних",
+            200, y0 + maxH + 62, COL.purple, "middle", 13);
+      })();
+
+      /* 3. конструктор */
+      (function buildConstructor(){
+        const sw = root.querySelector("#st1-switch");
+        const svg = root.querySelector("#st1-svg");
+        const out = root.querySelector("#st1-readout");
+        if(!sw || !svg || !out) return;
+        const aIn = root.querySelector("#st1-a");
+        const bIn = root.querySelector("#st1-b");
+        const cIn = root.querySelector("#st1-c");
+        const MODES = [
+          {id:"bars", ru:"столбики и среднее", ua:"стовпчики і середнє"},
+          {id:"range", ru:"размах и σ", ua:"розмах і σ"},
+          {id:"freq", ru:"относительные частоты", ua:"відносні частоти"}
+        ];
+        let mode = "bars";
+        function clamp(v, lo, hi, d){ const x = Math.round(Number(v)); return isFinite(x) ? Math.min(hi, Math.max(lo, x)) : d; }
+        MODES.forEach((m, i) => {
+          const b = document.createElement("button");
+          b.className = "shape-btn" + (i === 0 ? " active" : "");
+          b.textContent = lang === "ru" ? m.ru : m.ua;
+          b.addEventListener("click", () => {
+            [...sw.children].forEach(c => c.classList.remove("active"));
+            b.classList.add("active");
+            mode = m.id;
+            draw();
+          });
+          sw.appendChild(b);
+        });
+        [aIn, bIn, cIn].forEach(i => i.addEventListener("input", draw));
+
+        function draw(){
+          svg.innerHTML = "";
+          let a = clamp(aIn && aIn.value, 0, 20, 6);
+          let b = clamp(bIn && bIn.value, 0, 20, 12);
+          let c = clamp(cIn && cIn.value, 0, 20, 18);
+          const data = [a, b, c].sort((x, y) => x - y);
+          a = data[0]; b = data[1]; c = data[2];
+          const st = stats(data);
+          let cells = "";
+          if(mode === "bars"){
+            const y0 = 26, maxH = 108;
+            const scale = Math.max(20, c);
+            ln(svg, 34, y0 + maxH, 366, y0 + maxH, cLine, 1.6);
+            data.forEach((v, i) => {
+              const h = v / scale * maxH;
+              box(svg, 60 + i*90, y0 + maxH - h, 46, Math.max(h, 2), cTealSoft, COL.teal, 4);
+              lbl(svg, String(v), 60 + i*90 + 23, y0 + maxH - h - 7, COL.teal, "middle", 12);
+              lbl(svg, lang === "ru" ? "x" + (i+1) : "x" + (i+1), 60 + i*90 + 23, y0 + maxH + 18, cInkSoft, "middle", 11);
+            });
+            const yM = y0 + maxH - st.mean / scale * maxH;
+            ln(svg, 36, yM, 366, yM, COL.purple, 2, "6 4");
+            lbl(svg, "x̄ = " + st.mean.toFixed(2), 362, yM - 7, COL.purple, "end", 12);
+            const yMd = y0 + maxH - st.med / scale * maxH;
+            ln(svg, 36, yMd, 366, yMd, COL.blue, 1.6, "2 3");
+            lbl(svg, lang === "ru" ? "медиана = " + st.med.toFixed(2) : "медіана = " + st.med.toFixed(2),
+                42, yMd - 6, COL.blue, "start", 11);
+            lbl(svg, lang === "ru" ? "разница между средним и медианой — признак неравномерности"
+                                   : "різниця між середнім і медіаною — ознака нерівномірності",
+                200, 200, cInkSoft, "middle", 11);
+            lbl(svg, "n = 3, x̄ = " + st.mean.toFixed(2) + ", медиана = " + st.med.toFixed(2) + ", мода = " + st.mode,
+                200, 224, COL.purple, "middle", 13);
+          } else if(mode === "range"){
+            const y = 92, x0 = 40, w = 320;
+            const scale = Math.max(20, c);
+            ln(svg, x0, y, x0 + w, y, cLine, 2.4);
+            for(let v = 0; v <= scale; v += 5){
+              const x = x0 + v / scale * w;
+              ln(svg, x, y - 5, x, y + 5, cInkSoft, 1.4);
+              lbl(svg, String(v), x, y + 22, cInkSoft, "middle", 10);
+            }
+            const px = v => x0 + v / scale * w;
+            const seg = [[st.mn, st.mean, COL.blue, lang === "ru" ? "мин → x̄" : "мін → x̄"],
+                         [st.mean, st.mx, COL.coral, lang === "ru" ? "x̄ → макс" : "x̄ → макс"]];
+            seg.forEach(([v1, v2, col, name]) => {
+              ln(svg, px(v1), y, px(v2), y, col, 6);
+              lbl(svg, name, (px(v1) + px(v2)) / 2, y - 12, col, "middle", 11);
+            });
+            ln(svg, px(st.mn), y - 14, px(st.mn), y + 14, COL.blue, 2);
+            ln(svg, px(st.mx), y - 14, px(st.mx), y + 14, COL.coral, 2);
+            lbl(svg, "R = " + st.R, 200, 152, COL.purple, "middle", 16);
+            lbl(svg, "D = " + st.D.toFixed(3), 120, 176, COL.teal, "middle", 14);
+            lbl(svg, "σ = " + st.sigma.toFixed(3), 290, 176, COL.teal, "middle", 14);
+            const spread = st.R === 0 ? 0 : st.sigma / st.R;
+            lbl(svg, lang === "ru" ? "σ / R = " + spread.toFixed(3) + " (больше 0.3 — данные разрежены)"
+                                   : "σ / R = " + spread.toFixed(3) + " (більше 0.3 — дані розріджені)",
+                200, 200, cInkSoft, "middle", 11);
+            lbl(svg, lang === "ru" ? "D ≥ 0 всегда: это сумма квадратов" : "D ≥ 0 завжди: це сума квадратів",
+                200, 224, COL.purple, "middle", 12);
+          } else {
+            const total = data.reduce((s, v) => s + v, 0) || 1;
+            const p = data.map(v => v / total);
+            lbl(svg, lang === "ru" ? "доля значения = xᵢ / сумма значений" : "частка значення = xᵢ / сума значень",
+                200, 30, cInkSoft, "middle", 12);
+            data.forEach((v, i) => {
+              const y = 62 + i*44;
+              const wpx = Math.max(3, p[i]) * 300;
+              lbl(svg, "x" + (i+1) + " = " + v, 30, y + 5, cInkSoft, "start", 12);
+              box(svg, 92, y - 11, 300, 22, cAccentSoft, cLine, 5);
+              box(svg, 92, y - 11, wpx, 22, cTealSoft, COL.teal, 5);
+              lbl(svg, p[i].toFixed(3), 92 + 300 + 26, y + 5, COL.teal, "start", 12);
+            });
+            lbl(svg, lang === "ru" ? "сумма долей = 1 (сумма значений " + total + ")"
+                                    : "сума часток = 1 (сума значень " + total + ")",
+                200, 210, COL.purple, "middle", 14);
+            lbl(svg, lang === "ru" ? "при тысячах испытаний доля → вероятность" : "за тисяч випробувань частка → ймовірність",
+                200, 234, cInkSoft, "middle", 12);
+          }
+          cells = "<div><span>x̄</span><b>" + st.mean.toFixed(2) + "</b></div>"
+                + "<div><span>" + (lang === "ru" ? "медиана" : "медіана") + "</span><b>" + st.med.toFixed(2) + "</b></div>"
+                + "<div><span>" + (lang === "ru" ? "размах" : "розмах") + "</span><b>" + st.R + "</b></div>"
+                + "<div><span>D</span><b>" + st.D.toFixed(2) + "</b></div>"
+                + "<div><span>σ</span><b>" + st.sigma.toFixed(2) + "</b></div>";
+          out.innerHTML = cells;
+        }
+        draw();
+      })();
+
+      /* типичные ошибки */
+      (function renderMistakes(){
+        const wrap = root.querySelector("#st1-mistakes");
+        if(!wrap) return;
+        wrap.innerHTML = "";
+        const ms = lang === "ru" ? [
+          { q:"Оценки: 6, 7, 7, 8 и 40. Каково среднее?",
+            opts:["13.6","12.5","7","8"], correct:0,
+            exp:"Ошибка №1. Арифметика верна, но вывод неверный. Среднее действительно 68/5 = <b>13.6</b>, однако оно почти вдвое больше медианы 7. Это сигнал: в данных есть выброс, и среднее перестало описывать типичное значение. Именно поэтому в статистике среднее всегда рассматривают вместе с медианой и размахом." },
+          { q:"Данных 6. Медиана равна:",
+            opts:["2-е значение","3-е значение","среднее 3-го и 4-го","среднее всех"], correct:2,
+            exp:"Ошибка №2. При чётном количестве элементов медиана — это среднее двух центральных значений, а не одно из них. Для шести чисел a₁ … a₆ берут (a₃ + a₄)/2. Если брать только третье значение, медиана систематически смещается вниз, а при нечётном числе элементов, наоборот, нужно брать единственное центральное." },
+          { q:"Дисперсия набора данных равна −4. Это:",
+            opts:["возможно","невозможно, дисперсия неотрицательна","возможно при n = 1","возможно при нулевом среднем"], correct:1,
+            exp:"Ошибка №3. Дисперсия — это среднее квадратов отклонений, а квадрат не бывает отрицательным. Значит <b>D ≥ 0 всегда</b>, и это не совпадение, а следствие определения. Если в вычислении получилось отрицательное значение, почти наверняка ошибка в знаке или в формуле. Проверить просто: при D = 0 все значения равны среднему." },
+          { q:"Монета брошена 20 раз, орлов 7. Как трактовать относительную частоту 0.35?",
+            opts:["вероятность орла равна 0.35","это оценка вероятности 0.5 при малой выборке","монета нечестная, доказано","среднее равно 0.35"], correct:1,
+            exp:"Ошибка №4. Приняли оценку за точное значение. Относительная частота 7/20 = 0.35 — это <b>приближение</b> к вероятности 0.5, а не сама вероятность. При 20 бросках отклонение вполне законно: правило большого чисел требует гораздо большего числа испытаний. Вывод «монета нечестная» из 20 бросков сделать нельзя — нужно сначала проверить значимость отклонения." }
+        ] : [
+          { q:"Оцінки: 6, 7, 7, 8 і 40. Яке середнє?",
+            opts:["13.6","12.5","7","8"], correct:0,
+            exp:"Помилка №1. Арифметика правильна, але висновок хибний. Середнє справді 68/5 = <b>13.6</b>, однак воно майже вдвічі більше за медіану 7. Це сигнал: у даних є викид, і середнє перестало описувати типове значення. Саме тому в статистиці середнє завжди розглядають разом із медіаною та розмахом." },
+          { q:"Даних 6. Медіана дорівнює:",
+            opts:[{ru:"2-е значение", ua:"2-му значенню"},
+                {ru:"3-е значение", ua:"3-му значенню"},
+                {ru:"среднее 3-го и 4-го", ua:"середнє 3-го і 4-го"},
+                {ru:"среднее всех", ua:"середнє всіх"}], correct:2,
+            exp:"Помилка №2. При парній кількості елементів медіана — це середнє двох центральних значень, а не одне з них. Для шести чисел a₁ … a₆ беруть (a₃ + a₄)/2. Якщо брати лише третє значення, медіана систематично зміщується вниз, а при непарній кількості елементів, навпаки, треба брати єдине центральне." },
+          { q:"Дисперсія набору даних дорівнює −4. Це:",
+            opts:[{ru:"возможно", ua:"можливо"},
+                {ru:"невозможно, дисперсия неотрицательна", ua:"неможливо, дисперсія невід'ємна"},
+                {ru:"возможно при n = 1", ua:"можливо при n = 1"},
+                {ru:"возможно при нулевом среднем", ua:"можливо при нульовому середньому"}], correct:1,
+            exp:"Помилка №3. Дисперсія — це середнє квадратів відхилень, а квадрат не буває від'ємним. Отже <b>D ≥ 0 завжди</b>, і це не збіг, а наслідок визначення. Якщо в обчисленні вийшло від'ємне значення, майже напевно помилка у знаку або у формулі. Перевірити просто: при D = 0 усі значення дорівнюють середньому." },
+          { q:"Монета кинута 20 разів, орлів 7. Як трактувати відносну частоту 0.35?",
+            opts:[{ru:"вероятность орла равна 0.35", ua:"ймовірність орла дорівнює 0.35"},
+                {ru:"это оценка вероятности 0.5 при малой выборке", ua:"це оцінка ймовірності 0.5 при малій вибірці"},
+                {ru:"монета нечестная, доказано", ua:"монета нечесна, доведено"},
+                {ru:"среднее равно 0.35", ua:"середнє дорівнює 0.35"}], correct:1,
+            exp:"Помилка №4. Прийняли оцінку за точне значення. Відносна частота 7/20 = 0.35 — це <b>наближення</b> до ймовірності 0.5, а не сама ймовірність. При 20 кидках відхилення цілком законні: правило великих чисел вимагає значно більшої кількості випробувань. Висновок «монета нечесна» із 20 кидків зробити не можна — спершу треба перевірити значущість відхилення." }
+        ];
+        ms.forEach(m => {
+          const item = document.createElement("div");
+          item.className = "q-item";
+          const qt = document.createElement("div");
+          qt.className = "q-text";
+          qt.textContent = m.q;
+          item.appendChild(qt);
+          const opts = document.createElement("div");
+          opts.className = "q-options";
+          const exp = document.createElement("div");
+          exp.className = "mis-exp";
+          exp.style.display = "none";
+          exp.innerHTML = "<b>" + (lang === "ru" ? "Разбор: " : "Розбір: ") + "</b>" + m.exp;
+          m.opts.forEach((opt, oi) => {
+            const b = document.createElement("button");
+            b.className = "q-opt";
+            b.textContent = opt;
+            b.addEventListener("click", () => {
+              [...opts.children].forEach(c => { c.disabled = true; });
+              if(oi === m.correct){ b.classList.add("correct"); }
+              else{ b.classList.add("wrong"); opts.children[m.correct].classList.add("correct"); }
+              exp.style.display = "block";
+            });
+            opts.appendChild(b);
+          });
+          item.appendChild(opts);
+          item.appendChild(exp);
+          wrap.appendChild(item);
+        });
+      })();
+
+      renderMiniCheck(root.querySelector("#mini-check"), lang, [
+        { q:{ru:"Среднее чисел 4, 6, 8 равно:", ua:"Середнє чисел 4, 6, 8 дорівнює:"}, opts:["5","6","7","18"], correct:1 },
+        { q:{ru:"Медиана чисел 2, 4, 6, 8 равна:", ua:"Медіана чисел 2, 4, 6, 8 дорівнює:"}, opts:["4","5","6","7"], correct:1 },
+        { q:{ru:"Мода набора 5, 7, 7, 9 равна:", ua:"Мода набору 5, 7, 7, 9 дорівнює:"},
+          opts:["5","7","9",{ru:"нет моды", ua:"моди немає"}], correct:1 },
+        { q:{ru:"Размах набора 3, 10, 25, 6 равен:", ua:"Розмах набору 3, 10, 25, 6 дорівнює:"}, opts:["15","22","6","28"], correct:1 },
+        { q:{ru:"Чему равна дисперсия набора 1, 1, 1?", ua:"Чому дорівнює дисперсія набору 1, 1, 1?"}, opts:["0","1","3","9"], correct:0 },
+        { q:{ru:"Среднее 10, а одно значение равно 30 при n = 5. Какая примерно медиана?",
+              ua:"Середнє 10, а одне значення дорівнює 30 при n = 5. Яка приблизно медіана?"},
+          opts:[{ru:"около 10, медиана устойчива к выбросам", ua:"близько 10, медіана стійка до викидів"},
+                {ru:"около 16", ua:"близько 16"},
+                {ru:"около 30", ua:"близько 30"},
+                {ru:"медиана равна среднему", ua:"медіана дорівнює середньому"}], correct:0 },
+        { q:{ru:"Относительная частота события в 400 испытаниях равна 0.75. Произошло событие:",
+              ua:"Відносна частота події у 400 випробуваннях дорівнює 0.75. Подія відбулася:"},
+          opts:[{ru:"300 раз", ua:"300 разів"},
+                {ru:"75 раз", ua:"75 разів"},
+                {ru:"400 раз", ua:"400 разів"},
+                {ru:"250 раз", ua:"250 разів"}], correct:0 }
+      ]);
+    }
+  },
+
+];
 
 /* ============================================================
    MINI-CHECK renderer (общий для всех уроков)
@@ -6949,7 +12037,8 @@ function renderMiniCheck(container, lang, questions){
     wrap.appendChild(qtext);
     const opts = document.createElement("div");
     opts.className = "q-options";
-    const optionTexts = Array.isArray(qd.opts) ? qd.opts : qd.opts[lang];
+    const optionTexts = (Array.isArray(qd.opts) ? qd.opts : qd.opts[lang])
+      .map(opt => (opt !== null && typeof opt === "object") ? opt[lang] : opt);
     optionTexts.forEach((optText, oi)=>{
       const b = document.createElement("button");
       b.className = "q-opt";
@@ -6993,15 +12082,13 @@ const ROADMAP = {
   5:{ru:"Модуль 5. Планиметрия и стереометрия",ua:"Модуль 5. Планіметрія та стереометрія", lessons:[
     "geo1","geoTriangles","geoPolygons","geo2","geo3","geoSimilarity","geoPythagor","geoAreas","geoVectors","geoVectorTasks",
     "geoSineCos",
-    "geoCircles",
-    {soon:true, t:{ru:"Площади криволинейных фигур",ua:"Площі криволінійних фігур"}},
-    {soon:true, t:{ru:"Полярные кривые. Роза",ua:"Полярні криві. Троянда"}},
-    {soon:true, t:{ru:"Аксиомы стереометрии",ua:"Аксіоми стереометрії"}},
-    {soon:true, t:{ru:"Перпендикулярность в пространстве",ua:"Перпендикулярність у просторі"}},
-    {soon:true, t:{ru:"Многогранники: призма и пирамида",ua:"Многогранники: призма і піраміда"}},
-    {soon:true, t:{ru:"Тела вращения",ua:"Тіла обертання"}},
+    "geoCircles","geoCurved","geoRose",
+    "geoAxiom","geoPerp","geoPrism","geoRevolve",
     "stereo1","stereo2","stereo3","stereo4","stereo5",
     {test:true, id:"test5", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
+  ]},
+  6:{ru:"Модуль 6. Комбинаторика, вероятности и статистика",ua:"Модуль 6. Комбінаторика, ймовірності та статистика", lessons:[
+    "comb1","comb2","prob1","prob2","stat1"
   ]}
 };
 
