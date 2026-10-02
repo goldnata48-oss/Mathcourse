@@ -414,6 +414,10 @@
   .formula-bookmark{position:absolute;top:8px;right:8px;padding:3px 6px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:16px;line-height:1;}
   .formula-bookmark:hover,.formula-bookmark.active{color:var(--amber);background:var(--surface);border-color:var(--line);}
   .lesson-status{margin-left:auto;font-size:11px;color:var(--success);font-family:var(--mono);}
+  .mini-ind{flex:0 0 auto;margin-left:6px;padding:1px 7px;border-radius:999px;font:700 10.5px var(--mono);background:var(--accent-soft);color:var(--accent);border:1px solid var(--line);}
+  .mini-ind:empty{display:none;}
+  .mini-ind.done{background:var(--success-soft);color:var(--success);border-color:var(--success);}
+  .lesson-item.active .mini-ind{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.35);}
   .formula-box + .formula-box{margin-top:8px;}
   /* чередование цветов — только для младших возрастных палитр, 10–11 остаётся строгой */
   [data-grade="junior"] .formula-box:nth-of-type(2n),
@@ -585,6 +589,10 @@
     padding-top:22px;
   }
   .check-block h3{margin-top:0;}
+  .mini-check-badge{display:inline-block;margin-left:10px;padding:2px 10px;border-radius:999px;font:600 12px var(--sans);background:var(--accent-soft);color:var(--accent);border:1px solid var(--line);opacity:0;transition:opacity .15s;vertical-align:middle;}
+  .mini-check-badge.visible{opacity:1;}
+  .mini-check-badge.done{background:var(--success-soft);color:var(--success);border-color:var(--success);}
+  .mini-check-badge.standalone{margin:0 0 12px;}
   .q-item{margin-bottom:18px;}
   .q-text{font-size:15px;margin-bottom:8px;font-family:var(--mono);}
   .q-options{display:flex;flex-direction:column;gap:6px;}
@@ -1119,6 +1127,7 @@ const UI = {
     module6:"Модуль 6. Комбинаторика, вероятности и статистика",
     soon:"скоро",
     miniCheck:"Мини-проверка",
+    miniCheckProgress:"Мини-проверка: {c}/{t}",
     trainerLevelPick:"Выберите уровень сложности",
     trainerPick:"Выберите тему для тренировки",
     trainerBack:"← К выбору темы",
@@ -1160,6 +1169,7 @@ const UI = {
     module6:"Модуль 6. Комбінаторика, ймовірності та статистика",
     soon:"незабаром",
     miniCheck:"Міні-перевірка",
+    miniCheckProgress:"Міні-перевірка: {c}/{t}",
     trainerLevelPick:"Оберіть рівень складності",
     trainerPick:"Оберіть тему для тренування",
     trainerBack:"← До вибору теми",
@@ -13224,7 +13234,42 @@ const LESSONS = [
    MINI-CHECK renderer (общий для всех уроков)
    ============================================================ */
 function renderMiniCheck(container, lang, questions){
+  const lessonId = (typeof state !== "undefined" && state.lessonId) ? state.lessonId : null;
+  const correctArr = questions.map(q=>q.correct);
+  let rec = lessonId ? state.miniChecks[lessonId] : null;
+  const valid = rec && Array.isArray(rec.choices) && rec.choices.length===questions.length &&
+    Array.isArray(rec.correct) && rec.correct.join(",")===correctArr.join(",");
+  if(!valid){
+    rec = {total:questions.length, correct:correctArr, choices:new Array(questions.length).fill(null)};
+    if(lessonId) state.miniChecks[lessonId]=rec;
+  }
+  const L = UI[lang];
   container.innerHTML = "";
+  const badge = document.createElement("span");
+  badge.className = "mini-check-badge";
+  const host = container.closest(".check-block");
+  const heading = host ? host.querySelector("h3") : null;
+  if(heading){
+    const old = heading.querySelector(".mini-check-badge");
+    if(old) old.remove();
+    heading.appendChild(badge);
+  } else {
+    badge.classList.add("standalone");
+    container.appendChild(badge);
+  }
+  function refreshBadge(){
+    const answered = rec.choices.filter(c=>c!==null).length;
+    const score = rec.choices.filter((c,i)=>c===rec.correct[i]).length;
+    const complete = answered===rec.total;
+    badge.textContent = L.miniCheckProgress.replace("{c}",score).replace("{t}",rec.total) + (complete ? " ✓" : "");
+    badge.classList.toggle("done", complete);
+    badge.classList.toggle("visible", answered>0);
+  }
+  function persist(){
+    if(typeof saveMiniChecks==="function") saveMiniChecks();
+    if(typeof refreshMiniIndicators==="function") refreshMiniIndicators();
+  }
+  refreshBadge();
   questions.forEach((qd, qi)=>{
     const wrap = document.createElement("div");
     wrap.className = "q-item";
@@ -13236,21 +13281,29 @@ function renderMiniCheck(container, lang, questions){
     opts.className = "q-options";
     const optionTexts = (Array.isArray(qd.opts) ? qd.opts : qd.opts[lang])
       .map(opt => (opt !== null && typeof opt === "object") ? opt[lang] : opt);
+    function settle(chosen){
+      [...opts.children].forEach((c,ci)=>{
+        c.disabled = true;
+        if(ci===qd.correct) c.classList.add("correct");
+        else if(ci===chosen) c.classList.add("wrong");
+      });
+    }
     optionTexts.forEach((optText, oi)=>{
       const b = document.createElement("button");
       b.className = "q-opt";
       b.textContent = optText;
-      b.addEventListener("click", ()=>{
-        [...opts.children].forEach(c=>c.disabled=true);
-        if(oi===qd.correct){ b.classList.add("correct"); mascotSay("correct"); }
-        else{
-          b.classList.add("wrong");
-          opts.children[qd.correct].classList.add("correct");
-          mascotSay("wrong");
-        }
-      });
+      if(rec.choices[qi]===null){
+        b.addEventListener("click", ()=>{
+          rec.choices[qi] = oi;
+          settle(oi);
+          refreshBadge();
+          persist();
+          if(typeof mascotSay==="function") mascotSay(oi===qd.correct?"correct":"wrong");
+        });
+      }
       opts.appendChild(b);
     });
+    if(rec.choices[qi]!==null) settle(rec.choices[qi]);
     wrap.appendChild(opts);
     container.appendChild(wrap);
   });
@@ -15064,7 +15117,8 @@ let state = {
   trainerScore: {correct:0, total:0},
   doneLessons: new Set(JSON.parse(localStorage.getItem("mc_done")||"[]")),
   searchQuery: "",
-  favoriteFormulas: new Set(JSON.parse(localStorage.getItem("mc_favorites")||"[]"))
+  favoriteFormulas: new Set(JSON.parse(localStorage.getItem("mc_favorites")||"[]")),
+  miniChecks: JSON.parse(localStorage.getItem("mc_mini")||"{}")
 };
 
 const MODULE_TEST_DURATION = 20 * 60;
@@ -15080,6 +15134,26 @@ const VIDEO_RESOURCES = [
 
 function saveDone(){ localStorage.setItem("mc_done", JSON.stringify([...state.doneLessons])); }
 function saveFavoriteFormulas(){ localStorage.setItem("mc_favorites", JSON.stringify([...state.favoriteFormulas])); }
+function saveMiniChecks(){ localStorage.setItem("mc_mini", JSON.stringify(state.miniChecks)); }
+function miniStat(lessonId){
+  const rec = state.miniChecks[lessonId];
+  if(!rec || !Array.isArray(rec.choices)) return null;
+  const answered = rec.choices.filter(c=>c!==null).length;
+  if(!answered) return null;
+  const correct = rec.choices.filter((c,i)=>c!==null && c===rec.correct[i]).length;
+  return {answered, correct, total:rec.total, complete:answered===rec.total};
+}
+function refreshMiniIndicators(){
+  document.querySelectorAll(".lesson-item[data-lesson]").forEach(btn=>{
+    const stat = miniStat(btn.dataset.lesson);
+    let ind = btn.querySelector(".mini-ind");
+    if(!ind){ ind = document.createElement("span"); ind.className = "mini-ind"; btn.appendChild(ind); }
+    if(!stat){ ind.textContent = ""; ind.className = "mini-ind"; ind.removeAttribute("title"); return; }
+    ind.textContent = stat.complete ? "✓" : stat.correct+"/"+stat.total;
+    ind.title = UI[state.lang].miniCheckProgress.replace("{c}",stat.correct).replace("{t}",stat.total);
+    ind.className = "mini-ind visible" + (stat.complete ? " done" : "");
+  });
+}
 
 function closeMobileMenu(){
   document.body.classList.remove("sidebar-open");
@@ -15529,11 +15603,20 @@ function renderSidebar(){
       num.textContent = idx+1;
       if(typeof item === "string"){
         const lesson = LESSONS.find(l=>l.id===item);
+        btn.dataset.lesson = item;
         btn.className = "lesson-item" + (state.mode==="course" && state.lessonId===item ? " active":"") + (state.doneLessons.has(item)?" done":"");
         btn.appendChild(num);
         const span = document.createElement("span");
         span.textContent = lesson.title[state.lang];
         btn.appendChild(span);
+        const stat = miniStat(item);
+        if(stat){
+          const ind = document.createElement("span");
+          ind.className = "mini-ind visible" + (stat.complete ? " done":"");
+          ind.textContent = stat.complete ? "✓" : stat.correct+"/"+stat.total;
+          ind.title = UI[state.lang].miniCheckProgress.replace("{c}",stat.correct).replace("{t}",stat.total);
+          btn.appendChild(ind);
+        }
         const status = document.createElement("span");
         status.className = "lesson-status";
         status.textContent = state.doneLessons.has(item) ? "✓" : "○";

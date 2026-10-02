@@ -62,7 +62,13 @@ function get(url){
     "trainer panel":      page.body.indexOf("function renderTaskMeta") > 0,
     "b3 absArea topic":   page.body.indexOf('topic:{ru:"Площадь под синусоидой"') > 0,
     "b3 nmt param topic": page.body.indexOf('topic:{ru:"НМТ: параметр"') > 0,
-    "b3 short format":    page.body.indexOf("коротка відповідь (вкажіть одне значення)") > 0
+    "b3 short format":    page.body.indexOf("коротка відповідь (вкажіть одне значення)") > 0,
+    "b4 mini state":      page.body.indexOf("miniChecks: JSON.parse(localStorage.getItem(\"mc_mini\")") > 0,
+    "b4 mini save":       page.body.indexOf("function saveMiniChecks") > 0,
+    "b4 mini badge":      page.body.indexOf("mini-check-badge") > 0,
+    "b4 mini progress":   page.body.indexOf("miniCheckProgress") > 0,
+    "b4 sidebar data":    page.body.indexOf("state.miniChecks[lessonId]") > 0,
+    "b4 mini indicator":  page.body.indexOf("function refreshMiniIndicators") > 0
   };
   Object.keys(checks).forEach(k => console.log((checks[k] ? "  OK   " : "  MISS ") + k));
   const tag = (page.body.match(/mathcourse-[a-f0-9]+/) || [])[0];

@@ -12027,7 +12027,42 @@ const LESSONS = [
    MINI-CHECK renderer (общий для всех уроков)
    ============================================================ */
 function renderMiniCheck(container, lang, questions){
+  const lessonId = (typeof state !== "undefined" && state.lessonId) ? state.lessonId : null;
+  const correctArr = questions.map(q=>q.correct);
+  let rec = lessonId ? state.miniChecks[lessonId] : null;
+  const valid = rec && Array.isArray(rec.choices) && rec.choices.length===questions.length &&
+    Array.isArray(rec.correct) && rec.correct.join(",")===correctArr.join(",");
+  if(!valid){
+    rec = {total:questions.length, correct:correctArr, choices:new Array(questions.length).fill(null)};
+    if(lessonId) state.miniChecks[lessonId]=rec;
+  }
+  const L = UI[lang];
   container.innerHTML = "";
+  const badge = document.createElement("span");
+  badge.className = "mini-check-badge";
+  const host = container.closest(".check-block");
+  const heading = host ? host.querySelector("h3") : null;
+  if(heading){
+    const old = heading.querySelector(".mini-check-badge");
+    if(old) old.remove();
+    heading.appendChild(badge);
+  } else {
+    badge.classList.add("standalone");
+    container.appendChild(badge);
+  }
+  function refreshBadge(){
+    const answered = rec.choices.filter(c=>c!==null).length;
+    const score = rec.choices.filter((c,i)=>c===rec.correct[i]).length;
+    const complete = answered===rec.total;
+    badge.textContent = L.miniCheckProgress.replace("{c}",score).replace("{t}",rec.total) + (complete ? " ✓" : "");
+    badge.classList.toggle("done", complete);
+    badge.classList.toggle("visible", answered>0);
+  }
+  function persist(){
+    if(typeof saveMiniChecks==="function") saveMiniChecks();
+    if(typeof refreshMiniIndicators==="function") refreshMiniIndicators();
+  }
+  refreshBadge();
   questions.forEach((qd, qi)=>{
     const wrap = document.createElement("div");
     wrap.className = "q-item";
@@ -12039,21 +12074,29 @@ function renderMiniCheck(container, lang, questions){
     opts.className = "q-options";
     const optionTexts = (Array.isArray(qd.opts) ? qd.opts : qd.opts[lang])
       .map(opt => (opt !== null && typeof opt === "object") ? opt[lang] : opt);
+    function settle(chosen){
+      [...opts.children].forEach((c,ci)=>{
+        c.disabled = true;
+        if(ci===qd.correct) c.classList.add("correct");
+        else if(ci===chosen) c.classList.add("wrong");
+      });
+    }
     optionTexts.forEach((optText, oi)=>{
       const b = document.createElement("button");
       b.className = "q-opt";
       b.textContent = optText;
-      b.addEventListener("click", ()=>{
-        [...opts.children].forEach(c=>c.disabled=true);
-        if(oi===qd.correct){ b.classList.add("correct"); mascotSay("correct"); }
-        else{
-          b.classList.add("wrong");
-          opts.children[qd.correct].classList.add("correct");
-          mascotSay("wrong");
-        }
-      });
+      if(rec.choices[qi]===null){
+        b.addEventListener("click", ()=>{
+          rec.choices[qi] = oi;
+          settle(oi);
+          refreshBadge();
+          persist();
+          if(typeof mascotSay==="function") mascotSay(oi===qd.correct?"correct":"wrong");
+        });
+      }
       opts.appendChild(b);
     });
+    if(rec.choices[qi]!==null) settle(rec.choices[qi]);
     wrap.appendChild(opts);
     container.appendChild(wrap);
   });

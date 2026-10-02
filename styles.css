@@ -285,6 +285,10 @@
   .formula-bookmark{position:absolute;top:8px;right:8px;padding:3px 6px;border:1px solid transparent;border-radius:6px;background:transparent;color:var(--ink-soft);cursor:pointer;font-size:16px;line-height:1;}
   .formula-bookmark:hover,.formula-bookmark.active{color:var(--amber);background:var(--surface);border-color:var(--line);}
   .lesson-status{margin-left:auto;font-size:11px;color:var(--success);font-family:var(--mono);}
+  .mini-ind{flex:0 0 auto;margin-left:6px;padding:1px 7px;border-radius:999px;font:700 10.5px var(--mono);background:var(--accent-soft);color:var(--accent);border:1px solid var(--line);}
+  .mini-ind:empty{display:none;}
+  .mini-ind.done{background:var(--success-soft);color:var(--success);border-color:var(--success);}
+  .lesson-item.active .mini-ind{background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.35);}
   .formula-box + .formula-box{margin-top:8px;}
   /* чередование цветов — только для младших возрастных палитр, 10–11 остаётся строгой */
   [data-grade="junior"] .formula-box:nth-of-type(2n),
@@ -456,6 +460,10 @@
     padding-top:22px;
   }
   .check-block h3{margin-top:0;}
+  .mini-check-badge{display:inline-block;margin-left:10px;padding:2px 10px;border-radius:999px;font:600 12px var(--sans);background:var(--accent-soft);color:var(--accent);border:1px solid var(--line);opacity:0;transition:opacity .15s;vertical-align:middle;}
+  .mini-check-badge.visible{opacity:1;}
+  .mini-check-badge.done{background:var(--success-soft);color:var(--success);border-color:var(--success);}
+  .mini-check-badge.standalone{margin:0 0 12px;}
   .q-item{margin-bottom:18px;}
   .q-text{font-size:15px;margin-bottom:8px;font-family:var(--mono);}
   .q-options{display:flex;flex-direction:column;gap:6px;}

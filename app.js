@@ -10,7 +10,8 @@ let state = {
   trainerScore: {correct:0, total:0},
   doneLessons: new Set(JSON.parse(localStorage.getItem("mc_done")||"[]")),
   searchQuery: "",
-  favoriteFormulas: new Set(JSON.parse(localStorage.getItem("mc_favorites")||"[]"))
+  favoriteFormulas: new Set(JSON.parse(localStorage.getItem("mc_favorites")||"[]")),
+  miniChecks: JSON.parse(localStorage.getItem("mc_mini")||"{}")
 };
 
 const MODULE_TEST_DURATION = 20 * 60;
@@ -26,6 +27,26 @@ const VIDEO_RESOURCES = [
 
 function saveDone(){ localStorage.setItem("mc_done", JSON.stringify([...state.doneLessons])); }
 function saveFavoriteFormulas(){ localStorage.setItem("mc_favorites", JSON.stringify([...state.favoriteFormulas])); }
+function saveMiniChecks(){ localStorage.setItem("mc_mini", JSON.stringify(state.miniChecks)); }
+function miniStat(lessonId){
+  const rec = state.miniChecks[lessonId];
+  if(!rec || !Array.isArray(rec.choices)) return null;
+  const answered = rec.choices.filter(c=>c!==null).length;
+  if(!answered) return null;
+  const correct = rec.choices.filter((c,i)=>c!==null && c===rec.correct[i]).length;
+  return {answered, correct, total:rec.total, complete:answered===rec.total};
+}
+function refreshMiniIndicators(){
+  document.querySelectorAll(".lesson-item[data-lesson]").forEach(btn=>{
+    const stat = miniStat(btn.dataset.lesson);
+    let ind = btn.querySelector(".mini-ind");
+    if(!ind){ ind = document.createElement("span"); ind.className = "mini-ind"; btn.appendChild(ind); }
+    if(!stat){ ind.textContent = ""; ind.className = "mini-ind"; ind.removeAttribute("title"); return; }
+    ind.textContent = stat.complete ? "✓" : stat.correct+"/"+stat.total;
+    ind.title = UI[state.lang].miniCheckProgress.replace("{c}",stat.correct).replace("{t}",stat.total);
+    ind.className = "mini-ind visible" + (stat.complete ? " done" : "");
+  });
+}
 
 function closeMobileMenu(){
   document.body.classList.remove("sidebar-open");
@@ -475,11 +496,20 @@ function renderSidebar(){
       num.textContent = idx+1;
       if(typeof item === "string"){
         const lesson = LESSONS.find(l=>l.id===item);
+        btn.dataset.lesson = item;
         btn.className = "lesson-item" + (state.mode==="course" && state.lessonId===item ? " active":"") + (state.doneLessons.has(item)?" done":"");
         btn.appendChild(num);
         const span = document.createElement("span");
         span.textContent = lesson.title[state.lang];
         btn.appendChild(span);
+        const stat = miniStat(item);
+        if(stat){
+          const ind = document.createElement("span");
+          ind.className = "mini-ind visible" + (stat.complete ? " done":"");
+          ind.textContent = stat.complete ? "✓" : stat.correct+"/"+stat.total;
+          ind.title = UI[state.lang].miniCheckProgress.replace("{c}",stat.correct).replace("{t}",stat.total);
+          btn.appendChild(ind);
+        }
         const status = document.createElement("span");
         status.className = "lesson-status";
         status.textContent = state.doneLessons.has(item) ? "✓" : "○";
