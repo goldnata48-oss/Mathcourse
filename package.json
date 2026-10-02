@@ -1,0 +1,14 @@
+{
+  "name": "mathcourse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Интерактивный курс математики 10-11 (НМТ): уроки, тренажёр и мини-проверки",
+  "scripts": {
+    "build": "node build.js",
+    "verify": "node tools/verify.js",
+    "test": "node tools/verify.js --tests",
+    "audit": "node tools/verify.js --generators",
+    "check:live": "node tools/check-live.js",
+    "deploy": "node tools/deploy.js"
+  }
+}

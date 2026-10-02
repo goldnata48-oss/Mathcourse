@@ -480,14 +480,16 @@ function renderSidebar(){
   const btnTrainer = document.getElementById("btn-mode-trainer");
   if(appTitle) appTitle.textContent = UI[state.lang].appTitle;
   if(appSubtitle) appSubtitle.textContent = UI[state.lang].appSubtitle;
-  if(btnRu) btnRu.classList.toggle("active", state.lang==="ru");
-  if(btnUa) btnUa.classList.toggle("active", state.lang==="ua");
+  if(btnRu){ btnRu.classList.toggle("active", state.lang==="ru"); btnRu.setAttribute("aria-pressed", String(state.lang==="ru")); }
+  if(btnUa){ btnUa.classList.toggle("active", state.lang==="ua"); btnUa.setAttribute("aria-pressed", String(state.lang==="ua")); }
   if(btnCourse){
     btnCourse.classList.toggle("active", state.mode==="course");
+    btnCourse.setAttribute("aria-pressed", String(state.mode==="course"));
     btnCourse.textContent = UI[state.lang].course;
   }
   if(btnTrainer){
     btnTrainer.classList.toggle("active", state.mode==="trainer");
+    btnTrainer.setAttribute("aria-pressed", String(state.mode==="trainer"));
     btnTrainer.textContent = UI[state.lang].trainer;
   }
   const searchInput = document.getElementById("lesson-search");
@@ -515,6 +517,11 @@ function renderSidebar(){
     const progress = moduleProgress(modId);
     const progressEl = document.createElement("div");
     progressEl.className = "module-progress";
+    progressEl.setAttribute("role", "progressbar");
+    progressEl.setAttribute("aria-valuemin", "0");
+    progressEl.setAttribute("aria-valuemax", "100");
+    progressEl.setAttribute("aria-valuenow", String(progress.percent));
+    progressEl.setAttribute("aria-label", `${mod[state.lang]} — ${UI[state.lang].progress} ${progress.percent}%`);
     progressEl.innerHTML = `<span>${UI[state.lang].progress}: ${progress.percent}% (${progress.done}/${progress.total})</span><div class="module-progress-track"><div class="module-progress-fill" style="width:${progress.percent}%"></div></div>`;
     block.appendChild(progressEl);
     mod.lessons.forEach((item, idx)=>{
@@ -524,29 +531,38 @@ function renderSidebar(){
       num.textContent = idx+1;
       if(typeof item === "string"){
         const lesson = LESSONS.find(l=>l.id===item);
+        btn.type = "button";
         btn.dataset.lesson = item;
         btn.className = "lesson-item" + (state.mode==="course" && state.lessonId===item ? " active":"") + (state.doneLessons.has(item)?" done":"");
+        num.setAttribute("aria-hidden", "true");
         btn.appendChild(num);
         const span = document.createElement("span");
         span.textContent = lesson.title[state.lang];
         btn.appendChild(span);
         const stat = miniStat(item);
+        let miniLabel = "";
         if(stat){
           const ind = document.createElement("span");
           ind.className = "mini-ind visible" + (stat.complete ? " done":"");
           ind.textContent = stat.complete ? "✓" : stat.correct+"/"+stat.total;
           ind.title = UI[state.lang].miniCheckProgress.replace("{c}",stat.correct).replace("{t}",stat.total);
+          ind.setAttribute("aria-hidden", "true");
           btn.appendChild(ind);
+          miniLabel = ", " + ind.title;
         }
         const status = document.createElement("span");
         status.className = "lesson-status";
         status.textContent = state.doneLessons.has(item) ? "✓" : "○";
         status.title = state.doneLessons.has(item) ? UI[state.lang].completed : UI[state.lang].notCompleted;
+        status.setAttribute("aria-hidden", "true");
         btn.appendChild(status);
+        btn.setAttribute("aria-label", lesson.title[state.lang] + " — " + status.title + miniLabel);
         btn.addEventListener("click", ()=>{ state.mode="course"; state.lessonId=item; navFromUi=true; render(); });
       } else if(item.test){
+        btn.type = "button";
         btn.className = "lesson-item" + (state.mode==="moduletest" && state.testModuleId===modId ? " active":"");
         num.textContent = "✓";
+        num.setAttribute("aria-hidden", "true");
         btn.appendChild(num);
         const span = document.createElement("span");
         span.textContent = item.t[state.lang];
@@ -554,10 +570,15 @@ function renderSidebar(){
         const tag = document.createElement("span");
         tag.className = "test-tag";
         tag.textContent = "TEST";
+        tag.setAttribute("aria-hidden", "true");
         btn.appendChild(tag);
+        btn.setAttribute("aria-label", item.t[state.lang] + " — TEST");
         btn.addEventListener("click", ()=>{ state.mode="moduletest"; state.testModuleId=modId; currentTest=null; render(); });
       } else {
+        btn.type = "button";
         btn.className = "lesson-item disabled";
+        btn.disabled = true;
+        num.setAttribute("aria-hidden", "true");
         btn.appendChild(num);
         const span = document.createElement("span");
         span.textContent = item.t[state.lang];
@@ -589,10 +610,10 @@ function renderCourse(){
       <div class="lesson-kicker">${modLabel} · ${UI[state.lang].lessonLabel} ${lessonNumber}</div>
       <h2 tabindex="-1">${lesson.title[state.lang]}</h2>
     </div>
-    <div class="lesson-navigation" aria-label="${UI[state.lang].progress}">
+    <nav class="lesson-navigation" aria-label="${UI[state.lang].lessonNav}">
       <button class="btn secondary" id="previous-lesson-btn" ${navigation.previous ? "" : "disabled"}>← ${UI[state.lang].previousLesson}</button>
       <button class="btn" id="next-lesson-btn" ${navigation.next ? "" : "disabled"}>${UI[state.lang].nextLesson} →</button>
-    </div>
+    </nav>
     <div class="content">${lesson.html(state.lang)}</div>
   `;
   if(navigation.previous){
@@ -1176,6 +1197,7 @@ function applyTheme(theme){
   toggle.textContent = theme==="dark" ? "☾" : "☀";
   toggle.title = UI[state.lang].themeToggle;
   toggle.setAttribute("aria-label", UI[state.lang].themeToggle);
+  toggle.setAttribute("aria-pressed", String(theme==="dark"));
   localStorage.setItem("mc_theme", theme);
 }
 document.getElementById("btn-theme-toggle").addEventListener("click", ()=>{
@@ -1190,7 +1212,9 @@ function applyGrade(grade){
   state.grade = grade;
   document.documentElement.setAttribute("data-grade", grade);
   document.querySelectorAll(".grade-switch button").forEach(b=>{
-    b.classList.toggle("active", b.dataset.grade===grade);
+    const active = b.dataset.grade===grade;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", String(active));
   });
   localStorage.setItem("mc_grade", grade);
 }

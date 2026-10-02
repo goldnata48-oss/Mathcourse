@@ -37,16 +37,16 @@
     <h1 id="app-title">Математика 10–11</h1>
     <p id="app-subtitle">Тригонометрия · Анализ · Интегралы · Геометрия · Комбинаторика и вероятности</p>
     <div class="head-controls">
-      <div class="lang-switch">
-        <button id="btn-lang-ru" class="active">RU</button>
-        <button id="btn-lang-ua">UA</button>
+      <div class="lang-switch" role="group">
+        <button id="btn-lang-ru" class="active" type="button" aria-pressed="true">RU</button>
+        <button id="btn-lang-ua" type="button" aria-pressed="false">UA</button>
       </div>
-      <button id="btn-theme-toggle" class="theme-toggle" title="Переключить тему" aria-label="Переключить тему">☀</button>
+      <button id="btn-theme-toggle" class="theme-toggle" type="button" title="Переключить тему" aria-label="Переключить тему" aria-pressed="false">☀</button>
     </div>
-    <div class="grade-switch">
-      <button id="btn-grade-junior" data-grade="junior">1–4</button>
-      <button id="btn-grade-middle" data-grade="middle">5–9</button>
-      <button id="btn-grade-senior" class="active" data-grade="senior">10–11</button>
+    <div class="grade-switch" role="group">
+      <button id="btn-grade-junior" data-grade="junior" type="button" aria-pressed="false">1–4</button>
+      <button id="btn-grade-middle" data-grade="middle" type="button" aria-pressed="false">5–9</button>
+      <button id="btn-grade-senior" class="active" data-grade="senior" type="button" aria-pressed="true">10–11</button>
     </div>
     <div class="sidebar-search">
       <label class="sr-only" for="lesson-search">Поиск уроков и формул</label>
@@ -54,9 +54,9 @@
       <div id="search-results" class="search-results" aria-live="polite"></div>
     </div>
   </div>
-  <div class="mode-switch">
-    <button id="btn-mode-course" class="active">Курс</button>
-    <button id="btn-mode-trainer">Тренажёр</button>
+  <div class="mode-switch" role="group">
+    <button id="btn-mode-course" class="active" type="button" aria-pressed="true">Курс</button>
+    <button id="btn-mode-trainer" type="button" aria-pressed="false">Тренажёр</button>
   </div>
   <nav id="module-nav" aria-label="Навигация по урокам"></nav>
 </aside>

@@ -41,6 +41,33 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Mathcourse: Verify sources",
+			"type": "shell",
+			"command": "node \"${workspaceFolder}\\tools\\verify.js\"",
+			"windows": {
+				"command": "node \"${workspaceFolder}\\tools\\verify.js\""
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Mathcourse: Run tests",
+			"type": "shell",
+			"command": "node \"${workspaceFolder}\\tools\\verify.js\" --tests",
+			"windows": {
+				"command": "node \"${workspaceFolder}\\tools\\verify.js\" --tests"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Mathcourse: Check live site",
+			"type": "shell",
+			"command": "node \"${workspaceFolder}\\tools\\check-live.js\"",
+			"windows": {
+				"command": "node \"${workspaceFolder}\\tools\\check-live.js\""
+			},
+			"problemMatcher": []
+		},
+		{
 			"label": "Mathcourse: Deploy to Netlify",
 			"type": "shell",
 			"command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}\\deploy-netlify.ps1\"",

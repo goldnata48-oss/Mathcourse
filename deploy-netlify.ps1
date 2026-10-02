@@ -1,5 +1,9 @@
 param(
   [string]$Site = "roaring-melba-8c60da",
+  [string]$SiteId = "d974b04c-3fc0-4771-8817-2fcb19521a5c",
+  [string]$Title,
+  [string]$Message,
+  [switch]$SkipBuild,
   [switch]$DryRun
 )
 
@@ -9,29 +13,39 @@ $dist = Join-Path $root "dist"
 
 Push-Location $root
 try {
-  Write-Host "=== 1/2  Build ===" -ForegroundColor Cyan
-  node (Join-Path $root "build.js")
-  if ($LASTEXITCODE -ne 0) { throw "build.js failed with code $LASTEXITCODE" }
+  if (-not $SkipBuild) {
+    Write-Host "=== 1/2  Build ===" -ForegroundColor Cyan
+    node (Join-Path $root "build.js")
+    if ($LASTEXITCODE -ne 0) { throw "build.js failed with code $LASTEXITCODE" }
+  } else {
+    Write-Host "=== 1/2  Build skipped ===" -ForegroundColor DarkGray
+  }
 
   Write-Host "`n=== dist contents ===" -ForegroundColor DarkGray
   Get-ChildItem $dist | Sort-Object Name | ForEach-Object {
     "  {0,-24} {1,9:N0} bytes" -f $_.Name, $_.Length
   }
 
-  if ($DryRun) {
-    Write-Host "`nDry run: deploy skipped." -ForegroundColor Yellow
-    exit 0
-  }
-
   Write-Host "`n=== 2/2  Netlify deploy (production) ===" -ForegroundColor Cyan
-  Write-Host "Site:   $Site" -ForegroundColor DarkGray
+  Write-Host "Site:   $Site ($SiteId)" -ForegroundColor DarkGray
   Write-Host "Folder: $dist" -ForegroundColor DarkGray
-  Write-Host "If you are not authorised yet, run:  npx netlify-cli login`n" -ForegroundColor Yellow
 
-  npx --yes netlify-cli@latest deploy --prod --dir="$dist" --site="$Site"
-  if ($LASTEXITCODE -ne 0) { throw "netlify deploy failed with code $LASTEXITCODE" }
+  $deployArgs = @(
+    (Join-Path $root "tools\deploy.js"),
+    "--site=$Site",
+    "--site-id=$SiteId",
+    "--dir=$dist"
+  )
+  if ($Title) { $deployArgs += "--title=$Title" }
+  if ($Message) { $deployArgs += "--message=$Message" }
+  if ($DryRun) { $deployArgs += "--dry-run" }
 
-  Write-Host "`nDeployed: https://$Site.netlify.app/" -ForegroundColor Green
+  node @deployArgs
+  if ($LASTEXITCODE -ne 0) { throw "tools/deploy.js failed with code $LASTEXITCODE" }
+
+  if (-not $DryRun) {
+    Write-Host "`nProduction: https://$Site.netlify.app/" -ForegroundColor Green
+  }
 }
 finally {
   Pop-Location

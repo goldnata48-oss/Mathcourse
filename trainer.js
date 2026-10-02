@@ -372,9 +372,9 @@ function genLogBasicMC(){
   const a = rnd([2,3,5,10]);
   const n = rnd([1,2,3,4,-1,-2]);
   const correct = String(n);
-  let pool = shuffleArr([n+1,n-1,a,n*2].map(String).filter(v=>v!==correct));
-  pool = [...new Set(pool)];
-  const distractors = pool.slice(0,3);
+  let pool = [...new Set([n+1,n-1,a,-n,a+n,a-n,n*2,a*n].map(String))].filter(v=>v!==correct);
+  for(const e of ["0","1","-1","2","-2",String(a+1),String(a-1)]){ if(pool.length>=3) break; if(e!==correct && pool.indexOf(e)<0) pool.push(e); }
+  const distractors = shuffleArr(pool).slice(0,3);
   const {opts,correctIdx} = buildMC(correct, distractors);
   return {
     topic:{ru:"Логарифмическое тождество",ua:"Логарифмічна тотожність"},
@@ -747,8 +747,9 @@ function genPrismVolumeMC(){
   const S = rnd([6,8,9,10,12,14,15,18,20]);
   const h = rnd([2,3,4,5,6,7,8]);
   const correct = S*h;
-  const pool = shuffleArr([S+h, Math.round(S*h/2), 2*S*h].map(String).filter(v=>v!==String(correct)));
-  const distractors = [...new Set(pool)].slice(0,3);
+  let pool = [...new Set([S+h, Math.round(S*h/2), 2*S*h, S*h-h, S*h+h, S+h+1].map(String))].filter(v=>v!==String(correct));
+  for(const e of [String(correct+1),String(correct-1),String(correct+2),String(correct*2)]){ if(pool.length>=3) break; if(e!==String(correct) && pool.indexOf(e)<0) pool.push(e); }
+  const distractors = shuffleArr(pool).slice(0,3);
   const {opts,correctIdx} = buildMC(String(correct), distractors);
   return {
     topic:{ru:"Объём призмы",ua:"Об'єм призми"},

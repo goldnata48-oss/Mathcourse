@@ -931,3 +931,7 @@
     #mascot-wrap{--mascot-size:46px;}
     .mascot-bubble{font-size:12.5px;padding:10px 12px;}
   }
+  /* a11y: visible keyboard focus */
+  :focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  .sidebar-search input:focus-visible,.trainer-input-row input:focus-visible{outline:3px solid var(--accent);outline-offset:1px;}
