@@ -289,6 +289,11 @@
   [data-grade="junior"] .module-block:nth-of-type(5),
   [data-grade="middle"] .module-block:nth-of-type(5){border-left-color:var(--teal);}
   .module-title{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:4px 8px;
     font-size:11px;
     text-transform:uppercase;
     letter-spacing:.08em;
@@ -296,6 +301,9 @@
     padding:6px 10px 4px;
     font-weight:700;
   }
+  .module-flag{padding:2px 6px;border:1px solid var(--sidebar-border);border-radius:999px;color:var(--accent);font-size:9px;letter-spacing:0;text-transform:none;white-space:nowrap;}
+  .module-flag.advanced{color:var(--amber);}
+  .module-note{padding:0 10px 7px;color:var(--sidebar-ink-soft);font-size:10px;line-height:1.45;}
   .module-progress{padding:0 10px 7px;color:var(--sidebar-ink-soft);font-size:10px;font-family:var(--mono);}
   .module-progress-track{height:4px;margin-top:4px;border-radius:999px;background:var(--accent-soft);overflow:hidden;}
   .module-progress-fill{height:100%;border-radius:inherit;background:var(--success);transition:width .2s ease;}
@@ -596,6 +604,8 @@
   .q-item{margin-bottom:18px;}
   .q-text{font-size:15px;margin-bottom:8px;font-family:var(--mono);}
   .q-options{display:flex;flex-direction:column;gap:6px;}
+  .mini-explanation{margin-top:9px;padding:11px 13px;border-left:3px solid var(--accent);border-radius:0 7px 7px 0;background:var(--accent-soft);font-size:14px;line-height:1.6;}
+  .mini-explanation[hidden]{display:none;}
   .q-opt{
     text-align:left;
     padding:9px 12px;
@@ -1133,12 +1143,19 @@ const UI = {
     appTitle:"Математика 10–11",
     appSubtitle:"Тригонометрия · Анализ · Интегралы · Геометрия · Комбинаторика и вероятности",
     course:"Курс", trainer:"Тренажёр", lessonLabel:"Урок",
-    module1:"Модуль 1. Тригонометрия",
-    module2:"Модуль 2. Показательная и логарифмическая функции",
-    module3:"Модуль 3. Начало анализа",
-    module4:"Модуль 4. Интегралы",
-    module5:"Модуль 5. Планиметрия и стереометрия",
-    module6:"Модуль 6. Комбинаторика, вероятности и статистика",
+    module1:"Вводный модуль. Алгебраическая база (повторение)",
+    module2:"Модуль 2. Тригонометрия",
+    module3:"Модуль 3. Показательная функция",
+    module4:"Модуль 4. Логарифмы и преобразования графиков",
+    module5:"Модуль 5. Планиметрия",
+    module6:"Модуль 6. Стереометрия",
+    module7:"Модуль 7. Комбинаторика и вероятность",
+    module8:"Модуль 8. Статистика",
+    module9:"Модуль 9. Пределы, производная и интегралы",
+    module10:"Модуль 10. Смешанные варианты НМТ",
+    examPriority:"Приоритет НМТ",
+    advancedLabel:"Дополнительно",
+    advancedNote:"Углублённый блок (необязательный для НМТ)",
     soon:"скоро",
     miniCheck:"Мини-проверка",
     miniCheckProgress:"Мини-проверка: {c}/{t}",
@@ -1188,12 +1205,19 @@ const UI = {
     appTitle:"Математика 10–11",
     appSubtitle:"Тригонометрія · Аналіз · Інтеграли · Геометрія · Комбінаторика та ймовірності",
     course:"Курс", trainer:"Тренажер", lessonLabel:"Урок",
-    module1:"Модуль 1. Тригонометрія",
-    module2:"Модуль 2. Показникова та логарифмічна функції",
-    module3:"Модуль 3. Початок аналізу",
-    module4:"Модуль 4. Інтеграли",
-    module5:"Модуль 5. Планіметрія та стереометрія",
-    module6:"Модуль 6. Комбінаторика, ймовірності та статистика",
+    module1:"Вступний модуль. Алгебраїчна база (повторення)",
+    module2:"Модуль 2. Тригонометрія",
+    module3:"Модуль 3. Показникова функція",
+    module4:"Модуль 4. Логарифми та перетворення графіків",
+    module5:"Модуль 5. Планіметрія",
+    module6:"Модуль 6. Стереометрія",
+    module7:"Модуль 7. Комбінаторика та ймовірність",
+    module8:"Модуль 8. Статистика",
+    module9:"Модуль 9. Границі, похідна та інтеграли",
+    module10:"Модуль 10. Змішані варіанти НМТ",
+    examPriority:"Пріоритет НМТ",
+    advancedLabel:"Додатково",
+    advancedNote:"Поглиблений блок (необов’язковий для НМТ)",
     soon:"незабаром",
     miniCheck:"Міні-перевірка",
     miniCheckProgress:"Міні-перевірка: {c}/{t}",
@@ -1254,11 +1278,422 @@ const DEG_TABLE = [
   {deg:360,num:2,den:1}
 ];
 
+function makeIntroLesson(id, title, content, questions){
+  return {
+    id, module:1, title,
+    html(lang){
+      const text = content[lang];
+      const points = text.points.map(point=>`<li>${point}</li>`).join("");
+      return `
+        <p>${text.lead}</p>
+        <h3>${text.pointsTitle}</h3>
+        <ul>${points}</ul>
+        <h3>${text.practiceTitle}</h3>
+        <div class="formula-box">${text.practice}</div>
+        <div class="check-block">
+          <h3>${text.checkTitle}</h3>
+          <div id="mini-check"></div>
+        </div>
+      `;
+    },
+    mount(root, lang){
+      renderMiniCheck(root.querySelector("#mini-check"), lang, questions);
+    }
+  };
+}
+
+function makeFinalQuestion(module, q, opts, explanation){
+  const shift = (module + q.ru.length) % opts.length;
+  return {
+    module,
+    q,
+    opts:opts.slice(shift).concat(opts.slice(0,shift)),
+    correct:(opts.length-shift)%opts.length,
+    explanation
+  };
+}
+
+function buildFinalQuestions(variant){
+  const k = variant;
+  const exponent = 2 + variant % 3;
+  const expBase = [2,3,5][variant % 3];
+  const logBase = variant % 2 ? 2 : 3;
+  const logExponent = 2 + variant % 2;
+  const logValue = logBase ** logExponent;
+  const triples = [{a:3,b:4,c:5},{a:5,b:12,c:13},{a:7,b:24,c:25},{a:8,b:15,c:17},{a:9,b:40,c:41}];
+  const triple = triples[variant % triples.length];
+  const angleTable = [{degrees:30,num:1,den:6},{degrees:45,num:1,den:4},{degrees:60,num:1,den:3},
+    {degrees:90,num:1,den:2},{degrees:120,num:2,den:3},{degrees:135,num:3,den:4}];
+  const angle = angleTable[(variant-1)%angleTable.length];
+  const triangleBase = k+3, triangleHeight = 2*(k+1);
+  const triangleArea = triangleBase*triangleHeight/2;
+  const legScale = 1 + variant%3, hypotenuse = 5*legScale;
+  const radius = k+2, circleCircumference = 2*radius;
+  const cubeEdge = 2+variant%4, cubeVolume = cubeEdge**3;
+  const prismLength = k+2, prismWidth = 3, prismHeight = 2+variant%3;
+  const prismVolume = prismLength*prismWidth*prismHeight;
+  const dataset = [k+1,k+2,k+6,k+7,k+12];
+  const mean = dataset.reduce((sum,value)=>sum+value,0)/dataset.length;
+  const median = dataset[2];
+  const favorable = 2+variant%4, totalOutcomes = 7;
+  const selected = 5+variant%3, combinations = selected*(selected-1)/2;
+  const inequalityBoundary = (exponent-1)/2;
+  const triangleAngle = angle.degrees;
+  const angleRadians = `${angle.num===1?"π":angle.num+"π"}/${angle.den}`;
+  const questions = [
+    makeFinalQuestion(1,
+      {ru:`Решите уравнение ${k+1}x − ${k} = ${k*k+k+1}.`,ua:`Розв’яжіть рівняння ${k+1}x − ${k} = ${k*k+k+1}.`},
+      [String(k+1),String(k),String(k+2),String(2*k+2)],
+      {ru:`Прибавляем ${k} к обеим частям: ${k+1}x = ${k*k+k+1} + ${k} = ${(k+1)**2}. Делим на ${k+1}: x = ${k+1}.`,
+        ua:`Додаємо ${k} до обох частин: ${k+1}x = ${k*k+k+1} + ${k} = ${(k+1)**2}. Ділимо на ${k+1}: x = ${k+1}.`}),
+    makeFinalQuestion(1,
+      {ru:`Вычислите √(${(k+1)**2}) + ${k}⁰.`,ua:`Обчисліть √(${(k+1)**2}) + ${k}⁰.`},
+      [String(k+2),String(k+1),String(k+3),String((k+1)**2+1)],
+      {ru:`Арифметический корень неотрицателен: √(${(k+1)**2}) = ${k+1}. Ненулевая степень с нулевым показателем равна 1: ${k}⁰ = 1. Сумма равна ${k+2}.`,
+        ua:`Арифметичний корінь невід’ємний: √(${(k+1)**2}) = ${k+1}. Ненульове число в нульовому степені дорівнює 1: ${k}⁰ = 1. Сума дорівнює ${k+2}.`}),
+    makeFinalQuestion(1,
+      {ru:`Найдите корни уравнения x² − ${2*k+1}x + ${k*(k+1)} = 0.`,ua:`Знайдіть корені рівняння x² − ${2*k+1}x + ${k*(k+1)} = 0.`},
+      [`${k} и ${k+1}`,`${k-1} и ${k+2}`,`−${k} и −${k+1}`,`${k} и ${2*k+1}`],
+      {ru:`Разлагаем квадратный трёхчлен: x² − ${2*k+1}x + ${k*(k+1)} = (x − ${k})(x − ${k+1}). Поэтому x = ${k} или x = ${k+1}.`,
+        ua:`Розкладаємо квадратний тричлен: x² − ${2*k+1}x + ${k*(k+1)} = (x − ${k})(x − ${k+1}). Тому x = ${k} або x = ${k+1}.`}),
+    makeFinalQuestion(2,
+      {ru:`tg α = −${triple.a}/${triple.b}, α во II четверти. Найдите sin α.`,ua:`tg α = −${triple.a}/${triple.b}, α у II чверті. Знайдіть sin α.`},
+      [`${triple.a}/${triple.c}`,`${triple.b}/${triple.c}`,`${triple.c-triple.a}/${triple.c}`,"1/2"],
+      {ru:`Во II четверти sin α > 0, cos α < 0. По треугольнику с катетами ${triple.a} и ${triple.b} гипотенуза равна ${triple.c}; sin α = противолежащий катет / гипотенуза = ${triple.a}/${triple.c}.`,
+        ua:`У II чверті sin α > 0, cos α < 0. За трикутником із катетами ${triple.a} і ${triple.b} гіпотенуза дорівнює ${triple.c}; sin α = протилежний катет / гіпотенуза = ${triple.a}/${triple.c}.`}),
+    makeFinalQuestion(2,
+      {ru:`Представьте ${triangleAngle}° в радианах.`,ua:`Подайте ${triangleAngle}° у радіанах.`},
+      [angleRadians,`${angle.num+1}π/${angle.den}`,`${angle.num}π/${angle.den+1}`,`${angle.den}π/${angle.num}`],
+      {ru:`Используем ${triangleAngle}° · π/180°. Сокращаем дробь: ${triangleAngle}π/180 = ${angleRadians} рад.`,
+        ua:`Використовуємо ${triangleAngle}° · π/180°. Скорочуємо дріб: ${triangleAngle}π/180 = ${angleRadians} рад.`}),
+    makeFinalQuestion(2,
+      {ru:"Решите уравнение cos x = 0 на промежутке [0; 2π].",ua:"Розв’яжіть рівняння cos x = 0 на проміжку [0; 2π]."},
+      ["π/2 и 3π/2","0 и π","π/2 и 2π","π/4 и 3π/4"],
+      {ru:"Косинус равен нулю при x = π/2 + πn. На [0; 2π] подходят n = 0 и n = 1, поэтому x = π/2 и x = 3π/2.",
+        ua:"Косинус дорівнює нулю при x = π/2 + πn. На [0; 2π] підходять n = 0 і n = 1, тому x = π/2 і x = 3π/2."}),
+    makeFinalQuestion(3,
+      {ru:`Решите ${expBase}^(x + 1) = ${expBase}^${exponent}.`,ua:`Розв’яжіть ${expBase}^(x + 1) = ${expBase}^${exponent}.`},
+      [String(exponent-1),String(exponent),String(exponent+1),String(1-exponent)],
+      {ru:`Основания одинаковы и ${expBase} > 0, ${expBase} ≠ 1, поэтому приравниваем показатели: x + 1 = ${exponent}. Вычитаем 1: x = ${exponent-1}.`,
+        ua:`Основи однакові й ${expBase} > 0, ${expBase} ≠ 1, тому прирівнюємо показники: x + 1 = ${exponent}. Віднімаємо 1: x = ${exponent-1}.`}),
+    makeFinalQuestion(3,
+      {ru:`Решите неравенство ${expBase}^(2x + 1) > ${expBase}^${exponent}.`,ua:`Розв’яжіть нерівність ${expBase}^(2x + 1) > ${expBase}^${exponent}.`},
+      [`x > ${inequalityBoundary}`,`x < ${inequalityBoundary}`,`x > ${exponent+1}`,`x < ${exponent-1}`],
+      {ru:`Так как ${expBase} > 1, показательная функция возрастает, знак неравенства сохраняется: 2x + 1 > ${exponent}. Тогда 2x > ${exponent-1}, откуда x > ${inequalityBoundary}.`,
+        ua:`Оскільки ${expBase} > 1, показникова функція зростає, знак нерівності зберігається: 2x + 1 > ${exponent}. Тоді 2x > ${exponent-1}, звідси x > ${inequalityBoundary}.`}),
+    makeFinalQuestion(4,
+      {ru:`Найдите x, если log${logBase===2?"₂":"₃"} x = ${logExponent}.`,ua:`Знайдіть x, якщо log${logBase===2?"₂":"₃"} x = ${logExponent}.`},
+      [String(logValue),String(logValue+logBase),String(logValue+1),String(logValue*2)],
+      {ru:`По определению логарифма log₍${logBase}₎x = ${logExponent} означает x = ${logBase}^${logExponent}. Вычисляем: x = ${logValue}.`,
+        ua:`За означенням логарифма log₍${logBase}₎x = ${logExponent} означає x = ${logBase}^${logExponent}. Обчислюємо: x = ${logValue}.`}),
+    makeFinalQuestion(4,
+      {ru:`Решите log${logBase===2?"₂":"₃"}(x − ${k}) = ${logExponent}.`,ua:`Розв’яжіть log${logBase===2?"₂":"₃"}(x − ${k}) = ${logExponent}.`},
+      [String(logValue+k),String(logValue-k),String(logValue),String(k)],
+      {ru:`ОДЗ: x − ${k} > 0. По определению логарифма x − ${k} = ${logBase}^${logExponent} = ${logValue}. Следовательно, x = ${logValue+k}, что удовлетворяет ОДЗ.`,
+        ua:`ОДЗ: x − ${k} > 0. За означенням логарифма x − ${k} = ${logBase}^${logExponent} = ${logValue}. Отже, x = ${logValue+k}, що задовольняє ОДЗ.`}),
+    makeFinalQuestion(5,
+      {ru:`Найдите площадь треугольника с основанием ${triangleBase} и высотой ${triangleHeight}.`,ua:`Знайдіть площу трикутника з основою ${triangleBase} і висотою ${triangleHeight}.`},
+      [String(triangleArea),String(triangleArea+2),String(triangleArea-1),String(triangleBase*triangleHeight)],
+      {ru:`Площадь треугольника S = ah/2. Подставляем данные: S = ${triangleBase} · ${triangleHeight} / 2 = ${triangleArea}.`,
+        ua:`Площа трикутника S = ah/2. Підставляємо дані: S = ${triangleBase} · ${triangleHeight} / 2 = ${triangleArea}.`}),
+    makeFinalQuestion(5,
+      {ru:`Катеты прямоугольного треугольника равны ${3*legScale} и ${4*legScale}. Найдите гипотенузу.`,ua:`Катети прямокутного трикутника дорівнюють ${3*legScale} і ${4*legScale}. Знайдіть гіпотенузу.`},
+      [String(hypotenuse),String(7*legScale),String(legScale),String(25*legScale)],
+      {ru:`По теореме Пифагора c² = (${3*legScale})² + (${4*legScale})² = ${25*legScale**2}. Значит, c = √${25*legScale**2} = ${hypotenuse}.`,
+        ua:`За теоремою Піфагора c² = (${3*legScale})² + (${4*legScale})² = ${25*legScale**2}. Отже, c = √${25*legScale**2} = ${hypotenuse}.`}),
+    makeFinalQuestion(5,
+      {ru:`Найдите длину окружности радиуса ${radius}.`,ua:`Знайдіть довжину кола радіуса ${radius}.`},
+      [`${circleCircumference}π`,`${radius}π`,`${circleCircumference}`,`${radius**2}π`],
+      {ru:`Длина окружности C = 2πr. При r = ${radius}: C = 2π · ${radius} = ${circleCircumference}π.`,
+        ua:`Довжина кола C = 2πr. За r = ${radius}: C = 2π · ${radius} = ${circleCircumference}π.`}),
+    makeFinalQuestion(6,
+      {ru:`Найдите объём куба с ребром ${cubeEdge}.`,ua:`Знайдіть об’єм куба з ребром ${cubeEdge}.`},
+      [String(cubeVolume),String(cubeVolume+1),String(cubeVolume-1),String(6*cubeEdge**2)],
+      {ru:`Объём куба V = a³. Подставляем a = ${cubeEdge}: V = ${cubeEdge}³ = ${cubeVolume}.`,
+        ua:`Об’єм куба V = a³. Підставляємо a = ${cubeEdge}: V = ${cubeEdge}³ = ${cubeVolume}.`}),
+    makeFinalQuestion(6,
+      {ru:`Основание прямой призмы — прямоугольник ${prismLength} × ${prismWidth}, высота призмы ${prismHeight}. Найдите объём.`,
+        ua:`Основа прямої призми — прямокутник ${prismLength} × ${prismWidth}, висота призми ${prismHeight}. Знайдіть об’єм.`},
+      [String(prismVolume),String(prismVolume+1),String(prismVolume-1),String(prismLength+prismWidth+prismHeight)],
+      {ru:`Площадь основания Sосн = ${prismLength} · ${prismWidth} = ${prismLength*prismWidth}. Объём призмы V = Sосн · h = ${prismLength*prismWidth} · ${prismHeight} = ${prismVolume}.`,
+        ua:`Площа основи Sосн = ${prismLength} · ${prismWidth} = ${prismLength*prismWidth}. Об’єм призми V = Sосн · h = ${prismLength*prismWidth} · ${prismHeight} = ${prismVolume}.`}),
+    makeFinalQuestion(6,
+      {ru:`Радиус шара равен ${radius}. Найдите его объём.`,ua:`Радіус кулі дорівнює ${radius}. Знайдіть її об’єм.`},
+      [`${4*radius**3}π/3`,`${4*radius**2}π`,`${radius**3}π/3`,`${2*radius**3}π`],
+      {ru:`Объём шара V = 4πr³/3. При r = ${radius}: V = 4π · ${radius}³ / 3 = ${4*radius**3}π/3.`,
+        ua:`Об’єм кулі V = 4πr³/3. За r = ${radius}: V = 4π · ${radius}³ / 3 = ${4*radius**3}π/3.`}),
+    makeFinalQuestion(7,
+      {ru:`В коробке ${favorable} красных и ${totalOutcomes-favorable} синих шаров. Какова вероятность достать красный шар?`,
+        ua:`У коробці ${favorable} червоних і ${totalOutcomes-favorable} синіх куль. Яка ймовірність витягнути червону кулю?`},
+      [`${favorable}/${totalOutcomes}`,`${favorable-1}/${totalOutcomes}`,`${favorable+1}/${totalOutcomes}`,"1/2"],
+      {ru:`Всего шаров ${favorable} + ${totalOutcomes-favorable} = ${totalOutcomes}. Благоприятных исходов ${favorable}, поэтому P = ${favorable}/${totalOutcomes}.`,
+        ua:`Усього куль ${favorable} + ${totalOutcomes-favorable} = ${totalOutcomes}. Сприятливих результатів ${favorable}, тому P = ${favorable}/${totalOutcomes}.`}),
+    makeFinalQuestion(7,
+      {ru:`Сколькими способами можно выбрать 2 учеников из ${selected}, если порядок не важен?`,
+        ua:`Скількома способами можна вибрати 2 учнів із ${selected}, якщо порядок не має значення?`},
+      [String(combinations),String(selected*(selected-1)),String(selected),String(combinations+1)],
+      {ru:`Порядок не важен, используем сочетания: C(${selected};2) = ${selected} · (${selected} − 1) / 2 = ${combinations}.`,
+        ua:`Порядок не має значення, використовуємо сполучення: C(${selected};2) = ${selected} · (${selected} − 1) / 2 = ${combinations}.`}),
+    makeFinalQuestion(8,
+      {ru:`Найдите среднее арифметическое чисел ${dataset.join(", ")}.`,ua:`Знайдіть середнє арифметичне чисел ${dataset.join(", ")}.`},
+      [String(mean),String(mean+1),String(mean-1),String(mean+2)],
+      {ru:`Сумма чисел ${dataset.join(" + ")} = ${mean*dataset.length}. Делим на ${dataset.length}: ${mean*dataset.length} / ${dataset.length} = ${mean}.`,
+        ua:`Сума чисел ${dataset.join(" + ")} = ${mean*dataset.length}. Ділимо на ${dataset.length}: ${mean*dataset.length} / ${dataset.length} = ${mean}.`}),
+    makeFinalQuestion(8,
+      {ru:`Найдите медиану набора ${dataset.join(", ")}.`,ua:`Знайдіть медіану набору ${dataset.join(", ")}.`},
+      [String(median),String(mean),String(dataset[0]),String(dataset[4])],
+      {ru:`Чисел пять, и они уже расположены по возрастанию. Медиана — средний, третий элемент: ${median}.`,
+        ua:`Чисел п’ять, і вони вже розташовані за зростанням. Медіана — середній, третій елемент: ${median}.`})
+  ];
+  return questions;
+}
+
+function makeFinalLesson(variant){
+  return {
+    id:`final${variant}`,
+    module:10,
+    title:{
+      ru:`Смешанный вариант НМТ ${variant}`,
+      ua:`Змішаний варіант НМТ ${variant}`
+    },
+    html(lang){
+      const copy = lang==="ru"
+        ? {lead:"Полный тренировочный вариант: 20 заданий по алгебре, тригонометрии, функциям, геометрии, вероятности и статистике. После каждого ответа открывается пошаговый разбор.",check:"20 заданий варианта"}
+        : {lead:"Повний тренувальний варіант: 20 завдань з алгебри, тригонометрії, функцій, геометрії, ймовірності та статистики. Після кожної відповіді відкривається покроковий розбір.",check:"20 завдань варіанта"};
+      return `<p>${copy.lead}</p><div class="check-block"><h3>${copy.check}</h3><div id="mini-check"></div></div>`;
+    },
+    mount(root,lang){
+      renderMiniCheck(root.querySelector("#mini-check"),lang,buildFinalQuestions(variant));
+    }
+  };
+}
+
 const LESSONS = [
+
+/* ---------- INTRODUCTORY ALGEBRA REVIEW ---------- */
+makeIntroLesson("intro1",
+  {ru:"Степени и корни. Повторение",ua:"Степені та корені. Повторення"},
+  {
+    ru:{
+      lead:"Кратко восстановите правила действий со степенями и квадратными корнями.",
+      pointsTitle:"Основные правила",
+      points:[
+        "Для натуральных показателей: aᵐ · aⁿ = aᵐ⁺ⁿ и aᵐ / aⁿ = aᵐ⁻ⁿ (a ≠ 0).",
+        "Для целого показателя: a⁻ⁿ = 1/aⁿ (a ≠ 0), a⁰ = 1 (a ≠ 0).",
+        "√a — арифметический квадратный корень, поэтому √a определён при a ≥ 0 и неотрицателен.",
+        "√(a²) = |a|; выносите из-под корня только полный квадрат."
+      ],
+      practiceTitle:"Примеры",
+      practice:"2³ · 2² = 2⁵ = 32; 3⁻² = 1/9; √49 = 7; √(x²) = |x|.",
+      checkTitle:"Мини-проверка"
+    },
+    ua:{
+      lead:"Коротко відновіть правила дій зі степенями та квадратними коренями.",
+      pointsTitle:"Основні правила",
+      points:[
+        "Для натуральних показників: aᵐ · aⁿ = aᵐ⁺ⁿ і aᵐ / aⁿ = aᵐ⁻ⁿ (a ≠ 0).",
+        "Для цілого показника: a⁻ⁿ = 1/aⁿ (a ≠ 0), a⁰ = 1 (a ≠ 0).",
+        "√a — арифметичний квадратний корінь, тому √a визначений за a ≥ 0 і є невід’ємним.",
+        "√(a²) = |a|; виносьте з-під кореня лише повний квадрат."
+      ],
+      practiceTitle:"Приклади",
+      practice:"2³ · 2² = 2⁵ = 32; 3⁻² = 1/9; √49 = 7; √(x²) = |x|.",
+      checkTitle:"Мініперевірка"
+    }
+  },
+  [
+    {q:{ru:"Чему равно 2³ · 2²?",ua:"Чому дорівнює 2³ · 2²?"},opts:["2⁵","2⁶","4⁵","2"],correct:0},
+    {q:{ru:"Чему равно 5⁻²?",ua:"Чому дорівнює 5⁻²?"},opts:["−25","1/25","25","−1/25"],correct:1},
+    {q:{ru:"Чему равно √(7²)?",ua:"Чому дорівнює √(7²)?"},opts:["7","−7","49","±7"],correct:0}
+  ]
+),
+makeIntroLesson("intro2",
+  {ru:"Преобразование алгебраических выражений",ua:"Перетворення алгебраїчних виразів"},
+  {
+    ru:{
+      lead:"Повторите базовые преобразования, которые упрощают выражения и помогают решать уравнения.",
+      pointsTitle:"Основные приёмы",
+      points:[
+        "При раскрытии скобок учитывайте знак каждого слагаемого: −(a − b) = −a + b.",
+        "Подобные слагаемые объединяют, складывая их коэффициенты.",
+        "Общий множитель выносят за скобки: ab + ac = a(b + c).",
+        "При группировке слагаемые объединяют так, чтобы выделить общий множитель."
+      ],
+      practiceTitle:"Примеры",
+      practice:"3(x − 2) + 2x = 5x − 6; 6x + 9 = 3(2x + 3); x² − 9 = (x − 3)(x + 3).",
+      checkTitle:"Мини-проверка"
+    },
+    ua:{
+      lead:"Повторіть базові перетворення, які спрощують вирази та допомагають розв’язувати рівняння.",
+      pointsTitle:"Основні прийоми",
+      points:[
+        "Під час розкриття дужок враховуйте знак кожного доданка: −(a − b) = −a + b.",
+        "Подібні доданки об’єднують, додаючи їхні коефіцієнти.",
+        "Спільний множник виносять за дужки: ab + ac = a(b + c).",
+        "Під час групування доданки об’єднують так, щоб виділити спільний множник."
+      ],
+      practiceTitle:"Приклади",
+      practice:"3(x − 2) + 2x = 5x − 6; 6x + 9 = 3(2x + 3); x² − 9 = (x − 3)(x + 3).",
+      checkTitle:"Мініперевірка"
+    }
+  },
+  [
+    {q:{ru:"Упростите 4x − 2(x + 3).",ua:"Спростіть 4x − 2(x + 3)."},opts:["2x − 6","2x + 6","6x − 6","2x − 3"],correct:0},
+    {q:{ru:"Разложите 5a + 10 на множители.",ua:"Розкладіть 5a + 10 на множники."},opts:["5(a + 2)","5(a + 10)","a(5 + 10)","10(a + 5)"],correct:0},
+    {q:{ru:"Разложите x² − 16 на множители.",ua:"Розкладіть x² − 16 на множники."},opts:["(x − 4)(x + 4)","(x − 8)(x + 2)","(x − 4)²","x(x − 16)"],correct:0}
+  ]
+),
+makeIntroLesson("intro3",
+  {ru:"Дробно-рациональные выражения",ua:"Дробово-раціональні вирази"},
+  {
+    ru:{
+      lead:"При работе с дробями сначала определяйте, при каких значениях переменной знаменатель не равен нулю.",
+      pointsTitle:"Основные правила",
+      points:[
+        "Сокращайте дробь только на общий множитель числителя и знаменателя.",
+        "Для сложения и вычитания приведите дроби к общему знаменателю.",
+        "При умножении перемножайте числители и знаменатели; деление заменяйте умножением на обратную дробь.",
+        "Всегда записывайте ограничения на переменную, заданные знаменателями."
+      ],
+      practiceTitle:"Примеры",
+      practice:"6x/9 = 2x/3; 1/x + 2/x = 3/x (x ≠ 0); (a/b) : (c/d) = ad/(bc), если знаменатели ненулевые.",
+      checkTitle:"Мини-проверка"
+    },
+    ua:{
+      lead:"Працюючи з дробами, спочатку визначайте, за яких значень змінної знаменник не дорівнює нулю.",
+      pointsTitle:"Основні правила",
+      points:[
+        "Скорочуйте дріб лише на спільний множник чисельника та знаменника.",
+        "Для додавання й віднімання зведіть дроби до спільного знаменника.",
+        "Під час множення перемножуйте чисельники та знаменники; ділення замінюйте множенням на обернений дріб.",
+        "Завжди записуйте обмеження на змінну, задані знаменниками."
+      ],
+      practiceTitle:"Приклади",
+      practice:"6x/9 = 2x/3; 1/x + 2/x = 3/x (x ≠ 0); (a/b) : (c/d) = ad/(bc), якщо знаменники ненульові.",
+      checkTitle:"Мініперевірка"
+    }
+  },
+  [
+    {q:{ru:"Сократите 12x/18.",ua:"Скоротіть 12x/18."},opts:["2x/3","3x/2","2/3x","6x/9"],correct:0},
+    {q:{ru:"Упростите 1/a + 3/a (a ≠ 0).",ua:"Спростіть 1/a + 3/a (a ≠ 0)."},opts:["4/a","4/2a","3/a²","4a"],correct:0},
+    {q:{ru:"Какое значение запрещено для выражения 1/(x − 4)?",ua:"Яке значення заборонене для виразу 1/(x − 4)?"},opts:["x = 4","x = 0","x = −4","x = 1"],correct:0}
+  ]
+),
+makeIntroLesson("intro4",
+  {ru:"Уравнения, неравенства и системы (повторение)",ua:"Рівняння, нерівності та системи (повторення)"},
+  {
+    ru:{
+      lead:"Повторите основные способы решения линейных и простейших квадратных уравнений, неравенств и систем.",
+      pointsTitle:"Что важно помнить",
+      points:[
+        "В линейном уравнении перенесите слагаемые с переменной в одну сторону, числа — в другую.",
+        "Квадратное уравнение ax² + bx + c = 0 решают разложением на множители или через дискриминант.",
+        "При умножении или делении неравенства на отрицательное число знак меняется на противоположный.",
+        "Решение системы — пара значений, удовлетворяющая обоим уравнениям; ответ неравенства записывают промежутком."
+      ],
+      practiceTitle:"Примеры",
+      practice:"2x − 5 = 7 ⇒ x = 6; x² − 9 = 0 ⇒ x = ±3; −2x < 6 ⇒ x > −3.",
+      checkTitle:"Мини-проверка"
+    },
+    ua:{
+      lead:"Повторіть основні способи розв’язування лінійних і найпростіших квадратних рівнянь, нерівностей та систем.",
+      pointsTitle:"Що важливо пам’ятати",
+      points:[
+        "У лінійному рівнянні перенесіть доданки зі змінною в один бік, числа — в інший.",
+        "Квадратне рівняння ax² + bx + c = 0 розв’язують розкладанням на множники або через дискримінант.",
+        "Під час множення або ділення нерівності на від’ємне число знак змінюється на протилежний.",
+        "Розв’язок системи — пара значень, що задовольняє обидва рівняння; відповідь нерівності записують проміжком."
+      ],
+      practiceTitle:"Приклади",
+      practice:"2x − 5 = 7 ⇒ x = 6; x² − 9 = 0 ⇒ x = ±3; −2x < 6 ⇒ x > −3.",
+      checkTitle:"Мініперевірка"
+    }
+  },
+  [
+    {q:{ru:"Решите 3x + 2 = 11.",ua:"Розв’яжіть 3x + 2 = 11."},opts:["x = 3","x = 4","x = −3","x = 9"],correct:0},
+    {q:{ru:"Решите x² − 5x + 6 = 0.",ua:"Розв’яжіть x² − 5x + 6 = 0."},opts:["x = 2 или x = 3","x = −2 или x = −3","x = 1 или x = 6","x = 5"],correct:0},
+    {q:{ru:"Решите −3x ≥ 6.",ua:"Розв’яжіть −3x ≥ 6."},opts:["x ≤ −2","x ≥ −2","x ≤ 2","x ≥ 2"],correct:0},
+    {q:{ru:"Решите систему: x + y = 5, x − y = 1.",ua:"Розв’яжіть систему: x + y = 5, x − y = 1."},opts:["x = 3, y = 2","x = 2, y = 3","x = 4, y = 1","x = 1, y = 4"],correct:0}
+  ]
+),
+makeIntroLesson("intro5",
+  {ru:"Функции. Свойства и чтение графиков",ua:"Функції. Властивості та читання графіків"},
+  {
+    ru:{
+      lead:"Вспомните, как описывать функцию и извлекать информацию из её графика.",
+      pointsTitle:"Основные понятия",
+      points:[
+        "Область определения — допустимые значения x; область значений — возможные значения y = f(x).",
+        "Нули функции — значения x, при которых f(x) = 0; на графике это точки пересечения с осью Ox.",
+        "Функция положительна там, где её график выше оси Ox, и отрицательна там, где ниже.",
+        "По графику можно определить значения функции, промежутки возрастания и убывания."
+      ],
+      practiceTitle:"Чтение графика",
+      practice:"Если график проходит через точки (0; −2) и (2; 2) и является прямой, то f(0) = −2, f(2) = 2, а нуль функции находится при x = 1.",
+      checkTitle:"Мини-проверка"
+    },
+    ua:{
+      lead:"Пригадайте, як описувати функцію та знаходити інформацію з її графіка.",
+      pointsTitle:"Основні поняття",
+      points:[
+        "Область визначення — допустимі значення x; область значень — можливі значення y = f(x).",
+        "Нулі функції — значення x, за яких f(x) = 0; на графіку це точки перетину з віссю Ox.",
+        "Функція додатна там, де її графік вище осі Ox, і від’ємна там, де нижче.",
+        "За графіком можна визначити значення функції, проміжки зростання та спадання."
+      ],
+      practiceTitle:"Читання графіка",
+      practice:"Якщо графік проходить через точки (0; −2) і (2; 2) та є прямою, то f(0) = −2, f(2) = 2, а нуль функції дорівнює x = 1.",
+      checkTitle:"Мініперевірка"
+    }
+  },
+  [
+    {q:{ru:"Точка графика функции лежит на оси Ox. Чему равно значение функции в этой точке?",ua:"Точка графіка функції лежить на осі Ox. Чому дорівнює значення функції в цій точці?"},opts:["0","1","Значению x","Нельзя определить"],correct:0},
+    {q:{ru:"График функции расположен выше оси Ox на промежутке. Каков знак функции там?",ua:"Графік функції розташований вище осі Ox на проміжку. Який знак функції там?"},opts:{ru:["Положительный","Отрицательный","Равен нулю","Не определён"],ua:["Додатний","Від’ємний","Дорівнює нулю","Не визначений"]},correct:0},
+    {q:{ru:"Прямая проходит через точки (0; −2) и (2; 2). Каково значение функции при x = 2?",ua:"Пряма проходить через точки (0; −2) і (2; 2). Яке значення функції при x = 2?"},opts:["2","−2","0","4"],correct:0}
+  ]
+),
+makeIntroLesson("intro6",
+  {ru:"Алгебраическая база. Итоговое повторение",ua:"Алгебраїчна база. Підсумкове повторення"},
+  {
+    ru:{
+      lead:"Решите задания по темам предыдущих уроков. Здесь только практика для самопроверки, без новой теории.",
+      pointsTitle:"Практика по пройденным темам",
+      points:[
+        "Упростите выражение со степенями и корнями.",
+        "Преобразуйте выражение или разложите его на множители.",
+        "Упростите дробно-рациональное выражение и учтите ограничения.",
+        "Решите уравнение или неравенство; прочитайте значение и нуль функции по графику."
+      ],
+      practiceTitle:"Перед проверкой",
+      practice:"Записывайте промежуточные шаги и проверяйте ограничения на переменные. Затем выполните мини-проверку.",
+      checkTitle:"Итоговая мини-проверка"
+    },
+    ua:{
+      lead:"Розв’яжіть завдання за темами попередніх уроків. Тут лише практика для самоперевірки, без нової теорії.",
+      pointsTitle:"Практика за пройденими темами",
+      points:[
+        "Спростіть вираз зі степенями та коренями.",
+        "Перетворіть вираз або розкладіть його на множники.",
+        "Спростіть дробово-раціональний вираз і врахуйте обмеження.",
+        "Розв’яжіть рівняння або нерівність; прочитайте значення та нуль функції за графіком."
+      ],
+      practiceTitle:"Перед перевіркою",
+      practice:"Записуйте проміжні кроки та перевіряйте обмеження на змінні. Потім виконайте мініперевірку.",
+      checkTitle:"Підсумкова мініперевірка"
+    }
+  },
+  [
+    {q:{ru:"Упростите 3² · 3⁻¹.",ua:"Спростіть 3² · 3⁻¹."},opts:["3","9","1/3","27"],correct:0},
+    {q:{ru:"Разложите x² − 25 на множители.",ua:"Розкладіть x² − 25 на множники."},opts:["(x − 5)(x + 5)","(x − 25)(x + 1)","(x − 5)²","x(x − 25)"],correct:0},
+    {q:{ru:"Упростите 2/x + 3/x (x ≠ 0).",ua:"Спростіть 2/x + 3/x (x ≠ 0)."},opts:["5/x","5/(2x)","6/x²","5x"],correct:0},
+    {q:{ru:"Решите 2x − 1 = 5.",ua:"Розв’яжіть 2x − 1 = 5."},opts:["x = 3","x = 2","x = −3","x = 6"],correct:0},
+    {q:{ru:"График функции пересекает ось Ox при x = −2. Каков нуль функции?",ua:"Графік функції перетинає вісь Ox при x = −2. Який нуль функції?"},opts:["−2","0","2","Нельзя определить"],correct:0}
+  ]
+),
 
 /* ---------- LESSON 1 ---------- */
 {
-  id:"l1", module:1,
+  id:"l1", module:2,
   title:{ru:"Единичная окружность и радианная мера", ua:"Одиничне коло і радіанна міра"},
   html(lang){
     const t = lang==="ru" ? {
@@ -1372,7 +1807,7 @@ const LESSONS = [
 
 /* ---------- LESSON 2 ---------- */
 {
-  id:"l2", module:1,
+  id:"l2", module:2,
   title:{ru:"Синус, косинус, тангенс", ua:"Синус, косинус, тангенс"},
   html(lang){
     const t = lang==="ru" ? {
@@ -1464,7 +1899,7 @@ const LESSONS = [
 
 /* ---------- LESSON 3 ---------- */
 {
-  id:"l3", module:1,
+  id:"l3", module:2,
   title:{ru:"Основные тригонометрические тождества", ua:"Основні тригонометричні тотожності"},
   html(lang){
     const t = lang==="ru" ? {
@@ -1518,7 +1953,7 @@ const LESSONS = [
 
 /* ---------- LESSON 4 ---------- */
 {
-  id:"l4", module:1,
+  id:"l4", module:2,
   title:{ru:"Тригонометрические уравнения", ua:"Тригонометричні рівняння"},
   html(lang){
     const t = lang==="ru" ? {
@@ -1635,7 +2070,7 @@ const LESSONS = [
 
 /* ---------- LESSON 5 ---------- */
 {
-  id:"l5", module:1,
+  id:"l5", module:2,
   title:{ru:"Формулы сложения, двойного угла и приведения", ua:"Формули додавання, подвійного кута і зведення"},
   html(lang){
     const t = lang==="ru" ? {
@@ -1736,7 +2171,7 @@ const LESSONS = [
 
 /* ---------- LESSON l6 ---------- */
 {
-  id:"l6", module:1,
+  id:"l6", module:2,
   title:{ru:"Котангенс, секанс, косеканс", ua:"Котангенс, секанс, косеканс"},
   html(lang){
     const t = lang==="ru" ? {
@@ -1814,7 +2249,7 @@ const LESSONS = [
 
 /* ---------- LESSON l7 ---------- */
 {
-  id:"l7", module:1,
+  id:"l7", module:2,
   title:{ru:"Обратные тригонометрические функции", ua:"Обернені тригонометричні функції"},
   html(lang){
     const t = lang==="ru" ? {
@@ -1888,7 +2323,7 @@ const LESSONS = [
 
 /* ---------- LESSON e1 (Модуль 2) ---------- */
 {
-  id:"e1", module:2,
+  id:"e1", module:3,
   title:{ru:"Показательная функция", ua:"Показникова функція"},
   html(lang){
     const t = lang==="ru" ? {
@@ -1985,7 +2420,7 @@ const LESSONS = [
     const ctx = cv.getContext("2d");
     const W=600, H=260, baseY=H-16, xScale=W/6, yMax=10, yScale=(H-30)/yMax;
     const cLine = cssVar('--line'), cInk = cssVar('--ink'), cAccent = cssVar('--accent');
-    const L = { ru:{a:"Основание", inc:"функция возрастает", dec:"функция убывает"}, ua:{a:"Основа", inc:"функція зростає", dec:"функція спадає"} }[lang];
+    const L = { ru:{a:"Основание", inc:"функция возрастает", dec:"функция убывает", constant:"функция постоянная"}, ua:{a:"Основа", inc:"функція зростає", dec:"функція спадає", constant:"функція стала"} }[lang];
 
     function draw(a){
       ctx.clearRect(0,0,W,H);
@@ -2006,7 +2441,7 @@ const LESSONS = [
       const py1 = baseY - 1*yScale;
       ctx.fillStyle=cInk;
       ctx.beginPath(); ctx.arc(W/2, py1, 4, 0, 2*Math.PI); ctx.fill();
-      const status = a>1 ? L.inc : L.dec;
+      const status = a>1 ? L.inc : a<1 ? L.dec : L.constant;
       readout.innerHTML = `<div><span>${L.a}</span>a = ${a.toFixed(1)}</div><div><span>y = aˣ</span>${status}</div>`;
     }
     draw(parseFloat(slider.value));
@@ -2023,7 +2458,7 @@ const LESSONS = [
 
 /* ---------- LESSON e2 (Модуль 2) ---------- */
 {
-  id:"e2", module:2,
+  id:"e2", module:3,
   title:{ru:"Показательные уравнения", ua:"Показникові рівняння"},
   html(lang){
     const t = lang==="ru" ? {
@@ -2128,7 +2563,7 @@ const LESSONS = [
 
 /* ---------- LESSON e3 ---------- */
 {
-  id:"e3", module:2,
+  id:"e3", module:3,
   title:{ru:"Показательные неравенства", ua:"Показникові нерівності"},
   html(lang){
     const t = lang==="ru" ? {
@@ -2218,7 +2653,7 @@ const LESSONS = [
 
 /* ---------- LESSON lg2 ---------- */
 {
-  id:"lg2", module:2,
+  id:"lg2", module:4,
   title:{ru:"Десятичный и натуральный логарифмы", ua:"Десятковий та натуральний логарифми"},
   html(lang){
     const t = lang==="ru" ? {
@@ -2293,7 +2728,7 @@ const LESSONS = [
 
 /* ---------- LESSON lg3 ---------- */
 {
-  id:"lg3", module:2,
+  id:"lg3", module:4,
   title:{ru:"Логарифм и логарифмическая функция", ua:"Логарифм і логарифмічна функція"},
   html(lang){
     const t = lang==="ru" ? {
@@ -2428,7 +2863,16 @@ const LESSONS = [
       readout.innerHTML = `<div><span>${L.a}</span>a = ${a.toFixed(1)}</div><div><span>y = logₐx</span>${status}</div>`;
     }
     draw(parseFloat(slider.value));
-    slider.addEventListener("input", ()=>{ draw(parseFloat(slider.value)); });
+    let previousBase = parseFloat(slider.value);
+    slider.addEventListener("input", ()=>{
+      let a = parseFloat(slider.value);
+      if(a===1){
+        a = previousBase<1 ? 1.1 : 0.9;
+        slider.value = String(a);
+      }
+      previousBase = a;
+      draw(a);
+    });
 
     renderMiniCheck(root.querySelector("#mini-check"), lang, [
       { q:{ru:"log₅ 25 равен:",ua:"log₅ 25 дорівнює:"}, opts:["1","2","5","25"], correct:1 },
@@ -2442,7 +2886,7 @@ const LESSONS = [
 
 /* ---------- LESSON lg4 ---------- */
 {
-  id:"lg4", module:2,
+  id:"lg4", module:4,
   title:{ru:"Логарифмические уравнения", ua:"Логарифмічні рівняння"},
   html(lang){
     const t = lang==="ru" ? {
@@ -2548,7 +2992,7 @@ const LESSONS = [
 
 /* ---------- LESSON lg5 ---------- */
 {
-  id:"lg5", module:2,
+  id:"lg5", module:4,
   title:{ru:"Логарифмические неравенства", ua:"Логарифмічні нерівності"},
   html(lang){
     const t = lang==="ru" ? {
@@ -2642,7 +3086,7 @@ const LESSONS = [
 
 /* ---------- LESSON gr1 ---------- */
 {
-  id:"gr1", module:2,
+  id:"gr1", module:4,
   title:{ru:"Построение графиков: преобразования функций", ua:"Побудова графіків: перетворення функцій"},
   html(lang){
     const t = lang==="ru" ? {
@@ -2779,7 +3223,7 @@ const LESSONS = [
 
 /* ---------- LESSON lim1 ---------- */
 {
-  id:"lim1", module:3,
+  id:"lim1", module:9,
   title:{ru:"Предел функции", ua:"Границя функції"},
   html(lang){
     const t = lang==="ru" ? {
@@ -2904,7 +3348,7 @@ const LESSONS = [
 
 /* ---------- LESSON lim2 ---------- */
 {
-  id:"lim2", module:3,
+  id:"lim2", module:9,
   title:{ru:"Замечательные пределы", ua:"Чудові границі"},
   html(lang){
     const t = lang==="ru" ? {
@@ -3044,7 +3488,7 @@ const LESSONS = [
 
 /* ---------- LESSON der1 ---------- */
 {
-  id:"der1", module:3,
+  id:"der1", module:9,
   title:{ru:"Производная. Геометрический смысл", ua:"Похідна. Геометричний зміст"},
   html(lang){
     const t = lang==="ru" ? {
@@ -3179,7 +3623,7 @@ const LESSONS = [
 
 /* ---------- LESSON der2 ---------- */
 {
-  id:"der2", module:3,
+  id:"der2", module:9,
   title:{ru:"Правила дифференцирования", ua:"Правила диференціювання"},
   html(lang){
     const t = lang==="ru" ? {
@@ -3356,7 +3800,7 @@ const LESSONS = [
 
 /* ---------- LESSON der3 ---------- */
 {
-  id:"der3", module:3,
+  id:"der3", module:9,
   title:{ru:"Исследование функции", ua:"Дослідження функції"},
   html(lang){
     const t = lang==="ru" ? {
@@ -3515,7 +3959,7 @@ const LESSONS = [
 
 /* ---------- LESSON int1 ---------- */
 {
-  id:"int1", module:4,
+  id:"int1", module:9,
   title:{ru:"Первообразная. Неопределённый интеграл", ua:"Первісна. Невизначений інтеграл"},
   html(lang){
     const t = lang==="ru" ? {
@@ -3659,7 +4103,7 @@ const LESSONS = [
 
 /* ---------- LESSON int2 ---------- */
 {
-  id:"int2", module:4,
+  id:"int2", module:9,
   title:{ru:"Определённый интеграл", ua:"Визначений інтеграл"},
   html(lang){
     const t = lang==="ru" ? {
@@ -3807,7 +4251,7 @@ const LESSONS = [
 
 /* ---------- LESSON int3 ---------- */
 {
-  id:"int3", module:4,
+  id:"int3", module:9,
   title:{ru:"Площадь фигуры", ua:"Площа фігури"},
   html(lang){
     const t = lang==="ru" ? {
@@ -3954,7 +4398,7 @@ const LESSONS = [
 
 /* ---------- LESSON stereo1 ---------- */
 {
-  id:"stereo1", module:5,
+  id:"stereo1", module:6,
   title:{ru:"Площади поверхностей тел", ua:"Площі поверхонь тіл"},
   html(lang){
     const t = lang==="ru" ? {
@@ -4083,7 +4527,7 @@ const LESSONS = [
 
 /* ---------- LESSON stereo2 ---------- */
 {
-  id:"stereo2", module:5,
+  id:"stereo2", module:6,
   title:{ru:"Объёмы многогранников", ua:"Об'єми многогранників"},
   html(lang){
     const t = lang==="ru" ? {
@@ -4178,7 +4622,7 @@ const LESSONS = [
 
 /* ---------- LESSON stereo3 ---------- */
 {
-  id:"stereo3", module:5,
+  id:"stereo3", module:6,
   title:{ru:"Объёмы тел вращения через интеграл", ua:"Об'єми тіл обертання через інтеграл"},
   html(lang){
     const t = lang==="ru" ? {
@@ -4274,7 +4718,7 @@ const LESSONS = [
 
 /* ---------- LESSON stereo4 ---------- */
 {
-  id:"stereo4", module:5,
+  id:"stereo4", module:6,
   title:{ru:"Сечения многогранников плоскостью", ua:"Перерізи многогранників площиною"},
   html(lang){
     const t = lang==="ru" ? {
@@ -4383,7 +4827,7 @@ const LESSONS = [
 
 /* ---------- LESSON stereo5 ---------- */
 {
-  id:"stereo5", module:5,
+  id:"stereo5", module:6,
   title:{ru:"Векторы в пространстве. Координатный метод", ua:"Вектори в просторі. Координатний метод"},
   html(lang){
     const t = lang==="ru" ? {
@@ -6139,7 +6583,7 @@ const LESSONS = [
   }
 ,
   {
-    id: "geoVectors", module: 5,
+    id: "geoVectors", module:5,
     RU: {
       intro: "Отрезок AB и вектор AB — разные вещи. Отрезок задаёт только длину, а вектор — ещё и направление. Вектор отвечает на вопрос «куда и на сколько», и именно поэтому он так удобен там, где нужно сложить, разложить или сравнить направления.",
       c1: "1. Вектор и его координаты",
@@ -6627,7 +7071,7 @@ const LESSONS = [
 
   },
   {
-    id: "geoVectorTasks", module: 5,
+    id: "geoVectorTasks", module:5,
     RU: {
       intro: "Векторы нужны не сами по себе, а как способ решать задачи. В этом уроке нет новых формул — только приёмы, которые превращают условие задачи в набор равенств. Хорошая новость: почти всегда достаточно двух инструментов — сложения координат и скалярного произведения.",
       c1: "1. Главный приём: дать векторам имена",
@@ -7118,7 +7562,7 @@ const LESSONS = [
     }
   },
   {
-    id: "geoSineCos", module: 5,
+    id: "geoSineCos", module:5,
     RU: {
       intro: "До сих пор стороны треугольника приходилось находить через координаты. Теперь есть два прямых пути. Если известны две стороны и угол между ними — работает теорема косинусов. Если известна сторона и два угла — теорема синусов. Обе формулы следуют из прямоугольного треугольника, и обе уже спрятаны в том, что вы проходили в прошлом уроке.",
       c1: "1. Теорема косинусов",
@@ -7647,7 +8091,7 @@ const LESSONS = [
     }
   },
   {
-    id: "geoCircles", module: 5,
+    id: "geoCircles", module:5,
     RU: {
       intro: "У любого треугольника есть две особенные окружности. Вписанная касается всех трёх сторон и живёт внутри, описанная проходит через все три вершины и часто выходит далеко за пределы фигуры. Обе задаются одной парой чисел — радиусами r и R, — и обе формулы выводятся из площади.",
       c1: "1. Вписанная окружность",
@@ -8182,7 +8626,7 @@ const LESSONS = [
 
 /* ---------- LESSON geoCurved (криволинейные фигуры) ---------- */
 {
-    id: "geoCurved", module: 5,
+    id: "geoCurved", module:5,
     RU: {
       intro: "У круга, сектора, сегмента и кольца площади разные, но три из них выводятся из двух формул: πR² для круга и ½R²α для сектора. Всё остальное получается вычитанием. Разберём эти четыре случая и покажем, где здесь же возникает интеграл.",
       c1: "1. Сектор",
@@ -8666,7 +9110,7 @@ const LESSONS = [
 
 /* ---------- LESSON geoRose (полярные кривые. роза) ---------- */
 {
-    id: "geoRose", module: 5,
+    id: "geoRose", module:5,
     RU: {
       intro: "Обычная система координат плохо подходит для кругов и волн: чтобы описать окружность, приходится возиться с корнем. Полярная система сделана ровно под это — у точки всего два числа: расстояние до начала и угол. А формулы в ней так просты, что роза с восемью лепестками получается из одной строки.",
       c1: "1. Полярная система координат",
@@ -9153,7 +9597,7 @@ const LESSONS = [
   },
   /* ---------- LESSON geoAxiom (аксиомы стереометрии) ---------- */
   {
-    id: "geoAxiom", module: 5,
+    id: "geoAxiom", module:6,
     RU: {
       intro: "Простейшие утверждения геометрии принимают на веру — их называют аксиомами, потому что вывести их из чего-то ещё проще нельзя. На плоскости таких утверждений пять, и Евклид обошёлся именно ими. В пространстве этого списка не хватает: появляются вещи, которых на плоскости просто нет, — плоскость, пересечение плоскостей, скрещивающиеся прямые. Их и добавляют отдельными аксиомами.",
       c1: "1. Что приходится добавлять в пространстве",
@@ -9620,7 +10064,7 @@ const LESSONS = [
   },
   /* ---------- LESSON geoPerp (перпендикулярность в пространстве) ---------- */
   {
-    id: "geoPerp", module: 5,
+    id: "geoPerp", module:6,
     RU: {
       intro: "На плоскости всё просто: перпендикулярные прямые пересекаются под прямым углом, и доказательство занимает три строки. В пространстве прямые могут и не пересекаться, поэтому определение приходится переписывать с нуля. Зато появляется вещь, которой на плоскости нет вовсе: расстояние от точки до плоскости, и вся стереометрия дальше стоит на ней.",
       c1: "1. Прямая, перпендикулярная плоскости",
@@ -10144,7 +10588,7 @@ const LESSONS = [
   ,
   /* ---------- LESSON geoPrism (многогранники: призма и пирамида) ---------- */
   {
-    id: "geoPrism", module: 5,
+    id: "geoPrism", module:6,
     RU: {
       intro: "Стереометрия 10 класса держится на двух объёмах: объём призмы и объём пирамиды. Формулы здесь короткие, а вот понять, почему у пирамиды именно 1/3, а не 1/2, — самая интересная часть. Здесь же живёт конструктор: правильная призма и правильная пирамида на одном основании, развёртка боковой поверхности и сечение на любой высоте.",
       c1: "1. Призма и её элементы",
@@ -10679,7 +11123,7 @@ const LESSONS = [
   ,
   /* ---------- LESSON geoRevolve (тела вращения) ---------- */
   {
-    id: "geoRevolve", module: 5,
+    id: "geoRevolve", module:6,
     RU: {
       intro: "Все тела вращения выглядят по-разному, но у них один общий секрет: они получаются вращением плоской фигуры вокруг оси. Достаточно понять этот один механизм — и цилиндр, конус, шар и усечённый конус перестают быть четырьмя разными телами, которые надо запоминать наизусть. Наполовину формулы стереометрии вы уже знаете: объём пирамиды. Осталось довести её до конуса и увидеть, как из неё получается шар.",
       c1: "1. Что такое тело вращения",
@@ -11223,7 +11667,7 @@ const LESSONS = [
     }
   },
   {
-    id: "comb1", module: 6,
+    id: "comb1", module:7,
     title: {ru:"Правила умножения и сложения", ua:"Правила множення і додавання"},
     RU: {
       intro: "Комбинаторика начинается с двух простых действий — сложения и умножения. Звучит наивно, но почти каждая задача на подсчёт вариантов решается одним из этих двух действий, и главная ошибка состоит не в вычислениях, а в выборе действия. Научитесь отличать ситуации, где варианты нужно складывать, от ситуаций, где их нужно перемножать, — и половина задач станет очевидной.",
@@ -11626,7 +12070,7 @@ const LESSONS = [
   },
 
   {
-    id: "comb2", module: 6,
+    id: "comb2", module:7,
     title: {ru:"Факториал, перестановки и сочетания", ua:"Факторіал, розстановки та сполучення"},
     RU: {
       intro: "Три формулы, которые чаще всего встречаются в комбинаторике, выглядят пугающе, пока не поймёшь, из чего они собраны. На самом деле это всё тот же подсчёт вариантов из предыдущего урока — просто выполненный для очень больших чисел. Разница между ними одна: важно ли, в каком порядке выбраны элементы.",
@@ -12022,7 +12466,7 @@ const LESSONS = [
   },
 
   {
-    id: "prob1", module: 6,
+    id: "prob1", module:7,
     title: {ru:"Классическая вероятность", ua:"Класична ймовірність"},
     RU: {
       intro: "Вероятность — это доля. Звучит так просто, что кажется, будто здесь нечего изучать. На самом деле вся сложность в одном слове: равновероятные. Если исходы не равновероятны, то делить нацело нельзя и нужно сначала приводить их к равным. Разберёмся, как это делается, и научимся отличать вероятность от доли и от шанса.",
@@ -12403,7 +12847,7 @@ const LESSONS = [
   },
 
   {
-    id: "prob2", module: 6,
+    id: "prob2", module:7,
     title: {ru:"Условная вероятность и независимость", ua:"Умовна ймовірність і незалежність"},
     RU: {
       intro: "Классическая вероятность работает, пока все исходы равновероятны. Стоит узнать, что часть исходов уже произошла, — и это предположение рассыпается. Условная вероятность и независимость описывают именно эту ситуацию: как меняется ответ, когда мы уже кое-что знаем.",
@@ -12831,7 +13275,7 @@ const LESSONS = [
   },
 
   {
-    id: "stat1", module: 6,
+    id: "stat1", module:8,
     title: {ru:"Статистика: среднее, медиана и разброс", ua:"Статистика: середнє, медіана та розкид"},
     RU: {
       intro: "Вероятность отвечает на вопрос «как часто», а статистика — на вопрос «насколько это стабильно». Одна выборка может давать среднее 8, а другая — 5 при том же количестве данных, и обе будут правдой. Умение читать эти различия — это то, что отличает человека, просто считающего среднее, от человека, который понимает данные.",
@@ -13267,6 +13711,12 @@ const LESSONS = [
       ]);
     }
   },
+  makeFinalLesson(1),
+  makeFinalLesson(2),
+  makeFinalLesson(3),
+  makeFinalLesson(4),
+  makeFinalLesson(5),
+  makeFinalLesson(6)
 
 ];
 
@@ -13321,12 +13771,20 @@ function renderMiniCheck(container, lang, questions){
     opts.className = "q-options";
     const optionTexts = (Array.isArray(qd.opts) ? qd.opts : qd.opts[lang])
       .map(opt => (opt !== null && typeof opt === "object") ? opt[lang] : opt);
+    const explanation = qd.explanation ? document.createElement("div") : null;
+    if(explanation){
+      explanation.className = "mini-explanation";
+      explanation.setAttribute("role","status");
+      explanation.textContent = qd.explanation[lang];
+      explanation.hidden = true;
+    }
     function settle(chosen){
       [...opts.children].forEach((c,ci)=>{
         c.disabled = true;
         if(ci===qd.correct) c.classList.add("correct");
         else if(ci===chosen) c.classList.add("wrong");
       });
+      if(explanation) explanation.hidden = false;
     }
     optionTexts.forEach((optText, oi)=>{
       const b = document.createElement("button");
@@ -13345,6 +13803,7 @@ function renderMiniCheck(container, lang, questions){
     });
     if(rec.choices[qi]!==null) settle(rec.choices[qi]);
     wrap.appendChild(opts);
+    if(explanation) wrap.appendChild(explanation);
     container.appendChild(wrap);
   });
 }
@@ -13353,33 +13812,45 @@ function renderMiniCheck(container, lang, questions){
    ROADMAP — заголовки будущих уроков (для навигации)
    ============================================================ */
 const ROADMAP = {
-  1:{ru:"Модуль 1. Тригонометрия",ua:"Модуль 1. Тригонометрія", lessons:[
-    "l1","l2","l3","l4","l5","l6","l7",
-    {test:true, id:"test1", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
+  1:{ru:"Вводный модуль. Алгебраическая база (повторение)",ua:"Вступний модуль. Алгебраїчна база (повторення)",exam_priority:true, lessons:[
+    "intro1","intro2","intro3","intro4","intro5","intro6"
   ]},
-  2:{ru:"Модуль 2. Показательная и логарифмическая функции",ua:"Модуль 2. Показникова та логарифмічна функції", lessons:[
-    "e1","e2","e3","lg3","lg2","lg4","lg5","gr1",
+  2:{ru:"Модуль 2. Тригонометрия",ua:"Модуль 2. Тригонометрія",exam_priority:true, lessons:[
+    "l1","l2","l3","l4","l5","l6","l7",
     {test:true, id:"test2", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
   ]},
-  3:{ru:"Модуль 3. Начало анализа",ua:"Модуль 3. Початок аналізу", lessons:[
-    "lim1","lim2","der1","der2","der3",
+  3:{ru:"Модуль 3. Показательная функция",ua:"Модуль 3. Показникова функція",exam_priority:true, lessons:[
+    "e1","e2","e3",
     {test:true, id:"test3", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
   ]},
-  4:{ru:"Модуль 4. Интегралы",ua:"Модуль 4. Інтеграли", lessons:[
-    "int1","int2","int3",
+  4:{ru:"Модуль 4. Логарифмы и преобразования графиков",ua:"Модуль 4. Логарифми та перетворення графіків",exam_priority:true, lessons:[
+    "lg3","lg2","lg4","lg5","gr1",
     {test:true, id:"test4", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
   ]},
-  5:{ru:"Модуль 5. Планиметрия и стереометрия",ua:"Модуль 5. Планіметрія та стереометрія", lessons:[
+  5:{ru:"Модуль 5. Планиметрия",ua:"Модуль 5. Планіметрія",exam_priority:true, lessons:[
     "geo1","geoTriangles","geoPolygons","geo2","geo3","geoSimilarity","geoPythagor","geoAreas","geoVectors","geoVectorTasks",
-    "geoSineCos",
-    "geoCircles","geoCurved","geoRose",
-    "geoAxiom","geoPerp","geoPrism","geoRevolve",
-    "stereo1","stereo2","stereo3","stereo4","stereo5",
+    "geoSineCos","geoCircles","geoCurved","geoRose",
     {test:true, id:"test5", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
   ]},
-  6:{ru:"Модуль 6. Комбинаторика, вероятности и статистика",ua:"Модуль 6. Комбінаторика, ймовірності та статистика", lessons:[
-    "comb1","comb2","prob1","prob2","stat1",
+  6:{ru:"Модуль 6. Стереометрия",ua:"Модуль 6. Стереометрія",exam_priority:true, lessons:[
+    "geoAxiom","geoPerp","geoPrism","geoRevolve",
+    "stereo1","stereo2","stereo3","stereo4","stereo5",
     {test:true, id:"test6", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
+  ]},
+  7:{ru:"Модуль 7. Комбинаторика и вероятность",ua:"Модуль 7. Комбінаторика та ймовірність",exam_priority:true, lessons:[
+    "comb1","comb2","prob1","prob2",
+    {test:true, id:"test7", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
+  ]},
+  8:{ru:"Модуль 8. Статистика",ua:"Модуль 8. Статистика",exam_priority:true, lessons:[
+    "stat1",
+    {test:true, id:"test8", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
+  ]},
+  9:{ru:"Модуль 9. Пределы, производная и интегралы",ua:"Модуль 9. Границі, похідна та інтеграли",advanced:true,comment:{ru:"Углублённый блок (необязательный для НМТ)",ua:"Поглиблений блок (необов’язковий для НМТ)"},lessons:[
+    "lim1","lim2","der1","der2","der3","int1","int2","int3",
+    {test:true, id:"test9", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
+  ]},
+  10:{ru:"Модуль 10. Смешанные варианты НМТ",ua:"Модуль 10. Змішані варіанти НМТ",exam_priority:true,lessons:[
+    "final1","final2","final3","final4","final5","final6"
   ]}
 };
 
@@ -15054,33 +15525,33 @@ const LEVEL_DEFS = [
     title:{ru:"Базовый",ua:"Базовий"},
     desc:{ru:"Прямое применение формул, тестовый формат",ua:"Пряме застосування формул, тестовий формат"},
     topics:[
-      { id:"identity", module:1, title:{ru:"Основное тождество",ua:"Основна тотожність"}, desc:{ru:"sin²+cos²=1 и родственные формы",ua:"sin²+cos²=1 і споріднені форми"}, generate: genIdentityBasicMC },
-      { id:"radconv", module:1, title:{ru:"Градусы ↔ радианы",ua:"Градуси ↔ радіани"}, desc:{ru:"Перевод угловых мер",ua:"Переведення кутових мір"}, generate: genRadConvertMC },
-      { id:"simplesteq", module:1, title:{ru:"Простейшие уравнения",ua:"Найпростіші рівняння"}, desc:{ru:"Общие решения sin x=a, cos x=a",ua:"Загальні розв'язки sin x=a, cos x=a"}, generate: genSimplestEqMC },
-      { id:"signquad", module:1, title:{ru:"Знак функции по четверти",ua:"Знак функції за чвертю"}, desc:{ru:"Таблица знаков sin, cos, tg",ua:"Таблиця знаків sin, cos, tg"}, generate: genSignByQuadrant },
-      { id:"expBasic", module:2, title:{ru:"Показательное уравнение (основа)",ua:"Показникове рівняння (основа)"}, desc:{ru:"Одинаковые основания",ua:"Однакові основи"}, generate: genExpBasicMC },
-      { id:"logBasic", module:2, title:{ru:"Логарифмическое тождество",ua:"Логарифмічна тотожність"}, desc:{ru:"logₐ(aⁿ)=n",ua:"logₐ(aⁿ)=n"}, generate: genLogBasicMC },
-      { id:"limitDirect", module:3, title:{ru:"Предел подстановкой",ua:"Границя підстановкою"}, desc:{ru:"Прямая подстановка в непрерывную функцию",ua:"Пряма підстановка в неперервну функцію"}, generate: genLimitDirectMC },
-      { id:"derivTable", module:3, title:{ru:"Таблица производных",ua:"Таблиця похідних"}, desc:{ru:"Базовые формулы дифференцирования",ua:"Базові формули диференціювання"}, generate: genDerivTableMC },
-      { id:"antiderivBasic", module:4, title:{ru:"Первообразная степени",ua:"Первісна степеня"}, desc:{ru:"∫xⁿdx=xⁿ⁺¹/(n+1)+C",ua:"∫xⁿdx=xⁿ⁺¹/(n+1)+C"}, generate: genAntiderivativeBasicMC },
-      { id:"defIntPoly", module:4, title:{ru:"Определённый интеграл (основа)",ua:"Визначений інтеграл (основа)"}, desc:{ru:"Формула Ньютона–Лейбница",ua:"Формула Ньютона–Лейбніца"}, generate: genDefiniteIntegralPolyMC },
-      { id:"prismVolume", module:5, title:{ru:"Объём призмы",ua:"Об'єм призми"}, desc:{ru:"V=Sосн·h",ua:"V=Sосн·h"}, generate: genPrismVolumeMC },
+      { id:"identity", module:2, title:{ru:"Основное тождество",ua:"Основна тотожність"}, desc:{ru:"sin²+cos²=1 и родственные формы",ua:"sin²+cos²=1 і споріднені форми"}, generate: genIdentityBasicMC },
+      { id:"radconv", module:2, title:{ru:"Градусы ↔ радианы",ua:"Градуси ↔ радіани"}, desc:{ru:"Перевод угловых мер",ua:"Переведення кутових мір"}, generate: genRadConvertMC },
+      { id:"simplesteq", module:2, title:{ru:"Простейшие уравнения",ua:"Найпростіші рівняння"}, desc:{ru:"Общие решения sin x=a, cos x=a",ua:"Загальні розв'язки sin x=a, cos x=a"}, generate: genSimplestEqMC },
+      { id:"signquad", module:2, title:{ru:"Знак функции по четверти",ua:"Знак функції за чвертю"}, desc:{ru:"Таблица знаков sin, cos, tg",ua:"Таблиця знаків sin, cos, tg"}, generate: genSignByQuadrant },
+      { id:"expBasic", module:3, title:{ru:"Показательное уравнение (основа)",ua:"Показникове рівняння (основа)"}, desc:{ru:"Одинаковые основания",ua:"Однакові основи"}, generate: genExpBasicMC },
+      { id:"logBasic", module:4, title:{ru:"Логарифмическое тождество",ua:"Логарифмічна тотожність"}, desc:{ru:"logₐ(aⁿ)=n",ua:"logₐ(aⁿ)=n"}, generate: genLogBasicMC },
+      { id:"limitDirect", module:9, title:{ru:"Предел подстановкой",ua:"Границя підстановкою"}, desc:{ru:"Прямая подстановка в непрерывную функцию",ua:"Пряма підстановка в неперервну функцію"}, generate: genLimitDirectMC },
+      { id:"derivTable", module:9, title:{ru:"Таблица производных",ua:"Таблиця похідних"}, desc:{ru:"Базовые формулы дифференцирования",ua:"Базові формули диференціювання"}, generate: genDerivTableMC },
+      { id:"antiderivBasic", module:9, title:{ru:"Первообразная степени",ua:"Первісна степеня"}, desc:{ru:"∫xⁿdx=xⁿ⁺¹/(n+1)+C",ua:"∫xⁿdx=xⁿ⁺¹/(n+1)+C"}, generate: genAntiderivativeBasicMC },
+      { id:"defIntPoly", module:9, title:{ru:"Определённый интеграл (основа)",ua:"Визначений інтеграл (основа)"}, desc:{ru:"Формула Ньютона–Лейбница",ua:"Формула Ньютона–Лейбніца"}, generate: genDefiniteIntegralPolyMC },
+      { id:"prismVolume", module:6, title:{ru:"Объём призмы",ua:"Об'єм призми"}, desc:{ru:"V=Sосн·h",ua:"V=Sосн·h"}, generate: genPrismVolumeMC },
       { id:"triangleFeatures", module:5, title:{ru:"Высота, медиана, биссектриса и средняя линия",ua:"Висота, медіана, бісектриса та середня лінія"}, desc:{ru:"Основные элементы треугольника",ua:"Основні елементи трикутника"}, generate: genTriangleFeaturesMC },
       { id:"height", module:5, title:{ru:"Высота треугольника",ua:"Висота трикутника"}, desc:{ru:"Перпендикуляр из вершины к стороне",ua:"Перпендикуляр із вершини до сторони"}, generate: genHeightMC },
       { id:"angleBisector", module:5, title:{ru:"Биссектрисса",ua:"Бісектриса"}, desc:{ru:"Делит угол пополам",ua:"Ділить кут навпіл"}, generate: genAngleBisectorMC },
       { id:"median", module:5, title:{ru:"Медиана",ua:"Медіана"}, desc:{ru:"Идёт к середине стороны",ua:"Йде до середини сторони"}, generate: genMedianMC },
       { id:"midline", module:5, title:{ru:"Средняя линия треугольника",ua:"Середня лінія трикутника"}, desc:{ru:"Соединяет середины двух сторон",ua:"Сполучає середини двох сторін"}, generate: genMidlineMC },
       { id:"regularPolygon", module:5, title:{ru:"Правильные многоугольники",ua:"Правильні многокутники"}, desc:{ru:"Внутренние углы и центральный угол",ua:"Внутрішні кути та центральний кут"}, generate: genRegularPolygonMC },
-      { id:"sphereSurface", module:5, title:{ru:"Площадь сферы",ua:"Площа сфери"}, desc:{ru:"S=4πR²",ua:"S=4πR²"}, generate: genSphereSurfaceMC }
+      { id:"sphereSurface", module:6, title:{ru:"Площадь сферы",ua:"Площа сфери"}, desc:{ru:"S=4πR²",ua:"S=4πR²"}, generate: genSphereSurfaceMC }
       ,{ id:"vectorsDot", module:5, title:{ru:"Скалярное произведение векторов",ua:"Скалярний добуток векторів"}, desc:{ru:"a·b = x₁x₂ + y₁y₂",ua:"a·b = x₁x₂ + y₁y₂"}, generate: genVectorsDotMC }
       ,{ id:"lawOfCosines", module:5, title:{ru:"Теорема косинусов",ua:"Теорема косинусів"}, desc:{ru:"Сторона по двум сторонам и углу",ua:"Сторона за двома сторонами й кутом"}, generate: genLawOfCosinesMC }
       ,{ id:"inscribedAngle", module:5, title:{ru:"Вписанный угол",ua:"Вписаний кут"}, desc:{ru:"Половина центрального угла",ua:"Половина центрального кута"}, generate: genInscribedAngleMC }
-      ,{ id:"c6Product", module:6, title:{ru:"Правило умножения",ua:"Правило множення"}, desc:{ru:"Последовательные обязательные выборы",ua:"Послідовні обов'язкові вибори"}, generate: genC6ProductRuleShort }
-      ,{ id:"c6Sum", module:6, title:{ru:"Правило сложения",ua:"Правило додавання"}, desc:{ru:"Непересекающиеся группы вариантов",ua:"Неперетинні групи варіантів"}, generate: genC6SumRuleShort }
-      ,{ id:"c6ProbSingle", module:6, title:{ru:"Классическая вероятность",ua:"Класична ймовірність"}, desc:{ru:"P = благоприятных / всех",ua:"P = сприятливих / усіх"}, generate: genC6ProbSingleShort }
-      ,{ id:"c6Complement", module:6, title:{ru:"Противоположное событие",ua:"Протилежна подія"}, desc:{ru:"P(Ā) = 1 − P(A)",ua:"P(Ā) = 1 − P(A)"}, generate: genC6ProbComplementMC }
-      ,{ id:"c6Mean", module:6, title:{ru:"Среднее арифметическое",ua:"Середнє арифметичне"}, desc:{ru:"Сумма данных, делённая на их количество",ua:"Сума даних, поділена на їхню кількість"}, generate: genC6StatMeanShort }
-      ,{ id:"nmtTrig", module:1, title:{ru:"НМТ: тригонометрия",ua:"НМТ: тригонометрія"}, desc:{ru:"Комбинированная задача с четвертью угла",ua:"Комбінована задача з чвертю кута"}, generate: genNmtTrigMixedMC }
+      ,{ id:"c6Product", module:7, title:{ru:"Правило умножения",ua:"Правило множення"}, desc:{ru:"Последовательные обязательные выборы",ua:"Послідовні обов'язкові вибори"}, generate: genC6ProductRuleShort }
+      ,{ id:"c6Sum", module:7, title:{ru:"Правило сложения",ua:"Правило додавання"}, desc:{ru:"Непересекающиеся группы вариантов",ua:"Неперетинні групи варіантів"}, generate: genC6SumRuleShort }
+      ,{ id:"c6ProbSingle", module:7, title:{ru:"Классическая вероятность",ua:"Класична ймовірність"}, desc:{ru:"P = благоприятных / всех",ua:"P = сприятливих / усіх"}, generate: genC6ProbSingleShort }
+      ,{ id:"c6Complement", module:7, title:{ru:"Противоположное событие",ua:"Протилежна подія"}, desc:{ru:"P(Ā) = 1 − P(A)",ua:"P(Ā) = 1 − P(A)"}, generate: genC6ProbComplementMC }
+      ,{ id:"c6Mean", module:8, title:{ru:"Среднее арифметическое",ua:"Середнє арифметичне"}, desc:{ru:"Сумма данных, делённая на их количество",ua:"Сума даних, поділена на їхню кількість"}, generate: genC6StatMeanShort }
+      ,{ id:"nmtTrig", module:2, title:{ru:"НМТ: тригонометрия",ua:"НМТ: тригонометрія"}, desc:{ru:"Комбинированная задача с четвертью угла",ua:"Комбінована задача з чвертю кута"}, generate: genNmtTrigMixedMC }
     ]
   },
   {
@@ -15088,26 +15559,26 @@ const LEVEL_DEFS = [
     title:{ru:"Средний",ua:"Середній"},
     desc:{ru:"Комбинация 2–3 понятий, короткий ответ",ua:"Комбінація 2–3 понять, коротка відповідь"},
     topics:[
-      { id:"tanExpr", module:1, title:{ru:"Выражение через tg α",ua:"Вираз через tg α"}, desc:{ru:"Деление на cos α",ua:"Ділення на cos α"}, generate: genTanExpr },
-      { id:"simplifyEval", module:1, title:{ru:"sin α + cos α по tg α",ua:"sin α + cos α за tg α"}, desc:{ru:"Знаки по четверти + тождество",ua:"Знаки за чвертю + тотожність"}, generate: genSimplifyEval },
-      { id:"doubleAngle", module:1, title:{ru:"Формула двойного угла",ua:"Формула подвійного кута"}, desc:{ru:"Упрощение через sin2α, cos2α",ua:"Спрощення через sin2α, cos2α"}, generate: genDoubleAngleSimplify },
-      { id:"expEquation", module:2, title:{ru:"Показательное уравнение",ua:"Показникове рівняння"}, desc:{ru:"Сведение к одинаковому основанию",ua:"Зведення до однакової основи"}, generate: genExpEquationShort },
-      { id:"logEquation", module:2, title:{ru:"Логарифмическое уравнение",ua:"Логарифмічне рівняння"}, desc:{ru:"Потенцирование",ua:"Потенціювання"}, generate: genLogEquationShort },
-      { id:"limitFactor", module:3, title:{ru:"Предел через разложение",ua:"Границя через розкладання"}, desc:{ru:"Устранение неопределённости 0/0",ua:"Усунення невизначеності 0/0"}, generate: genLimitFactorShort },
-      { id:"derivAtPoint", module:3, title:{ru:"Значение производной в точке",ua:"Значення похідної в точці"}, desc:{ru:"Вычисление f′(a) для многочлена",ua:"Обчислення f′(a) для многочлена"}, generate: genDerivativeAtPoint },
-      { id:"defIntLinear", module:4, title:{ru:"Определённый интеграл (линейная)",ua:"Визначений інтеграл (лінійна)"}, desc:{ru:"Вычисление F(b)−F(a)",ua:"Обчислення F(b)−F(a)"}, generate: genDefiniteIntegralLinearShort },
-      { id:"areaCubic", module:4, title:{ru:"Площадь под параболой",ua:"Площа під параболою"}, desc:{ru:"S=∫f(x)dx на [0;b]",ua:"S=∫f(x)dx на [0;b]"}, generate: genAreaUnderCubicShort },
-      { id:"pyramidVolume", module:5, title:{ru:"Объём пирамиды",ua:"Об'єм піраміди"}, desc:{ru:"V=⅓Sосн·h",ua:"V=⅓Sосн·h"}, generate: genPyramidVolumeShort },
-      { id:"coneSurface", module:5, title:{ru:"Площадь поверхности конуса",ua:"Площа поверхні конуса"}, desc:{ru:"l=√(R²+h²), Sполн=πR(R+l)",ua:"l=√(R²+h²), Sповн=πR(R+l)"}, generate: genConeSurfaceShort }
+      { id:"tanExpr", module:2, title:{ru:"Выражение через tg α",ua:"Вираз через tg α"}, desc:{ru:"Деление на cos α",ua:"Ділення на cos α"}, generate: genTanExpr },
+      { id:"simplifyEval", module:2, title:{ru:"sin α + cos α по tg α",ua:"sin α + cos α за tg α"}, desc:{ru:"Знаки по четверти + тождество",ua:"Знаки за чвертю + тотожність"}, generate: genSimplifyEval },
+      { id:"doubleAngle", module:2, title:{ru:"Формула двойного угла",ua:"Формула подвійного кута"}, desc:{ru:"Упрощение через sin2α, cos2α",ua:"Спрощення через sin2α, cos2α"}, generate: genDoubleAngleSimplify },
+      { id:"expEquation", module:3, title:{ru:"Показательное уравнение",ua:"Показникове рівняння"}, desc:{ru:"Сведение к одинаковому основанию",ua:"Зведення до однакової основи"}, generate: genExpEquationShort },
+      { id:"logEquation", module:4, title:{ru:"Логарифмическое уравнение",ua:"Логарифмічне рівняння"}, desc:{ru:"Потенцирование",ua:"Потенціювання"}, generate: genLogEquationShort },
+      { id:"limitFactor", module:9, title:{ru:"Предел через разложение",ua:"Границя через розкладання"}, desc:{ru:"Устранение неопределённости 0/0",ua:"Усунення невизначеності 0/0"}, generate: genLimitFactorShort },
+      { id:"derivAtPoint", module:9, title:{ru:"Значение производной в точке",ua:"Значення похідної в точці"}, desc:{ru:"Вычисление f′(a) для многочлена",ua:"Обчислення f′(a) для многочлена"}, generate: genDerivativeAtPoint },
+      { id:"defIntLinear", module:9, title:{ru:"Определённый интеграл (линейная)",ua:"Визначений інтеграл (лінійна)"}, desc:{ru:"Вычисление F(b)−F(a)",ua:"Обчислення F(b)−F(a)"}, generate: genDefiniteIntegralLinearShort },
+      { id:"areaCubic", module:9, title:{ru:"Площадь под параболой",ua:"Площа під параболою"}, desc:{ru:"S=∫f(x)dx на [0;b]",ua:"S=∫f(x)dx на [0;b]"}, generate: genAreaUnderCubicShort },
+      { id:"pyramidVolume", module:6, title:{ru:"Объём пирамиды",ua:"Об'єм піраміди"}, desc:{ru:"V=⅓Sосн·h",ua:"V=⅓Sосн·h"}, generate: genPyramidVolumeShort },
+      { id:"coneSurface", module:6, title:{ru:"Площадь поверхности конуса",ua:"Площа поверхні конуса"}, desc:{ru:"l=√(R²+h²), Sполн=πR(R+l)",ua:"l=√(R²+h²), Sповн=πR(R+l)"}, generate: genConeSurfaceShort }
       ,{ id:"vectorsAngle", module:5, title:{ru:"Угол между векторами",ua:"Кут між векторами"}, desc:{ru:"cos ∠ через скалярное произведение",ua:"cos ∠ через скалярний добуток"}, generate: genVectorsAngleMC }
       ,{ id:"lawOfSines", module:5, title:{ru:"Теорема синусов",ua:"Теорема синусів"}, desc:{ru:"a/sin A = 2R",ua:"a/sin A = 2R"}, generate: genLawOfSinesMC }
       ,{ id:"circleRadii", module:5, title:{ru:"Радиусы вписанной и описанной окружностей",ua:"Радіуси вписаного й описаного кіл"}, desc:{ru:"r = (a+b−c)/2, R = c/2",ua:"r = (a+b−c)/2, R = c/2"}, generate: genCircleRadiiMC }
-      ,{ id:"c6Permutation", module:6, title:{ru:"Перестановки и факториал",ua:"Розстановки та факторіал"}, desc:{ru:"n! — все элементы, порядок важен",ua:"n! — усі елементи, порядок важливий"}, generate: genC6PermutationShort }
-      ,{ id:"c6Combination", module:6, title:{ru:"Сочетания",ua:"Сполучення"}, desc:{ru:"Порядок не важен",ua:"Порядок неважливий"}, generate: genC6CombinationShort }
-      ,{ id:"c6Urn", module:6, title:{ru:"Вероятность в урне",ua:"Ймовірність в урні"}, desc:{ru:"Шары без возврата",ua:"Кульки без повернення"}, generate: genC6ProbUrnaShort }
-      ,{ id:"c6DiceSum", module:6, title:{ru:"Сумма двух костей",ua:"Сума двох кісток"}, desc:{ru:"36 равновероятных пар",ua:"36 рівноймовірних пар"}, generate: genC6ProbDiceSumMC }
-      ,{ id:"c6Median", module:6, title:{ru:"Медиана",ua:"Медіана"}, desc:{ru:"Центр упорядоченного ряда",ua:"Центр впорядкованого ряду"}, generate: genC6StatMedianModeShort }
-      ,{ id:"nmtShort", module:2, title:{ru:"НМТ: короткий ответ",ua:"НМТ: коротка відповідь"}, desc:{ru:"Показательное уравнение в формате НМТ",ua:"Показникове рівняння у форматі НМТ"}, generate: genNmtShortAnswer }
+      ,{ id:"c6Permutation", module:7, title:{ru:"Перестановки и факториал",ua:"Розстановки та факторіал"}, desc:{ru:"n! — все элементы, порядок важен",ua:"n! — усі елементи, порядок важливий"}, generate: genC6PermutationShort }
+      ,{ id:"c6Combination", module:7, title:{ru:"Сочетания",ua:"Сполучення"}, desc:{ru:"Порядок не важен",ua:"Порядок неважливий"}, generate: genC6CombinationShort }
+      ,{ id:"c6Urn", module:7, title:{ru:"Вероятность в урне",ua:"Ймовірність в урні"}, desc:{ru:"Шары без возврата",ua:"Кульки без повернення"}, generate: genC6ProbUrnaShort }
+      ,{ id:"c6DiceSum", module:7, title:{ru:"Сумма двух костей",ua:"Сума двох кісток"}, desc:{ru:"36 равновероятных пар",ua:"36 рівноймовірних пар"}, generate: genC6ProbDiceSumMC }
+      ,{ id:"c6Median", module:8, title:{ru:"Медиана",ua:"Медіана"}, desc:{ru:"Центр упорядоченного ряда",ua:"Центр впорядкованого ряду"}, generate: genC6StatMedianModeShort }
+      ,{ id:"nmtShort", module:3, title:{ru:"НМТ: короткий ответ",ua:"НМТ: коротка відповідь"}, desc:{ru:"Показательное уравнение в формате НМТ",ua:"Показникове рівняння у форматі НМТ"}, generate: genNmtShortAnswer }
     ]
   },
   {
@@ -15115,27 +15586,27 @@ const LEVEL_DEFS = [
     title:{ru:"Наисложнейший",ua:"Найскладніший"},
     desc:{ru:"Комбинированные и параметрические задачи",ua:"Комбіновані та параметричні задачі"},
     topics:[
-      { id:"homogen", module:1, title:{ru:"Однородные уравнения",ua:"Однорідні рівняння"}, desc:{ru:"Сведение к квадратному относительно tg x",ua:"Зведення до квадратного відносно tg x"}, generate: genHomogen },
-      { id:"rootsCount", module:1, title:{ru:"Число корней на промежутке",ua:"Кількість коренів на проміжку"}, desc:{ru:"Периодичность решений",ua:"Періодичність розв'язків"}, generate: genRootsCount },
-      { id:"paramRange", module:1, title:{ru:"Параметр в уравнении",ua:"Параметр у рівнянні"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genParamRange },
-      { id:"maxSum", module:1, title:{ru:"Максимум A sinx + B cosx",ua:"Максимум A sinx + B cosx"}, desc:{ru:"Амплитуда через √(A²+B²)",ua:"Амплітуда через √(A²+B²)"}, generate: genMaxSum },
-      { id:"expSubst", module:2, title:{ru:"Показательное уравнение (замена)",ua:"Показникове рівняння (заміна)"}, desc:{ru:"Квадратное относительно t=aˣ",ua:"Квадратне відносно t=aˣ"}, generate: genExpSubstitution },
-      { id:"logIneqBoundary", module:2, title:{ru:"Логарифмическое неравенство",ua:"Логарифмічна нерівність"}, desc:{ru:"Наименьшее целое решение",ua:"Найменше ціле рішення"}, generate: genLogInequalityBoundary },
-      { id:"secondRemarkable", module:3, title:{ru:"Второй замечательный предел",ua:"Друга чудова границя"}, desc:{ru:"lim(1+k/x)ˣ=eᵏ",ua:"lim(1+k/x)ˣ=eᵏ"}, generate: genSecondRemarkableGeneral },
-      { id:"extremum", module:3, title:{ru:"Точка экстремума",ua:"Точка екстремуму"}, desc:{ru:"Исследование кубической функции",ua:"Дослідження кубічної функції"}, generate: genExtremumPoint },
-      { id:"areaBetween", module:4, title:{ru:"Площадь между кривыми",ua:"Площа між кривими"}, desc:{ru:"Точки пересечения + интеграл разности",ua:"Точки перетину + інтеграл різниці"}, generate: genAreaBetweenCurvesHigh },
-      { id:"absArea", module:4, title:{ru:"Площадь с модулем",ua:"Площа з модулем"}, desc:{ru:"Фигура пересекает ось Ox",ua:"Фігура перетинає вісь Ox"}, generate: genAbsAreaHigh },
-      { id:"coneVolIntegral", module:5, title:{ru:"Объём конуса через интеграл",ua:"Об'єм конуса через інтеграл"}, desc:{ru:"Метод дисков",ua:"Метод дисків"}, generate: genConeVolumeIntegralShort },
-      { id:"cubeSection", module:5, title:{ru:"Площадь сечения куба",ua:"Площа перерізу куба"}, desc:{ru:"Равносторонний треугольник у вершины",ua:"Рівносторонній трикутник біля вершини"}, generate: genCubeSectionAreaShort }
+      { id:"homogen", module:2, title:{ru:"Однородные уравнения",ua:"Однорідні рівняння"}, desc:{ru:"Сведение к квадратному относительно tg x",ua:"Зведення до квадратного відносно tg x"}, generate: genHomogen },
+      { id:"rootsCount", module:2, title:{ru:"Число корней на промежутке",ua:"Кількість коренів на проміжку"}, desc:{ru:"Периодичность решений",ua:"Періодичність розв'язків"}, generate: genRootsCount },
+      { id:"paramRange", module:2, title:{ru:"Параметр в уравнении",ua:"Параметр у рівнянні"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genParamRange },
+      { id:"maxSum", module:2, title:{ru:"Максимум A sinx + B cosx",ua:"Максимум A sinx + B cosx"}, desc:{ru:"Амплитуда через √(A²+B²)",ua:"Амплітуда через √(A²+B²)"}, generate: genMaxSum },
+      { id:"expSubst", module:3, title:{ru:"Показательное уравнение (замена)",ua:"Показникове рівняння (заміна)"}, desc:{ru:"Квадратное относительно t=aˣ",ua:"Квадратне відносно t=aˣ"}, generate: genExpSubstitution },
+      { id:"logIneqBoundary", module:4, title:{ru:"Логарифмическое неравенство",ua:"Логарифмічна нерівність"}, desc:{ru:"Наименьшее целое решение",ua:"Найменше ціле рішення"}, generate: genLogInequalityBoundary },
+      { id:"secondRemarkable", module:9, title:{ru:"Второй замечательный предел",ua:"Друга чудова границя"}, desc:{ru:"lim(1+k/x)ˣ=eᵏ",ua:"lim(1+k/x)ˣ=eᵏ"}, generate: genSecondRemarkableGeneral },
+      { id:"extremum", module:9, title:{ru:"Точка экстремума",ua:"Точка екстремуму"}, desc:{ru:"Исследование кубической функции",ua:"Дослідження кубічної функції"}, generate: genExtremumPoint },
+      { id:"areaBetween", module:9, title:{ru:"Площадь между кривыми",ua:"Площа між кривими"}, desc:{ru:"Точки пересечения + интеграл разности",ua:"Точки перетину + інтеграл різниці"}, generate: genAreaBetweenCurvesHigh },
+      { id:"absArea", module:9, title:{ru:"Площадь с модулем",ua:"Площа з модулем"}, desc:{ru:"Фигура пересекает ось Ox",ua:"Фігура перетинає вісь Ox"}, generate: genAbsAreaHigh },
+      { id:"coneVolIntegral", module:9, title:{ru:"Объём конуса через интеграл",ua:"Об'єм конуса через інтеграл"}, desc:{ru:"Метод дисков",ua:"Метод дисків"}, generate: genConeVolumeIntegralShort },
+      { id:"cubeSection", module:6, title:{ru:"Площадь сечения куба",ua:"Площа перерізу куба"}, desc:{ru:"Равносторонний треугольник у вершины",ua:"Рівносторонній трикутник біля вершини"}, generate: genCubeSectionAreaShort }
       ,{ id:"vectorsCross", module:5, title:{ru:"Площадь через векторное произведение",ua:"Площа через векторний добуток"}, desc:{ru:"S = |x₁y₂ − x₂y₁|",ua:"S = |x₁y₂ − x₂y₁|"}, generate: genVectorsCrossMC }
       ,{ id:"areaFigures", module:5, title:{ru:"Площадь по двум сторонам и углу",ua:"Площа за двома сторонами й кутом"}, desc:{ru:"S = ½·a·b·sin C",ua:"S = ½·a·b·sin C"}, generate: genAreaFiguresHigh }
-      ,{ id:"c6Arrangement", module:6, title:{ru:"Размещения",ua:"Розміщення"}, desc:{ru:"A(n; k) — порядок важен",ua:"A(n; k) — порядок важливий"}, generate: genC6ArrangementShort }
-      ,{ id:"c6Subsets", module:6, title:{ru:"Число подмножеств",ua:"Кількість підмножин"}, desc:{ru:"2ⁿ через биномиальную формулу",ua:"2ⁿ через біноміальну формулу"}, generate: genC6SubsetsShort }
-      ,{ id:"c6Conditional", module:6, title:{ru:"Условная вероятность",ua:"Умовна ймовірність"}, desc:{ru:"Знаменатель ограничен условием",ua:"Знаменник обмежено умовою"}, generate: genC6ProbConditionalShort }
-      ,{ id:"c6TotalProb", module:6, title:{ru:"Формула полной вероятности",ua:"Формула повної ймовірності"}, desc:{ru:"Сумма по гипотезам",ua:"Сума за гіпотезами"}, generate: genC6ProbTotalShort }
-      ,{ id:"c6Dispersion", module:6, title:{ru:"Размах и дисперсия",ua:"Розмах і дисперсія"}, desc:{ru:"R и D для набора данных",ua:"R і D для набору даних"}, generate: genC6StatDispersionShort }
-      ,{ id:"c6Freq", module:6, title:{ru:"Относительная частота",ua:"Відносна частота"}, desc:{ru:"Оценка вероятности по опытам",ua:"Оцінка ймовірності за дослідами"}, generate: genC6ProbFreqShort }
-      ,{ id:"nmtParameter", module:3, title:{ru:"НМТ: параметр",ua:"НМТ: параметр"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genNmtParameterMC }
+      ,{ id:"c6Arrangement", module:7, title:{ru:"Размещения",ua:"Розміщення"}, desc:{ru:"A(n; k) — порядок важен",ua:"A(n; k) — порядок важливий"}, generate: genC6ArrangementShort }
+      ,{ id:"c6Subsets", module:7, title:{ru:"Число подмножеств",ua:"Кількість підмножин"}, desc:{ru:"2ⁿ через биномиальную формулу",ua:"2ⁿ через біноміальну формулу"}, generate: genC6SubsetsShort }
+      ,{ id:"c6Conditional", module:7, title:{ru:"Условная вероятность",ua:"Умовна ймовірність"}, desc:{ru:"Знаменатель ограничен условием",ua:"Знаменник обмежено умовою"}, generate: genC6ProbConditionalShort }
+      ,{ id:"c6TotalProb", module:7, title:{ru:"Формула полной вероятности",ua:"Формула повної ймовірності"}, desc:{ru:"Сумма по гипотезам",ua:"Сума за гіпотезами"}, generate: genC6ProbTotalShort }
+      ,{ id:"c6Dispersion", module:8, title:{ru:"Размах и дисперсия",ua:"Розмах і дисперсія"}, desc:{ru:"R и D для набора данных",ua:"R і D для набору даних"}, generate: genC6StatDispersionShort }
+      ,{ id:"c6Freq", module:8, title:{ru:"Относительная частота",ua:"Відносна частота"}, desc:{ru:"Оценка вероятности по опытам",ua:"Оцінка ймовірності за дослідами"}, generate: genC6ProbFreqShort }
+      ,{ id:"nmtParameter", module:2, title:{ru:"НМТ: параметр",ua:"НМТ: параметр"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genNmtParameterMC }
     ]
   }
 ];
@@ -15661,7 +16132,19 @@ function renderSidebar(){
     const title = document.createElement("div");
     title.className = "module-title";
     title.textContent = mod[state.lang];
+    if(mod.exam_priority || mod.advanced){
+      const flag = document.createElement("span");
+      flag.className = "module-flag" + (mod.advanced ? " advanced" : "");
+      flag.textContent = mod.advanced ? UI[state.lang].advancedLabel : UI[state.lang].examPriority;
+      title.appendChild(flag);
+    }
     block.appendChild(title);
+    if(mod.comment){
+      const note = document.createElement("div");
+      note.className = "module-note";
+      note.textContent = mod.comment[state.lang];
+      block.appendChild(note);
+    }
     const progress = moduleProgress(modId);
     const progressEl = document.createElement("div");
     progressEl.className = "module-progress";

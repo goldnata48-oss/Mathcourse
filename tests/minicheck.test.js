@@ -22,6 +22,7 @@ class El {
     this.classList = new ClassList(this);
     this.textContent = "";
     this.disabled = false;
+    this.hidden = false;
     this._listeners = {};
     this._attrs = {};
     this.dataset = {};
@@ -128,6 +129,24 @@ dom.container.children[1].children[1].children[2].click();
 dom.container.children[2].children[1].children[1].click();
 assert(dom.h3.querySelector(".mini-check-badge").textContent === "Мини-проверка: 3/3 ✓", "perfect badge 3/3 ✓");
 assert(dom.container.children[0].children[1].children[1].disabled === true, "after settle other options disabled");
+
+const explainedQuestions = [{
+  q: { ru: "Solve", ua: "Розв’яжіть" },
+  opts: ["wrong", "correct", "other", "last"],
+  correct: 1,
+  explanation: { ru: "RU steps", ua: "Кроки українською" },
+}];
+({ ctx, dom } = makeContext({}));
+ctx.renderMiniCheck(dom.container, "ru", explainedQuestions);
+let explanation = dom.container.children[0].children[2];
+assert(explanation.hidden === true, "step-by-step explanation starts hidden");
+dom.container.children[0].children[1].children[0].click();
+assert(explanation.hidden === false && explanation.textContent === "RU steps", "explanation appears after answering in Russian");
+({ ctx, dom } = makeContext(JSON.parse(store.mc_mini)));
+ctx.state.lang = "ua";
+ctx.renderMiniCheck(dom.container, "ua", explainedQuestions);
+explanation = dom.container.children[0].children[2];
+assert(explanation.hidden === false && explanation.textContent === "Кроки українською", "saved answer restores localized explanation");
 
 console.log(fails === 0 ? "\nALL MINI-CHECK TESTS PASSED" : "\n" + fails + " TEST(S) FAILED");
 process.exit(fails === 0 ? 0 : 1);

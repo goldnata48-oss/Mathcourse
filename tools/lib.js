@@ -40,8 +40,8 @@ const DEG_TABLE = [
 function loadLessons() {
   const ctx = {};
   vm.createContext(ctx);
-  vm.runInContext(read("lessons.js") + "\n;var __L = LESSONS, __R = ROADMAP;", ctx);
-  return { lessons: ctx.__L, roadmap: ctx.__R };
+  vm.runInContext(read("lessons.js") + "\n;var __L = LESSONS, __R = ROADMAP, __F = buildFinalQuestions;", ctx);
+  return { lessons: ctx.__L, roadmap: ctx.__R, buildFinalQuestions: ctx.__F };
 }
 
 function loadUI() {

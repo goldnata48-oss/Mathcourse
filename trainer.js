@@ -1663,33 +1663,33 @@ const LEVEL_DEFS = [
     title:{ru:"Базовый",ua:"Базовий"},
     desc:{ru:"Прямое применение формул, тестовый формат",ua:"Пряме застосування формул, тестовий формат"},
     topics:[
-      { id:"identity", module:1, title:{ru:"Основное тождество",ua:"Основна тотожність"}, desc:{ru:"sin²+cos²=1 и родственные формы",ua:"sin²+cos²=1 і споріднені форми"}, generate: genIdentityBasicMC },
-      { id:"radconv", module:1, title:{ru:"Градусы ↔ радианы",ua:"Градуси ↔ радіани"}, desc:{ru:"Перевод угловых мер",ua:"Переведення кутових мір"}, generate: genRadConvertMC },
-      { id:"simplesteq", module:1, title:{ru:"Простейшие уравнения",ua:"Найпростіші рівняння"}, desc:{ru:"Общие решения sin x=a, cos x=a",ua:"Загальні розв'язки sin x=a, cos x=a"}, generate: genSimplestEqMC },
-      { id:"signquad", module:1, title:{ru:"Знак функции по четверти",ua:"Знак функції за чвертю"}, desc:{ru:"Таблица знаков sin, cos, tg",ua:"Таблиця знаків sin, cos, tg"}, generate: genSignByQuadrant },
-      { id:"expBasic", module:2, title:{ru:"Показательное уравнение (основа)",ua:"Показникове рівняння (основа)"}, desc:{ru:"Одинаковые основания",ua:"Однакові основи"}, generate: genExpBasicMC },
-      { id:"logBasic", module:2, title:{ru:"Логарифмическое тождество",ua:"Логарифмічна тотожність"}, desc:{ru:"logₐ(aⁿ)=n",ua:"logₐ(aⁿ)=n"}, generate: genLogBasicMC },
-      { id:"limitDirect", module:3, title:{ru:"Предел подстановкой",ua:"Границя підстановкою"}, desc:{ru:"Прямая подстановка в непрерывную функцию",ua:"Пряма підстановка в неперервну функцію"}, generate: genLimitDirectMC },
-      { id:"derivTable", module:3, title:{ru:"Таблица производных",ua:"Таблиця похідних"}, desc:{ru:"Базовые формулы дифференцирования",ua:"Базові формули диференціювання"}, generate: genDerivTableMC },
-      { id:"antiderivBasic", module:4, title:{ru:"Первообразная степени",ua:"Первісна степеня"}, desc:{ru:"∫xⁿdx=xⁿ⁺¹/(n+1)+C",ua:"∫xⁿdx=xⁿ⁺¹/(n+1)+C"}, generate: genAntiderivativeBasicMC },
-      { id:"defIntPoly", module:4, title:{ru:"Определённый интеграл (основа)",ua:"Визначений інтеграл (основа)"}, desc:{ru:"Формула Ньютона–Лейбница",ua:"Формула Ньютона–Лейбніца"}, generate: genDefiniteIntegralPolyMC },
-      { id:"prismVolume", module:5, title:{ru:"Объём призмы",ua:"Об'єм призми"}, desc:{ru:"V=Sосн·h",ua:"V=Sосн·h"}, generate: genPrismVolumeMC },
+      { id:"identity", module:2, title:{ru:"Основное тождество",ua:"Основна тотожність"}, desc:{ru:"sin²+cos²=1 и родственные формы",ua:"sin²+cos²=1 і споріднені форми"}, generate: genIdentityBasicMC },
+      { id:"radconv", module:2, title:{ru:"Градусы ↔ радианы",ua:"Градуси ↔ радіани"}, desc:{ru:"Перевод угловых мер",ua:"Переведення кутових мір"}, generate: genRadConvertMC },
+      { id:"simplesteq", module:2, title:{ru:"Простейшие уравнения",ua:"Найпростіші рівняння"}, desc:{ru:"Общие решения sin x=a, cos x=a",ua:"Загальні розв'язки sin x=a, cos x=a"}, generate: genSimplestEqMC },
+      { id:"signquad", module:2, title:{ru:"Знак функции по четверти",ua:"Знак функції за чвертю"}, desc:{ru:"Таблица знаков sin, cos, tg",ua:"Таблиця знаків sin, cos, tg"}, generate: genSignByQuadrant },
+      { id:"expBasic", module:3, title:{ru:"Показательное уравнение (основа)",ua:"Показникове рівняння (основа)"}, desc:{ru:"Одинаковые основания",ua:"Однакові основи"}, generate: genExpBasicMC },
+      { id:"logBasic", module:4, title:{ru:"Логарифмическое тождество",ua:"Логарифмічна тотожність"}, desc:{ru:"logₐ(aⁿ)=n",ua:"logₐ(aⁿ)=n"}, generate: genLogBasicMC },
+      { id:"limitDirect", module:9, title:{ru:"Предел подстановкой",ua:"Границя підстановкою"}, desc:{ru:"Прямая подстановка в непрерывную функцию",ua:"Пряма підстановка в неперервну функцію"}, generate: genLimitDirectMC },
+      { id:"derivTable", module:9, title:{ru:"Таблица производных",ua:"Таблиця похідних"}, desc:{ru:"Базовые формулы дифференцирования",ua:"Базові формули диференціювання"}, generate: genDerivTableMC },
+      { id:"antiderivBasic", module:9, title:{ru:"Первообразная степени",ua:"Первісна степеня"}, desc:{ru:"∫xⁿdx=xⁿ⁺¹/(n+1)+C",ua:"∫xⁿdx=xⁿ⁺¹/(n+1)+C"}, generate: genAntiderivativeBasicMC },
+      { id:"defIntPoly", module:9, title:{ru:"Определённый интеграл (основа)",ua:"Визначений інтеграл (основа)"}, desc:{ru:"Формула Ньютона–Лейбница",ua:"Формула Ньютона–Лейбніца"}, generate: genDefiniteIntegralPolyMC },
+      { id:"prismVolume", module:6, title:{ru:"Объём призмы",ua:"Об'єм призми"}, desc:{ru:"V=Sосн·h",ua:"V=Sосн·h"}, generate: genPrismVolumeMC },
       { id:"triangleFeatures", module:5, title:{ru:"Высота, медиана, биссектриса и средняя линия",ua:"Висота, медіана, бісектриса та середня лінія"}, desc:{ru:"Основные элементы треугольника",ua:"Основні елементи трикутника"}, generate: genTriangleFeaturesMC },
       { id:"height", module:5, title:{ru:"Высота треугольника",ua:"Висота трикутника"}, desc:{ru:"Перпендикуляр из вершины к стороне",ua:"Перпендикуляр із вершини до сторони"}, generate: genHeightMC },
       { id:"angleBisector", module:5, title:{ru:"Биссектрисса",ua:"Бісектриса"}, desc:{ru:"Делит угол пополам",ua:"Ділить кут навпіл"}, generate: genAngleBisectorMC },
       { id:"median", module:5, title:{ru:"Медиана",ua:"Медіана"}, desc:{ru:"Идёт к середине стороны",ua:"Йде до середини сторони"}, generate: genMedianMC },
       { id:"midline", module:5, title:{ru:"Средняя линия треугольника",ua:"Середня лінія трикутника"}, desc:{ru:"Соединяет середины двух сторон",ua:"Сполучає середини двох сторін"}, generate: genMidlineMC },
       { id:"regularPolygon", module:5, title:{ru:"Правильные многоугольники",ua:"Правильні многокутники"}, desc:{ru:"Внутренние углы и центральный угол",ua:"Внутрішні кути та центральний кут"}, generate: genRegularPolygonMC },
-      { id:"sphereSurface", module:5, title:{ru:"Площадь сферы",ua:"Площа сфери"}, desc:{ru:"S=4πR²",ua:"S=4πR²"}, generate: genSphereSurfaceMC }
+      { id:"sphereSurface", module:6, title:{ru:"Площадь сферы",ua:"Площа сфери"}, desc:{ru:"S=4πR²",ua:"S=4πR²"}, generate: genSphereSurfaceMC }
       ,{ id:"vectorsDot", module:5, title:{ru:"Скалярное произведение векторов",ua:"Скалярний добуток векторів"}, desc:{ru:"a·b = x₁x₂ + y₁y₂",ua:"a·b = x₁x₂ + y₁y₂"}, generate: genVectorsDotMC }
       ,{ id:"lawOfCosines", module:5, title:{ru:"Теорема косинусов",ua:"Теорема косинусів"}, desc:{ru:"Сторона по двум сторонам и углу",ua:"Сторона за двома сторонами й кутом"}, generate: genLawOfCosinesMC }
       ,{ id:"inscribedAngle", module:5, title:{ru:"Вписанный угол",ua:"Вписаний кут"}, desc:{ru:"Половина центрального угла",ua:"Половина центрального кута"}, generate: genInscribedAngleMC }
-      ,{ id:"c6Product", module:6, title:{ru:"Правило умножения",ua:"Правило множення"}, desc:{ru:"Последовательные обязательные выборы",ua:"Послідовні обов'язкові вибори"}, generate: genC6ProductRuleShort }
-      ,{ id:"c6Sum", module:6, title:{ru:"Правило сложения",ua:"Правило додавання"}, desc:{ru:"Непересекающиеся группы вариантов",ua:"Неперетинні групи варіантів"}, generate: genC6SumRuleShort }
-      ,{ id:"c6ProbSingle", module:6, title:{ru:"Классическая вероятность",ua:"Класична ймовірність"}, desc:{ru:"P = благоприятных / всех",ua:"P = сприятливих / усіх"}, generate: genC6ProbSingleShort }
-      ,{ id:"c6Complement", module:6, title:{ru:"Противоположное событие",ua:"Протилежна подія"}, desc:{ru:"P(Ā) = 1 − P(A)",ua:"P(Ā) = 1 − P(A)"}, generate: genC6ProbComplementMC }
-      ,{ id:"c6Mean", module:6, title:{ru:"Среднее арифметическое",ua:"Середнє арифметичне"}, desc:{ru:"Сумма данных, делённая на их количество",ua:"Сума даних, поділена на їхню кількість"}, generate: genC6StatMeanShort }
-      ,{ id:"nmtTrig", module:1, title:{ru:"НМТ: тригонометрия",ua:"НМТ: тригонометрія"}, desc:{ru:"Комбинированная задача с четвертью угла",ua:"Комбінована задача з чвертю кута"}, generate: genNmtTrigMixedMC }
+      ,{ id:"c6Product", module:7, title:{ru:"Правило умножения",ua:"Правило множення"}, desc:{ru:"Последовательные обязательные выборы",ua:"Послідовні обов'язкові вибори"}, generate: genC6ProductRuleShort }
+      ,{ id:"c6Sum", module:7, title:{ru:"Правило сложения",ua:"Правило додавання"}, desc:{ru:"Непересекающиеся группы вариантов",ua:"Неперетинні групи варіантів"}, generate: genC6SumRuleShort }
+      ,{ id:"c6ProbSingle", module:7, title:{ru:"Классическая вероятность",ua:"Класична ймовірність"}, desc:{ru:"P = благоприятных / всех",ua:"P = сприятливих / усіх"}, generate: genC6ProbSingleShort }
+      ,{ id:"c6Complement", module:7, title:{ru:"Противоположное событие",ua:"Протилежна подія"}, desc:{ru:"P(Ā) = 1 − P(A)",ua:"P(Ā) = 1 − P(A)"}, generate: genC6ProbComplementMC }
+      ,{ id:"c6Mean", module:8, title:{ru:"Среднее арифметическое",ua:"Середнє арифметичне"}, desc:{ru:"Сумма данных, делённая на их количество",ua:"Сума даних, поділена на їхню кількість"}, generate: genC6StatMeanShort }
+      ,{ id:"nmtTrig", module:2, title:{ru:"НМТ: тригонометрия",ua:"НМТ: тригонометрія"}, desc:{ru:"Комбинированная задача с четвертью угла",ua:"Комбінована задача з чвертю кута"}, generate: genNmtTrigMixedMC }
     ]
   },
   {
@@ -1697,26 +1697,26 @@ const LEVEL_DEFS = [
     title:{ru:"Средний",ua:"Середній"},
     desc:{ru:"Комбинация 2–3 понятий, короткий ответ",ua:"Комбінація 2–3 понять, коротка відповідь"},
     topics:[
-      { id:"tanExpr", module:1, title:{ru:"Выражение через tg α",ua:"Вираз через tg α"}, desc:{ru:"Деление на cos α",ua:"Ділення на cos α"}, generate: genTanExpr },
-      { id:"simplifyEval", module:1, title:{ru:"sin α + cos α по tg α",ua:"sin α + cos α за tg α"}, desc:{ru:"Знаки по четверти + тождество",ua:"Знаки за чвертю + тотожність"}, generate: genSimplifyEval },
-      { id:"doubleAngle", module:1, title:{ru:"Формула двойного угла",ua:"Формула подвійного кута"}, desc:{ru:"Упрощение через sin2α, cos2α",ua:"Спрощення через sin2α, cos2α"}, generate: genDoubleAngleSimplify },
-      { id:"expEquation", module:2, title:{ru:"Показательное уравнение",ua:"Показникове рівняння"}, desc:{ru:"Сведение к одинаковому основанию",ua:"Зведення до однакової основи"}, generate: genExpEquationShort },
-      { id:"logEquation", module:2, title:{ru:"Логарифмическое уравнение",ua:"Логарифмічне рівняння"}, desc:{ru:"Потенцирование",ua:"Потенціювання"}, generate: genLogEquationShort },
-      { id:"limitFactor", module:3, title:{ru:"Предел через разложение",ua:"Границя через розкладання"}, desc:{ru:"Устранение неопределённости 0/0",ua:"Усунення невизначеності 0/0"}, generate: genLimitFactorShort },
-      { id:"derivAtPoint", module:3, title:{ru:"Значение производной в точке",ua:"Значення похідної в точці"}, desc:{ru:"Вычисление f′(a) для многочлена",ua:"Обчислення f′(a) для многочлена"}, generate: genDerivativeAtPoint },
-      { id:"defIntLinear", module:4, title:{ru:"Определённый интеграл (линейная)",ua:"Визначений інтеграл (лінійна)"}, desc:{ru:"Вычисление F(b)−F(a)",ua:"Обчислення F(b)−F(a)"}, generate: genDefiniteIntegralLinearShort },
-      { id:"areaCubic", module:4, title:{ru:"Площадь под параболой",ua:"Площа під параболою"}, desc:{ru:"S=∫f(x)dx на [0;b]",ua:"S=∫f(x)dx на [0;b]"}, generate: genAreaUnderCubicShort },
-      { id:"pyramidVolume", module:5, title:{ru:"Объём пирамиды",ua:"Об'єм піраміди"}, desc:{ru:"V=⅓Sосн·h",ua:"V=⅓Sосн·h"}, generate: genPyramidVolumeShort },
-      { id:"coneSurface", module:5, title:{ru:"Площадь поверхности конуса",ua:"Площа поверхні конуса"}, desc:{ru:"l=√(R²+h²), Sполн=πR(R+l)",ua:"l=√(R²+h²), Sповн=πR(R+l)"}, generate: genConeSurfaceShort }
+      { id:"tanExpr", module:2, title:{ru:"Выражение через tg α",ua:"Вираз через tg α"}, desc:{ru:"Деление на cos α",ua:"Ділення на cos α"}, generate: genTanExpr },
+      { id:"simplifyEval", module:2, title:{ru:"sin α + cos α по tg α",ua:"sin α + cos α за tg α"}, desc:{ru:"Знаки по четверти + тождество",ua:"Знаки за чвертю + тотожність"}, generate: genSimplifyEval },
+      { id:"doubleAngle", module:2, title:{ru:"Формула двойного угла",ua:"Формула подвійного кута"}, desc:{ru:"Упрощение через sin2α, cos2α",ua:"Спрощення через sin2α, cos2α"}, generate: genDoubleAngleSimplify },
+      { id:"expEquation", module:3, title:{ru:"Показательное уравнение",ua:"Показникове рівняння"}, desc:{ru:"Сведение к одинаковому основанию",ua:"Зведення до однакової основи"}, generate: genExpEquationShort },
+      { id:"logEquation", module:4, title:{ru:"Логарифмическое уравнение",ua:"Логарифмічне рівняння"}, desc:{ru:"Потенцирование",ua:"Потенціювання"}, generate: genLogEquationShort },
+      { id:"limitFactor", module:9, title:{ru:"Предел через разложение",ua:"Границя через розкладання"}, desc:{ru:"Устранение неопределённости 0/0",ua:"Усунення невизначеності 0/0"}, generate: genLimitFactorShort },
+      { id:"derivAtPoint", module:9, title:{ru:"Значение производной в точке",ua:"Значення похідної в точці"}, desc:{ru:"Вычисление f′(a) для многочлена",ua:"Обчислення f′(a) для многочлена"}, generate: genDerivativeAtPoint },
+      { id:"defIntLinear", module:9, title:{ru:"Определённый интеграл (линейная)",ua:"Визначений інтеграл (лінійна)"}, desc:{ru:"Вычисление F(b)−F(a)",ua:"Обчислення F(b)−F(a)"}, generate: genDefiniteIntegralLinearShort },
+      { id:"areaCubic", module:9, title:{ru:"Площадь под параболой",ua:"Площа під параболою"}, desc:{ru:"S=∫f(x)dx на [0;b]",ua:"S=∫f(x)dx на [0;b]"}, generate: genAreaUnderCubicShort },
+      { id:"pyramidVolume", module:6, title:{ru:"Объём пирамиды",ua:"Об'єм піраміди"}, desc:{ru:"V=⅓Sосн·h",ua:"V=⅓Sосн·h"}, generate: genPyramidVolumeShort },
+      { id:"coneSurface", module:6, title:{ru:"Площадь поверхности конуса",ua:"Площа поверхні конуса"}, desc:{ru:"l=√(R²+h²), Sполн=πR(R+l)",ua:"l=√(R²+h²), Sповн=πR(R+l)"}, generate: genConeSurfaceShort }
       ,{ id:"vectorsAngle", module:5, title:{ru:"Угол между векторами",ua:"Кут між векторами"}, desc:{ru:"cos ∠ через скалярное произведение",ua:"cos ∠ через скалярний добуток"}, generate: genVectorsAngleMC }
       ,{ id:"lawOfSines", module:5, title:{ru:"Теорема синусов",ua:"Теорема синусів"}, desc:{ru:"a/sin A = 2R",ua:"a/sin A = 2R"}, generate: genLawOfSinesMC }
       ,{ id:"circleRadii", module:5, title:{ru:"Радиусы вписанной и описанной окружностей",ua:"Радіуси вписаного й описаного кіл"}, desc:{ru:"r = (a+b−c)/2, R = c/2",ua:"r = (a+b−c)/2, R = c/2"}, generate: genCircleRadiiMC }
-      ,{ id:"c6Permutation", module:6, title:{ru:"Перестановки и факториал",ua:"Розстановки та факторіал"}, desc:{ru:"n! — все элементы, порядок важен",ua:"n! — усі елементи, порядок важливий"}, generate: genC6PermutationShort }
-      ,{ id:"c6Combination", module:6, title:{ru:"Сочетания",ua:"Сполучення"}, desc:{ru:"Порядок не важен",ua:"Порядок неважливий"}, generate: genC6CombinationShort }
-      ,{ id:"c6Urn", module:6, title:{ru:"Вероятность в урне",ua:"Ймовірність в урні"}, desc:{ru:"Шары без возврата",ua:"Кульки без повернення"}, generate: genC6ProbUrnaShort }
-      ,{ id:"c6DiceSum", module:6, title:{ru:"Сумма двух костей",ua:"Сума двох кісток"}, desc:{ru:"36 равновероятных пар",ua:"36 рівноймовірних пар"}, generate: genC6ProbDiceSumMC }
-      ,{ id:"c6Median", module:6, title:{ru:"Медиана",ua:"Медіана"}, desc:{ru:"Центр упорядоченного ряда",ua:"Центр впорядкованого ряду"}, generate: genC6StatMedianModeShort }
-      ,{ id:"nmtShort", module:2, title:{ru:"НМТ: короткий ответ",ua:"НМТ: коротка відповідь"}, desc:{ru:"Показательное уравнение в формате НМТ",ua:"Показникове рівняння у форматі НМТ"}, generate: genNmtShortAnswer }
+      ,{ id:"c6Permutation", module:7, title:{ru:"Перестановки и факториал",ua:"Розстановки та факторіал"}, desc:{ru:"n! — все элементы, порядок важен",ua:"n! — усі елементи, порядок важливий"}, generate: genC6PermutationShort }
+      ,{ id:"c6Combination", module:7, title:{ru:"Сочетания",ua:"Сполучення"}, desc:{ru:"Порядок не важен",ua:"Порядок неважливий"}, generate: genC6CombinationShort }
+      ,{ id:"c6Urn", module:7, title:{ru:"Вероятность в урне",ua:"Ймовірність в урні"}, desc:{ru:"Шары без возврата",ua:"Кульки без повернення"}, generate: genC6ProbUrnaShort }
+      ,{ id:"c6DiceSum", module:7, title:{ru:"Сумма двух костей",ua:"Сума двох кісток"}, desc:{ru:"36 равновероятных пар",ua:"36 рівноймовірних пар"}, generate: genC6ProbDiceSumMC }
+      ,{ id:"c6Median", module:8, title:{ru:"Медиана",ua:"Медіана"}, desc:{ru:"Центр упорядоченного ряда",ua:"Центр впорядкованого ряду"}, generate: genC6StatMedianModeShort }
+      ,{ id:"nmtShort", module:3, title:{ru:"НМТ: короткий ответ",ua:"НМТ: коротка відповідь"}, desc:{ru:"Показательное уравнение в формате НМТ",ua:"Показникове рівняння у форматі НМТ"}, generate: genNmtShortAnswer }
     ]
   },
   {
@@ -1724,27 +1724,27 @@ const LEVEL_DEFS = [
     title:{ru:"Наисложнейший",ua:"Найскладніший"},
     desc:{ru:"Комбинированные и параметрические задачи",ua:"Комбіновані та параметричні задачі"},
     topics:[
-      { id:"homogen", module:1, title:{ru:"Однородные уравнения",ua:"Однорідні рівняння"}, desc:{ru:"Сведение к квадратному относительно tg x",ua:"Зведення до квадратного відносно tg x"}, generate: genHomogen },
-      { id:"rootsCount", module:1, title:{ru:"Число корней на промежутке",ua:"Кількість коренів на проміжку"}, desc:{ru:"Периодичность решений",ua:"Періодичність розв'язків"}, generate: genRootsCount },
-      { id:"paramRange", module:1, title:{ru:"Параметр в уравнении",ua:"Параметр у рівнянні"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genParamRange },
-      { id:"maxSum", module:1, title:{ru:"Максимум A sinx + B cosx",ua:"Максимум A sinx + B cosx"}, desc:{ru:"Амплитуда через √(A²+B²)",ua:"Амплітуда через √(A²+B²)"}, generate: genMaxSum },
-      { id:"expSubst", module:2, title:{ru:"Показательное уравнение (замена)",ua:"Показникове рівняння (заміна)"}, desc:{ru:"Квадратное относительно t=aˣ",ua:"Квадратне відносно t=aˣ"}, generate: genExpSubstitution },
-      { id:"logIneqBoundary", module:2, title:{ru:"Логарифмическое неравенство",ua:"Логарифмічна нерівність"}, desc:{ru:"Наименьшее целое решение",ua:"Найменше ціле рішення"}, generate: genLogInequalityBoundary },
-      { id:"secondRemarkable", module:3, title:{ru:"Второй замечательный предел",ua:"Друга чудова границя"}, desc:{ru:"lim(1+k/x)ˣ=eᵏ",ua:"lim(1+k/x)ˣ=eᵏ"}, generate: genSecondRemarkableGeneral },
-      { id:"extremum", module:3, title:{ru:"Точка экстремума",ua:"Точка екстремуму"}, desc:{ru:"Исследование кубической функции",ua:"Дослідження кубічної функції"}, generate: genExtremumPoint },
-      { id:"areaBetween", module:4, title:{ru:"Площадь между кривыми",ua:"Площа між кривими"}, desc:{ru:"Точки пересечения + интеграл разности",ua:"Точки перетину + інтеграл різниці"}, generate: genAreaBetweenCurvesHigh },
-      { id:"absArea", module:4, title:{ru:"Площадь с модулем",ua:"Площа з модулем"}, desc:{ru:"Фигура пересекает ось Ox",ua:"Фігура перетинає вісь Ox"}, generate: genAbsAreaHigh },
-      { id:"coneVolIntegral", module:5, title:{ru:"Объём конуса через интеграл",ua:"Об'єм конуса через інтеграл"}, desc:{ru:"Метод дисков",ua:"Метод дисків"}, generate: genConeVolumeIntegralShort },
-      { id:"cubeSection", module:5, title:{ru:"Площадь сечения куба",ua:"Площа перерізу куба"}, desc:{ru:"Равносторонний треугольник у вершины",ua:"Рівносторонній трикутник біля вершини"}, generate: genCubeSectionAreaShort }
+      { id:"homogen", module:2, title:{ru:"Однородные уравнения",ua:"Однорідні рівняння"}, desc:{ru:"Сведение к квадратному относительно tg x",ua:"Зведення до квадратного відносно tg x"}, generate: genHomogen },
+      { id:"rootsCount", module:2, title:{ru:"Число корней на промежутке",ua:"Кількість коренів на проміжку"}, desc:{ru:"Периодичность решений",ua:"Періодичність розв'язків"}, generate: genRootsCount },
+      { id:"paramRange", module:2, title:{ru:"Параметр в уравнении",ua:"Параметр у рівнянні"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genParamRange },
+      { id:"maxSum", module:2, title:{ru:"Максимум A sinx + B cosx",ua:"Максимум A sinx + B cosx"}, desc:{ru:"Амплитуда через √(A²+B²)",ua:"Амплітуда через √(A²+B²)"}, generate: genMaxSum },
+      { id:"expSubst", module:3, title:{ru:"Показательное уравнение (замена)",ua:"Показникове рівняння (заміна)"}, desc:{ru:"Квадратное относительно t=aˣ",ua:"Квадратне відносно t=aˣ"}, generate: genExpSubstitution },
+      { id:"logIneqBoundary", module:4, title:{ru:"Логарифмическое неравенство",ua:"Логарифмічна нерівність"}, desc:{ru:"Наименьшее целое решение",ua:"Найменше ціле рішення"}, generate: genLogInequalityBoundary },
+      { id:"secondRemarkable", module:9, title:{ru:"Второй замечательный предел",ua:"Друга чудова границя"}, desc:{ru:"lim(1+k/x)ˣ=eᵏ",ua:"lim(1+k/x)ˣ=eᵏ"}, generate: genSecondRemarkableGeneral },
+      { id:"extremum", module:9, title:{ru:"Точка экстремума",ua:"Точка екстремуму"}, desc:{ru:"Исследование кубической функции",ua:"Дослідження кубічної функції"}, generate: genExtremumPoint },
+      { id:"areaBetween", module:9, title:{ru:"Площадь между кривыми",ua:"Площа між кривими"}, desc:{ru:"Точки пересечения + интеграл разности",ua:"Точки перетину + інтеграл різниці"}, generate: genAreaBetweenCurvesHigh },
+      { id:"absArea", module:9, title:{ru:"Площадь с модулем",ua:"Площа з модулем"}, desc:{ru:"Фигура пересекает ось Ox",ua:"Фігура перетинає вісь Ox"}, generate: genAbsAreaHigh },
+      { id:"coneVolIntegral", module:9, title:{ru:"Объём конуса через интеграл",ua:"Об'єм конуса через інтеграл"}, desc:{ru:"Метод дисков",ua:"Метод дисків"}, generate: genConeVolumeIntegralShort },
+      { id:"cubeSection", module:6, title:{ru:"Площадь сечения куба",ua:"Площа перерізу куба"}, desc:{ru:"Равносторонний треугольник у вершины",ua:"Рівносторонній трикутник біля вершини"}, generate: genCubeSectionAreaShort }
       ,{ id:"vectorsCross", module:5, title:{ru:"Площадь через векторное произведение",ua:"Площа через векторний добуток"}, desc:{ru:"S = |x₁y₂ − x₂y₁|",ua:"S = |x₁y₂ − x₂y₁|"}, generate: genVectorsCrossMC }
       ,{ id:"areaFigures", module:5, title:{ru:"Площадь по двум сторонам и углу",ua:"Площа за двома сторонами й кутом"}, desc:{ru:"S = ½·a·b·sin C",ua:"S = ½·a·b·sin C"}, generate: genAreaFiguresHigh }
-      ,{ id:"c6Arrangement", module:6, title:{ru:"Размещения",ua:"Розміщення"}, desc:{ru:"A(n; k) — порядок важен",ua:"A(n; k) — порядок важливий"}, generate: genC6ArrangementShort }
-      ,{ id:"c6Subsets", module:6, title:{ru:"Число подмножеств",ua:"Кількість підмножин"}, desc:{ru:"2ⁿ через биномиальную формулу",ua:"2ⁿ через біноміальну формулу"}, generate: genC6SubsetsShort }
-      ,{ id:"c6Conditional", module:6, title:{ru:"Условная вероятность",ua:"Умовна ймовірність"}, desc:{ru:"Знаменатель ограничен условием",ua:"Знаменник обмежено умовою"}, generate: genC6ProbConditionalShort }
-      ,{ id:"c6TotalProb", module:6, title:{ru:"Формула полной вероятности",ua:"Формула повної ймовірності"}, desc:{ru:"Сумма по гипотезам",ua:"Сума за гіпотезами"}, generate: genC6ProbTotalShort }
-      ,{ id:"c6Dispersion", module:6, title:{ru:"Размах и дисперсия",ua:"Розмах і дисперсія"}, desc:{ru:"R и D для набора данных",ua:"R і D для набору даних"}, generate: genC6StatDispersionShort }
-      ,{ id:"c6Freq", module:6, title:{ru:"Относительная частота",ua:"Відносна частота"}, desc:{ru:"Оценка вероятности по опытам",ua:"Оцінка ймовірності за дослідами"}, generate: genC6ProbFreqShort }
-      ,{ id:"nmtParameter", module:3, title:{ru:"НМТ: параметр",ua:"НМТ: параметр"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genNmtParameterMC }
+      ,{ id:"c6Arrangement", module:7, title:{ru:"Размещения",ua:"Розміщення"}, desc:{ru:"A(n; k) — порядок важен",ua:"A(n; k) — порядок важливий"}, generate: genC6ArrangementShort }
+      ,{ id:"c6Subsets", module:7, title:{ru:"Число подмножеств",ua:"Кількість підмножин"}, desc:{ru:"2ⁿ через биномиальную формулу",ua:"2ⁿ через біноміальну формулу"}, generate: genC6SubsetsShort }
+      ,{ id:"c6Conditional", module:7, title:{ru:"Условная вероятность",ua:"Умовна ймовірність"}, desc:{ru:"Знаменатель ограничен условием",ua:"Знаменник обмежено умовою"}, generate: genC6ProbConditionalShort }
+      ,{ id:"c6TotalProb", module:7, title:{ru:"Формула полной вероятности",ua:"Формула повної ймовірності"}, desc:{ru:"Сумма по гипотезам",ua:"Сума за гіпотезами"}, generate: genC6ProbTotalShort }
+      ,{ id:"c6Dispersion", module:8, title:{ru:"Размах и дисперсия",ua:"Розмах і дисперсія"}, desc:{ru:"R и D для набора данных",ua:"R і D для набору даних"}, generate: genC6StatDispersionShort }
+      ,{ id:"c6Freq", module:8, title:{ru:"Относительная частота",ua:"Відносна частота"}, desc:{ru:"Оценка вероятности по опытам",ua:"Оцінка ймовірності за дослідами"}, generate: genC6ProbFreqShort }
+      ,{ id:"nmtParameter", module:2, title:{ru:"НМТ: параметр",ua:"НМТ: параметр"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genNmtParameterMC }
     ]
   }
 ];

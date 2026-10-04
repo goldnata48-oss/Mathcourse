@@ -513,7 +513,19 @@ function renderSidebar(){
     const title = document.createElement("div");
     title.className = "module-title";
     title.textContent = mod[state.lang];
+    if(mod.exam_priority || mod.advanced){
+      const flag = document.createElement("span");
+      flag.className = "module-flag" + (mod.advanced ? " advanced" : "");
+      flag.textContent = mod.advanced ? UI[state.lang].advancedLabel : UI[state.lang].examPriority;
+      title.appendChild(flag);
+    }
     block.appendChild(title);
+    if(mod.comment){
+      const note = document.createElement("div");
+      note.className = "module-note";
+      note.textContent = mod.comment[state.lang];
+      block.appendChild(note);
+    }
     const progress = moduleProgress(modId);
     const progressEl = document.createElement("div");
     progressEl.className = "module-progress";
