@@ -75,7 +75,7 @@ function checkI18n() {
 
 function checkRoadmap() {
   section("roadmap");
-  const { lessons, roadmap, buildFinalQuestions } = loadLessons();
+  const { lessons, roadmap, facultative, buildFinalQuestions } = loadLessons();
   const ids = lessons.map(l => l.id);
   const idSet = new Set(ids);
   report("lesson ids unique", idSet.size === ids.length);
@@ -89,6 +89,8 @@ function checkRoadmap() {
       else if (item && item.soon) soon++;
     }
   }
+  const facultyIds = (facultative && Array.isArray(facultative.lessons)) ? facultative.lessons.filter(id => typeof id === "string") : [];
+  facultyIds.forEach(id => referenced.add(id));
   const lessonModules = new Map(lessons.map(lesson => [lesson.id, lesson.module]));
   const wrongModules = [];
   for (const [moduleId, module] of Object.entries(roadmap)) {
@@ -181,6 +183,16 @@ function checkRoadmap() {
     }
   }
   report("final variants cover modules 1-8 with bilingual explanations", finalProblems.length === 0, finalProblems.join(", "));
+  const inRoadmap = facultyIds.filter(id => Object.values(roadmap)
+    .some(module => module.lessons.some(item => item === id)));
+  report("facultative section holds geoCurved and geoRose", facultyIds.join(",") === "geoCurved,geoRose", facultyIds.join(","));
+  report("facultative lessons are bilingual and noted", !!facultative && !!facultative.ru && !!facultative.ua &&
+    !!facultative.note && !!facultative.note.ru && !!facultative.note.ua);
+  report("facultative lessons exist in LESSONS", facultyIds.every(id => idSet.has(id)));
+  report("facultative lessons stay out of the modules", inRoadmap.length === 0, inRoadmap.join(", "));
+  const ui = loadUI();
+  report("facultative label is localized", !!(ui.ru && ui.ua && ui.ru.facultativeLabel && ui.ua.facultativeLabel));
+  report("app.js renders the facultative section", /FACULTATIVE/.test(read("app.js")) && /facultativeLabel/.test(read("app.js")));
   report("lesson count", lessons.length > 0, lessons.length + " lessons");
 }
 

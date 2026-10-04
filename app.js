@@ -167,15 +167,23 @@ function renderSearchResults(){
 function moduleLessons(moduleId){
   return ROADMAP[moduleId].lessons.filter(item=>typeof item === "string");
 }
+function isFacultative(lessonId){
+  return FACULTATIVE.lessons.indexOf(lessonId) >= 0;
+}
+function lessonGroup(lessonId){
+  return isFacultative(lessonId) ? FACULTATIVE.lessons.filter(id=>typeof id === "string") : moduleLessons(LESSONS.find(item=>item.id===lessonId).module);
+}
+function groupProgress(ids){
+  const done = ids.filter(id=>state.doneLessons.has(id)).length;
+  return {done, total:ids.length, percent:ids.length ? Math.round(done/ids.length*100) : 0};
+}
 function moduleProgress(moduleId){
-  const lessons = moduleLessons(moduleId);
-  const done = lessons.filter(id=>state.doneLessons.has(id)).length;
-  return {done, total:lessons.length, percent:lessons.length ? Math.round(done/lessons.length*100) : 0};
+  return groupProgress(moduleLessons(moduleId));
 }
 function courseNavigation(lessonId){
   const lesson = LESSONS.find(item=>item.id===lessonId);
   if(!lesson) return {previous:null,next:null};
-  const ids = moduleLessons(lesson.module);
+  const ids = lessonGroup(lessonId);
   const index = ids.indexOf(lessonId);
   return {previous:index>0 ? ids[index-1] : null, next:index>=0 && index<ids.length-1 ? ids[index+1] : null};
 }
@@ -506,27 +514,29 @@ function renderSidebar(){
   const nav = document.getElementById("module-nav");
   nav.setAttribute("aria-label", UI[state.lang].lessonNav);
   nav.innerHTML = "";
-  Object.keys(ROADMAP).map(Number).sort((a,b)=>a-b).forEach(modId=>{
-    const mod = ROADMAP[modId];
+  const sections = Object.keys(ROADMAP).map(Number).sort((a,b)=>a-b).map(modId=>({modId, mod:ROADMAP[modId]}));
+  sections.push({modId:null, mod:FACULTATIVE, faculty:true});
+  sections.forEach(({modId, mod, faculty})=>{
     const block = document.createElement("div");
-    block.className = "module-block";
+    block.className = "module-block" + (faculty ? " faculty" : "");
     const title = document.createElement("div");
     title.className = "module-title";
     title.textContent = mod[state.lang];
-    if(mod.exam_priority || mod.advanced){
+    if(mod.exam_priority || mod.advanced || faculty){
       const flag = document.createElement("span");
-      flag.className = "module-flag" + (mod.advanced ? " advanced" : "");
-      flag.textContent = mod.advanced ? UI[state.lang].advancedLabel : UI[state.lang].examPriority;
+      flag.className = "module-flag" + (mod.advanced ? " advanced" : faculty ? " faculty" : "");
+      flag.textContent = mod.advanced ? UI[state.lang].advancedLabel : faculty ? UI[state.lang].facultativeLabel : UI[state.lang].examPriority;
       title.appendChild(flag);
     }
     block.appendChild(title);
-    if(mod.comment){
+    if(mod.comment || mod.note){
+      const noteText = (mod.comment || mod.note)[state.lang];
       const note = document.createElement("div");
       note.className = "module-note";
-      note.textContent = mod.comment[state.lang];
+      note.textContent = noteText;
       block.appendChild(note);
     }
-    const progress = moduleProgress(modId);
+    const progress = faculty ? groupProgress(mod.lessons) : moduleProgress(modId);
     const progressEl = document.createElement("div");
     progressEl.className = "module-progress";
     progressEl.setAttribute("role", "progressbar");
@@ -614,9 +624,10 @@ function renderCourse(){
   const lesson = LESSONS.find(l=>l.id===state.lessonId) || LESSONS[0];
   const navigation = courseNavigation(lesson.id);
   state.doneLessons.add(lesson.id); saveDone();
-  const modKey = "module"+lesson.module;
-  const modLabel = (UI[state.lang][modKey] || "").split(".")[0];
-  const lessonNumber = moduleLessons(lesson.module).indexOf(lesson.id) + 1;
+  const faculty = isFacultative(lesson.id);
+  const modKey = faculty ? "" : "module"+lesson.module;
+  const modLabel = faculty ? FACULTATIVE[state.lang] : (UI[state.lang][modKey] || "").split(".")[0];
+  const lessonNumber = lessonGroup(lesson.id).indexOf(lesson.id) + 1;
   main.innerHTML = `
     <div class="lesson-header">
       <div class="lesson-kicker">${modLabel} · ${UI[state.lang].lessonLabel} ${lessonNumber}</div>
