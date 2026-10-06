@@ -189,6 +189,8 @@
   .module-flag.advanced{color:var(--amber);}
   .module-flag.faculty{color:var(--purple);}
   .module-block.faculty{border-left-style:dashed;}
+  .module-block.locked{opacity:.55;}
+  .module-locked{padding:0 10px 8px;color:var(--sidebar-ink-soft);font-size:10px;line-height:1.45;}
   .module-note{padding:0 10px 7px;color:var(--sidebar-ink-soft);font-size:10px;line-height:1.45;}
   .module-progress{padding:0 10px 7px;color:var(--sidebar-ink-soft);font-size:10px;font-family:var(--mono);}
   .module-progress-track{height:4px;margin-top:4px;border-radius:999px;background:var(--accent-soft);overflow:hidden;}

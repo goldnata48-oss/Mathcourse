@@ -206,16 +206,42 @@ function moduleInGrade(moduleId){
 }
 /* Логический порядок модулей: алгебра 11–14 идут перед итоговым НМТ (10). */
 const MODULE_ORDER = [1,2,3,4,5,6,7,8,9,11,12,13,14,10];
+/* Номера ступеней для надписи заблокированного модуля. */
+const GRADE_RANGES = {junior:"1–4", middle:"5–7", preSenior:"8–9", senior:"10–11"};
+function moduleForGrades(moduleId){
+  return (ROADMAP[moduleId].lessons||[])
+    .filter(item=>typeof item==="string")
+    .reduce((acc, id)=>{ const gs=(LESSON_GRADES[id]||[]); if(!acc.some(x=>gs.includes(x))){ for(const g of gs){ if(!acc.includes(g)) acc.push(g); } } return acc; }, [])
+    .map(g=>GRADE_RANGES[g]||g).join(", ");
+}
 function visibleSections(){
-  return MODULE_ORDER.filter(modId=>ROADMAP[modId] && moduleInGrade(modId))
-    .map(modId=>({modId, mod:ROADMAP[modId]}));
+  return MODULE_ORDER.filter(modId=>ROADMAP[modId])
+    .map(modId=>({modId, mod:ROADMAP[modId], locked:!moduleInGrade(modId)}));
+}
+/* Сквозной поток видимых в текущей ступени уроков: по порядку модулей, без скрытых. */
+function visibleLessonFlow(){
+  const flow = [];
+  for(const {modId, mod} of visibleSections()){
+    if(modId === null) continue;
+    for(const item of mod.lessons){
+      if(typeof item === "string" && lessonInGrade(item, state.grade)) flow.push(item);
+    }
+  }
+  return flow;
 }
 function courseNavigation(lessonId){
+  const flow = visibleLessonFlow();
+  const index = flow.indexOf(lessonId);
+  if(index < 0) return {previous:null,next:null};
+  return {previous:index>0 ? flow[index-1] : null, next:index>=0 && index<flow.length-1 ? flow[index+1] : null};
+}
+/* Номер урока по позиции среди видимых уроков его модуля (без скрытых пропусков). */
+function lessonNumberInModule(lessonId){
   const lesson = LESSONS.find(item=>item.id===lessonId);
-  if(!lesson) return {previous:null,next:null};
-  const ids = lessonGroup(lessonId);
-  const index = ids.indexOf(lessonId);
-  return {previous:index>0 ? ids[index-1] : null, next:index>=0 && index<ids.length-1 ? ids[index+1] : null};
+  if(!lesson) return 1;
+  const ids = (ROADMAP[lesson.module]?.lessons||[])
+    .filter(item=>typeof item==="string" && lessonInGrade(item, state.grade));
+  return ids.indexOf(lessonId)+1;
 }
 
 /* ============================================================
@@ -544,7 +570,7 @@ function renderSidebar(){
   const nav = document.getElementById("module-nav");
   nav.setAttribute("aria-label", UI[state.lang].lessonNav);
   nav.innerHTML = "";
-  if(!visibleSections().length){
+  if(!visibleSections().some(section=>!section.locked)){
     const empty = document.createElement("div");
     empty.className = "grade-empty";
     empty.textContent = UI[state.lang].gradeEmpty;
@@ -554,9 +580,9 @@ function renderSidebar(){
   const sections = visibleSections();
   const facultyIds = FACULTATIVE.lessons.filter(id=>typeof id === "string" && lessonInGrade(id, state.grade));
   if(facultyIds.length) sections.push({modId:null, mod:FACULTATIVE, faculty:true});
-  sections.forEach(({modId, mod, faculty})=>{
+  sections.forEach(({modId, mod, faculty, locked})=>{
     const block = document.createElement("div");
-    block.className = "module-block" + (faculty ? " faculty" : "");
+    block.className = "module-block" + (faculty ? " faculty" : locked ? " locked" : "");
     const title = document.createElement("div");
     title.className = "module-title";
     title.textContent = mod[state.lang];
@@ -574,26 +600,34 @@ function renderSidebar(){
       note.textContent = noteText;
       block.appendChild(note);
     }
-    const progress = faculty
-      ? groupProgress(mod.lessons.filter(id=>typeof id === "string" && lessonInGrade(id, state.grade)))
-      : moduleProgress(modId);
-    const progressEl = document.createElement("div");
-    progressEl.className = "module-progress";
-    progressEl.setAttribute("role", "progressbar");
-    progressEl.setAttribute("aria-valuemin", "0");
-    progressEl.setAttribute("aria-valuemax", "100");
-    progressEl.setAttribute("aria-valuenow", String(progress.percent));
-    progressEl.setAttribute("aria-label", `${mod[state.lang]} — ${UI[state.lang].progress} ${progress.percent}%`);
-    progressEl.innerHTML = `<span>${UI[state.lang].progress}: ${progress.percent}% (${progress.done}/${progress.total})</span><div class="module-progress-track"><div class="module-progress-fill" style="width:${progress.percent}%"></div></div>`;
-    block.appendChild(progressEl);
-    mod.lessons.forEach((item, idx)=>{
+    if(locked){
+      const scope = document.createElement("div");
+      scope.className = "module-locked";
+      scope.textContent = UI[state.lang].moduleLocked + ": " + moduleForGrades(modId);
+      block.appendChild(scope);
+    } else {
+      const progress = faculty
+        ? groupProgress(mod.lessons.filter(id=>typeof id === "string" && lessonInGrade(id, state.grade)))
+        : moduleProgress(modId);
+      const progressEl = document.createElement("div");
+      progressEl.className = "module-progress";
+      progressEl.setAttribute("role", "progressbar");
+      progressEl.setAttribute("aria-valuemin", "0");
+      progressEl.setAttribute("aria-valuemax", "100");
+      progressEl.setAttribute("aria-valuenow", String(progress.percent));
+      progressEl.setAttribute("aria-label", `${mod[state.lang]} — ${UI[state.lang].progress} ${progress.percent}%`);
+      progressEl.innerHTML = `<span>${UI[state.lang].progress}: ${progress.percent}% (${progress.done}/${progress.total})</span><div class="module-progress-track"><div class="module-progress-fill" style="width:${progress.percent}%"></div></div>`;
+      block.appendChild(progressEl);
+      let visibleNumber = 0;
+      mod.lessons.forEach((item, idx)=>{
       const btn = document.createElement("button");
       const num = document.createElement("span");
       num.className = "lesson-num";
-      num.textContent = idx+1;
       if(typeof item === "string"){
         const lesson = LESSONS.find(l=>l.id===item);
         if(!lessonInGrade(item, state.grade)) return;
+        visibleNumber += 1;
+        num.textContent = visibleNumber;
         btn.type = "button";
         btn.dataset.lesson = item;
         btn.className = "lesson-item" + (state.mode==="course" && state.lessonId===item ? " active":"") + (state.doneLessons.has(item)?" done":"");
@@ -622,6 +656,7 @@ function renderSidebar(){
         btn.setAttribute("aria-label", lesson.title[state.lang] + " — " + status.title + miniLabel);
         btn.addEventListener("click", ()=>{ state.mode="course"; state.lessonId=item; navFromUi=true; render(); });
       } else if(item.test){
+        if(!buildModuleTest(modId).length) return;
         btn.type = "button";
         btn.className = "lesson-item" + (state.mode==="moduletest" && state.testModuleId===modId ? " active":"");
         num.textContent = "✓";
@@ -641,6 +676,7 @@ function renderSidebar(){
         btn.type = "button";
         btn.className = "lesson-item disabled";
         btn.disabled = true;
+        num.textContent = "·";
         num.setAttribute("aria-hidden", "true");
         btn.appendChild(num);
         const span = document.createElement("span");
@@ -653,6 +689,7 @@ function renderSidebar(){
       }
       block.appendChild(btn);
     });
+    }
     nav.appendChild(block);
   });
 }
@@ -686,7 +723,7 @@ function renderCourse(){
   const faculty = isFacultative(lesson.id);
   const modKey = faculty ? "" : "module"+lesson.module;
   const modLabel = faculty ? FACULTATIVE[state.lang] : (UI[state.lang][modKey] || "").split(".")[0];
-  const lessonNumber = lessonGroup(lesson.id).indexOf(lesson.id) + 1;
+  const lessonNumber = faculty ? "" : lessonNumberInModule(lesson.id);
   main.innerHTML = `
     <div class="lesson-header">
       <div class="lesson-kicker">${modLabel} · ${UI[state.lang].lessonLabel} ${lessonNumber}</div>
@@ -1331,7 +1368,7 @@ function applyGrade(grade){
   /* Открытый урок или тест может оказаться вне нового блока — тогда
      возвращаемся к первому уроку, который в блоке есть. */
   const visible = visibleSections();
-  if(!visible.length) return;
+  if(!visible.some(section=>!section.locked)) return;
   const mod = ROADMAP[state.testModuleId];
   if(state.mode === "moduletest" && mod && !moduleInGrade(state.testModuleId)){
     state.mode = "course";
