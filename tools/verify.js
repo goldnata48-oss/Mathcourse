@@ -398,6 +398,20 @@ function checkNav() {
     appSrc.indexOf("function courseNavigation") + 700);
   report("course navigation is flow-based (no module-scoped next)",
     /visibleLessonFlow/.test(navBlock) && !/lessonGroup\(/.test(navBlock));
+
+  /* Меню не должно падать на факультативе: у его блока нет номера модуля,
+     поэтому заголовок ставится напрямую, минуя moduleTitle. */
+  report("sidebar pushes the facultative block without a module id",
+    /if\(facultyIds\.length\) sections\.push\(\{modId:null, mod:FACULTATIVE, faculty:true\}\)/.test(appSrc));
+  report("sidebar titles the facultative block without moduleTitle",
+    /faculty \? mod\[state\.lang\] : moduleTitle\(modId, state\.lang\)/.test(appSrc));
+  report("facultative lessons carry a grade (block renders in 10-11)",
+    (lessonGrades.geoCurved || []).includes("senior") && (lessonGrades.geoRose || []).includes("senior"));
+  realm.state.grade = "senior";
+  report("visibleSections stays module-only (facultative is appended by the sidebar)",
+    !realm.visibleSections().some(s => s.modId === null));
+  report("moduleTitle survives a null module id (facultative safety)",
+    realm.moduleTitle(null, "ru") === "");
 }
 
 function checkGenerators() {

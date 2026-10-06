@@ -209,6 +209,7 @@ const MODULE_ORDER = [1,2,3,4,5,6,7,8,9,11,12,13,14,10];
 /* В маршруте 8–9 номера модулей идут по позиции видимого списка: скрытые
    разделы не сдвигают счёт, нумерация получается непрерывной 1..9. */
 function moduleTitle(moduleId, lang){
+  if(!ROADMAP[moduleId] || !lang) return "";
   const title = ROADMAP[moduleId][lang];
   if(state.grade !== "preSenior") return title;
   const pos = visibleSections().map(section=>section.modId).indexOf(moduleId);
