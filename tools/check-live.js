@@ -57,6 +57,7 @@ function get(url) {
     "stereo geoPerp":      body.indexOf('id: "geoPerp"') > 0,
     "stereo geoPrism":     body.indexOf('id: "geoPrism"') > 0,
     "stereo geoRevolve":   body.indexOf('id: "geoRevolve"') > 0,
+    "stereoIntro lesson":  body.indexOf('makeTopicLesson("stereoIntro"') > 0,
     "m7 comb1":            body.indexOf('id: "comb1"') > 0,
     "m7 comb2":            body.indexOf('id: "comb2"') > 0,
     "m7 prob1":            body.indexOf('id: "prob1"') > 0,

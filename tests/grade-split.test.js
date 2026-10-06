@@ -18,7 +18,7 @@ assert(
 );
 assert(
   ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
-    "geoCircles","geoVectors","geoVectorTasks","geoAxiom",
+    "geoCircles","geoVectors","geoVectorTasks","geoAxiom","stereoIntro",
     "comb1","comb2","prob1","prob2","stat1",
     "qf1","qe1","qi1","qa1","qs1","qa2"]
     .every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade89)),
@@ -127,6 +127,11 @@ assert(
   ["quadDiscriminant","quadVertexX","quadIneqInterval","quadYAtX","quadApplied","systemWord"]
     .every(id => JSON.stringify(topicGrades(id)) === JSON.stringify(grade89)),
   "module 14 trainer topics follow the 8-9 status map"
+);
+assert(
+  ["prismVolume","sphereSurface","pyramidVolume","coneSurface"]
+    .every(id => JSON.stringify(topicGrades(id)) === JSON.stringify(grade89)),
+  "module 6 body topics (prism, sphere, pyramid, cone) are open for 8-9"
 );
 
 const ui = lib.loadUI();

@@ -9843,6 +9843,76 @@ makeTopicLesson("qa2", 14,
       ]);
     }
   },
+  makeTopicLesson("stereoIntro", 6,
+  {ru:"Призма, пирамида, цилиндр, конус и шар",ua:"Призма, піраміда, циліндр, конус і куля"},
+  {
+    ru:{
+      lead:"Стереометрия изучает фигуры в пространстве. У объёмных тел есть две главные величины — объём V и площадь поверхности S. Начнём с пяти стандартных тел: прямой призмы, пирамиды, цилиндра, конуса и шара. Это ознакомительный урок: формулы даны в готовом виде, а вывод оставляем старшим классам.",
+      pointsTitle:"Пять тел и две меры",
+      points:[
+        "Прямая призма: основания — равные многоугольники, боковые рёбра перпендикулярны основанию. V = Sосн·h.",
+        "Пирамида: одно основание и вершина над ним. Это ровно треть призмы: V = ⅓·Sосн·h.",
+        "Цилиндр: два круга-основания, боковая развёртка — прямоугольник. V = πR²h, Sбок = 2πRh.",
+        "Конус: круг-основание и вершина. V = ⅓·πR²h. Образующая l = √(R² + h²), Sбок = πRl.",
+        "Шар: S = 4πR², V = (4/3)·πR³. Его получают вращением полукруга вокруг оси."
+      ],
+      formsTitle:"Готовые формулы",
+      forms:[
+        "Прямая призма: V = Sосн·h; Sбок = (периметр основания)·h",
+        "Пирамида: V = ⅓·Sосн·h",
+        "Цилиндр: V = πR²h; Sбок = 2πRh",
+        "Конус: V = ⅓·πR²h; Sбок = πRl, где l = √(R² + h²)",
+        "Шар: S = 4πR²; V = (4/3)·πR³"
+      ],
+      examplesTitle:"Примеры",
+      examples:[
+        "Призма: Sосн = 12, h = 5 → V = 12·5 = 60.",
+        "Пирамида: Sосн = 18, h = 6 → V = ⅓·18·6 = 36.",
+        "Цилиндр: R = 3, h = 4 → V = π·9·4 = 36π; Sбок = 2π·3·4 = 24π.",
+        "Конус с R = 3, h = 4: образующая l = √(9 + 16) = 5; V = ⅓·π·9·4 = 12π; Sбок = π·3·5 = 15π.",
+        "Шар: R = 2 → S = 4π·4 = 16π; V = (4/3)·π·8 = 32π/3."
+      ],
+      note:"Пирамида и конус всегда составляют ровно треть от призмы и цилиндра с теми же основанием и высотой. Для конуса помните египетский треугольник 3–4–5: он же даёт образующую.",
+      checkTitle:"Мини-проверка"
+    },
+    ua:{
+      lead:"Стереометрія вивчає фігури у просторі. В об'ємних тіл є дві головні величини — об'єм V і площа поверхні S. Почнімо з п'яти стандартних тіл: прямої призми, піраміди, циліндра, конуса і кулі. Це ознайомлювальний урок: формули подано в готовому вигляді, а висновок лишаємо старшим класам.",
+      pointsTitle:"П'ять тіл і дві величини",
+      points:[
+        "Пряма призма: основи — рівні многокутники, бічні ребра перпендикулярні до основи. V = Sосн·h.",
+        "Піраміда: одна основа і вершина над нею. Це рівно третина призми: V = ⅓·Sосн·h.",
+        "Циліндр: два круги-основи, бічна розгортка — прямокутник. V = πR²h, Sбіч = 2πRh.",
+        "Конус: круг-основа і вершина. V = ⅓·πR²h. Твірна l = √(R² + h²), Sбіч = πRl.",
+        "Куля: S = 4πR², V = (4/3)·πR³. Її дістають обертанням півкола навколо осі."
+      ],
+      formsTitle:"Готові формули",
+      forms:[
+        "Пряма призма: V = Sосн·h; Sбіч = (периметр основи)·h",
+        "Піраміда: V = ⅓·Sосн·h",
+        "Циліндр: V = πR²h; Sбіч = 2πRh",
+        "Конус: V = ⅓·πR²h; Sбіч = πRl, де l = √(R² + h²)",
+        "Куля: S = 4πR²; V = (4/3)·πR³"
+      ],
+      examplesTitle:"Приклади",
+      examples:[
+        "Призма: Sосн = 12, h = 5 → V = 12·5 = 60.",
+        "Піраміда: Sосн = 18, h = 6 → V = ⅓·18·6 = 36.",
+        "Циліндр: R = 3, h = 4 → V = π·9·4 = 36π; Sбіч = 2π·3·4 = 24π.",
+        "Конус з R = 3, h = 4: твірна l = √(9 + 16) = 5; V = ⅓·π·9·4 = 12π; Sбіч = π·3·5 = 15π.",
+        "Куля: R = 2 → S = 4π·4 = 16π; V = (4/3)·π·8 = 32π/3."
+      ],
+      note:"Піраміда і конус завжди становлять рівно третину від призми та циліндра з тією самою основою і висотою. Для конуса пам'ятайте єгипетський трикутник 3–4–5: він же дає твірну.",
+      checkTitle:"Мініперевірка"
+    }
+  },
+  [
+    {q:{ru:"Прямая призма: Sосн = 8, h = 3. Объём равен:",ua:"Пряма призма: Sосн = 8, h = 3. Об'єм дорівнює:"},opts:["24","11","16","8"],correct:0},
+    {q:{ru:"Пирамида: Sосн = 12, h = 9. Объём равен:",ua:"Піраміда: Sосн = 12, h = 9. Об'єм дорівнює:"},opts:["36","108","54","72"],correct:0},
+    {q:{ru:"Цилиндр: R = 2, h = 5. Объём равен:",ua:"Циліндр: R = 2, h = 5. Об'єм дорівнює:"},opts:["20π","10π","40π","5π"],correct:0},
+    {q:{ru:"Конус: R = 3, h = 4. Объём равен:",ua:"Конус: R = 3, h = 4. Об'єм дорівнює:"},opts:["12π","36π","16π","15π"],correct:0},
+    {q:{ru:"Сфера радиуса R = 4. Площадь поверхности равна:",ua:"Сфера радіуса R = 4. Площа поверхні дорівнює:"},opts:["64π","16π","32π","8π"],correct:0}
+  ]
+),
   /* ---------- LESSON geoAxiom (аксиомы стереометрии) ---------- */
   {
     id: "geoAxiom", module:6,
@@ -14081,7 +14151,7 @@ const ROADMAP = {
     {test:true, id:"test5", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
   ]},
   6:{ru:"Модуль 6. Стереометрия",ua:"Модуль 6. Стереометрія",exam_priority:true, lessons:[
-    "geoAxiom","geoPerp","geoPrism","geoRevolve",
+    "geoAxiom","stereoIntro","geoPerp","geoPrism","geoRevolve",
     "stereo1","stereo2","stereo3","stereo4","stereo5",
     {test:true, id:"test6", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
   ]},
@@ -14159,7 +14229,8 @@ const LESSON_GRADES = {
   geoVectors:["preSenior","senior"], geoVectorTasks:["preSenior","senior"],
   geoSineCos:["senior"],
   /* модуль 6 — начало стереометрии в 8–9, остальное в 10–11 */
-  geoAxiom:["preSenior","senior"], geoPerp:["senior"], geoPrism:["senior"], geoRevolve:["senior"],
+  geoAxiom:["preSenior","senior"], stereoIntro:["preSenior","senior"],
+  geoPerp:["senior"], geoPrism:["senior"], geoRevolve:["senior"],
   stereo1:["senior"], stereo2:["senior"], stereo3:["senior"], stereo4:["senior"], stereo5:["senior"],
   /* модули 7–8 — комбинаторика, вероятность, статистика, ступень 10–11 */
   comb1:["preSenior","senior"], comb2:["preSenior","senior"], prob1:["preSenior","senior"], prob2:["preSenior","senior"], stat1:["preSenior","senior"],
@@ -14226,8 +14297,8 @@ const TOPIC_GRADES = {
   vectorsDot:["preSenior","senior"], vectorsAngle:["preSenior","senior"],
   vectorsCross:["preSenior","senior"],
   lawOfCosines:["senior"], lawOfSines:["senior"],
-  prismVolume:["senior"], sphereSurface:["senior"], pyramidVolume:["senior"],
-  coneSurface:["senior"], cubeSection:["senior"],
+  prismVolume:["preSenior","senior"], sphereSurface:["preSenior","senior"], pyramidVolume:["preSenior","senior"],
+  coneSurface:["preSenior","senior"], cubeSection:["senior"],
   c6Product:["preSenior","senior"], c6Sum:["preSenior","senior"], c6ProbSingle:["preSenior","senior"], c6Complement:["preSenior","senior"],
   c6Permutation:["preSenior","senior"], c6Combination:["preSenior","senior"], c6Urn:["preSenior","senior"], c6DiceSum:["preSenior","senior"],
   c6Arrangement:["preSenior","senior"], c6Subsets:["preSenior","senior"], c6Conditional:["preSenior","senior"], c6TotalProb:["preSenior","senior"],

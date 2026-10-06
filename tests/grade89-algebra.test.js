@@ -63,6 +63,55 @@ sweep("genGeoInfiniteMC matches S = a₁/(1 − q)", c => {
   if (new Set(q.options.ua).size !== q.options.ua.length) return "duplicate ua options: " + q.options.ua.join(" | ");
 });
 
+/* ---------------- Stereometry bodies (module 6, opens in 8-9) ---------------- */
+const round3 = x => (Math.round(x * 1000) / 1000).toString();
+
+sweep("genPrismVolumeMC matches V = Sосн·h", c => {
+  const q = c.genPrismVolumeMC();
+  const m = q.question.ru.match(/Sосн=(\d+), h=(\d+)/);
+  if (!m) return "unparsable: " + q.question.ru;
+  const truth = Number(m[1]) * Number(m[2]);
+  if (q.options.ru[q.correct] !== String(truth)) {
+    return JSON.stringify({ q: q.question.ru, chosen: q.options.ru[q.correct], truth });
+  }
+  if (new Set(q.options.ru).size !== q.options.ru.length) return "duplicate ru options: " + q.options.ru.join(" | ");
+  if (new Set(q.options.ua).size !== q.options.ua.length) return "duplicate ua options: " + q.options.ua.join(" | ");
+});
+
+sweep("genPyramidVolumeShort matches V = ⅓Sосн·h as an integer", c => {
+  const q = c.genPyramidVolumeShort();
+  const m = q.question.ru.match(/Sосн=(\d+), h=(\d+)/);
+  if (!m) return "unparsable: " + q.question.ru;
+  const truth = Number(m[1]) * Number(m[2]) / 3;
+  if (!Number.isInteger(truth)) return "non-integer answer: " + q.question.ru;
+  if (truth !== q.expected) return JSON.stringify({ q: q.question.ru, expected: q.expected, truth });
+  if (q.correctLabel !== String(truth)) return "correctLabel " + q.correctLabel + " ≠ " + truth;
+  if (q.check(q.correctLabel) !== true) return "check rejects its own answer " + q.correctLabel;
+});
+
+sweep("genSphereSurfaceMC matches S = 4πR²", c => {
+  const q = c.genSphereSurfaceMC();
+  const m = q.question.ru.match(/радиуса R=(\d+)/);
+  if (!m) return "unparsable: " + q.question.ru;
+  const truth = round3(4 * Math.PI * Number(m[1]) * Number(m[1]));
+  if (q.options.ru[q.correct] !== truth) {
+    return JSON.stringify({ q: q.question.ru, chosen: q.options.ru[q.correct], truth });
+  }
+  if (new Set(q.options.ru).size !== q.options.ru.length) return "duplicate options: " + q.options.ru.join(" | ");
+});
+
+sweep("genConeSurfaceShort matches Sполн = πR(R+l) with a whole l", c => {
+  const q = c.genConeSurfaceShort();
+  const m = q.question.ru.match(/R=(\d+), h=(\d+)/);
+  if (!m) return "unparsable: " + q.question.ru;
+  const R = Number(m[1]), h = Number(m[2]);
+  const l = Math.sqrt(R * R + h * h);
+  if (!Number.isInteger(l)) return "slant from printed R, h is not whole: " + q.question.ru;
+  const truth = R * (R + l) * Math.PI;
+  if (Math.abs(truth - q.expected) > 1e-9) return JSON.stringify({ q: q.question.ru, expected: q.expected, truth });
+  if (q.check(round3(truth)) !== true) return "check rejects the computed value " + round3(truth);
+});
+
 /* ---------------- Equations, inequalities, systems ---------------- */
 
 sweep("genLinearInequalityShort keeps integer answers", c => {
@@ -292,10 +341,12 @@ sweep("quadratic roots satisfy the printed equation", c => {
    Каждый вопрос мини-проверки в уроках 11–14 пересчитывается здесь заново:
    expected — правильный вариант, который должен стоять на индексе `correct`. */
 const lessonsSrc = lib.read("lessons.js");
-/* граница блока: начало следующего урока, а для последнего — конец файла */
+/* Последний makeTopicLesson может идти перед обычными объектами LESSONS. */
 function nextLesson(start) {
-  const i = lessonsSrc.indexOf("\nmakeTopicLesson(\"", start + 1);
-  return i < 0 ? lessonsSrc.length : i;
+  const nextFactory = lessonsSrc.indexOf("\nmakeTopicLesson(\"", start + 1);
+  const nextObject = lessonsSrc.indexOf("\n  {\n    id:", start + 1);
+  const candidates = [nextFactory, nextObject].filter(index => index >= 0);
+  return candidates.length ? Math.min(...candidates) : lessonsSrc.length;
 }
 function miniChecks(id) {
   const start = lessonsSrc.indexOf('makeTopicLesson("' + id + '"');
@@ -340,6 +391,8 @@ const answerKeys = {
   qa1: ["6 см", "9", "15 км/ч", "5 см"],
   qs1: ["(5; 2)", "бесконечно много", "(1; 4]", "(2; 3)"],
   qa2: ["4 ч", "6 км/ч", "6 дней", "24 грн"],
+  /* модуль 6: тела — объёмы и площадь, ознакомительный урок 8-9 */
+  stereoIntro: ["24", "36", "20π", "12π", "64π"],
 };
 
 Object.keys(answerKeys).forEach(id => {
@@ -364,6 +417,22 @@ sweep("module 14: по 4 вопроса, 4 различных варианта, 
   if (qs.length !== 4) return id + ": " + qs.length + " вопросов вместо 4";
   for (let k = 0; k < qs.length; k++) {
     const q = qs[k], where = id + ", вопрос " + (k + 1);
+    if (!q.q || !q.q.ru || !q.q.ua) return where + ": нет текста ru/ua";
+    if (q.opts.length !== 4) return where + ": " + q.opts.length + " варианта вместо 4";
+    if (new Set(q.opts).size !== 4) return where + ": повторяющиеся варианты — " + q.opts.join(" | ");
+    if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.opts.length) {
+      return where + ": correct = " + q.correct + " вне диапазона";
+    }
+  }
+  return "";
+});
+
+/* stereoIntro — новый урок модуля 6 для 8-9: 5 вопросов, в каждом 4 разных варианта */
+const STEREO_INTRO = miniChecks("stereoIntro");
+sweep("stereoIntro: 5 вопросов, по 4 разных варианта, correct в диапазоне", (c, i) => {
+  if (STEREO_INTRO.length !== 5) return "5 вопросов вместо " + STEREO_INTRO.length;
+  for (let k = 0; k < STEREO_INTRO.length; k++) {
+    const q = STEREO_INTRO[k], where = "stereoIntro, вопрос " + (k + 1);
     if (!q.q || !q.q.ru || !q.q.ua) return where + ": нет текста ru/ua";
     if (q.opts.length !== 4) return where + ": " + q.opts.length + " варианта вместо 4";
     if (new Set(q.opts).size !== 4) return where + ": повторяющиеся варианты — " + q.opts.join(" | ");
@@ -500,6 +569,22 @@ const arithmetic = [
   ["qa2: мини 1 / (1/24 + 1/8) = 6", 1 / (1 / 24 + 1 / 8), 6],
   ["qa2: мини (66 − 3 · 6) / 2 = 24", (66 - 3 * 6) / 2, 24],
   ["qa2: мини 2 · 24 + 3 · 6 = 66", 2 * 24 + 3 * 6, 66],
+
+  /* ---------- Модуль 6: тела и их объёмы (8-9, stereoIntro) ---------- */
+  ["stereoIntro: призма V = 12·5 = 60", 12 * 5, 60],
+  ["stereoIntro: пирамида V = ⅓·18·6 = 36", 18 * 6 / 3, 36],
+  ["stereoIntro: цилиндр V = π·9·4 = 36π", 9 * 4, 36],
+  ["stereoIntro: цилиндр Sбок = 2π·3·4 = 24π", 2 * 3 * 4, 24],
+  ["stereoIntro: конус l = √(9 + 16) = 5", Math.sqrt(9 + 16), 5],
+  ["stereoIntro: конус V = ⅓·π·9·4 = 12π", 9 * 4 / 3, 12],
+  ["stereoIntro: конус Sбок = π·3·5 = 15π", 3 * 5, 15],
+  ["stereoIntro: шар S = 4π·4 = 16π", 4 * 4, 16],
+  ["stereoIntro: шар V = (4/3)·π·8 = 32π/3", (4 / 3) * 8, 32 / 3],
+  ["stereoIntro: мини призма 8·3 = 24", 8 * 3, 24],
+  ["stereoIntro: мини пирамида ⅓·12·9 = 36", 12 * 9 / 3, 36],
+  ["stereoIntro: мини цилиндр π·2²·5 = 20π", 4 * 5, 20],
+  ["stereoIntro: мини конус ⅓·π·3²·4 = 12π", 9 * 4 / 3, 12],
+  ["stereoIntro: мини сфера S = 4π·4² = 64π", 4 * 16, 64],
 ];
 const badArithmetic = arithmetic.filter(([, got, want]) => Math.abs(got - want) > 5e-5);
 ok(badArithmetic.length === 0,

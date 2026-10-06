@@ -119,7 +119,7 @@ function checkRoadmap() {
       .every(id => hasGrades(id, grades57)));
   report("8-9 lesson map matches the plan",
     ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
-      "geoCircles","geoVectors","geoVectorTasks","geoAxiom",
+      "geoCircles","geoVectors","geoVectorTasks","geoAxiom","stereoIntro",
       "comb1","comb2","prob1","prob2","stat1",
       "qf1","qe1","qi1","qa1","qs1","qa2"]
       .every(id => hasGrades(id, grades89)));
@@ -146,6 +146,11 @@ function checkRoadmap() {
   report("module 14 trainer topics are 8-9",
     ["quadDiscriminant","quadVertexX","quadIneqInterval","quadYAtX","quadApplied","systemWord"]
       .every(id => topicHasGrades(id, grades89)));
+  report("module 6 body topics are open for 8-9",
+    ["prismVolume","sphereSurface","pyramidVolume","coneSurface"]
+      .every(id => topicHasGrades(id, grades89)));
+  report("module 6 section topics stay senior-only",
+    ["cubeSection"].every(id => topicHasGrades(id, ["senior"])));
 
   /* Тема 10–11 не должна жить в модуле, где нет ни одного старшего урока */
   const moduleLessonsById = {};
