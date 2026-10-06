@@ -1656,6 +1656,538 @@ function genNmtParameterMC(){
   };
 }
 
+/* ============================================================
+   МОДУЛЬ 11 — ПОСЛЕДОВАТЕЛЬНОСТИ И ПРОГРЕССИИ (8–9)
+   ============================================================ */
+function genArithTermShort(){
+  const a1 = rnd([2,3,5,7]);
+  const d = rnd([2,3,4,6]);
+  const n = rnd([5,6,8,10]);
+  const answer = a1 + (n-1)*d;
+  return {
+    topic:{ru:"Член арифметической прогрессии",ua:"Член арифметичної прогресії"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Дана арифметическая прогрессия: a₁ = ${a1}, d = ${d}. Чему равен a${["₁","₂","₃","₄","₅","₆","₇","₈","₉","₁₀"][n-1]}?`,
+      ua:`Дана арифметична прогресія: a₁ = ${a1}, d = ${d}. Чому дорівнює a${["₁","₂","₃","₄","₅","₆","₇","₈","₉","₁₀"][n-1]}?`
+    },
+    hint:{ru:"Общий член: aₙ = a₁ + (n − 1)d.",ua:"Загальний член: aₙ = a₁ + (n − 1)d."},
+    solution:{
+      ru:`a${n} = a₁ + (${n} − 1)·${d} = ${a1} + ${(n-1)*d} = ${answer}.`,
+      ua:`a${n} = a₁ + (${n} − 1)·${d} = ${a1} + ${(n-1)*d} = ${answer}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+function genArithSumShort(){
+  const a1 = rnd([1,2,3,5]);
+  const d = rnd([2,3,4]);
+  const n = rnd([8,10,12,20]);
+  const last = a1 + (n-1)*d;
+  const answer = (a1 + last)*n/2;
+  return {
+    topic:{ru:"Сумма членов арифметической прогрессии",ua:"Сума членів арифметичної прогресії"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Найдите сумму первых ${n} членов прогрессии, у которой a₁ = ${a1} и d = ${d}.`,
+      ua:`Знайдіть суму перших ${n} членів прогресії, у якої a₁ = ${a1} і d = ${d}.`
+    },
+    hint:{ru:"Сумма Sₙ = (a₁ + aₙ)·n / 2 — сначала найдите последний член.",ua:"Сума Sₙ = (a₁ + aₙ)·n / 2 — спочатку знайдіть останній член."},
+    solution:{
+      ru:`a${n} = ${a1} + (${n} − 1)·${d} = ${last}. S${n} = (${a1} + ${last})·${n} / 2 = ${answer}.`,
+      ua:`a${n} = ${a1} + (${n} − 1)·${d} = ${last}. S${n} = (${a1} + ${last})·${n} / 2 = ${answer}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+function genGeoTermShort(){
+  const q = rnd([2,3,5]);
+  const n = rnd([4,5,6]);
+  const answer = Math.pow(q, n-1);
+  return {
+    topic:{ru:"Член геометрической прогрессии",ua:"Член геометричної прогресії"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Геометрическая прогрессия задана первым членом a₁ = 1 и знаменателем q = ${q}. Чему равен a${n}?`,
+      ua:`Геометрична прогресія задана першим членом a₁ = 1 і знаменником q = ${q}. Чому дорівнює a${n}?`
+    },
+    hint:{ru:"Общий член: aₙ = a₁ · qⁿ⁻¹, показатель на единицу меньше номера.",ua:"Загальний член: aₙ = a₁ · qⁿ⁻¹, показник на одиницю менший за номер."},
+    solution:{
+      ru:`a${n} = 1 · ${q}^${n-1} = ${answer}.`,
+      ua:`a${n} = 1 · ${q}^${n-1} = ${answer}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+function genGeoInfiniteMC(){
+  const d = rnd([3,5,7]);
+  const r = 1/d;
+  const sum = 1/(1-r);
+  const correct = String(sum);
+  /* отвлекающие варианты не должны совпадать с ответом: 1/(q−1), q и сама дробь 1/d */
+  const {opts,correctIdx} = buildMC(correct,[String(1/(d-1)),String(d),String(r)]);
+  return {
+    topic:{ru:"Сумма бесконечного ряда",ua:"Сума нескінченного ряду"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Найдите сумму ряда 1 + 1/${d} + 1/${d*d} + 1/${d*d*d} + ⋯`,
+      ua:`Знайдіть суму ряду 1 + 1/${d} + 1/${d*d} + 1/${d*d*d} + ⋯`
+    },
+    hint:{ru:"Знаменатель прогрессии q = 1/" + d + " — дробь, значит |q| < 1 и сумма равна a₁ / (1 − q).",ua:"Знаменник прогресії q = 1/" + d + " — дріб, отже |q| < 1 і сума дорівнює a₁ / (1 − q)."},
+    solution:{
+      ru:`q = 1/${d}, поэтому |q| < 1. S = 1 / (1 − 1/${d}) = 1 / ${(d-1)}/${d} = ${d} / ${d-1} = ${sum}.`,
+      ua:`q = 1/${d}, тому |q| < 1. S = 1 / (1 − 1/${d}) = 1 / ${(d-1)}/${d} = ${d} / ${d-1} = ${sum}.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+
+/* ============================================================
+   МОДУЛЬ 12 — УРАВНЕНИЯ, НЕРАВЕНСТВА, СИСТЕМЫ (8–9)
+   ============================================================ */
+function genLinearInequalityShort(){
+  const bound = rnd([12,16,20,24,30,36]);
+  const k = rnd([2,3,4,6].filter(v=>bound % v === 0));
+  const useNegative = rnd([true,false]);
+  /* при −k x > b деление на отрицательное даёт x < −b/k, поэтому знак в ответе разный */
+  const answer = useNegative ? -(bound/k) : bound/k;
+  const fraction = bound + "/" + k;
+  const text = useNegative
+    ? {q:`Решите неравенство −${k}x > ${bound}.`, ua:`Розв’яжіть нерівність −${k}x > ${bound}.`,
+       hint:`Делим обе части на −${k} и меняем знак.`, ua:`Ділимо обидві частини на −${k} і змінюємо знак.`,
+       sol:`Делим на −${k}, знак меняется на противоположный: x < −${fraction} = ${answer}.`,
+       solUa:`Ділимо на −${k}, знак змінюється на протилежний: x < −${fraction} = ${answer}.`}
+    : {q:`Решите неравенство ${k}x < ${bound}.`, ua:`Розв’яжіть нерівність ${k}x < ${bound}.`,
+       hint:`Делим обе части на положительное число ${k}, знак не меняется.`, ua:`Ділимо обидві частини на додатне число ${k}, знак не змінюється.`,
+       sol:`Делим на ${k}: x < ${fraction} = ${answer}.`,
+       solUa:`Ділимо на ${k}: x < ${fraction} = ${answer}.`};
+  return {
+    topic:{ru:"Линейное неравенство",ua:"Лінійна нерівність"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{ru:text.q, ua:text.ua},
+    hint:{ru:text.hint, ua:text.ua},
+    solution:{ru:text.sol, ua:text.solUa},
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+function genParamNoSolutionMC(){
+  const p = rnd([2,3,4,5]);
+  const correct = String(p);
+  const {opts,correctIdx} = buildMC(correct,[String(p+1),String(p-1),String(-p)]);
+  return {
+    topic:{ru:"Параметр: нет решений",ua:"Параметр: немає розв’язків"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{
+      ru:`При каком значении p уравнение (p − ${p})x = ${p} не имеет решений?`,
+      ua:`При якому значенні p рівняння (p − ${p})x = ${p} не має розв’язків?`
+    },
+    hint:{ru:"Если коэффициент при x обнулился, а правая часть не нулевая, решений нет.",ua:"Якщо коефіцієнт при x зник, а права частина ненульова, розв’язків немає."},
+    solution:{
+      ru:`При p = ${p} получаем 0·x = ${p}, где ${p} ≠ 0. Такое уравнение решений не имеет, значит p = ${p}.`,
+      ua:`При p = ${p} отримуємо 0·x = ${p}, де ${p} ≠ 0. Таке рівняння розв’язків не має, отже p = ${p}.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genSystemTwoEqShort(){
+  const x = rnd([2,3,4,5]);
+  const y = rnd([1,2,3]);
+  const a1 = 2, b1 = 1;
+  const a2 = rnd([1,2]), b2 = rnd([3,4]);
+  const c1 = a1*x + b1*y;
+  const c2 = a2*x + b2*y;
+  const answer = `${x};${y}`;
+  return {
+    topic:{ru:"Система линейных уравнений",ua:"Система лінійних рівнянь"},
+    format:{ru:"пара через точку с запятой",ua:"пара через крапку з комою"},
+    question:{
+      ru:`Решите систему методом сложения и введите пару в формате x;y (без пробела): ${a1}x + ${b1}y = ${c1}, ${a2}x + ${b2}y = ${c2}.`,
+      ua:`Розв’яжіть систему методом додавання та введіть пару у форматі x;y (без пробілу): ${a1}x + ${b1}y = ${c1}, ${a2}x + ${b2}y = ${c2}.`
+    },
+    hint:{ru:"Сложите уравнения так, чтобы одна переменная сократилась, затем подставьте.",ua:"Складіть рівняння так, щоб одна змінна скоротилася, потім підставте."},
+    solution:{
+      ru:`Решение системы: x = ${x}, y = ${y}. Проверка: ${a1}·${x} + ${b1}·${y} = ${c1}, ${a2}·${x} + ${b2}·${y} = ${c2}.`,
+      ua:`Розв’язок системи: x = ${x}, y = ${y}. Перевірка: ${a1}·${x} + ${b1}·${y} = ${c1}, ${a2}·${x} + ${b2}·${y} = ${c2}.`
+    },
+    expected:answer, correctLabel:`x = ${x}; y = ${y}`,
+    check(input){
+      const parts = String(input).split(/[;,]/).map(s=>parseAnswer(s));
+      return parts.length===2 && !isNaN(parts[0]) && !isNaN(parts[1]) && parts[0]===x && parts[1]===y;
+    }
+  };
+}
+function genQuadraticRootsShort(){
+  const x1 = rnd([1,2,3,4,5]);
+  const x2 = rnd([1,2,3,4,6].filter(v=>v!==x1));
+  const b = -(x1+x2);
+  const c = x1*x2;
+  const answer = x1 < x2 ? x1 : x2;
+  const bText = b>0 ? `+ ${b}` : `− ${Math.abs(b)}`;
+  return {
+    topic:{ru:"Меньший корень квадратного уравнения",ua:"Менший корінь квадратного рівняння"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Найдите меньший корень уравнения x² ${bText}x + ${c} = 0.`,
+      ua:`Знайдіть менший корінь рівняння x² ${bText}x + ${c} = 0.`
+    },
+    hint:{ru:`По теореме Виета корни в сумме дают ${-b} и в произведении ${c}.`,ua:`За теоремою Вієта корені в сумі дають ${-b} і в добутку ${c}.`},
+    solution:{
+      ru:`Корни ${x1} и ${x2}: их сумма ${x1+x2} = ${-b} и произведение ${x1*x2} = ${c} совпадают с коэффициентами. Меньший корень = ${answer}.`,
+      ua:`Корені ${x1} і ${x2}: їхня сума ${x1+x2} = ${-b} і добуток ${x1*x2} = ${c} збігаються з коефіцієнтами. Менший корінь = ${answer}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+
+/* ============================================================
+   МОДУЛЬ 13 — ПРИКЛАДНЫЕ ЗАДАЧИ (8–9)
+   ============================================================ */
+function genPercentOfNumberShort(){
+  const p = rnd([12,15,18,20,25]);
+  /* подпись обещает целое число, поэтому берём только те n, при которых n·p кратно 100 */
+  const n = rnd([40,50,60,80,120,200].filter(v=>(v*p)%100===0));
+  const answer = n*p/100;
+  return {
+    topic:{ru:"Процент от числа",ua:"Відсоток від числа"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{ru:`Сколько составляет ${p}% от ${n}?`, ua:`Скільки становить ${p}% від ${n}?`},
+    hint:{ru:"Часть = число · процент / 100.",ua:"Частина = число · відсоток / 100."},
+    solution:{
+      ru:`${n} · ${p}/100 = ${n*p}/100 = ${answer}.`,
+      ua:`${n} · ${p}/100 = ${n*p}/100 = ${answer}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+function genPercentGrowthMC(){
+  const p = rnd([10,15,20,25]);
+  const price = rnd([200,400,500,800]);
+  const grown = price*(100+p)/100;
+  const correct = `${grown} грн`;
+  const {opts,correctIdx} = buildMC(correct,[`${price*(100-p)/100} грн`,`${price} грн`,`${price*(1+p)} грн`]);
+  return {
+    topic:{ru:"Рост и снижение на проценты",ua:"Зростання і зменшення на відсотки"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Цена ${price} грн выросла на ${p}%. Сколько она стоит теперь?`,
+      ua:`Ціна ${price} грн зросла на ${p}%. Скільки вона коштує тепер?`
+    },
+    hint:{ru:"Увеличение на p% — это умножение на (1 + p/100).",ua:"Збільшення на p% — це множення на (1 + p/100)."},
+    solution:{
+      ru:`${price} · (1 + ${p}/100) = ${price} · ${(100+p)/100} = ${grown} грн.`,
+      ua:`${price} · (1 + ${p}/100) = ${price} · ${(100+p)/100} = ${grown} грн.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genMotionSpeedShort(){
+  const t = rnd([2,3,4]);
+  /* s кратно t, иначе ответ окажется дробным при подписи «целое число» */
+  const s = rnd([60,90,120,180,240].filter(v=>v%t===0));
+  const answer = s/t;
+  return {
+    topic:{ru:"Скорость по расстоянию и времени",ua:"Швидкість за відстанню та часом"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Тело прошло ${s} км за ${t} ч. Найдите скорость в км/ч.`,
+      ua:`Тіло пройшло ${s} км за ${t} год. Знайдіть швидкість у км/год.`
+    },
+    hint:{ru:"v = s / t.",ua:"v = s / t."},
+    solution:{ru:`v = ${s} / ${t} = ${answer} км/ч.`, ua:`v = ${s} / ${t} = ${answer} км/год.`},
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+function genMotionMeetingShort(){
+  const v1 = rnd([40,50,60]);
+  const v2 = rnd([30,40,50].filter(v=>v!==v1));
+  const t = rnd([2,3,4]);
+  const answer = (v1+v2)*t;
+  return {
+    topic:{ru:"Встречное движение",ua:"Зустрічний рух"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Два тела движутся навстречу друг другу со скоростями ${v1} и ${v2} км/ч. Через сколько часов расстояние между ними сократится до нуля, если сейчас между ними ${(v1+v2)*t} км?`,
+      ua:`Два тіла рухаються назустріч одне одному зі швидкостями ${v1} і ${v2} км/год. Через скільки годин відстань між ними скоротиться до нуля, якщо зараз між ними ${(v1+v2)*t} км?`
+    },
+    hint:{ru:"При встречном движении расстояние сокращается со скоростью v₁ + v₂.",ua:"При зустрічному русі відстань скорочується зі швидкістю v₁ + v₂."},
+    solution:{
+      ru:`Общая скорость сближения: ${v1} + ${v2} = ${v1+v2} км/ч. t = ${(v1+v2)*t} / ${v1+v2} = ${t} ч.`,
+      ua:`Загальна швидкість зближення: ${v1} + ${v2} = ${v1+v2} км/год. t = ${(v1+v2)*t} / ${v1+v2} = ${t} год.`
+    },
+    expected:t, correctLabel:String(t),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===t; }
+  };
+}
+function genWorkRateShort(){
+  /* ответ 2/3·t1 целый только при t1, кратном 3 */
+  const t1 = rnd([3,6,9,12]);
+  const t2 = t1*2;
+  const answer = t1*t2/(t1+t2);
+  const days = n => {
+    const m10 = n%10, m100 = n%100;
+    if (m10 === 1 && m100 !== 11) return "день";
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "дня";
+    return "дней";
+  };
+  const daysUa = n => {
+    const m10 = n%10, m100 = n%100;
+    if (m10 === 1 && m100 !== 11) return "день";
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return "дні";
+    return "днів";
+  };
+  return {
+    topic:{ru:"Совместная работа",ua:"Спільна робота"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Первый исполнитель делает работу за ${t1} ${days(t1)}, второй — за ${t2} ${days(t2)}. За сколько дней они сделают её вместе?`,
+      ua:`Перший виконавець виконує роботу за ${t1} ${daysUa(t1)}, другий — за ${t2} ${daysUa(t2)}. За скільки днів вони виконають її разом?`
+    },
+    hint:{ru:"Скорость каждого в долях работы в день: 1/t₁ и 1/t₂. Складывайте скорости, не времена.",ua:"Швидкість кожного у частках роботи за день: 1/t₁ і 1/t₂. Додавайте швидкості, не часи."},
+    solution:{
+      ru:`1/${t1} + 1/${t2} = (${t2} + ${t1}) / ${t1*t2} = ${t1+t2} / ${t1*t2}. Обратная величина: ${t1*t2} / ${t1+t2} = ${answer} ${days(answer)}.`,
+      ua:`1/${t1} + 1/${t2} = (${t2} + ${t1}) / ${t1*t2} = ${t1+t2} / ${t1*t2}. Обернена величина: ${t1*t2} / ${t1+t2} = ${answer} ${daysUa(answer)}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v,answer,0.01); }
+  };
+}
+function genMixtureConcentrationShort(){
+  const c1 = rnd([10,15,20,25]);
+  const c2 = rnd([30,40,50].filter(v=>v>c1));
+  const m1 = rnd([100,200,300]);
+  const m2 = rnd([100,200,300]);
+  const answer = (c1*m1 + c2*m2)/(m1+m2);
+  return {
+    topic:{ru:"Концентрация смеси",ua:"Концентрація суміші"},
+    format:{ru:"процент с одним знаком после запятой",ua:"відсоток з одним знаком після коми"},
+    question:{
+      ru:`Смешали ${m1} г раствора с концентрацией ${c1}% и ${m2} г раствора с концентрацией ${c2}%. Найдите концентрацию смеси в процентах.`,
+      ua:`Змішали ${m1} г розчину з концентрацією ${c1}% і ${m2} г розчину з концентрацією ${c2}%. Знайдіть концентрацію суміші у відсотках.`
+    },
+    hint:{ru:"Вещества: C₁·m₁ и C₂·m₂. Разделите их сумму на общую массу раствора.",ua:"Речовини: C₁·m₁ і C₂·m₂. Поділіть їхню суму на загальну масу розчину."},
+    solution:{
+      ru:`Вещества: ${c1}/100·${m1} = ${c1*m1/100} г и ${c2}/100·${m2} = ${c2*m2/100} г, всего ${(c1*m1+c2*m2)/100} г. Масса смеси ${m1+m2} г. C = ${(c1*m1+c2*m2)/100} / ${m1+m2} = ${answer.toFixed(2)} ≈ ${answer.toFixed(1)}%.`,
+      ua:`Речовини: ${c1}/100·${m1} = ${c1*m1/100} г і ${c2}/100·${m2} = ${c2*m2/100} г, разом ${(c1*m1+c2*m2)/100} г. Маса суміші ${m1+m2} г. C = ${(c1*m1+c2*m2)/100} / ${m1+m2} = ${answer.toFixed(2)} ≈ ${answer.toFixed(1)}%.`
+    },
+    expected:Math.round(answer*10)/10, correctLabel:answer.toFixed(1),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v,answer,0.1); }
+  };
+}
+function genProportionDirectShort(){
+  const unit = rnd([15,20,25,40]);
+  const n = rnd([4,5,6,8]);
+  const total = unit*n;
+  const askTotal = rnd([true,false]);
+  return {
+    topic:{ru:"Пропорция и прямые расчёты",ua:"Пропорція та прямі розрахунки"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question: askTotal
+      ? {ru:`Один предмет стоит ${unit} грн. Сколько стоят ${n} таких предметов?`, ua:`Один предмет коштує ${unit} грн. Скільки коштують ${n} таких предметів?`}
+      : {ru:`${n} одинаковых предметов стоят ${total} грн. Сколько стоит один предмет?`, ua:`${n} однакових предметів коштують ${total} грн. Скільки коштує один предмет?`},
+    hint:{ru:"Цена одного предмета постоянна: S₁/n₁ = S₂/n₂.",ua:"Ціна одного предмета стала: S₁/n₁ = S₂/n₂."},
+    solution: askTotal
+      ? {ru:`${unit} · ${n} = ${total} грн.`, ua:`${unit} · ${n} = ${total} грн.`}
+      : {ru:`${total} / ${n} = ${unit} грн.`, ua:`${total} / ${n} = ${unit} грн.`},
+    expected: askTotal ? total : unit,
+    correctLabel:String(askTotal ? total : unit),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===(askTotal?total:unit); }
+  };
+}
+
+/* ============================================================
+   МОДУЛЬ 14 — КВАДРАТНАЯ ФУНКЦИЯ, УРАВНЕНИЯ, НЕРАВЕНСТВА, СИСТЕМЫ (8–9)
+   ============================================================ */
+function fmtQuadratic(a,b,c){
+  const parts = [];
+  const add = (coef, suffix) => {
+    if(coef === 0) return;
+    const abs = Math.abs(coef);
+    const num = (abs === 1 && suffix !== "") ? "" : abs;
+    const sign = coef < 0 ? "−" : "+";
+    parts.push((parts.length ? " " + sign + " " : "") + num + suffix);
+  };
+  add(a,"x²"); add(b,"x"); add(c,"");
+  return parts.join("");
+}
+function genDiscriminantMC(){
+  let a = 1, b = 1, c = 1, D = -3, d1 = 5, d2 = 3, d3 = -1;
+  for(let tries = 0; tries < 300; tries++){
+    a = rnd([1,2,3]);
+    b = Math.floor(Math.random()*13) - 6;
+    c = Math.floor(Math.random()*13) - 6;
+    if(b === 0 || c === 0) continue;
+    D = b*b - 4*a*c;
+    d1 = b*b + 4*a*c;
+    d2 = 4*a*c - b*b;
+    d3 = b*b - 2*a*c;
+    if(new Set([D,d1,d2,d3]).size === 4) break;
+  }
+  const poly = fmtQuadratic(a,b,c);
+  const bSqStr = b < 0 ? "(" + b + ")²" : b + "²";
+  const cParen = c < 0 ? "(" + c + ")" : c;
+  const fourAc = 4*a*c;
+  const correct = String(D);
+  const {opts,correctIdx} = buildMC(correct,[String(d1),String(d2),String(d3)]);
+  return {
+    topic:{ru:"Дискриминант квадратного уравнения",ua:"Дискримінант квадратного рівняння"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Чему равен дискриминант уравнения ${poly} = 0?`,
+      ua:`Чому дорівнює дискримінант рівняння ${poly} = 0?`
+    },
+    hint:{ru:"Дискриминант: D = b² − 4ac.",ua:"Дискримінант: D = b² − 4ac."},
+    solution:{
+      ru:`D = b² − 4ac = ${bSqStr} − 4·${a}·${cParen} = ${b*b} ${fourAc < 0 ? "+ " + (-fourAc) : "− " + fourAc} = ${D}.`,
+      ua:`D = b² − 4ac = ${bSqStr} − 4·${a}·${cParen} = ${b*b} ${fourAc < 0 ? "+ " + (-fourAc) : "− " + fourAc} = ${D}.`
+    },
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genQuadraticVertexXShort(){
+  const a = rnd([1,2,3]);
+  const k = rnd([-5,-4,-3,-2,-1,1,2,3,4,5]);
+  const b = 2*a*k;
+  const c = Math.floor(Math.random()*13) - 6;
+  const answer = -k;
+  const poly = fmtQuadratic(a,b,c);
+  return {
+    topic:{ru:"Вершина параболы",ua:"Вершина параболи"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Найдите x-координату вершины параболы y = ${poly}.`,
+      ua:`Знайдіть x-координату вершини параболи y = ${poly}.`
+    },
+    hint:{ru:"Абсцисса вершины: x_в = −b / (2a).",ua:"Абсциса вершини: x_в = −b / (2a)."},
+    solution:{
+      ru:`x_в = −b / (2a) = −(${b}) / (2·${a}) = ${-(b)/(2*a)}.`,
+      ua:`x_в = −b / (2a) = −(${b}) / (2·${a}) = ${-(b)/(2*a)}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+function genQuadraticInequalityMC(){
+  const R = [-6,-5,-4,-3,-2,-1,1,2,3,4,5,6];
+  const r1 = rnd(R.slice(0,-1));
+  const r2 = rnd(R.filter(v => v > r1));
+  const b = -(r1 + r2);
+  const c = r1 * r2;
+  const sign = rnd([">","<","≥","≤"]);
+  const poly = fmtQuadratic(1,b,c);
+  const text = {
+    ">":{ru:`x < ${r1} или x > ${r2}`, ua:`x < ${r1} або x > ${r2}`,
+         mir:{ru:`x < ${r2} или x > ${r1}`, ua:`x < ${r2} або x > ${r1}`},
+         flip:{ru:`x ≤ ${r1} или x ≥ ${r2}`, ua:`x ≤ ${r1} або x ≥ ${r2}`},
+         ext:{ru:"все действительные числа", ua:"усі дійсні числа"}},
+    "<":{ru:`${r1} < x < ${r2}`, ua:`${r1} < x < ${r2}`,
+         mir:{ru:`${r2} < x < ${r1}`, ua:`${r2} < x < ${r1}`},
+         flip:{ru:`${r1} ≤ x ≤ ${r2}`, ua:`${r1} ≤ x ≤ ${r2}`},
+         ext:{ru:"решений нет", ua:"розв’язків немає"}},
+    "≥":{ru:`x ≤ ${r1} или x ≥ ${r2}`, ua:`x ≤ ${r1} або x ≥ ${r2}`,
+         mir:{ru:`x ≤ ${r2} или x ≥ ${r1}`, ua:`x ≤ ${r2} або x ≥ ${r1}`},
+         flip:{ru:`x < ${r1} или x > ${r2}`, ua:`x < ${r1} або x > ${r2}`},
+         ext:{ru:"все действительные числа", ua:"усі дійсні числа"}},
+    "≤":{ru:`${r1} ≤ x ≤ ${r2}`, ua:`${r1} ≤ x ≤ ${r2}`,
+         mir:{ru:`${r2} ≤ x ≤ ${r1}`, ua:`${r2} ≤ x ≤ ${r1}`},
+         flip:{ru:`${r1} < x < ${r2}`, ua:`${r1} < x < ${r2}`},
+         ext:{ru:"решений нет", ua:"розв’язків немає"}}
+  }[sign];
+  const correct = {ru:text.ru, ua:text.ua};
+  const pool = [correct, {ru:text.mir.ru, ua:text.mir.ua}, {ru:text.flip.ru, ua:text.flip.ua}, {ru:text.ext.ru, ua:text.ext.ua}];
+  const order = shuffleArr(pool);
+  const optsRu = order.map(e => e.ru);
+  const optsUa = order.map(e => e.ua);
+  const correctIdx = order.indexOf(correct);
+  return {
+    topic:{ru:"Квадратное неравенство",ua:"Квадратна нерівність"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Решите неравенство ${poly} ${sign} 0.`,
+      ua:`Розв’яжіть нерівність ${poly} ${sign} 0.`
+    },
+    hint:{ru:`a = 1 > 0, ветви параболы направлены вверх. Метод интервалов по корням ${r1} и ${r2}: при знаке «<» решения между корнями, при «>» — снаружи.`,ua:`a = 1 > 0, гілки параболи напрямлені вгору. Метод інтервалів за коренями ${r1} і ${r2}: при знаку «<» розв’язки між коренями, при «>» — ззовні.`},
+    solution:{
+      ru:`Корни уравнения ${poly} = 0: x₁ = ${r1} и x₂ = ${r2}. У параболы y = ${poly} коэффициент a = 1 > 0, ветви вверх, поэтому решением неравенства ${poly} ${sign} 0 является ${text.ru}.`,
+      ua:`Корені рівняння ${poly} = 0: x₁ = ${r1} і x₂ = ${r2}. У параболи y = ${poly} коефіцієнт a = 1 > 0, гілки вгору, тому розв’язком нерівності ${poly} ${sign} 0 є ${text.ua}.`
+    },
+    options:{ru:optsRu,ua:optsUa}, correct:correctIdx
+  };
+}
+function genQuadraticYAtXShort(){
+  const a = rnd([1,2,3]);
+  const b = Math.floor(Math.random()*13) - 6;
+  const c = Math.floor(Math.random()*13) - 6;
+  const k = rnd([-3,-2,-1,0,1,2,3]);
+  const ak2 = a*k*k, bk = b*k;
+  const answer = ak2 + bk + c;
+  const poly = fmtQuadratic(a,b,c);
+  return {
+    topic:{ru:"Значение квадратной функции",ua:"Значення квадратної функції"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Вычислите значение функции y = ${poly} при x = ${k}.`,
+      ua:`Обчисліть значення функції y = ${poly} при x = ${k}.`
+    },
+    hint:{ru:`Подставьте ${k} вместо x в формулу и выполните действия.`,ua:`Підставте ${k} замість x у формулу і виконайте дії.`},
+    solution:{
+      ru:`y(${k}) = ${a}·(${k})² + (${b})·(${k}) + (${c}) = ${ak2} + (${bk}) + (${c}) = ${answer}.`,
+      ua:`y(${k}) = ${a}·(${k})² + (${b})·(${k}) + (${c}) = ${ak2} + (${bk}) + (${c}) = ${answer}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+function genQuadraticAppliedShort(){
+  const x = rnd([3,4,5,6,7,8,9,10]);
+  const k = rnd([2,3,4,5,6,7]);
+  const S = x*(x + k);
+  const D = k*k + 4*S;
+  const sqrtD = 2*x + k;
+  return {
+    topic:{ru:"Задача на квадратное уравнение",ua:"Задача на квадратне рівняння"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Одна сторона прямоугольника на ${k} см больше другой, а площадь равна ${S} см². Чему равна меньшая сторона (в см)?`,
+      ua:`Одна сторона прямокутника на ${k} см більша за іншу, а площа дорівнює ${S} см². Чому дорівнює менша сторона (у см)?`
+    },
+    hint:{ru:`Пусть меньшая сторона x, тогда большая равна x + ${k}. Составьте уравнение из условия площади: x(x + ${k}) = ${S}.`,ua:`Нехай менша сторона x, тоді більша дорівнює x + ${k}. Складіть рівняння з умови про площу: x(x + ${k}) = ${S}.`},
+    solution:{
+      ru:`x(x + ${k}) = ${S} ⇒ x² + ${k}x − ${S} = 0. D = ${k}² + 4·${S} = ${D} — полный квадрат, √D = ${sqrtD}. x = (−${k} + ${sqrtD}) / 2 = ${(-k + sqrtD)} / 2 = ${x}.`,
+      ua:`x(x + ${k}) = ${S} ⇒ x² + ${k}x − ${S} = 0. D = ${k}² + 4·${S} = ${D} — повний квадрат, √D = ${sqrtD}. x = (−${k} + ${sqrtD}) / 2 = ${(-k + sqrtD)} / 2 = ${x}.`
+    },
+    expected:x, correctLabel:String(x),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===x; }
+  };
+}
+function genSystemWordShort(){
+  const v1 = rnd([40,50,60,70,80,90]);
+  const v2 = rnd([30,40,50,60,70,80].filter(v => v !== v1));
+  const t = rnd([2,3,4,5,6]);
+  const S = (v1 + v2)*t;
+  return {
+    topic:{ru:"Задача на встречное движение",ua:"Задача на зустрічний рух"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{
+      ru:`Два поезда одновременно выехали навстречу друг другу со скоростями ${v1} и ${v2} км/ч. Через сколько часов они встретятся, если расстояние между ними ${S} км?`,
+      ua:`Два потяги одночасно виїхали назустріч один одному зі швидкостями ${v1} і ${v2} км/год. Через скільки годин вони зустрінуться, якщо відстань між ними ${S} км?`
+    },
+    hint:{ru:"Скорость сближения равна сумме скоростей: t = S / (v₁ + v₂).",ua:"Швидкість зближення дорівнює сумі швидкостей: t = S / (v₁ + v₂)."},
+    solution:{
+      ru:`Скорость сближения: ${v1} + ${v2} = ${v1+v2} км/ч. t = ${S} / ${v1+v2} = ${t} ч.`,
+      ua:`Швидкість зближення: ${v1} + ${v2} = ${v1+v2} км/год. t = ${S} / ${v1+v2} = ${t} год.`
+    },
+    expected:t, correctLabel:String(t),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===t; }
+  };
+}
+
 /* ---- Уровни тренажёра (НМТ-стиль) ---- */
 const LEVEL_DEFS = [
   {
@@ -1690,6 +2222,8 @@ const LEVEL_DEFS = [
       ,{ id:"c6Complement", module:7, title:{ru:"Противоположное событие",ua:"Протилежна подія"}, desc:{ru:"P(Ā) = 1 − P(A)",ua:"P(Ā) = 1 − P(A)"}, generate: genC6ProbComplementMC }
       ,{ id:"c6Mean", module:8, title:{ru:"Среднее арифметическое",ua:"Середнє арифметичне"}, desc:{ru:"Сумма данных, делённая на их количество",ua:"Сума даних, поділена на їхню кількість"}, generate: genC6StatMeanShort }
       ,{ id:"nmtTrig", module:2, title:{ru:"НМТ: тригонометрия",ua:"НМТ: тригонометрія"}, desc:{ru:"Комбинированная задача с четвертью угла",ua:"Комбінована задача з чвертю кута"}, generate: genNmtTrigMixedMC }
+      ,{ id:"quadDiscriminant", module:14, title:{ru:"Дискриминант квадратного уравнения",ua:"Дискримінант квадратного рівняння"}, desc:{ru:"D = b² − 4ac",ua:"D = b² − 4ac"}, generate: genDiscriminantMC }
+      ,{ id:"quadVertexX", module:14, title:{ru:"Вершина параболы",ua:"Вершина параболи"}, desc:{ru:"x_в = −b / (2a)",ua:"x_в = −b / (2a)"}, generate: genQuadraticVertexXShort }
     ]
   },
   {
@@ -1717,6 +2251,8 @@ const LEVEL_DEFS = [
       ,{ id:"c6DiceSum", module:7, title:{ru:"Сумма двух костей",ua:"Сума двох кісток"}, desc:{ru:"36 равновероятных пар",ua:"36 рівноймовірних пар"}, generate: genC6ProbDiceSumMC }
       ,{ id:"c6Median", module:8, title:{ru:"Медиана",ua:"Медіана"}, desc:{ru:"Центр упорядоченного ряда",ua:"Центр впорядкованого ряду"}, generate: genC6StatMedianModeShort }
       ,{ id:"nmtShort", module:3, title:{ru:"НМТ: короткий ответ",ua:"НМТ: коротка відповідь"}, desc:{ru:"Показательное уравнение в формате НМТ",ua:"Показникове рівняння у форматі НМТ"}, generate: genNmtShortAnswer }
+      ,{ id:"quadIneqInterval", module:14, title:{ru:"Квадратное неравенство",ua:"Квадратна нерівність"}, desc:{ru:"Метод интервалов по корням",ua:"Метод інтервалів за коренями"}, generate: genQuadraticInequalityMC }
+      ,{ id:"quadYAtX", module:14, title:{ru:"Значение квадратной функции",ua:"Значення квадратної функції"}, desc:{ru:"Подстановка x в ax² + bx + c",ua:"Підстановка x в ax² + bx + c"}, generate: genQuadraticYAtXShort }
     ]
   },
   {
@@ -1737,6 +2273,13 @@ const LEVEL_DEFS = [
       { id:"coneVolIntegral", module:9, title:{ru:"Объём конуса через интеграл",ua:"Об'єм конуса через інтеграл"}, desc:{ru:"Метод дисков",ua:"Метод дисків"}, generate: genConeVolumeIntegralShort },
       { id:"cubeSection", module:6, title:{ru:"Площадь сечения куба",ua:"Площа перерізу куба"}, desc:{ru:"Равносторонний треугольник у вершины",ua:"Рівносторонній трикутник біля вершини"}, generate: genCubeSectionAreaShort }
       ,{ id:"vectorsCross", module:5, title:{ru:"Площадь через векторное произведение",ua:"Площа через векторний добуток"}, desc:{ru:"S = |x₁y₂ − x₂y₁|",ua:"S = |x₁y₂ − x₂y₁|"}, generate: genVectorsCrossMC }
+      ,{ id:"arithTerm", module:11, title:{ru:"Член арифметической прогрессии",ua:"Член арифметичної прогресії"}, desc:{ru:"aₙ = a₁ + (n − 1)d",ua:"aₙ = a₁ + (n − 1)d"}, generate: genArithTermShort }
+      ,{ id:"arithSum", module:11, title:{ru:"Сумма арифметической прогрессии",ua:"Сума арифметичної прогресії"}, desc:{ru:"Sₙ = (a₁ + aₙ)·n / 2",ua:"Sₙ = (a₁ + aₙ)·n / 2"}, generate: genArithSumShort }
+      ,{ id:"geoTerm", module:11, title:{ru:"Член геометрической прогрессии",ua:"Член геометричної прогресії"}, desc:{ru:"aₙ = a₁ · qⁿ⁻¹",ua:"aₙ = a₁ · qⁿ⁻¹"}, generate: genGeoTermShort }
+      ,{ id:"paramNoSolution", module:12, title:{ru:"Параметр: нет решений",ua:"Параметр: немає розв’язків"}, desc:{ru:"Коэффициент при x обнулился",ua:"Коефіцієнт при x зник"}, generate: genParamNoSolutionMC }
+      ,{ id:"percentOfNumber", module:13, title:{ru:"Процент от числа",ua:"Відсоток від числа"}, desc:{ru:"Часть = число · p / 100",ua:"Частина = число · p / 100"}, generate: genPercentOfNumberShort }
+      ,{ id:"motionSpeed", module:13, title:{ru:"Скорость по расстоянию и времени",ua:"Швидкість за відстанню та часом"}, desc:{ru:"v = s / t",ua:"v = s / t"}, generate: genMotionSpeedShort }
+      ,{ id:"proportionDirect", module:13, title:{ru:"Прямая пропорция",ua:"Пряма пропорція"}, desc:{ru:"S₁/n₁ = S₂/n₂",ua:"S₁/n₁ = S₂/n₂"}, generate: genProportionDirectShort }
       ,{ id:"areaFigures", module:5, title:{ru:"Площадь по двум сторонам и углу",ua:"Площа за двома сторонами й кутом"}, desc:{ru:"S = ½·a·b·sin C",ua:"S = ½·a·b·sin C"}, generate: genAreaFiguresHigh }
       ,{ id:"c6Arrangement", module:7, title:{ru:"Размещения",ua:"Розміщення"}, desc:{ru:"A(n; k) — порядок важен",ua:"A(n; k) — порядок важливий"}, generate: genC6ArrangementShort }
       ,{ id:"c6Subsets", module:7, title:{ru:"Число подмножеств",ua:"Кількість підмножин"}, desc:{ru:"2ⁿ через биномиальную формулу",ua:"2ⁿ через біноміальну формулу"}, generate: genC6SubsetsShort }
@@ -1744,7 +2287,17 @@ const LEVEL_DEFS = [
       ,{ id:"c6TotalProb", module:7, title:{ru:"Формула полной вероятности",ua:"Формула повної ймовірності"}, desc:{ru:"Сумма по гипотезам",ua:"Сума за гіпотезами"}, generate: genC6ProbTotalShort }
       ,{ id:"c6Dispersion", module:8, title:{ru:"Размах и дисперсия",ua:"Розмах і дисперсія"}, desc:{ru:"R и D для набора данных",ua:"R і D для набору даних"}, generate: genC6StatDispersionShort }
       ,{ id:"c6Freq", module:8, title:{ru:"Относительная частота",ua:"Відносна частота"}, desc:{ru:"Оценка вероятности по опытам",ua:"Оцінка ймовірності за дослідами"}, generate: genC6ProbFreqShort }
+      ,{ id:"geoInfinite", module:11, title:{ru:"Сумма бесконечного ряда",ua:"Сума нескінченного ряду"}, desc:{ru:"S = a₁ / (1 − q) при |q| < 1",ua:"S = a₁ / (1 − q) при |q| < 1"}, generate: genGeoInfiniteMC }
+      ,{ id:"linearIneq", module:12, title:{ru:"Линейное неравенство",ua:"Лінійна нерівність"}, desc:{ru:"Смена знака при делении на минус",ua:"Зміна знака при діленні на мінус"}, generate: genLinearInequalityShort }
+      ,{ id:"quadraticRoots", module:12, title:{ru:"Квадратное уравнение по Виету",ua:"Квадратне рівняння за Вієтом"}, desc:{ru:"Меньший корень из суммы и произведения",ua:"Менший корінь із суми й добутку"}, generate: genQuadraticRootsShort }
+      ,{ id:"percentGrowth", module:13, title:{ru:"Рост цены на проценты",ua:"Зростання ціни на відсотки"}, desc:{ru:"a · (1 + p/100)",ua:"a · (1 + p/100)"}, generate: genPercentGrowthMC }
+      ,{ id:"motionMeeting", module:13, title:{ru:"Встречное движение",ua:"Зустрічний рух"}, desc:{ru:"t = S / (v₁ + v₂)",ua:"t = S / (v₁ + v₂)"}, generate: genMotionMeetingShort }
+      ,{ id:"workRate", module:13, title:{ru:"Совместная работа",ua:"Спільна робота"}, desc:{ru:"1/t = 1/t₁ + 1/t₂",ua:"1/t = 1/t₁ + 1/t₂"}, generate: genWorkRateShort }
+      ,{ id:"mixtureConc", module:13, title:{ru:"Концентрация смеси",ua:"Концентрація суміші"}, desc:{ru:"C = (C₁m₁ + C₂m₂) / (m₁ + m₂)",ua:"C = (C₁m₁ + C₂m₂) / (m₁ + m₂)"}, generate: genMixtureConcentrationShort }
+      ,{ id:"systemTwoEq", module:12, title:{ru:"Система линейных уравнений",ua:"Система лінійних рівнянь"}, desc:{ru:"Метод сложения, ответ в формате x;y",ua:"Метод додавання, відповідь у форматі x;y"}, generate: genSystemTwoEqShort }
       ,{ id:"nmtParameter", module:2, title:{ru:"НМТ: параметр",ua:"НМТ: параметр"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genNmtParameterMC }
+      ,{ id:"quadApplied", module:14, title:{ru:"Задача на квадратное уравнение",ua:"Задача на квадратне рівняння"}, desc:{ru:"Площадь прямоугольника",ua:"Площа прямокутника"}, generate: genQuadraticAppliedShort }
+      ,{ id:"systemWord", module:14, title:{ru:"Задача на встречное движение",ua:"Задача на зустрічний рух"}, desc:{ru:"t = S / (v₁ + v₂)",ua:"t = S / (v₁ + v₂)"}, generate: genSystemWordShort }
     ]
   }
 ];

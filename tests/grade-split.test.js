@@ -1,0 +1,144 @@
+/* Grade split: lesson/topic maps, UI labels, and legacy preference migration. */
+const vm = require("vm");
+const lib = require("../tools/lib");
+
+let failures = 0;
+const assert = (condition, message) => {
+  if (condition) console.log("ok: " + message);
+  else { failures++; console.log("FAIL: " + message); }
+};
+
+const { lessonGrades, roadmap, lessons, facultative } = lib.loadLessons();
+const grade57 = ["middle", "preSenior", "senior"];
+const grade89 = ["preSenior", "senior"];
+assert(
+  ["intro1","intro2","intro3","geo1","geoTriangles","geo2","geoAreas"]
+    .every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade57)),
+  "5-7 lesson set follows the status map"
+);
+assert(
+  ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
+    "geoCircles","geoVectors","geoVectorTasks","geoAxiom",
+    "qf1","qe1","qi1","qa1","qs1","qa2"]
+    .every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade89)),
+  "8-9 lesson set follows the status map"
+);
+assert(
+  ["geoSineCos","geoPerp","geoPrism","geoRevolve"]
+    .every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(["senior"])),
+  "senior-only geometry remains in 10-11"
+);
+
+/* Модули 11-14 закрывают пробелы 8-9: прогрессии, уравнения, прикладные задачи
+   и квадратная функция. */
+assert(
+  ["seq1","seq2","seq3","seq4","eq1","eq2","eq3","eq4",
+    "app2","app3","app4"].every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade89)),
+  "progressions, equations and applied problems are marked as 8-9"
+);
+assert(
+  ["app1","app5"].every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade57)),
+  "percentages and proportions start in the 5-7 band and stay visible in 8-9"
+);
+assert(
+  [11, 12, 13, 14].every(id => roadmap[id] && roadmap[id].exam_priority === true),
+  "modules 11-14 are registered as exam-priority"
+);
+assert(
+  ["seq1","eq1","app1"].every(id =>
+    lessons.some(lesson => lesson.id === id && lesson.module >= 11 && lesson.module <= 13)),
+  "new lessons live in the modules they are registered under"
+);
+/* каждый урок обязан попадать хотя бы в одну ступень, иначе он не виден нигде */
+const unmapped = lessons
+  .map(lesson => lesson.id)
+  .filter(id => !(lessonGrades[id] || []).length);
+assert(unmapped.length === 0, "every lesson belongs to at least one grade band" +
+  (unmapped.length ? " — unmapped: " + unmapped.join(", ") : ""));
+
+/* урок вне ROADMAP и вне FACULTATIVE невозможно открыть из интерфейса */
+const facultyIds = facultative.lessons;
+assert(
+  facultyIds.every(id => lessons.some(lesson => lesson.id === id)),
+  "facultative lessons all exist"
+);
+const reachable = new Set(Object.keys(roadmap)
+  .flatMap(m => roadmap[m].lessons.filter(item => typeof item === "string"))
+  .concat(facultyIds));
+const unreachable = lessons.map(lesson => lesson.id).filter(id => !reachable.has(id));
+assert(unreachable.length === 0, "no lesson is stranded outside ROADMAP and FACULTATIVE" +
+  (unreachable.length ? " — unreachable: " + unreachable.join(", ") : ""));
+/* факультатив не должен дублировать основной маршрут */
+assert(
+  facultyIds.every(id => !reachable.has(id) || !Object.keys(roadmap)
+    .some(m => roadmap[m].lessons.includes(id))),
+  "facultative lessons are not listed twice"
+);
+/* у каждого содержательного модуля есть итоговый тест; у вводного (1)
+   и сводного НМТ (10) его нет by design */
+[2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14].forEach(m => {
+  const tests = roadmap[m].lessons.filter(item => typeof item === "object" && item.test);
+  assert(tests.length === 1, "module " + m + " has exactly one module test");
+});
+
+/* темы тренажёра модуля 14 живут в той же ступени, что и его уроки */
+const topicGradesCtx = {};
+vm.createContext(topicGradesCtx);
+vm.runInContext(lib.read("lessons.js") + "\n;var __TG = TOPIC_GRADES;", topicGradesCtx);
+const topicGrades = id => topicGradesCtx.__TG[id] || [];
+assert(
+  ["quadDiscriminant","quadVertexX","quadIneqInterval","quadYAtX","quadApplied","systemWord"]
+    .every(id => JSON.stringify(topicGrades(id)) === JSON.stringify(grade89)),
+  "module 14 trainer topics follow the 8-9 status map"
+);
+
+const ui = lib.loadUI();
+assert(ui.ru.gradeTitles.middle === "Математика 5–7" &&
+  ui.ru.gradeTitles.preSenior === "Математика 8–9" &&
+  ui.ua.gradeTitles.middle === "Математика 5–7" &&
+  ui.ua.gradeTitles.preSenior === "Математика 8–9",
+"grade names are localized in Russian and Ukrainian");
+
+function migrate(savedGrade, version) {
+  const values = {};
+  if (savedGrade !== null) values.mc_grade = savedGrade;
+  if (version !== null) values.mc_grade_version = version;
+  const localStorage = {
+    getItem(key) { return Object.prototype.hasOwnProperty.call(values, key) ? values[key] : null; },
+    setItem(key, value) { values[key] = String(value); }
+  };
+  const ctx = {
+    GRADE_LEVELS: ["junior", "middle", "preSenior", "senior"],
+    GRADE_STORAGE_VERSION: "2",
+    localStorage
+  };
+  vm.createContext(ctx);
+  vm.runInContext(lib.extractFn(lib.read("app.js"), "loadSavedGrade"), ctx);
+  return { grade: ctx.loadSavedGrade(), values };
+}
+
+const legacy = migrate("middle", null);
+assert(legacy.grade === "preSenior" && legacy.values.mc_grade === "preSenior" &&
+  legacy.values.mc_grade_version === "2",
+  "legacy 5-9 preference migrates once to 8-9");
+assert(migrate("middle", "2").grade === "middle",
+  "new 5-7 preference is preserved on later visits");
+assert(migrate("middle", "2").values.mc_grade === "middle",
+  "a current 5-7 choice is not rewritten by the migration");
+assert(migrate("middle", "1").grade === "preSenior",
+  "an older storage version still migrates the stale 5-9 value");
+assert(migrate("preSenior", "2").grade === "preSenior",
+"8-9 preference is restored");
+assert(migrate("unknown", "2").grade === "senior",
+"invalid stored preference falls back to 10-11");
+
+const html = lib.read("index.html");
+assert((html.match(/data-grade="/g) || []).length === 4 &&
+  html.includes('data-grade="middle"') && html.includes('data-grade="preSenior"'),
+"four grade choices are present in the page");
+assert(!/<title>[^<]*10.?11/i.test(html) &&
+  !/<meta name="description" content="[^"]*10.?11/i.test(html),
+"document title and description are grade-neutral");
+
+if (failures) process.exit(1);
+console.log("GRADE SPLIT TESTS PASSED");

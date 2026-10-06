@@ -73,12 +73,113 @@ function checkI18n() {
   report("referenced keys exist (" + used.size + ")", missing.length === 0, missing.join(", "));
 }
 
+/* Правильные ответы шести вариантов НМТ, в порядке вопросов.
+   Сверяются с содержимым lessons.js, чтобы смена формулировок
+   или пронумерованного ответа не прошла молча. */
+const FINAL_ANSWERS = {
+  1:["6","2 и 3","200 грн","3/5","1","3/4","4","2","3","4","−8","20","12",
+    "125","20π","36π","10","1/4","6","7"],
+  2:["снизилась на 4%","1","30%","15/17","3/5","0","2","x < −1","13","4",
+    "50","48","12","48","45π","48","56","2/15","5","6"],
+  3:["96 грн","x ∈ (−∞; 2) ∪ (3; +∞)","x ∈ (−∞; −1) ∪ [3; +∞)","−7/25","3/4","24/25",
+    "1","6,25%","13","log₂ 5","25π","2","84","36π","12π","π/6","300","4/9","14","4,1"],
+  4:["корней нет","133","6","4","3","−3/2","(1 + √5)/2 и (1 − √5)/2","24200","5","10",
+    "225","25/4","−3","128π","12","100π","31/45","48","7","19"],
+  5:["6","14","−9/4","4/5","1/2","2π","3","5 лет","x = ±√14","4","7","−12","13","12",
+    "300π","60","216","1/4","7","69"],
+  6:["(5; 5) и (−5; −5)","10","0","0","1","3√2","2","x = 0 и x = 2","2","3/2",
+    "45°","48","7/2","24π","80","32π/3","5","1/6","6,6","10"]
+};
+
 function checkRoadmap() {
   section("roadmap");
   const { lessons, roadmap, facultative, buildFinalQuestions } = loadLessons();
   const ids = lessons.map(l => l.id);
   const idSet = new Set(ids);
   report("lesson ids unique", idSet.size === ids.length);
+
+  /* GRADES: урок и тема тренажёра должны быть привязаны к блоку классов */
+  const { lessonGrades } = loadLessons();
+  const gradeValues = ["junior", "middle", "preSenior", "senior"];
+  const badGrades = ids.filter(id => !Array.isArray(lessonGrades[id]) || !lessonGrades[id].length ||
+    lessonGrades[id].some(g => !gradeValues.includes(g)));
+  report("every lesson has a grade block", badGrades.length === 0, badGrades.join(","));
+
+  const gradeCounts = Object.fromEntries(gradeValues.map(grade =>
+    [grade, ids.filter(id => lessonGrades[id].includes(grade)).length]));
+  report("four grade blocks contain their assigned lessons (" +
+    gradeValues.map(grade => grade + ": " + gradeCounts[grade]).join(" / ") + ")",
+    gradeValues.slice(1).every(grade => gradeCounts[grade] > 0));
+  const hasGrades = (id, expected) =>
+    JSON.stringify(lessonGrades[id]) === JSON.stringify(expected);
+  const grades57 = ["middle", "preSenior", "senior"];
+  const grades89 = ["preSenior", "senior"];
+  report("5-7 lesson map matches the plan",
+    ["intro1","intro2","intro3","geo1","geoTriangles","geo2","geoAreas"]
+      .every(id => hasGrades(id, grades57)));
+  report("8-9 lesson map matches the plan",
+    ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
+      "geoCircles","geoVectors","geoVectorTasks","geoAxiom",
+      "qf1","qe1","qi1","qa1","qs1","qa2"]
+      .every(id => hasGrades(id, grades89)));
+  report("10-11-only geometry remains in the senior block",
+    ["geoSineCos","geoPerp","geoPrism","geoRevolve"].every(id => hasGrades(id, ["senior"])));
+  const topicsAll = loadTrainer().__L.flatMap(level => level.topics);
+  const ctx = {};
+  vm.createContext(ctx);
+  vm.runInContext(read("lessons.js") + "\n;var __TG = TOPIC_GRADES;", ctx);
+  const topicGrades = id => ctx.__TG[id] || [];
+  const badTopics = topicsAll.filter(t => {
+    const g = topicGrades(t.id);
+    return !Array.isArray(g) || !g.length || g.some(v => !gradeValues.includes(v));
+  });
+  report("every trainer topic has a grade (" + topicsAll.length + ")", badTopics.length === 0,
+    badTopics.map(t => t.id).join(","));
+  const topicHasGrades = (id, expected) =>
+    JSON.stringify(topicGrades(id)) === JSON.stringify(expected);
+  report("trainer topics match the 5-7 and 8-9 map",
+    ["triangleFeatures","height","angleBisector","median","midline","areaFigures"]
+      .every(id => topicHasGrades(id, grades57)) &&
+    ["regularPolygon","inscribedAngle","circleRadii","vectorsDot","vectorsAngle","vectorsCross"]
+      .every(id => topicHasGrades(id, grades89)));
+  report("module 14 trainer topics are 8-9",
+    ["quadDiscriminant","quadVertexX","quadIneqInterval","quadYAtX","quadApplied","systemWord"]
+      .every(id => topicHasGrades(id, grades89)));
+
+  /* Тема 10–11 не должна жить в модуле, где нет ни одного старшего урока */
+  const moduleLessonsById = {};
+  for (const [modId, mod] of Object.entries(roadmap)) {
+    moduleLessonsById[modId] = mod.lessons.filter(item => typeof item === "string");
+  }
+  const crossBlock = topicsAll.filter(t => {
+    const modLessons = moduleLessonsById[t.module];
+    if (!modLessons || !modLessons.length) return false;
+    const grades = topicGrades(t.id);
+    /* каждая ступень темы должна опираться хотя бы на один урок этой ступени */
+    return gradeValues.filter(g => grades.includes(g))
+      .some(g => !modLessons.some(id => (lessonGrades[id] || []).includes(g)));
+  });
+  report("trainer topics agree with their module's block", crossBlock.length === 0,
+    crossBlock.map(t => t.id).join(","));
+
+  /* Видимый модуль может остаться без тем тренажёра в какой-то ступени:
+     например, модуль 6 виден в 8–9 уроком об аксиомах, а его темы — 10–11.
+     renderModuleTest обязан показывать пустое состояние, а не таймер. */
+  const emptyTests = [];
+  for (const grade of gradeValues) {
+    for (const [modId, mod] of Object.entries(roadmap)) {
+      const hasTest = mod.lessons.some(item => typeof item === "object" && item.test);
+      const lessonVisible = mod.lessons.some(item => typeof item === "string" &&
+        (lessonGrades[item] || []).includes(grade));
+      if (!hasTest || !lessonVisible) continue;
+      const topicCount = topicsAll.filter(t => String(t.module) === String(modId) &&
+        topicGrades(t.id).includes(grade)).length;
+      if (!topicCount) emptyTests.push(grade + "/модуль " + modId);
+    }
+  }
+  report("modules without trainer topics are handled by the empty test state (" +
+    (emptyTests.length ? emptyTests.join(", ") : "нет таких модулей") + ")",
+    emptyTests.length === 0 || /testNoTopics/.test(read("app.js")) && /currentTest\.length/.test(read("app.js")));
 
   const referenced = new Set();
   let soon = 0;
@@ -114,7 +215,14 @@ function checkRoadmap() {
   const nmtParameter = topics.find(topic => topic.id === "nmtParameter");
   report("NMT parameter topic is in the trigonometry module", !!nmtParameter && nmtParameter.module === 2);
   const priorityModules = Object.entries(roadmap).filter(([,module])=>module.exam_priority).map(([id])=>Number(id)).sort((a,b)=>a-b);
-  report("NMT-priority modules are 1-8 and 10", priorityModules.join(",") === "1,2,3,4,5,6,7,8,10");
+  report("NMT-priority modules are 1-8 and 10-14", priorityModules.join(",") === "1,2,3,4,5,6,7,8,10,11,12,13,14");
+  const orderMatch = read("app.js").match(/const MODULE_ORDER = \[([^\]]+)\]/);
+  const displayOrder = orderMatch ? orderMatch[1].split(",").map(n => Number(n.trim())) : [];
+  const roadmapIds = Object.keys(roadmap).map(Number).sort((a, b) => a - b);
+  report("module display order lists every module and keeps NMT (10) last",
+    displayOrder.length > 0 && displayOrder[displayOrder.length - 1] === 10 &&
+    roadmapIds.length === displayOrder.length && roadmapIds.every(id => displayOrder.includes(id)),
+    "order=[" + displayOrder.join(",") + "] vs roadmap=[" + roadmapIds.join(",") + "]");
   const advanced = roadmap[9];
   report("module 9 is marked advanced and optional", !!advanced && advanced.advanced === true &&
     advanced.comment && advanced.comment.ru === "Углублённый блок (необязательный для НМТ)" &&
@@ -122,6 +230,25 @@ function checkRoadmap() {
   const finalIds = roadmap[10] && roadmap[10].lessons.filter(item=>typeof item === "string");
   report("module 10 has six final practice lessons", !!finalIds &&
     finalIds.join(",") === "final1,final2,final3,final4,final5,final6");
+  const guessHeavy = [];
+  {
+    const src = read("lessons.js");
+    const starts = [];
+    const re2 = /make(Intro|Topic)Lesson\("([A-Za-z0-9]+)"/g;
+    let mm;
+    while ((mm = re2.exec(src))) starts.push({ id: mm[1], at: mm.index });
+    for (let i = 0; i < starts.length; i++) {
+      const block = src.slice(starts[i].at, i + 1 < starts.length ? starts[i + 1].at : src.length);
+      const pos = [];
+      const cr = /correct:\s*(\d+)/g;
+      let c;
+      while ((c = cr.exec(block))) pos.push(Number(c[1]) + 1);
+      if (pos.length && pos.filter(p => p === 1).length / pos.length >= 0.7)
+        guessHeavy.push(starts[i].id + "[" + pos.join(",") + "]");
+    }
+  }
+  report("no lesson puts 70% or more of correct answers on the first position",
+    guessHeavy.length === 0, guessHeavy.join(", "));
   const finalProblems = [];
   for(let variant=1;variant<=6;variant++){
     const questions = buildFinalQuestions(variant);
@@ -130,47 +257,7 @@ function checkRoadmap() {
       return counts;
     },{});
     const expectedModuleCounts = {1:3,2:3,3:2,4:2,5:3,6:3,7:2,8:2};
-    const exponent = 2 + variant % 3;
-    const expBase = [2,3,5][variant % 3];
-    const logBase = variant % 2 ? 2 : 3;
-    const logPower = 2 + variant % 2;
-    const logValue = logBase ** logPower;
-    const triangleBase = variant + 3;
-    const triangleHeight = 2 * (variant + 1);
-    const legScale = 1 + variant % 3;
-    const cubeEdge = 2 + variant % 4;
-    const triples = [{a:3,b:4,c:5},{a:5,b:12,c:13},{a:7,b:24,c:25},
-      {a:8,b:15,c:17},{a:9,b:40,c:41}];
-    const triple = triples[variant % triples.length];
-    const angles = ["π/6","π/4","π/3","π/2","2π/3","3π/4"];
-    const radius = variant + 2;
-    const prismVolume = (variant + 2) * 3 * (2 + variant % 3);
-    const favorable = 2 + variant % 4;
-    const selected = 5 + variant % 3;
-    const dataset = [variant+1,variant+2,variant+6,variant+7,variant+12];
-    const mean = dataset.reduce((sum,value)=>sum+value,0)/dataset.length;
-    const expectedAnswers = [
-      String(variant+1),
-      String(variant+2),
-      `${variant} и ${variant+1}`,
-      `${triple.a}/${triple.c}`,
-      angles[(variant-1)%angles.length],
-      "π/2 и 3π/2",
-      String(exponent-1),
-      `x > ${(exponent-1)/2}`,
-      String(logValue),
-      String(logValue+variant),
-      String(triangleBase*triangleHeight/2),
-      String(5*legScale),
-      `${2*radius}π`,
-      String(cubeEdge**3),
-      String(prismVolume),
-      `${4*radius**3}π/3`,
-      `${favorable}/7`,
-      String(selected*(selected-1)/2),
-      String(mean),
-      String(variant+6),
-    ];
+    const expectedAnswers = FINAL_ANSWERS[variant] || [];
     const badModuleCounts = Object.keys(expectedModuleCounts).some(module =>
       moduleCounts[module] !== expectedModuleCounts[module]);
     if(questions.length !== 20 || badModuleCounts ||
@@ -183,6 +270,27 @@ function checkRoadmap() {
     }
   }
   report("final variants cover modules 1-8 with bilingual explanations", finalProblems.length === 0, finalProblems.join(", "));
+  /* A distractor must not be the same number as the correct answer in another form
+     (e.g. "108π/3" vs "36π") — otherwise a right answer is graded as wrong. */
+  const parseOption = text => {
+    const m = /^(-?\d+(?:\.\d+)?)(π(?:\/(\d+(?:\.\d+)?))?)?$/.exec(String(text).replace(/\s/g, ""));
+    if(!m) return null;
+    const value = m[3] === undefined ? Number(m[1]) : Number(m[1]) / Number(m[3]);
+    return { pi:!!m[2], value:Math.round(value * 1e6) / 1e6 };
+  };
+  const sameNumber = (a, b) => !!a && !!b && a.pi === b.pi && a.value === b.value;
+  const equalDistractors = [];
+  for(let variant=1;variant<=6;variant++){
+    buildFinalQuestions(variant).forEach((question,index)=>{
+      const correctValue = parseOption(question.opts[question.correct]);
+      if(!correctValue) return;
+      question.opts.forEach((opt,oi)=>{
+        if(oi === question.correct) return;
+        if(sameNumber(parseOption(opt), correctValue)) equalDistractors.push("v" + variant + " #" + (index+1) + ": " + opt);
+      });
+    });
+  }
+  report("no distractor equals the correct answer numerically", equalDistractors.length === 0, equalDistractors.join(", "));
   const inRoadmap = facultyIds.filter(id => Object.values(roadmap)
     .some(module => module.lessons.some(item => item === id)));
   report("facultative section holds geoCurved and geoRose", facultyIds.join(",") === "geoCurved,geoRose", facultyIds.join(","));

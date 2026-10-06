@@ -6,7 +6,7 @@ let state = {
   trainerLevel: null,
   trainerTopic: null,
   testModuleId: null,
-  grade: "senior",      // junior (1–4) | middle (5–9) | senior (10–11, НМТ)
+  grade: "senior",      // junior (1–4) | middle (5–7) | preSenior (8–9) | senior (10–11, НМТ)
   trainerScore: {correct:0, total:0},
   doneLessons: new Set(JSON.parse(localStorage.getItem("mc_done")||"[]")),
   searchQuery: "",
@@ -17,6 +17,8 @@ let state = {
 };
 
 const MODULE_TEST_DURATION = 20 * 60;
+const GRADE_LEVELS = ["junior", "middle", "preSenior", "senior"];
+const GRADE_STORAGE_VERSION = "2";
 let testTimerId = null;
 const NMT_REVIEWS = [
   {year:"2024", title:{ru:"Тригонометрия: знак и четверть",ua:"Тригонометрія: знак і чверть"}, text:{ru:"Сначала определяем четверть по условию, затем восстанавливаем sin и cos через единичную окружность.",ua:"Спочатку визначаємо чверть за умовою, потім відновлюємо sin і cos через одиничне коло."}},
@@ -58,6 +60,16 @@ function recordTrainerResult(topicId, ok){
   if(ok){ rec.correct++; if(rec.wrong>0) rec.wrong--; }
   else { rec.wrong++; rec.lastWrong = Date.now(); }
   saveTrainerStats();
+}
+/* Заголовок приложения зависит от ступени классов: в режиме 5–9
+   нельзя подписывать сайт «10–11». */
+function gradeTitle(){
+  return UI[state.lang].gradeTitles[state.grade] || UI[state.lang].appTitle;
+}
+/* Тема тренажёра попадает в блок классов, если ступень входит в её список.
+   Пустой список означает «вне блоков» — тема скрыта во всех режимах. */
+function topicInGrade(topicId){
+  return topicGrades(topicId).indexOf(state.grade) >= 0;
 }
 function allTrainerTopics(){ return LEVEL_DEFS.flatMap(level=>level.topics.map(topic=>({level, topic}))); }
 function findTrainerTopic(topicId){ return allTrainerTopics().find(x=>x.topic.id===topicId) || null; }
@@ -125,7 +137,7 @@ function searchResults(query){
   const normalized = query.trim().toLowerCase();
   if(!normalized) return [];
   const results = [];
-  LESSONS.forEach(lesson=>{
+  LESSONS.filter(lesson=>lessonInGrade(lesson.id, state.grade)).forEach(lesson=>{
     const data = searchData(lesson);
     if(data.text.includes(normalized)) results.push({lessonId:lesson.id,title:data.title,detail:UI[state.lang].course});
     data.formulas.forEach(text=>{
@@ -167,18 +179,36 @@ function renderSearchResults(){
 function moduleLessons(moduleId){
   return ROADMAP[moduleId].lessons.filter(item=>typeof item === "string");
 }
+/* Урок попадает в выбранный блок классов, если его ступень совпадает.
+   Пустой массив означает «вне всех блоков» — такой урок скрыт везде. */
+function lessonInGrade(lessonId, grade){
+  return lessonGrades(lessonId).indexOf(grade) >= 0;
+}
 function isFacultative(lessonId){
   return FACULTATIVE.lessons.indexOf(lessonId) >= 0;
 }
 function lessonGroup(lessonId){
-  return isFacultative(lessonId) ? FACULTATIVE.lessons.filter(id=>typeof id === "string") : moduleLessons(LESSONS.find(item=>item.id===lessonId).module);
+  const all = isFacultative(lessonId)
+    ? FACULTATIVE.lessons.filter(id=>typeof id === "string")
+    : moduleLessons(LESSONS.find(item=>item.id===lessonId).module);
+  return all.filter(id=>lessonInGrade(id, state.grade));
 }
 function groupProgress(ids){
   const done = ids.filter(id=>state.doneLessons.has(id)).length;
   return {done, total:ids.length, percent:ids.length ? Math.round(done/ids.length*100) : 0};
 }
 function moduleProgress(moduleId){
-  return groupProgress(moduleLessons(moduleId));
+  return groupProgress(moduleLessons(moduleId).filter(id=>lessonInGrade(id, state.grade)));
+}
+/* Модуль целиком скрыт, если в выбранном блоке классов нет ни одного урока. */
+function moduleInGrade(moduleId){
+  return moduleLessons(moduleId).some(id=>lessonInGrade(id, state.grade));
+}
+/* Логический порядок модулей: алгебра 11–14 идут перед итоговым НМТ (10). */
+const MODULE_ORDER = [1,2,3,4,5,6,7,8,9,11,12,13,14,10];
+function visibleSections(){
+  return MODULE_ORDER.filter(modId=>ROADMAP[modId] && moduleInGrade(modId))
+    .map(modId=>({modId, mod:ROADMAP[modId]}));
 }
 function courseNavigation(lessonId){
   const lesson = LESSONS.find(item=>item.id===lessonId);
@@ -486,8 +516,8 @@ function renderSidebar(){
   const btnUa = document.getElementById("btn-lang-ua");
   const btnCourse = document.getElementById("btn-mode-course");
   const btnTrainer = document.getElementById("btn-mode-trainer");
-  if(appTitle) appTitle.textContent = UI[state.lang].appTitle;
-  if(appSubtitle) appSubtitle.textContent = UI[state.lang].appSubtitle;
+  if(appTitle) appTitle.textContent = gradeTitle();
+  if(appSubtitle) appSubtitle.textContent = UI[state.lang].gradeSubtitles[state.grade] || UI[state.lang].appSubtitle;
   if(btnRu){ btnRu.classList.toggle("active", state.lang==="ru"); btnRu.setAttribute("aria-pressed", String(state.lang==="ru")); }
   if(btnUa){ btnUa.classList.toggle("active", state.lang==="ua"); btnUa.setAttribute("aria-pressed", String(state.lang==="ua")); }
   if(btnCourse){
@@ -514,8 +544,16 @@ function renderSidebar(){
   const nav = document.getElementById("module-nav");
   nav.setAttribute("aria-label", UI[state.lang].lessonNav);
   nav.innerHTML = "";
-  const sections = Object.keys(ROADMAP).map(Number).sort((a,b)=>a-b).map(modId=>({modId, mod:ROADMAP[modId]}));
-  sections.push({modId:null, mod:FACULTATIVE, faculty:true});
+  if(!visibleSections().length){
+    const empty = document.createElement("div");
+    empty.className = "grade-empty";
+    empty.textContent = UI[state.lang].gradeEmpty;
+    nav.appendChild(empty);
+    return;
+  }
+  const sections = visibleSections();
+  const facultyIds = FACULTATIVE.lessons.filter(id=>typeof id === "string" && lessonInGrade(id, state.grade));
+  if(facultyIds.length) sections.push({modId:null, mod:FACULTATIVE, faculty:true});
   sections.forEach(({modId, mod, faculty})=>{
     const block = document.createElement("div");
     block.className = "module-block" + (faculty ? " faculty" : "");
@@ -536,7 +574,9 @@ function renderSidebar(){
       note.textContent = noteText;
       block.appendChild(note);
     }
-    const progress = faculty ? groupProgress(mod.lessons) : moduleProgress(modId);
+    const progress = faculty
+      ? groupProgress(mod.lessons.filter(id=>typeof id === "string" && lessonInGrade(id, state.grade)))
+      : moduleProgress(modId);
     const progressEl = document.createElement("div");
     progressEl.className = "module-progress";
     progressEl.setAttribute("role", "progressbar");
@@ -553,6 +593,7 @@ function renderSidebar(){
       num.textContent = idx+1;
       if(typeof item === "string"){
         const lesson = LESSONS.find(l=>l.id===item);
+        if(!lessonInGrade(item, state.grade)) return;
         btn.type = "button";
         btn.dataset.lesson = item;
         btn.className = "lesson-item" + (state.mode==="course" && state.lessonId===item ? " active":"") + (state.doneLessons.has(item)?" done":"");
@@ -619,9 +660,27 @@ function renderSidebar(){
 /* ============================================================
    RENDER: MAIN — COURSE VIEW
    ============================================================ */
+/* Первый урок, доступный в текущем блоке классов, — фолбэк,
+   когда открытый урок скрыт переключателем. */
+function firstVisibleLesson(){
+  for(const {modId, mod} of visibleSections()){
+    for(const item of mod.lessons){
+      if(typeof item === "string" && lessonInGrade(item, state.grade)) return item;
+    }
+    void modId;
+  }
+  return null;
+}
+
 function renderCourse(){
   const main = document.getElementById("main");
-  const lesson = LESSONS.find(l=>l.id===state.lessonId) || LESSONS[0];
+  const lesson = LESSONS.find(l=>l.id===state.lessonId && lessonInGrade(l.id, state.grade))
+    || (()=>{ const id = firstVisibleLesson(); return id ? LESSONS.find(l=>l.id===id) : null; })();
+  if(!lesson){
+    main.innerHTML = `<div class="grade-empty">${UI[state.lang].gradeEmpty}</div>`;
+    return;
+  }
+  state.lessonId = lesson.id;
   const navigation = courseNavigation(lesson.id);
   state.doneLessons.add(lesson.id); saveDone();
   const faculty = isFacultative(lesson.id);
@@ -697,11 +756,14 @@ function renderTrainerLevelPicker(){
     panel.appendChild(done);
   }
   const grid = main.querySelector("#level-grid");
-  LEVEL_DEFS.forEach(level=>{
+  const levels = LEVEL_DEFS.map(level=>({
+    level, topics: level.topics.filter(topic=>topicInGrade(topic.id))
+  })).filter(entry=>entry.topics.length);
+  levels.forEach(({level, topics})=>{
     const card = document.createElement("div");
     card.className = "topic-card";
     let levelTotal = 0, levelCorrect = 0;
-    level.topics.forEach(t=>{ const r = state.trainerStats[t.id]; if(r){ levelTotal += r.total; levelCorrect += r.correct; } });
+    topics.forEach(t=>{ const r = state.trainerStats[t.id]; if(r){ levelTotal += r.total; levelCorrect += r.correct; } });
     const badge = levelTotal
       ? `<div class="topic-stat">${L.trainerAccuracy.replace("{p}",Math.round(levelCorrect/levelTotal*100)).replace("{n}",levelTotal)}</div>`
       : "";
@@ -713,6 +775,12 @@ function renderTrainerLevelPicker(){
     });
     grid.appendChild(card);
   });
+  if(!levels.length){
+    const empty = document.createElement("div");
+    empty.className = "grade-empty";
+    empty.textContent = UI[state.lang].gradeEmpty;
+    grid.appendChild(empty);
+  }
   renderStudyResources(main);
 }
 
@@ -768,6 +836,7 @@ function renderTrainerTopicPicker(){
   const main = document.getElementById("main");
   const L = UI[state.lang];
   const level = LEVEL_DEFS.find(l=>l.id===state.trainerLevel);
+  const topics = level.topics.filter(topic=>topicInGrade(topic.id));
   main.innerHTML = `
     <div class="back-link" id="trainer-back-level">${L.trainerBackLevels}</div>
     <div class="lesson-header">
@@ -778,7 +847,7 @@ function renderTrainerTopicPicker(){
   `;
   main.querySelector("#trainer-back-level").addEventListener("click", ()=>{ state.trainerLevel=null; render(); });
   const grid = main.querySelector("#topic-grid");
-  level.topics.forEach(topic=>{
+  topics.forEach(topic=>{
     const card = document.createElement("div");
     card.className = "topic-card";
     const rec = state.trainerStats[topic.id];
@@ -984,7 +1053,7 @@ let testTimeLeft = MODULE_TEST_DURATION;
 function buildModuleTest(moduleId){
   const items = [];
   LEVEL_DEFS.forEach(level=>{
-    level.topics.filter(topic=>topic.module===moduleId).forEach(topic=>{
+    level.topics.filter(topic=>topic.module===moduleId && topicInGrade(topic.id)).forEach(topic=>{
       items.push({level: level.id, topicId: topic.id, topicTitle: topic.title, q: topic.generate()});
     });
   });
@@ -1009,6 +1078,23 @@ function renderModuleTest(){
 
   const levelTitle = id => LEVEL_DEFS.find(l=>l.id===id).title[state.lang];
   const modName = (ROADMAP[state.testModuleId][state.lang] || "").split(".").slice(1).join(".").trim() || ROADMAP[state.testModuleId][state.lang];
+  /* В ступени классов у модуля может не оказаться тем тренажёра —
+     например, модуль 6 виден в 8–9 только уроком об аксиомах. Тогда
+     вместо таймера без заданий показываем пустое состояние. */
+  if(!currentTest.length){
+    main.innerHTML = `
+      <div class="lesson-header">
+        <div class="lesson-kicker">${L.testKicker}</div>
+        <h2>${modName}</h2>
+      </div>
+      <div class="grade-empty">${L.testNoTopics}</div>
+      <button class="btn" id="test-back-btn">${L.testBack}</button>
+    `;
+    main.querySelector("#test-back-btn").addEventListener("click", ()=>{
+      state.mode = "course"; state.testModuleId = null; currentTest = null; render();
+    });
+    return;
+  }
   let html = `
     <div class="lesson-header">
       <div class="lesson-kicker">${L.testKicker}</div>
@@ -1179,7 +1265,7 @@ function render(){
     else if(!state.trainerTopic) renderTrainerTopicPicker();
     else renderTrainerRun();
   }
-  const BASE_TITLE = "Математика 10-11";
+  const BASE_TITLE = gradeTitle();
   if(state.mode==="course"){
     const lesson = LESSONS.find(l=>l.id===state.lessonId);
     if(lesson) document.title = `${lesson.title[state.lang]} — ${BASE_TITLE}`;
@@ -1232,6 +1318,7 @@ document.getElementById("btn-theme-toggle").addEventListener("click", ()=>{
 applyTheme(localStorage.getItem("mc_theme") || "light");
 
 function applyGrade(grade){
+  if(!GRADE_LEVELS.includes(grade)) throw new Error("Unknown grade block: " + grade);
   state.grade = grade;
   document.documentElement.setAttribute("data-grade", grade);
   document.querySelectorAll(".grade-switch button").forEach(b=>{
@@ -1240,11 +1327,40 @@ function applyGrade(grade){
     b.setAttribute("aria-pressed", String(active));
   });
   localStorage.setItem("mc_grade", grade);
+  localStorage.setItem("mc_grade_version", GRADE_STORAGE_VERSION);
+  /* Открытый урок или тест может оказаться вне нового блока — тогда
+     возвращаемся к первому уроку, который в блоке есть. */
+  const visible = visibleSections();
+  if(!visible.length) return;
+  const mod = ROADMAP[state.testModuleId];
+  if(state.mode === "moduletest" && mod && !moduleInGrade(state.testModuleId)){
+    state.mode = "course";
+    currentTest = null;
+  }
+  if(state.mode === "course" && !lessonInGrade(state.lessonId, grade)){
+    state.lessonId = null;
+    navFromUi = false;
+  }
+  if(state.mode === "trainer" && state.trainerTopic && !topicInGrade(state.trainerTopic)){
+    state.trainerTopic = null;
+    trainerCurrent = null;
+    state.trainerLevel = null;
+  }
+}
+function loadSavedGrade(){
+  const savedGrade = localStorage.getItem("mc_grade");
+  const storageVersion = localStorage.getItem("mc_grade_version");
+  const grade = storageVersion !== GRADE_STORAGE_VERSION && savedGrade === "middle"
+    ? "preSenior"
+    : savedGrade;
+  if(grade !== savedGrade) localStorage.setItem("mc_grade", grade);
+  localStorage.setItem("mc_grade_version", GRADE_STORAGE_VERSION);
+  return GRADE_LEVELS.includes(grade) ? grade : "senior";
 }
 document.querySelectorAll(".grade-switch button").forEach(b=>{
   b.addEventListener("click", ()=>{ applyGrade(b.dataset.grade); render(); });
 });
-applyGrade(localStorage.getItem("mc_grade") || "senior");
+applyGrade(loadSavedGrade());
 
 initMascot();
 

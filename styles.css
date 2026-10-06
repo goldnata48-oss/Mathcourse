@@ -113,6 +113,19 @@
   .search-result:hover{background:var(--accent-soft);}
   .search-result small{display:block;margin-top:3px;color:var(--ink-soft);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .search-empty{padding:10px;color:var(--ink-soft);font-size:12.5px;}
+  .grade-empty{
+    padding:14px 12px;margin:0 6px;
+    color:var(--sidebar-ink-soft);
+    font-size:12.5px;line-height:1.55;
+    border:1px dashed var(--sidebar-border);
+    border-radius:9px;
+    background:transparent;
+  }
+  .trainer-topic-grid .grade-empty,#main .grade-empty{
+    color:var(--ink-soft);
+    border-color:var(--line);
+    margin:0;max-width:640px;
+  }
   .theme-toggle{
     width:34px;height:34px;
     flex-shrink:0;
