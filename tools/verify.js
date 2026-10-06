@@ -305,6 +305,96 @@ function checkRoadmap() {
   report("lesson count", lessons.length > 0, lessons.length + " lessons");
 }
 
+/* Навигация и нумерация: меню ступени должно быть непрерывным 1..N,
+   номера уроков — по позиции среди видимых, переход — сквозным без «дыр». */
+function checkNav() {
+  section("navigation and numbering");
+  const { lessons, roadmap, lessonGrades } = loadLessons();
+  const appSrc = read("app.js");
+  const orderMatch = appSrc.match(/const MODULE_ORDER = \[([^\]]+)\]/);
+  const MODULE_ORDER = orderMatch[1].split(",").map(n => Number(n.trim()));
+  const grades = ["junior", "middle", "preSenior", "senior"];
+  const inGrade = (id, g) => (lessonGrades[id] || []).includes(g);
+  const unlocked = g => MODULE_ORDER.filter(m => roadmap[m] && (roadmap[m].lessons || [])
+    .some(x => typeof x === "string" && inGrade(x, g)));
+
+  const routes = Object.fromEntries(grades.map(g => [g, unlocked(g)]));
+  report("route module sets match the grade table (8-9 keeps 1,5,6,7,8,11,12,13,14)",
+    JSON.stringify(routes.middle) === JSON.stringify([1, 5, 13]) &&
+    JSON.stringify(routes.preSenior) === JSON.stringify([1, 5, 6, 7, 8, 11, 12, 13, 14]) &&
+    routes.senior.length === MODULE_ORDER.filter(m => roadmap[m]).length &&
+    routes.junior.length === 0,
+    "middle=[" + routes.middle.join(",") + "] preSenior=[" + routes.preSenior.join(",") + "] senior=" + routes.senior.length + " junior=" + routes.junior.length);
+
+  const realm = lib.makeRealm(
+    ["moduleLessons", "lessonInGrade", "moduleInGrade", "moduleTitle", "visibleSections",
+      "visibleLessonFlow", "courseNavigation", "lessonNumberInModule"],
+    { ROADMAP: roadmap, LESSONS: lessons, MODULE_ORDER, lessonGrades: id => lessonGrades[id] || [],
+      state: { grade: "" } });
+  const menuNumbers = g => {
+    realm.state.grade = g;
+    return realm.visibleSections().map((s, i) => {
+      const m = realm.moduleTitle(s.modId, "ru").match(/^Модуль (\d+)/);
+      return m ? Number(m[1]) : i + 1;
+    });
+  };
+
+  realm.state.grade = "junior";
+  report("junior renders the empty state (all modules locked)",
+    realm.visibleSections().every(s => s.locked));
+
+  const preSeniorNums = menuNumbers("preSenior");
+  const expected89 = Array.from({ length: routes.preSenior.length }, (_, i) => i + 1);
+  report("8-9 sidebar module numbers are sequential 1.." + expected89.length,
+    JSON.stringify(preSeniorNums) === JSON.stringify(expected89),
+    "shown=[" + preSeniorNums.join(",") + "] expected 1.." + expected89.length);
+
+  for (const g of ["middle", "senior"]) {
+    const nums = menuNumbers(g);
+    const unique = new Set(nums);
+    report(g + " sidebar shows every module number exactly once",
+      nums.length === unique.size && Math.min(...nums) === 1 && Math.max(...nums) === nums.length,
+      "shown=[" + nums.join(",") + "]");
+  }
+
+  /* Номера уроков: по позиции среди видимых в модуле — всегда 1..k без пропусков. */
+  const numberingIssues = [];
+  for (const g of grades) {
+    realm.state.grade = g;
+    for (const m of routes[g]) {
+      const ids = roadmap[m].lessons.filter(x => typeof x === "string" && inGrade(x, g));
+      if (!ids.length) continue;
+      const nums = ids.map(id => realm.lessonNumberInModule(id));
+      const expected = Array.from({ length: ids.length }, (_, i) => i + 1);
+      if (JSON.stringify(nums) !== JSON.stringify(expected))
+        numberingIssues.push(g + "/модуль " + m + "=[" + nums.join(",") + "]");
+    }
+  }
+  report("lesson numbers in each module are contiguous 1..k", numberingIssues.length === 0, numberingIssues.join(" | "));
+
+  /* Сквозной переход: кнопки «дальше/назад» идут ровно по flow ступени,
+     последний урок ступени — тупик по замыслу, скрытых прыжков нет. */
+  const flowIssues = [];
+  for (const g of grades) {
+    if (!routes[g].length) continue;
+    realm.state.grade = g;
+    const flow = realm.visibleLessonFlow();
+    const dupes = flow.length !== new Set(flow).size;
+    const broken = flow.some((id, i) => i < flow.length - 1 && realm.courseNavigation(id).next !== flow[i + 1]);
+    if (dupes || broken || realm.courseNavigation(flow[flow.length - 1]).next !== null)
+      flowIssues.push(g + " (" + flow.length + " lessons)");
+  }
+  report("course navigation walks the grade flow without jumps or dead ends",
+    flowIssues.length === 0, flowIssues.join(" | "));
+
+  report("sidebar numbers lessons by visible position, not raw index",
+    !/num\.textContent = idx|num\.textContent = idx\+1/.test(appSrc) && /visibleNumber/.test(appSrc));
+  const navBlock = appSrc.slice(appSrc.indexOf("function courseNavigation"),
+    appSrc.indexOf("function courseNavigation") + 700);
+  report("course navigation is flow-based (no module-scoped next)",
+    /visibleLessonFlow/.test(navBlock) && !/lessonGroup\(/.test(navBlock));
+}
+
 function checkGenerators() {
   section("trainer generators (" + ITERS + " iterations each)");
   const ctx = loadTrainer();
@@ -422,6 +512,7 @@ if (onlyGenerators) {
   checkSyntax();
   checkI18n();
   checkRoadmap();
+  checkNav();
   checkGenerators();
   checkMix();
   checkA11y();

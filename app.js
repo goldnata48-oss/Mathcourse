@@ -206,6 +206,18 @@ function moduleInGrade(moduleId){
 }
 /* Логический порядок модулей: алгебра 11–14 идут перед итоговым НМТ (10). */
 const MODULE_ORDER = [1,2,3,4,5,6,7,8,9,11,12,13,14,10];
+/* В маршруте 8–9 номера модулей идут по позиции видимого списка: скрытые
+   разделы не сдвигают счёт, нумерация получается непрерывной 1..9. */
+function moduleTitle(moduleId, lang){
+  const title = ROADMAP[moduleId][lang];
+  if(state.grade !== "preSenior") return title;
+  const pos = visibleSections().map(section=>section.modId).indexOf(moduleId);
+  if(pos < 0) return title;
+  const number = pos + 1;
+  return title
+    .replace(/^Модуль \d+\./, `Модуль ${number}.`)
+    .replace(/^(Вводный|Вступний) модуль\./, `Модуль ${number}.`);
+}
 /* Номера ступеней для надписи заблокированного модуля. */
 const GRADE_RANGES = {junior:"1–4", middle:"5–7", preSenior:"8–9", senior:"10–11"};
 function moduleForGrades(moduleId){
@@ -215,8 +227,9 @@ function moduleForGrades(moduleId){
     .map(g=>GRADE_RANGES[g]||g).join(", ");
 }
 function visibleSections(){
-  return MODULE_ORDER.filter(modId=>ROADMAP[modId])
+  const sections = MODULE_ORDER.filter(modId=>ROADMAP[modId])
     .map(modId=>({modId, mod:ROADMAP[modId], locked:!moduleInGrade(modId)}));
+  return state.grade === "preSenior" ? sections.filter(section=>!section.locked) : sections;
 }
 /* Сквозной поток видимых в текущей ступени уроков: по порядку модулей, без скрытых. */
 function visibleLessonFlow(){
@@ -585,7 +598,7 @@ function renderSidebar(){
     block.className = "module-block" + (faculty ? " faculty" : locked ? " locked" : "");
     const title = document.createElement("div");
     title.className = "module-title";
-    title.textContent = mod[state.lang];
+    title.textContent = faculty ? mod[state.lang] : moduleTitle(modId, state.lang);
     if(mod.exam_priority || mod.advanced || faculty){
       const flag = document.createElement("span");
       flag.className = "module-flag" + (mod.advanced ? " advanced" : faculty ? " faculty" : "");
@@ -615,7 +628,7 @@ function renderSidebar(){
       progressEl.setAttribute("aria-valuemin", "0");
       progressEl.setAttribute("aria-valuemax", "100");
       progressEl.setAttribute("aria-valuenow", String(progress.percent));
-      progressEl.setAttribute("aria-label", `${mod[state.lang]} — ${UI[state.lang].progress} ${progress.percent}%`);
+      progressEl.setAttribute("aria-label", `${moduleTitle(modId, state.lang)} — ${UI[state.lang].progress} ${progress.percent}%`);
       progressEl.innerHTML = `<span>${UI[state.lang].progress}: ${progress.percent}% (${progress.done}/${progress.total})</span><div class="module-progress-track"><div class="module-progress-fill" style="width:${progress.percent}%"></div></div>`;
       block.appendChild(progressEl);
       let visibleNumber = 0;
@@ -721,8 +734,7 @@ function renderCourse(){
   const navigation = courseNavigation(lesson.id);
   state.doneLessons.add(lesson.id); saveDone();
   const faculty = isFacultative(lesson.id);
-  const modKey = faculty ? "" : "module"+lesson.module;
-  const modLabel = faculty ? FACULTATIVE[state.lang] : (UI[state.lang][modKey] || "").split(".")[0];
+  const modLabel = faculty ? FACULTATIVE[state.lang] : moduleTitle(lesson.module, state.lang).split(".")[0];
   const lessonNumber = faculty ? "" : lessonNumberInModule(lesson.id);
   main.innerHTML = `
     <div class="lesson-header">
@@ -1114,7 +1126,8 @@ function renderModuleTest(){
   if(!currentTest){ currentTest = buildModuleTest(state.testModuleId); testGraded = false; testTimeLeft = MODULE_TEST_DURATION; }
 
   const levelTitle = id => LEVEL_DEFS.find(l=>l.id===id).title[state.lang];
-  const modName = (ROADMAP[state.testModuleId][state.lang] || "").split(".").slice(1).join(".").trim() || ROADMAP[state.testModuleId][state.lang];
+  const modName = moduleTitle(state.testModuleId, state.lang).split(".").slice(1).join(".").trim()
+    || moduleTitle(state.testModuleId, state.lang);
   /* В ступени классов у модуля может не оказаться тем тренажёра —
      например, модуль 6 виден в 8–9 только уроком об аксиомах. Тогда
      вместо таймера без заданий показываем пустое состояние. */

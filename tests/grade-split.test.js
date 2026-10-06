@@ -45,6 +45,42 @@ assert(
   [11, 12, 13, 14].every(id => roadmap[id] && roadmap[id].exam_priority === true),
   "modules 11-14 are registered as exam-priority"
 );
+const routeCtx = {
+  ROADMAP: roadmap,
+  MODULE_ORDER: [1,2,3,4,5,6,7,8,9,11,12,13,14,10],
+  state: {grade:"preSenior"},
+  lessonGrades: id => lessonGrades[id] || []
+};
+vm.createContext(routeCtx);
+["moduleLessons","lessonInGrade","moduleInGrade","visibleSections",
+  "visibleLessonFlow","courseNavigation","moduleTitle"].forEach(name => {
+  vm.runInContext(lib.extractFn(lib.read("app.js"), name), routeCtx);
+});
+const preSeniorModules = routeCtx.visibleSections().map(section => section.modId);
+assert(
+  JSON.stringify(preSeniorModules) === JSON.stringify([1,5,6,7,8,11,12,13,14]),
+  "8-9 route hides empty modules and continues directly after module 8"
+);
+assert(
+  routeCtx.moduleTitle(1, "ru").startsWith("Модуль 1.") &&
+  routeCtx.moduleTitle(11, "ru").startsWith("Модуль 6.") &&
+  routeCtx.moduleTitle(12, "ru").startsWith("Модуль 7.") &&
+  routeCtx.moduleTitle(13, "ru").startsWith("Модуль 8.") &&
+  routeCtx.moduleTitle(14, "ru").startsWith("Модуль 9."),
+  "8-9 modules are displayed as modules 1-9 with no gaps"
+);
+assert(
+  routeCtx.courseNavigation("stat1").next === "seq1" &&
+  routeCtx.courseNavigation("seq4").next === "eq1",
+  "8-9 lesson navigation continues from module 8 into displayed modules 9 and 10"
+);
+routeCtx.state.grade = "senior";
+assert(
+  routeCtx.moduleTitle(9, "ru").startsWith("Модуль 9.") &&
+  routeCtx.moduleTitle(10, "ru").startsWith("Модуль 10.") &&
+  routeCtx.moduleTitle(11, "ru").startsWith("Модуль 11."),
+  "10-11 module numbering remains unchanged"
+);
 assert(
   ["seq1","eq1","app1"].every(id =>
     lessons.some(lesson => lesson.id === id && lesson.module >= 11 && lesson.module <= 13)),
