@@ -120,6 +120,7 @@ function checkRoadmap() {
   report("8-9 lesson map matches the plan",
     ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
       "geoCircles","geoVectors","geoVectorTasks","geoAxiom",
+      "comb1","comb2","prob1","prob2","stat1",
       "qf1","qe1","qi1","qa1","qs1","qa2"]
       .every(id => hasGrades(id, grades89)));
   report("10-11-only geometry remains in the senior block",

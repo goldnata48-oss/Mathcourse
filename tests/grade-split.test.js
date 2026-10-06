@@ -19,6 +19,7 @@ assert(
 assert(
   ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
     "geoCircles","geoVectors","geoVectorTasks","geoAxiom",
+    "comb1","comb2","prob1","prob2","stat1",
     "qf1","qe1","qi1","qa1","qs1","qa2"]
     .every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade89)),
   "8-9 lesson set follows the status map"

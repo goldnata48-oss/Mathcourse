@@ -14162,7 +14162,7 @@ const LESSON_GRADES = {
   geoAxiom:["preSenior","senior"], geoPerp:["senior"], geoPrism:["senior"], geoRevolve:["senior"],
   stereo1:["senior"], stereo2:["senior"], stereo3:["senior"], stereo4:["senior"], stereo5:["senior"],
   /* модули 7–8 — комбинаторика, вероятность, статистика, ступень 10–11 */
-  comb1:["senior"], comb2:["senior"], prob1:["senior"], prob2:["senior"], stat1:["senior"],
+  comb1:["preSenior","senior"], comb2:["preSenior","senior"], prob1:["preSenior","senior"], prob2:["preSenior","senior"], stat1:["preSenior","senior"],
   /* модуль 9 — углублённый блок, ступень 10–11 */
   lim1:["senior"], lim2:["senior"], der1:["senior"], der2:["senior"], der3:["senior"],
   int1:["senior"], int2:["senior"], int3:["senior"],
@@ -14228,10 +14228,10 @@ const TOPIC_GRADES = {
   lawOfCosines:["senior"], lawOfSines:["senior"],
   prismVolume:["senior"], sphereSurface:["senior"], pyramidVolume:["senior"],
   coneSurface:["senior"], cubeSection:["senior"],
-  c6Product:["senior"], c6Sum:["senior"], c6ProbSingle:["senior"], c6Complement:["senior"],
-  c6Permutation:["senior"], c6Combination:["senior"], c6Urn:["senior"], c6DiceSum:["senior"],
-  c6Arrangement:["senior"], c6Subsets:["senior"], c6Conditional:["senior"], c6TotalProb:["senior"],
-  c6Mean:["senior"], c6Median:["senior"], c6Dispersion:["senior"], c6Freq:["senior"],
+  c6Product:["preSenior","senior"], c6Sum:["preSenior","senior"], c6ProbSingle:["preSenior","senior"], c6Complement:["preSenior","senior"],
+  c6Permutation:["preSenior","senior"], c6Combination:["preSenior","senior"], c6Urn:["preSenior","senior"], c6DiceSum:["preSenior","senior"],
+  c6Arrangement:["preSenior","senior"], c6Subsets:["preSenior","senior"], c6Conditional:["preSenior","senior"], c6TotalProb:["preSenior","senior"],
+  c6Mean:["preSenior","senior"], c6Median:["preSenior","senior"], c6Dispersion:["preSenior","senior"], c6Freq:["preSenior","senior"],
   limitDirect:["senior"], derivTable:["senior"], antiderivBasic:["senior"], defIntPoly:["senior"],
   limitFactor:["senior"], derivAtPoint:["senior"], defIntLinear:["senior"], areaCubic:["senior"],
   secondRemarkable:["senior"], extremum:["senior"], areaBetween:["senior"],
