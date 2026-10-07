@@ -14,7 +14,7 @@ const { lessons, roadmap, topicGrades, buildFinalQuestions } = data;
 /* ------------- band routes (mirror of tools/verify.js) ------------- */
 const ROUTE = {
   junior: [],
-  middle: [1, 5, 13],
+  middle: [1, 5, 6, 13],
   preSenior: [1, 5, 6, 7, 8, 11, 12, 13, 14, 15],
   senior: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 };

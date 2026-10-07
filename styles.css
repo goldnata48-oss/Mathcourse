@@ -216,6 +216,19 @@
   .lesson-item.active{background:var(--accent);color:#fff;font-weight:700;}
   .lesson-item.disabled{color:var(--sidebar-ink-soft);opacity:.55;cursor:default;}
   .lesson-item.disabled:hover{background:transparent;}
+  .lesson-title{min-width:0;flex:1;}
+  .lesson-readiness{
+    flex-shrink:0;
+    border:1px solid var(--sidebar-border);
+    border-radius:999px;
+    padding:1px 6px;
+    color:var(--sidebar-ink-soft);
+    font-size:9px;
+    font-weight:600;
+    line-height:1.5;
+    white-space:nowrap;
+  }
+  .lesson-readiness.extension{color:var(--amber);}
   .lesson-num{
     width:20px;height:20px;flex-shrink:0;
     border-radius:50%;

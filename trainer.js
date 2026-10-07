@@ -2301,6 +2301,767 @@ function genRatInequalityMC(){
   };
 }
 
+/* ============================================================
+   ГЕНЕРАТОРЫ 5–7 КЛАССА: углы, периметр/площадь, окружность,
+   объём параллелепипеда, отношения и пропорции.
+   ============================================================ */
+function genAngleTypesMC(){
+  const DEG = {
+    acute:[15,30,45,60,80],
+    right:[90],
+    obtuse:[105,110,120,135,150,170],
+    straight:[180]
+  };
+  const classOf = d => d < 90 ? "acute" : d === 90 ? "right" : d < 180 ? "obtuse" : "straight";
+  const RU_MEASURE = {acute:"острым",right:"прямым",obtuse:"тупым",straight:"развёрнутым"};
+  const UA_MEASURE = {acute:"гострим",right:"прямим",obtuse:"тупим",straight:"розгорнутим"};
+  const RU_WORD = {acute:"острый",right:"прямой",obtuse:"тупой",straight:"развёрнутый"};
+  const UA_WORD = {acute:"гострий",right:"прямий",obtuse:"тупий",straight:"розгорнутий"};
+
+  if(Math.random() < 0.5){
+    const deg = rnd([30,45,60,80,90,105,120,135,150,180]);
+    const cls = classOf(deg);
+    const RU_OPTS = ["острым","прямым","тупым","развёрнутым"];
+    const UA_OPTS = ["гострим","прямим","тупим","розгорнутим"];
+    const {opts,correctIdx} = buildMC(RU_MEASURE[cls], RU_OPTS.filter(o => o !== RU_MEASURE[cls]));
+    const optsUa = opts.map(o => UA_OPTS[RU_OPTS.indexOf(o)]);
+    const sol = cls === "acute" ? `${deg}° меньше 90° — угол острый.`
+      : cls === "right" ? `${deg}° равно 90° — угол прямой.`
+      : cls === "obtuse" ? `${deg}° больше 90° и меньше 180° — угол тупой.`
+      : `${deg}° равно 180° — угол развёрнутый.`;
+    const solUa = cls === "acute" ? `${deg}° менший за 90° — кут гострий.`
+      : cls === "right" ? `${deg}° дорівнює 90° — кут прямий.`
+      : cls === "obtuse" ? `${deg}° більший за 90° і менший за 180° — кут тупий.`
+      : `${deg}° дорівнює 180° — кут розгорнутий.`;
+    return {
+      topic:{ru:"Виды углов",ua:"Види кутів"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Угол α = ${deg}° является:`,ua:`Кут α = ${deg}° є:`},
+      hint:{ru:"Сравните меру угла с 90° и 180°.",ua:"Порівняйте міру кута з 90° і 180°."},
+      solution:{ru:sol,ua:solUa},
+      options:{ru:opts,ua:optsUa},
+      correct:correctIdx
+    };
+  }
+
+  const cls = rnd(["acute","right","obtuse","straight"]);
+  const correctDeg = rnd(DEG[cls]);
+  const pool = shuffleArr(["acute","right","obtuse","straight"].filter(c => c !== cls).flatMap(c => DEG[c]));
+  const wrongDegs = pool.slice(0,3);
+  const {opts,correctIdx} = buildMC(correctDeg + "°", wrongDegs.map(d => d + "°"));
+  const sol = cls === "acute" ? `Острый угол меньше 90°, поэтому подходит только ${correctDeg}°.`
+    : cls === "right" ? `Прямой угол равен 90° — это ${correctDeg}°.`
+    : cls === "obtuse" ? `Тупой угол больше 90° и меньше 180° — только ${correctDeg}° удовлетворяет условию.`
+    : `Развёрнутый угол равен 180° — это ${correctDeg}°.`;
+  const solUa = cls === "acute" ? `Гострий кут менший за 90°, тому підходить лише ${correctDeg}°.`
+    : cls === "right" ? `Прямий кут дорівнює 90° — це ${correctDeg}°.`
+    : cls === "obtuse" ? `Тупий кут більший за 90° і менший за 180° — лише ${correctDeg}° задовольняє умову.`
+    : `Розгорнутий кут дорівнює 180° — це ${correctDeg}°.`;
+  return {
+    topic:{ru:"Виды углов",ua:"Види кутів"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Какой из углов — ${RU_WORD[cls]}?`,ua:`Який із кутів — ${UA_WORD[cls]}?`},
+    hint:{ru:"Вспомните границы видов углов: 90° и 180°.",ua:"Згадайте межі видів кутів: 90° і 180°."},
+    solution:{ru:sol,ua:solUa},
+    options:{ru:opts,ua:opts.slice()},
+    correct:correctIdx
+  };
+}
+
+function genPerimeterAreaShort(){
+  const kind = rnd(["rectP","rectS","sqP","sqS"]);
+  let a, b, expected, questionRu, questionUa;
+  if(kind === "sqP" || kind === "sqS"){
+    a = rnd([3,5,7,9,11,12,15,20]);
+    expected = kind === "sqP" ? 4 * a : a * a;
+    questionRu = kind === "sqP"
+      ? `Найдите периметр квадрата со стороной ${a} см.`
+      : `Найдите площадь квадрата со стороной ${a} см.`;
+    questionUa = kind === "sqP"
+      ? `Знайдіть периметр квадрата зі стороною ${a} см.`
+      : `Знайдіть площу квадрата зі стороною ${a} см.`;
+  }else{
+    a = rnd([3,4,5,6,7,8,9,10,12,15]);
+    b = rnd([3,4,5,6,7,8,9,10,12,15]);
+    if(b === a) b = a === 15 ? a - 1 : a + 1;
+    expected = kind === "rectP" ? 2 * (a + b) : a * b;
+    questionRu = kind === "rectP"
+      ? `Найдите периметр прямоугольника со сторонами ${a} см и ${b} см.`
+      : `Найдите площадь прямоугольника со сторонами ${a} см и ${b} см.`;
+    questionUa = kind === "rectP"
+      ? `Знайдіть периметр прямокутника зі сторонами ${a} см і ${b} см.`
+      : `Знайдіть площу прямокутника зі сторонами ${a} см і ${b} см.`;
+  }
+  const isP = kind === "rectP" || kind === "sqP";
+  const unit = isP ? "см" : "см²";
+  return {
+    topic:{ru:"Периметр и площадь",ua:"Периметр і площа"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{ru:questionRu,ua:questionUa},
+    hint:isP
+      ? {ru:"Просуммируйте все стороны фигуры.",ua:"Просумуйте всі сторони фігури."}
+      : {ru:"Умножьте две соседние стороны.",ua:"Помножте дві сусідні сторони."},
+    solution:{ru:`${isP ? "P" : "S"} = ${expected} ${unit}.`,ua:`${isP ? "P" : "S"} = ${expected} ${unit}.`},
+    expected:expected,
+    correctLabel:String(expected),
+    check:input => parseAnswer(input) === expected
+  };
+}
+
+function genCircleBasicsShort(){
+  const kind = rnd(["C_from_r","C_from_d","S_from_r","S_from_d"]);
+  let questionRu, questionUa, coef;
+  if(kind === "C_from_r"){
+    const r = rnd([2,3,4,5,6,7,8,9]);
+    coef = 2 * r;
+    questionRu = `Найдите длину окружности, если её радиус равен ${r}. Ответ выразите через π.`;
+    questionUa = `Знайдіть довжину окружності, якщо її радіус дорівнює ${r}. Відповідь виразіть через π.`;
+  }else if(kind === "C_from_d"){
+    const d = rnd([4,6,8,10,12]);
+    coef = d;
+    questionRu = `Найдите длину окружности, если её диаметр равен ${d}. Ответ выразите через π.`;
+    questionUa = `Знайдіть довжину окружності, якщо її діаметр дорівнює ${d}. Відповідь виразіть через π.`;
+  }else if(kind === "S_from_r"){
+    const r = rnd([2,3,4,5,6,7,8,9]);
+    coef = r * r;
+    questionRu = `Найдите площадь круга, если его радиус равен ${r}. Ответ выразите через π.`;
+    questionUa = `Знайдіть площу кола, якщо його радіус дорівнює ${r}. Відповідь виразіть через π.`;
+  }else{
+    const d = rnd([4,6,8,10,12]);
+    const r = d / 2;
+    coef = r * r;
+    questionRu = `Найдите площадь круга, если его диаметр равен ${d}. Ответ выразите через π.`;
+    questionUa = `Знайдіть площу кола, якщо його діаметр дорівнює ${d}. Відповідь виразіть через π.`;
+  }
+  const expected = coef * Math.PI;
+  const isC = kind === "C_from_r" || kind === "C_from_d";
+  const letter = isC ? "C" : "S";
+  const solutionRu = isC
+    ? `По формуле C = 2πR (или C = πd): ${letter} = ${coef}π.`
+    : `По формуле S = πR²: ${letter} = ${coef}π.`;
+  const solutionUa = isC
+    ? `За формулою C = 2πR (або C = πd): ${letter} = ${coef}π.`
+    : `За формулою S = πR²: ${letter} = ${coef}π.`;
+  return {
+    topic:{ru:"Окружность и круг",ua:"Окружність і коло"},
+    format:{ru:"выражение через π",ua:"вираз через π"},
+    question:{ru:questionRu,ua:questionUa},
+    hint:isC
+      ? {ru:"Используйте формулу длины окружности C = 2πR = πd.",ua:"Скористайтеся формулою довжини окружності C = 2πR = πd."}
+      : {ru:"Используйте формулу площади круга S = πR².",ua:"Скористайтеся формулою площі кола S = πR²."},
+    solution:{ru:solutionRu,ua:solutionUa},
+    expected:expected,
+    correctLabel:coef + "π",
+    check:input => {
+      const s = String(input == null ? "" : input).trim().toLowerCase().replace(/\s+/g,"");
+      if(s === coef + "π" || s === coef + "pi") return true;
+      return near(parseAnswer(input), expected, 0.01);
+    }
+  };
+}
+
+function genBoxVolumeShort(){
+  const isCube = rnd([true, false]);
+  if(isCube){
+    const a = rnd([2,3,4,5,6,7]);
+    const answer = a*a*a;
+    return {
+      topic:{ru:"Куб и прямоугольный параллелепипед",ua:"Куб і прямокутний паралелепіпед"},
+      format:{ru:"целое число",ua:"ціле число"},
+      question:{ru:`Куб: ребро a = ${a} см. Найдите объём в см³ (целое число).`,ua:`Куб: ребро a = ${a} см. Знайдіть об’єм у см³ (ціле число).`},
+      hint:{ru:"У куба все рёбра равны: V = a³.",ua:"У куба всі ребра рівні: V = a³."},
+      solution:{
+        ru:`V = a³ = ${a} · ${a} · ${a} = ${answer} см³.`,
+        ua:`V = a³ = ${a} · ${a} · ${a} = ${answer} см³.`
+      },
+      expected:answer, correctLabel:String(answer),
+      check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+    };
+  }
+  const a = rnd([2,3,4,5,6]);
+  const b = rnd([2,3,4,5]);
+  const c = rnd([2,3,4]);
+  const answer = a*b*c;
+  return {
+    topic:{ru:"Куб и прямоугольный параллелепипед",ua:"Куб і прямокутний паралелепіпед"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{ru:`Прямоугольный параллелепипед: a = ${a}, b = ${b}, c = ${c} см. Найдите объём в см³ (целое число).`,ua:`Прямокутний паралелепіпед: a = ${a}, b = ${b}, c = ${c} см. Знайдіть об’єм у см³ (ціле число).`},
+    hint:{ru:"Объём равен произведению трёх рёбер: V = a·b·c.",ua:"Об’єм дорівнює добутку трьох ребер: V = a·b·c."},
+    solution:{
+      ru:`V = a·b·c = ${a} · ${b} · ${c} = ${answer} см³.`,
+      ua:`V = a·b·c = ${a} · ${b} · ${c} = ${answer} см³.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+
+function genRatioProportionShort(){
+  const findUnknown = rnd([true, false]);
+  if(findUnknown){
+    const fr = rnd([[1,2],[1,3],[1,4],[1,5],[2,3],[2,5],[2,7],[3,4],[3,5],[4,3],[4,5],[5,3],[5,4],[5,6],[5,7],[6,5],[7,6]]);
+    const b = fr[0];
+    const c = fr[1];
+    const k = rnd([2,3,4,5,6]);
+    const a = c*k;
+    const answer = k*b;
+    return {
+      topic:{ru:"Отношения и пропорции",ua:"Відношення та пропорції"},
+      format:{ru:"целое число",ua:"ціле число"},
+      question:{ru:`Найдите неизвестный член пропорции: x / ${a} = ${b} / ${c}. Ответ — целое число.`,ua:`Знайдіть невідомий член пропорції: x / ${a} = ${b} / ${c}. Відповідь — ціле число.`},
+      hint:{ru:"Основное свойство пропорции: произведения крайних и средних членов равны.",ua:"Основна властивість пропорції: добутки крайніх і середніх членів рівні."},
+      solution:{
+        ru:`Из x / ${a} = ${b} / ${c} следует x = ${a} · ${b} / ${c} = ${a*b} / ${c} = ${answer}.`,
+        ua:`З x / ${a} = ${b} / ${c} випливає x = ${a} · ${b} / ${c} = ${a*b} / ${c} = ${answer}.`
+      },
+      expected:answer, correctLabel:String(answer),
+      check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+    };
+  }
+  const k = rnd([2,3,4,5,6,7]);
+  const small = rnd([2,3,4,5,6,8,9,10]);
+  const p = k*small;
+  const answer = k;
+  return {
+    topic:{ru:"Отношения и пропорции",ua:"Відношення та пропорції"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{ru:`Сократите отношение ${p} : ${small} и запишите его в виде числа (целое число).`,ua:`Скоротіть відношення ${p} : ${small} і запишіть його у вигляді числа (ціле число).`},
+    hint:{ru:"Отношение равно частному: разделите первое число на второе.",ua:"Відношення дорівнює частці: поділіть перше число на друге."},
+    solution:{
+      ru:`${p} : ${small} = ${p} / ${small} = ${answer}.`,
+      ua:`${p} : ${small} = ${p} / ${small} = ${answer}.`
+    },
+    expected:answer, correctLabel:String(answer),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===answer; }
+  };
+}
+
+/* ============================================================
+   МОДУЛЬ 1 — АЛГЕБРАИЧЕСКАЯ БАЗА (5–7).
+   Генераторы для новой темы: делимость, дроби, десятичные дроби,
+   остатки, степени, выражения, неравенства, одночлены, ФСУ,
+   линейные уравнения и функции, системы уравнений и задачи.
+   ============================================================ */
+function genDivisibilityMC(){
+  const ROWS = [
+    {k:3, good:"123", bad:["124","125","127"]},
+    {k:3, good:"147", bad:["146","148","149"]},
+    {k:5, good:"125", bad:["122","123","127"]},
+    {k:5, good:"230", bad:["231","232","233"]},
+    {k:9, good:"117", bad:["118","119","121"]},
+    {k:9, good:"243", bad:["244","245","247"]},
+    {k:4, good:"128", bad:["121","123","125"]},
+    {k:4, good:"332", bad:["334","335","337"]},
+    {k:6, good:"126", bad:["122","128","130"]},
+    {k:6, good:"222", bad:["214","215","218"]}
+  ];
+  const row = rnd(ROWS);
+  const {opts,correctIdx} = buildMC(row.good, row.bad);
+  return {
+    topic:{ru:"Признаки делимости",ua:"Ознаки подільності"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Какое из чисел делится на ${row.k} без остатка?`,ua:`Яке з чисел ділиться на ${row.k} без остачі?`},
+    hint:{ru:`Используйте признак делимости на ${row.k}.`,ua:`Використайте ознаку подільності на ${row.k}.`},
+    solution:{ru:`Число ${row.good} делится на ${row.k} без остатка.`,ua:`Число ${row.good} ділиться на ${row.k} без остачі.`},
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+
+function genFractionMC(){
+  const gcd = (a,b)=>{ a=Math.abs(a); b=Math.abs(b); while(b){ const t=a%b; a=b; b=t; } return a; };
+  const reduced = (na,da)=>{ const g=gcd(na,da)||1; const n=na/g, d=da/g; return d===1? String(n) : n+"/"+d; };
+  const POOL = ["1/2","1/3","2/3","3/4","2/5","3/5","5/6","1/4","3/7","1/6","4/5"];
+  const SIMPLIFY = [[6,8],[8,12],[10,25],[12,16],[15,35],[18,24]];
+  const SUMS = [[1,2,1,3],[1,4,1,4],[1,3,1,6],[1,2,1,4],[2,3,1,6],[1,3,1,2]];
+  const MULS = [[2,3,3,4],[1,2,2,3],[3,4,4,5],[2,5,5,6]];
+  const EQS = [[12,18],[9,12],[20,30]];
+  const kind = rnd(["simplify","sum","mul","eq"]);
+  let questionRu, questionUa, correct, solutionRu, solutionUa;
+  if(kind === "simplify"){
+    const r = rnd(SIMPLIFY);
+    correct = reduced(r[0], r[1]);
+    questionRu = `Сократите дробь ${r[0]}/${r[1]}.`;
+    questionUa = `Скоротіть дріб ${r[0]}/${r[1]}.`;
+    solutionRu = `Делим числитель и знаменатель на ${gcd(r[0],r[1])}: ${correct}.`;
+    solutionUa = `Ділимо чисельник і знаменник на ${gcd(r[0],r[1])}: ${correct}.`;
+  }else if(kind === "sum"){
+    const r = rnd(SUMS);
+    const num = r[0]*r[3] + r[2]*r[1];
+    const den = r[1]*r[3];
+    correct = reduced(num, den);
+    questionRu = `Сложите дроби: ${r[0]}/${r[1]} + ${r[2]}/${r[3]}.`;
+    questionUa = `Додайте дроби: ${r[0]}/${r[1]} + ${r[2]}/${r[3]}.`;
+    solutionRu = `Общий знаменатель ${r[1]*r[3]}: числитель ${r[0]*r[3]} + ${r[2]*r[1]} = ${correct}.`;
+    solutionUa = `Спільний знаменник ${r[1]*r[3]}: чисельник ${r[0]*r[3]} + ${r[2]*r[1]} = ${correct}.`;
+  }else if(kind === "mul"){
+    const r = rnd(MULS);
+    correct = reduced(r[0]*r[2], r[1]*r[3]);
+    questionRu = `Умножьте дроби: ${r[0]}/${r[1]} и ${r[2]}/${r[3]}.`;
+    questionUa = `Помножте дроби: ${r[0]}/${r[1]} і ${r[2]}/${r[3]}.`;
+    solutionRu = `${r[0]}/${r[1]} · ${r[2]}/${r[3]} = ${correct}.`;
+    solutionUa = `${r[0]}/${r[1]} · ${r[2]}/${r[3]} = ${correct}.`;
+  }else{
+    const r = rnd(EQS);
+    correct = reduced(r[0], r[1]);
+    questionRu = `Какая из дробей равна ${r[0]}/${r[1]}?`;
+    questionUa = `Який із дробів дорівнює ${r[0]}/${r[1]}?`;
+    solutionRu = `Сокращая ${r[0]}/${r[1]} на ${gcd(r[0],r[1])}, получаем ${correct}.`;
+    solutionUa = `Скорочуючи ${r[0]}/${r[1]} на ${gcd(r[0],r[1])}, отримуємо ${correct}.`;
+  }
+  const distractors = shuffleArr(POOL.filter(f => f !== correct)).slice(0, 3);
+  const {opts,correctIdx} = buildMC(correct, distractors);
+  return {
+    topic:{ru:"Дроби: сложение и умножение",ua:"Дроби: додавання та множення"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:questionRu,ua:questionUa},
+    hint:{ru:"Приводите к общему знаменателю и сокращайте результат.",ua:"Зводьте до спільного знаменника та скорочуйте результат."},
+    solution:{ru:solutionRu,ua:solutionUa},
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+
+function genDecimalShort(){
+  const fmtDec = x => String(x).replace(".", ",");
+  const convRows = [
+    {num:7,den:10,val:0.7},{num:1,den:2,val:0.5},{num:3,den:4,val:0.75},
+    {num:1,den:5,val:0.2},{num:3,den:5,val:0.6},{num:7,den:20,val:0.35},
+    {num:9,den:50,val:0.18}
+  ];
+  const addRows = [
+    {a:0.25,b:0.45,val:0.7},{a:0.3,b:0.4,val:0.7},{a:0.05,b:0.1,val:0.05+0.1},
+    {a:1.5,b:2.25,val:3.75},{a:0.25,b:0.5,val:0.75},{a:0.4,b:0.35,val:0.75}
+  ];
+  if(Math.random() < 0.55){
+    const r = rnd(convRows);
+    const label = fmtDec(r.val);
+    return {
+      topic:{ru:"Десятичные дроби",ua:"Десяткові дроби"},
+      format:{ru:"десятичная дробь",ua:"десятковий дріб"},
+      question:{ru:`Запишите дробь ${r.num}/${r.den} в виде десятичной дроби.`,ua:`Запишіть дріб ${r.num}/${r.den} у вигляді десяткового дробу.`},
+      hint:{ru:"Сколько нулей в знаменателе, столько цифр после запятой.",ua:"Скільки нулів у знаменнику, стільки цифр після коми."},
+      solution:{ru:`${r.num}/${r.den} = ${label}.`,ua:`${r.num}/${r.den} = ${label}.`},
+      expected:r.val, correctLabel:label,
+      check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, r.val, 1e-9); }
+    };
+  }
+  const r = rnd(addRows);
+  const label = fmtDec(r.val);
+  const fa = String(r.a).replace(".",","), fb = String(r.b).replace(".",",");
+  return {
+    topic:{ru:"Десятичные дроби",ua:"Десяткові дроби"},
+    format:{ru:"десятичная дробь",ua:"десятковий дріб"},
+    question:{ru:`Найдите сумму: ${fa} + ${fb}.`,ua:`Знайдіть суму: ${fa} + ${fb}.`},
+    hint:{ru:"Складывайте поразрядно, как целые числа.",ua:"Додавайте порозрядно, як цілі числа."},
+    solution:{ru:`${fa} + ${fb} = ${label}.`,ua:`${fa} + ${fb} = ${label}.`},
+    expected:r.val, correctLabel:label,
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && near(v, r.val, 1e-9); }
+  };
+}
+
+function genRemainderShort(){
+  const ROWS = [
+    [17,5,2],[45,6,3],[29,7,1],[50,8,2],[38,5,3],
+    [19,6,1],[32,7,4],[40,9,4],[26,8,2],[71,9,8]
+  ];
+  const r = rnd(ROWS);
+  const q = Math.floor(r[0]/r[1]);
+  return {
+    topic:{ru:"Деление с остатком",ua:"Ділення з остачею"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{ru:`Найдите остаток при делении ${r[0]} на ${r[1]}.`,ua:`Знайдіть остачу при діленні ${r[0]} на ${r[1]}.`},
+    hint:{ru:`Самое близкое кратное делителя — ${q}·${r[1]} = ${q*r[1]}.`,ua:`Найближче кратне дільника — ${q}·${r[1]} = ${q*r[1]}.`},
+    solution:{ru:`${r[0]} = ${q}·${r[1]} + ${r[2]}, значит остаток равен ${r[2]}.`,ua:`${r[0]} = ${q}·${r[1]} + ${r[2]}, отже остача дорівнює ${r[2]}.`},
+    expected:r[2], correctLabel:String(r[2]),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===r[2]; }
+  };
+}
+
+function genPowerIntShort(){
+  const EXP = {"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹","-":"⁻"};
+  const sup = n => String(n).split("").map(d => EXP[d]).join("");
+  const state = rnd(["mul","div","pow","zero","neg"]);
+  let base, e1, e2, result, questionRu, questionUa, label, isFloat=false;
+  if(state === "mul"){
+    const rows = [[2,3,2],[3,2,3],[5,2,2]];
+    const r = rnd(rows);
+    base=r[0]; e1=r[1]; e2=r[2];
+    result = Math.pow(base, e1+e2);
+    questionRu = `Найдите значение: ${base}${sup(e1)} · ${base}${sup(e2)}.`;
+    questionUa = `Знайдіть значення: ${base}${sup(e1)} · ${base}${sup(e2)}.`;
+  }else if(state === "div"){
+    const rows = [[3,6,4],[2,5,2],[5,3,2]];
+    const r = rnd(rows);
+    base=r[0]; e1=r[1]; e2=r[2];
+    result = Math.pow(base, e1-e2);
+    questionRu = `Найдите значение: ${base}${sup(e1)} : ${base}${sup(e2)}.`;
+    questionUa = `Знайдіть значення: ${base}${sup(e1)} : ${base}${sup(e2)}.`;
+  }else if(state === "pow"){
+    const rows = [[2,2,3],[3,2,2],[2,3,2]];
+    const r = rnd(rows);
+    base=r[0]; e1=r[1]; e2=r[2];
+    result = Math.pow(base, e1*e2);
+    questionRu = `Найдите значение: (${base}${sup(e1)})${sup(e2)}.`;
+    questionUa = `Знайдіть значення: (${base}${sup(e1)})${sup(e2)}.`;
+  }else if(state === "zero"){
+    base = rnd([7,9]);
+    result = 1;
+    questionRu = `Найдите значение: ${base}⁰.`;
+    questionUa = `Знайдіть значення: ${base}⁰.`;
+  }else{
+    base = 10; e1 = 2;
+    result = 0.01; isFloat = true;
+    questionRu = `Найдите значение: 10⁻².`;
+    questionUa = `Знайдіть значення: 10⁻².`;
+  }
+  label = isFloat ? "0,01" : String(result);
+  return {
+    topic:{ru:"Степень с натуральным показателем",ua:"Степінь із натуральним показником"},
+    format:isFloat ? {ru:"десятичная дробь",ua:"десятковий дріб"} : {ru:"целое число",ua:"ціле число"},
+    question:{ru:questionRu,ua:questionUa},
+    hint:{ru:"Складывайте/вычитайте показатели при общем основании.",ua:"Додавайте/віднімайте показники при спільній основі."},
+    solution:{ru:`Результат: ${label}.`,ua:`Результат: ${label}.`},
+    expected:result, correctLabel:label,
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && (isFloat ? near(v, 0.01, 1e-9) : v===result); }
+  };
+}
+
+function genExprValueShort(){
+  const ROWS = [
+    ["2x + 3",4,11],["3(x + 2)",1,9],["5x − 2",5,23],["x² + 1",3,10],
+    ["2(x + 5)",10,30],["4x − 1",6,23],["x/2 + 1",8,5],["3x + 2",4,14]
+  ];
+  const r = rnd(ROWS);
+  return {
+    topic:{ru:"Буквенные выражения и формулы",ua:"Буквені вирази та формули"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{ru:`Найдите значение выражения ${r[0]} при x = ${r[1]}.`,ua:`Знайдіть значення виразу ${r[0]} при x = ${r[1]}.`},
+    hint:{ru:"Подставьте число вместо x и выполните действия.",ua:"Підставте число замість x і виконайте дії."},
+    solution:{ru:`При x = ${r[1]}: ${r[0]} = ${r[2]}.`,ua:`При x = ${r[1]}: ${r[0]} = ${r[2]}.`},
+    expected:r[2], correctLabel:String(r[2]),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===r[2]; }
+  };
+}
+
+function genIneqCompareMC(){
+  const kind = rnd(["smallest","compare","solve","numberline"]);
+  if(kind === "smallest"){
+    const sets = [["−4","−1","0","2"],["−7","−2","−3","6"],["−3","0","1","5"],["3","−9","5","7"]];
+    const opts = rnd(sets);
+    const values = opts.map(s => parseFloat(s.replace("−","-")));
+    const min = Math.min(...values);
+    const correct = String(min).replace("-","−");
+    return {
+      topic:{ru:"Неравенства и сравнение чисел",ua:"Нерівності та порівняння чисел"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:"Какое из чисел наименьшее?",ua:"Яке з чисел найменше?"},
+      hint:{ru:"Наименьшее — то, что на координатной прямой стоит левее всех.",ua:"Найменше — те, що на координатній прямій стоїть лівіше за всі."},
+      solution:{ru:`Сравнивая числа, получаем ответ ${correct}.`,ua:`Порівнюючи числа, отримуємо відповідь ${correct}.`},
+      options:{ru:opts,ua:opts}, correct:opts.indexOf(correct)
+    };
+  }
+  if(kind === "compare"){
+    const rows = [[-4,-1],[-7,-2],[0,-3]];
+    const r = rnd(rows);
+    const a=r[0], b=r[1];
+    const rel = a>b ? ">" : a<b ? "<" : "=";
+    const correct = `${a} ${rel} ${b}`;
+    const others = [`${a} > ${b}`,`${a} = ${b}`,`${a} < ${b}`,`${b} < ${a}`].filter(s => s !== correct);
+    const {opts,correctIdx} = buildMC(correct, others.slice(0,3));
+    return {
+      topic:{ru:"Неравенства и сравнение чисел",ua:"Нерівності та порівняння чисел"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Сравните: ${a} и ${b}.`,ua:`Порівняйте: ${a} і ${b}.`},
+      hint:{ru:"Из двух чисел больше то, которое правее на координатной прямой.",ua:"З двох чисел більше те, що правіше на координатній прямій."},
+      solution:{ru:`${a} ${rel} ${b}: ${a} стоит ${a<b ? "левее" : "правее"} числа ${b}.`,ua:`${a} ${rel} ${b}: ${a} стоїть ${a<b ? "лівіше" : "правіше"} числа ${b}.`},
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  if(kind === "solve"){
+    const rows = [
+      {t:"x + 2 < 7", c:"x < 5", bad:["x > 5","x < 9","x < 7"]},
+      {t:"x − 3 > 4", c:"x > 7", bad:["x < 7","x > 1","x > 4"]},
+      {t:"2x > 8", c:"x > 4", bad:["x < 4","x > 6","x > 16"]},
+      {t:"−x < 5", c:"x > −5", bad:["x < −5","x > 5","x < 5"]},
+      {t:"x/2 ≥ 6", c:"x ≥ 12", bad:["x ≥ 3","x ≥ 8","x ≤ 12"]}
+    ];
+    const r = rnd(rows);
+    const {opts,correctIdx} = buildMC(r.c, r.bad);
+    return {
+      topic:{ru:"Неравенства и сравнение чисел",ua:"Нерівності та порівняння чисел"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Решите неравенство ${r.t}.`,ua:`Розв’яжіть нерівність ${r.t}.`},
+      hint:{ru:"Прибавляйте/делите обе части, не забывая менять знак при делении на минус.",ua:"Додавайте/діліть обидві частини, не забуваючи змінювати знак при діленні на мінус."},
+      solution:{ru:`Неравенство ${r.t} сводится к ${r.c}.`,ua:`Нерівність ${r.t} зводиться до ${r.c}.`},
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  const rows = [
+    {a:"−7", b:"−2", c:"−7", opts:["−2","−7","−4","−9"]},
+    {a:"−3", b:"1", c:"−3", opts:["1","−3","−1","0"]},
+    {a:"2", b:"5", c:"2", opts:["5","2","3","7"]},
+    {a:"−1", b:"−6", c:"−6", opts:["−1","−6","−3","−4"]}
+  ];
+  const r = rnd(rows);
+  const others = r.opts.filter(s => s !== r.c);
+  const {opts,correctIdx} = buildMC(r.c, others);
+  return {
+    topic:{ru:"Неравенства и сравнение чисел",ua:"Нерівності та порівняння чисел"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`На координатной прямой какое число расположено левее: ${r.a} или ${r.b}?`,ua:`На координатній прямій яке число розташоване лівіше: ${r.a} чи ${r.b}?`},
+    hint:{ru:"Меньшее число стоит левее.",ua:"Менше число стоїть лівіше."},
+    solution:{ru:`${r.a} и ${r.b}: меньшее — ${r.c}, оно лежит левее.`,ua:`${r.a} і ${r.b}: менше — ${r.c}, воно лежить лівіше.`},
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+
+function genLikeTermsMC(){
+  const kind = rnd(["sum","twogrp","mono","like"]);
+  if(kind === "sum"){
+    const rows = [
+      {e:"5x + 3x", c:"8x", bad:["8x²","2x","15x"]},
+      {e:"2a + 7a", c:"9a", bad:["9a²","5a","14a"]},
+      {e:"4x − x", c:"3x", bad:["5x","4x","3x²"]},
+      {e:"3b + 2b + 5b", c:"10b", bad:["10b²","15b","6b"]},
+      {e:"6m − 2m + m", c:"5m", bad:["5m²","9m","3m"]}
+    ];
+    const r = rnd(rows);
+    const {opts,correctIdx} = buildMC(r.c, r.bad);
+    return {
+      topic:{ru:"Одночлены и подобные слагаемые",ua:"Одночлени та подібні доданки"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Приведите подобные слагаемые: ${r.e}.`,ua:`Зведіть подібні доданки: ${r.e}.`},
+      hint:{ru:"Сложите коэффициенты при одинаковой буквенной части.",ua:"Додайте коефіцієнти при однаковій буквеній частині."},
+      solution:{ru:`После приведения получаем ${r.c}.`,ua:`Після зведення отримуємо ${r.c}.`},
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  if(kind === "twogrp"){
+    const rows = [
+      {e:"4x + 2y + 3x + y", c:"7x + 3y", bad:["10xy","7x + 3y + xy","7x + 2y"]},
+      {e:"5a + 3b + a + 2b", c:"6a + 5b", bad:["11ab","6a + 5b + ab","6a + 3b"]}
+    ];
+    const r = rnd(rows);
+    const {opts,correctIdx} = buildMC(r.c, r.bad);
+    return {
+      topic:{ru:"Одночлены и подобные слагаемые",ua:"Одночлени та подібні доданки"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Приведите подобные слагаемые: ${r.e}.`,ua:`Зведіть подібні доданки: ${r.e}.`},
+      hint:{ru:"Сгруппируйте слагаемые по одинаковой буквенной части.",ua:"Згрупуйте доданки за однаковою буквеною частиною."},
+      solution:{ru:`После приведения получаем ${r.c}.`,ua:`Після зведення отримуємо ${r.c}.`},
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  if(kind === "mono"){
+    const rows = [
+      {opts:["3x + 1","3/x","3x²","x + y"], c:2},
+      {opts:["2x + 3","2/3","2x · 3y","x − y"], c:2}
+    ];
+    const r = rnd(rows);
+    return {
+      topic:{ru:"Одночлены и подобные слагаемые",ua:"Одночлени та подібні доданки"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:"Какое из выражений является одночленом?",ua:"Який із виразів є одночленом?"},
+      hint:{ru:"Одночлен — произведение числа и переменных без суммы и деления.",ua:"Одночлен — добуток числа та змінних без суми та ділення."},
+      solution:{ru:"Одночлен — ${r.opts[r.c]}.",ua:"Одночлен — ${r.opts[r.c]}."},
+      options:{ru:r.opts,ua:r.opts}, correct:r.c
+    };
+  }
+  const rows = [
+    {opts:["3x и 5x","3x и 3y","3x и 3x²","3 и 3x"], c:0},
+    {opts:["2a и 2ab","2a и 2b","4a и 9a","a и a²"], c:2}
+  ];
+  const r = rnd(rows);
+  return {
+    topic:{ru:"Одночлены и подобные слагаемые",ua:"Одночлени та подібні доданки"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:"Какие из выражений являются подобными?",ua:"Які з виразів є подібними?"},
+    hint:{ru:"Подобные имеют одинаковую буквенную часть.",ua:"Подібні мають однакову буквену частину."},
+    solution:{ru:"Подобные пары — ${r.opts[r.c]}.",ua:"Подібні пари — ${r.opts[r.c]}."},
+    options:{ru:r.opts,ua:r.opts}, correct:r.c
+  };
+}
+
+function genSqrDiffMC(){
+  const kind = rnd(["sqsum","sqdiff","difsq","calc"]);
+  if(kind === "sqsum"){
+    const rows = [
+      {v:"x", n:3, bad:["x² + 9","x² + 6x","x² − 9"]},
+      {v:"y", n:4, bad:["y² + 16","y² + 8y","y² − 16"]},
+      {v:"a", n:2, bad:["a² + 4","a² + 4a","a² − 4"]}
+    ];
+    const r = rnd(rows);
+    const correct = `${r.v}² + ${2*r.n}${r.v} + ${r.n*r.n}`;
+    const {opts,correctIdx} = buildMC(correct, r.bad);
+    return {
+      topic:{ru:"Формулы сокращённого умножения",ua:"Формули скороченого множення"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Раскройте скобки: (${r.v} + ${r.n})².`,ua:`Розкрийте дужки: (${r.v} + ${r.n})².`},
+      hint:{ru:"(a + b)² = a² + 2ab + b².",ua:"(a + b)² = a² + 2ab + b²."},
+      solution:{ru:`(${r.v} + ${r.n})² = ${correct}.`,ua:`(${r.v} + ${r.n})² = ${correct}.`},
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  if(kind === "sqdiff"){
+    const rows = [
+      {v:"y", n:4, bad:["y² − 16","y² + 8y + 16","y² − 8y − 16"]},
+      {v:"x", n:3, bad:["x² − 9","x² + 6x + 9","x² − 6x − 9"]},
+      {v:"a", n:5, bad:["a² − 25","a² + 10a + 25","a² − 10a − 25"]}
+    ];
+    const r = rnd(rows);
+    const correct = `${r.v}² − ${2*r.n}${r.v} + ${r.n*r.n}`;
+    const {opts,correctIdx} = buildMC(correct, r.bad);
+    return {
+      topic:{ru:"Формулы сокращённого умножения",ua:"Формули скороченого множення"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Раскройте скобки: (${r.v} − ${r.n})².`,ua:`Розкрийте дужки: (${r.v} − ${r.n})².`},
+      hint:{ru:"(a − b)² = a² − 2ab + b².",ua:"(a − b)² = a² − 2ab + b²."},
+      solution:{ru:`(${r.v} − ${r.n})² = ${correct}.`,ua:`(${r.v} − ${r.n})² = ${correct}.`},
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  if(kind === "difsq"){
+    const rows = [
+      {v:"x", n:5, bad:["x² − 10x + 25","x² + 25","x² + 10x − 25"]},
+      {v:"b", n:6, bad:["b² − 12b + 36","b² + 36","b² + 12b − 36"]},
+      {v:"m", n:4, bad:["m² − 8m + 16","m² + 16","m² + 8m − 16"]}
+    ];
+    const r = rnd(rows);
+    const correct = `${r.v}² − ${r.n*r.n}`;
+    const {opts,correctIdx} = buildMC(correct, r.bad);
+    return {
+      topic:{ru:"Формулы сокращённого умножения",ua:"Формули скороченого множення"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Разложите: (${r.v} − ${r.n})(${r.v} + ${r.n}).`,ua:`Розкладіть: (${r.v} − ${r.n})(${r.v} + ${r.n}).`},
+      hint:{ru:"(a − b)(a + b) = a² − b².",ua:"(a − b)(a + b) = a² − b²."},
+      solution:{ru:`(${r.v} − ${r.n})(${r.v} + ${r.n}) = ${correct}.`,ua:`(${r.v} − ${r.n})(${r.v} + ${r.n}) = ${correct}.`},
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  const rows = [
+    {n:101, c:"10201", bad:["10001","10101","11001"]},
+    {n:99, c:"9801", bad:["9601","9901","10801"]},
+    {n:202, c:"40804", bad:["40004","40808","40408"]}
+  ];
+  const r = rnd(rows);
+  const {opts,correctIdx} = buildMC(r.c, r.bad);
+  return {
+    topic:{ru:"Формулы сокращённого умножения",ua:"Формули скороченого множення"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Вычислите: ${r.n}².`,ua:`Обчисліть: ${r.n}².`},
+    hint:{ru:"101² = (100 + 1)² и т.п.",ua:"101² = (100 + 1)² тощо."},
+    solution:{ru:`${r.n}² = ${r.c}.`,ua:`${r.n}² = ${r.c}.`},
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+
+function genLinearEqShort(){
+  const ROWS = [
+    {e:"x + 5 = 12", a:7},{e:"x − 4 = 9", a:13},{e:"2x = 14", a:7},
+    {e:"3x − 6 = 12", a:6},{e:"5x + 5 = 30", a:5},{e:"7 − x = 3", a:4},
+    {e:"2x + 1 = 9", a:4},{e:"6 − x = 2", a:4},{e:"x / 4 = 8", a:32},
+    {e:"x + 12 = 19", a:7},{e:"4x = 36", a:9},{e:"2(x + 3) = 16", a:5}
+  ];
+  const r = rnd(ROWS);
+  return {
+    topic:{ru:"Линейные уравнения",ua:"Лінійні рівняння"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{ru:`Решите уравнение ${r.e}.`,ua:`Розв’яжіть рівняння ${r.e}.`},
+    hint:{ru:"Перенесите слагаемые, затем разделите на коэффициент.",ua:"Перенесіть доданки, потім поділіть на коефіцієнт."},
+    solution:{ru:`Из ${r.e} получаем x = ${r.a}.`,ua:`З ${r.e} отримуємо x = ${r.a}.`},
+    expected:r.a, correctLabel:String(r.a),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===r.a; }
+  };
+}
+
+function genLinearFuncShort(){
+  const kind = rnd(["value","inter","linear"]);
+  if(kind === "value"){
+    const rows = [
+      {f:"2x + 1",x:3,v:7},{f:"3x − 2",x:4,v:10},{f:"x + 5",x:7,v:12},
+      {f:"2x + 3",x:4,v:11},{f:"−x + 8",x:3,v:5},{f:"5x − 5",x:2,v:5}
+    ];
+    const r = rnd(rows);
+    return {
+      topic:{ru:"Функции и линейная функция",ua:"Функції та лінійна функція"},
+      format:{ru:"целое число",ua:"ціле число"},
+      question:{ru:`Найдите значение функции y = ${r.f} при x = ${r.x}.`,ua:`Знайдіть значення функції y = ${r.f} при x = ${r.x}.`},
+      hint:{ru:"Подставьте x и вычислите y.",ua:"Підставте x і обчисліть y."},
+      solution:{ru:`y = ${r.f} при x = ${r.x}: y = ${r.v}.`,ua:`y = ${r.f} при x = ${r.x}: y = ${r.v}.`},
+      expected:r.v, correctLabel:String(r.v),
+      check(input){ const v=parseAnswer(input); return !isNaN(v) && v===r.v; }
+    };
+  }
+  if(kind === "inter"){
+    const rows = [
+      {f:"2x + 1", b:"1"},{f:"3x − 2", b:"−2"},{f:"x + 5", b:"5"},{f:"−2x + 7", b:"7"}
+    ];
+    const r = rnd(rows);
+    const correct = `(0; ${r.b})`;
+    const {opts,correctIdx} = buildMC(correct, ["(0; 0)","(1; 0)","(1; 1)"]);
+    return {
+      topic:{ru:"Функции и линейная функция",ua:"Функції та лінійна функція"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`В какой точке график функции y = ${r.f} пересекает ось Oy?`,ua:`У якій точці графік функції y = ${r.f} перетинає вісь Oy?`},
+      hint:{ru:"При x = 0 получаем y = b.",ua:"При x = 0 отримуємо y = b."},
+      solution:{ru:`x = 0 → y = ${r.b}, точка ${correct}.`,ua:`x = 0 → y = ${r.b}, точка ${correct}.`},
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  const rows = [
+    {opts:["y = 2x − 1","y = x²","y = 2/x","y = √x"], c:0},
+    {opts:["y = x/2","y = 3/x","y = x² + 1","y = √x"], c:0},
+    {opts:["y = 0,5x + 3","y = x³","y = 2/x","y = x²"], c:0}
+  ];
+  const r = rnd(rows);
+  return {
+    topic:{ru:"Функции и линейная функция",ua:"Функції та лінійна функція"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:"Какая из функций является линейной?",ua:"Яка з функцій є лінійною?"},
+    hint:{ru:"Линейная функция имеет вид y = kx + b.",ua:"Лінійна функція має вигляд y = kx + b."},
+    solution:{ru:"Линейная — ${r.opts[r.c]}.",ua:"Лінійна — ${r.opts[r.c]}."},
+    options:{ru:r.opts,ua:r.opts}, correct:r.c
+  };
+}
+
+function genSystemWordMC(){
+  const rows = [
+    {q:`Сумма двух чисел равна 12, а разность равна 4. Найдите большее из них.`,
+     ua:`Сума двох чисел дорівнює 12, а різниця дорівнює 4. Знайдіть більше з них.`,
+     c:"8", bad:["6","4","10"], sol:`(12 + 4)/2 = 8 — это большее число.`,
+     solUa:`(12 + 4)/2 = 8 — це більше число.`},
+    {q:`Сумма двух чисел равна 50, а разность равна 10. Найдите большее из них.`,
+     ua:`Сума двох чисел дорівнює 50, а різниця дорівнює 10. Знайдіть більше з них.`,
+     c:"30", bad:["20","25","40"], sol:`(50 + 10)/2 = 30.`,
+     solUa:`(50 + 10)/2 = 30.`},
+    {q:`У двух друзей вместе 45 грн, причём у первого на 5 грн больше. Сколько денег у первого?`,
+     ua:`У двох друзів разом 45 грн, причому в першого на 5 грн більше. Скільки грошей у першого?`,
+     c:"25", bad:["20","22","30"], sol:`(45 + 5)/2 = 25 грн у первого.`,
+     solUa:`(45 + 5)/2 = 25 грн у першого.`},
+    {q:`Отцу и сыну вместе 36 лет, отец старше сына на 24 года. Сколько лет сыну?`,
+     ua:`Батькові й синові разом 36 років, батько старший за сина на 24 роки. Скільки років синові?`,
+     c:"6", bad:["12","8","24"], sol:`(36 − 24)/2 = 6 лет.`,
+     solUa:`(36 − 24)/2 = 6 років.`},
+    {q:`Девочек и мальчиков вместе 40, девочек на 4 больше. Сколько мальчиков?`,
+     ua:`Дівчаток і хлопчиків разом 40, дівчаток на 4 більше. Скільки хлопчиків?`,
+     c:"18", bad:["22","20","16"], sol:`(40 − 4)/2 = 18 мальчиков.`,
+     solUa:`(40 − 4)/2 = 18 хлопчиків.`},
+    {q:`У двух братьев вместе 48 марок, у старшего на 16 больше. Сколько марок у старшего?`,
+     ua:`У двох братів разом 48 марок, у старшого на 16 більше. Скільки марок у старшого?`,
+     c:"32", bad:["16","24","28"], sol:`(48 + 16)/2 = 32 марки.`,
+     solUa:`(48 + 16)/2 = 32 марки.`}
+  ];
+  const r = rnd(rows);
+  const {opts,correctIdx} = buildMC(r.c, r.bad);
+  return {
+    topic:{ru:"Задачи на системы",ua:"Задачі на системи"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:r.q,ua:r.ua},
+    hint:{ru:"Обозначьте два неизвестных и составьте систему (сумму и разность).",ua:"Позначте два невідомих і складіть систему (суму й різницю)."},
+    solution:{ru:r.sol,ua:r.solUa},
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+
 /* ---- Уровни тренажёра (НМТ-стиль) ---- */
 const LEVEL_DEFS = [
   {
@@ -2339,6 +3100,24 @@ const LEVEL_DEFS = [
       ,{ id:"quadVertexX", module:14, title:{ru:"Вершина параболы",ua:"Вершина параболи"}, desc:{ru:"x_в = −b / (2a)",ua:"x_в = −b / (2a)"}, generate: genQuadraticVertexXShort }
       ,{ id:"ratSimplify", module:15, title:{ru:"Сокращение рациональной дроби",ua:"Скорочення раціонального дробу"}, desc:{ru:"(x² − a²)/(x − a) = x + a",ua:"(x² − a²)/(x − a) = x + a"}, generate: genRatSimplifyMC }
       ,{ id:"ratPowerExpr", module:15, title:{ru:"Выражение со степенями",ua:"Вираз зі степенями"}, desc:{ru:"(xᵐ · xⁿ) / xᵏ = xᵐ⁺ⁿ⁻ᵏ",ua:"(xᵐ · xⁿ) / xᵏ = xᵐ⁺ⁿ⁻ᵏ"}, generate: genRatPowerMC }
+      ,{ id:"geoBasics", module:5, title:{ru:"Виды углов",ua:"Види кутів"}, desc:{ru:"Острый, прямой, тупой и развёрнутый углы",ua:"Гострий, прямий, тупий і розгорнутий кути"}, generate: genAngleTypesMC }
+      ,{ id:"geoQuadArea", module:5, title:{ru:"Периметр и площадь",ua:"Периметр і площа"}, desc:{ru:"P и S квадрата и прямоугольника",ua:"P і S квадрата та прямокутника"}, generate: genPerimeterAreaShort }
+      ,{ id:"geoCircleBasics", module:5, title:{ru:"Окружность и круг",ua:"Окружність і коло"}, desc:{ru:"Длина окружности и площадь круга через π",ua:"Довжина окружності та площа кола через π"}, generate: genCircleBasicsShort }
+      ,{ id:"stereoBox", module:6, title:{ru:"Куб и прямоугольный параллелепипед",ua:"Куб і прямокутний паралелепіпед"}, desc:{ru:"V = a·b·c и V = a³",ua:"V = a·b·c і V = a³"}, generate: genBoxVolumeShort }
+      ,{ id:"appRatio", module:13, title:{ru:"Отношения и пропорции",ua:"Відношення та пропорції"}, desc:{ru:"Сокращение отношений и a·d = b·c",ua:"Скорочення відношень і a·d = b·c"}, generate: genRatioProportionShort }
+      ,{ id:"m1div", module:1, title:{ru:"Признаки делимости",ua:"Ознаки подільності"}, desc:{ru:"Признаки делимости на 2, 3, 4, 5, 6, 9, 10",ua:"Ознаки подільності на 2, 3, 4, 5, 6, 9, 10"}, generate: genDivisibilityMC }
+      ,{ id:"m1frac", module:1, title:{ru:"Дроби: сложение и умножение",ua:"Дроби: додавання та множення"}, desc:{ru:"Сокращение, сложение и умножение дробей",ua:"Скорочення, додавання та множення дробів"}, generate: genFractionMC }
+      ,{ id:"m1dec", module:1, title:{ru:"Десятичные дроби",ua:"Десяткові дроби"}, desc:{ru:"Перевод обыкновенных дробей и сложение десятичных",ua:"Переведення звичайних дробів і додавання десяткових"}, generate: genDecimalShort }
+      ,{ id:"m1remain", module:1, title:{ru:"Деление с остатком",ua:"Ділення з остачею"}, desc:{ru:"Остаток от деления, a = b·q + r",ua:"Остача від ділення, a = b·q + r"}, generate: genRemainderShort }
+      ,{ id:"m1power", module:1, title:{ru:"Степень с натуральным показателем",ua:"Степінь із натуральним показником"}, desc:{ru:"Произведение, частное и степень степеней",ua:"Добуток, частка та степінь степенів"}, generate: genPowerIntShort }
+      ,{ id:"m1expr", module:1, title:{ru:"Буквенные выражения и формулы",ua:"Буквені вирази та формули"}, desc:{ru:"Значение выражения при заданном x",ua:"Значення виразу при заданому x"}, generate: genExprValueShort }
+      ,{ id:"m1ineq", module:1, title:{ru:"Неравенства и сравнение чисел",ua:"Нерівності та порівняння чисел"}, desc:{ru:"Сравнение, координатная прямая и простейшие неравенства",ua:"Порівняння, координатна пряма та найпростіші нерівності"}, generate: genIneqCompareMC }
+      ,{ id:"m1mono", module:1, title:{ru:"Одночлены и подобные слагаемые",ua:"Одночлени та подібні доданки"}, desc:{ru:"Приведение подобных и распознавание одночленов",ua:"Зведення подібних і розпізнавання одночленів"}, generate: genLikeTermsMC }
+      ,{ id:"m1short", module:1, title:{ru:"Формулы сокращённого умножения",ua:"Формули скороченого множення"}, desc:{ru:"Квадрат суммы и разности, разность квадратов",ua:"Квадрат суми й різниці, різниця квадратів"}, generate: genSqrDiffMC }
+      ,{ id:"m1lineq", module:1, title:{ru:"Линейные уравнения",ua:"Лінійні рівняння"}, desc:{ru:"Решение линейных уравнений с одной переменной",ua:"Розв’язання лінійних рівнянь з однією змінною"}, generate: genLinearEqShort }
+      ,{ id:"m1func", module:1, title:{ru:"Функции и линейная функция",ua:"Функції та лінійна функція"}, desc:{ru:"Значение функции, пересечение с Oy, распознавание",ua:"Значення функції, перетин із Oy, розпізнавання"}, generate: genLinearFuncShort }
+      ,{ id:"m1sys", module:1, title:{ru:"Системы линейных уравнений",ua:"Системи лінійних рівнянь"}, desc:{ru:"Решение системы в формате x;y",ua:"Розв’язування системи у форматі x;y"}, generate: genSystemTwoEqShort }
+      ,{ id:"m1sysTask", module:1, title:{ru:"Задачи на системы",ua:"Задачі на системи"}, desc:{ru:"Сумма и разность двух величин",ua:"Сума та різниця двох величин"}, generate: genSystemWordMC }
     ]
   },
   {

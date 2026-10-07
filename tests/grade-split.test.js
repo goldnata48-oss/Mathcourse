@@ -8,16 +8,18 @@ const assert = (condition, message) => {
   else { failures++; console.log("FAIL: " + message); }
 };
 
-const { lessonGrades, roadmap, lessons, facultative } = lib.loadLessons();
+const { lessonGrades, roadmap, lessons, facultative, lessonReadiness } = lib.loadLessons();
 const grade57 = ["middle", "preSenior", "senior"];
 const grade89 = ["preSenior", "senior"];
 assert(
-  ["intro1","intro2","intro3","geo1","geoTriangles","geo2","geoAreas"]
+  ["m1div","m1frac","m1dec","m1remain","m1power","m1expr","m1ineq","m1mono","m1short",
+    "m1lineq","m1func","m1sys","m1sysTask","geo1","geoTriangles","geo2","geoAreas",
+    "geoBasics","geoQuadArea","geoCircleBasics","stereoBox","appRatio"]
     .every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade57)),
   "5-7 lesson set follows the status map"
 );
 assert(
-  ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
+  ["intro1","intro2","intro3","intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
     "geoCircles","geoVectors","geoVectorTasks","geoAxiom","stereoIntro",
     "comb1","comb2","prob1","prob2","stat1",
     "qf1","qe1","qi1","qa1","qs1","qa2",
@@ -41,6 +43,13 @@ assert(
 assert(
   ["app1","app5"].every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade57)),
   "percentages and proportions start in the 5-7 band and stay visible in 8-9"
+);
+const middleLessons = Object.keys(lessonGrades).filter(id => lessonGrades[id].includes("middle"));
+assert(
+  middleLessons.length === 24 &&
+  middleLessons.every(id => ["core","extension"].includes(lessonReadiness[id])) &&
+  ["m1mono","m1short","m1sys","m1sysTask","geoTriangles","geoAreas"].every(id => lessonReadiness[id] === "extension"),
+  "every 5-7 lesson has a readiness label and advanced content is marked for extension"
 );
 assert(
   [11, 12, 13, 14, 15].every(id => roadmap[id] && roadmap[id].exam_priority === true),
@@ -71,6 +80,18 @@ assert(
   routeCtx.moduleTitle(15, "ru").startsWith("Модуль 10."),
   "8-9 modules are displayed as modules 1-10 with no gaps"
 );
+routeCtx.state.grade = "middle";
+const middleModules = routeCtx.visibleSections();
+assert(
+  JSON.stringify(middleModules.map(section => section.modId)) === JSON.stringify([1,5,6,13]) &&
+  middleModules.every(section => !section.locked),
+  "5-7 route hides unrelated modules and keeps only available sections"
+);
+assert(
+  middleModules.map(section => routeCtx.moduleTitle(section.modId, "ru").match(/^Модуль (\d+)/)[1]).join(",") === "1,2,3,4",
+  "5-7 visible modules are numbered sequentially"
+);
+routeCtx.state.grade = "preSenior";
 assert(
   routeCtx.courseNavigation("stat1").next === "seq1" &&
   routeCtx.courseNavigation("seq4").next === "eq1" &&
@@ -114,9 +135,9 @@ assert(
     .some(m => roadmap[m].lessons.includes(id))),
   "facultative lessons are not listed twice"
 );
-/* у каждого содержательного модуля есть итоговый тест; у вводного (1)
-   и сводного НМТ (10) его нет by design */
-[2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15].forEach(m => {
+/* у каждого содержательного модуля есть итоговый тест; у сводного НМТ (10)
+   его нет by design */
+[1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15].forEach(m => {
   const tests = roadmap[m].lessons.filter(item => typeof item === "object" && item.test);
   assert(tests.length === 1, "module " + m + " has exactly one module test");
 });
@@ -141,6 +162,27 @@ assert(
     .every(id => JSON.stringify(topicGrades(id)) === JSON.stringify(grade89)),
   "module 6 body topics (prism, sphere, pyramid, cone) are open for 8-9"
 );
+assert(
+JSON.stringify(topicGrades("areaFigures")) === JSON.stringify(["senior"]),
+"the sine-based area topic is restricted to 10-11"
+);
+
+const trainerLevels = lib.loadTrainer().__L;
+const testState = { grade: "middle" };
+const moduleTests = lib.makeRealm(["moduleTestTopicCount","moduleTestAvailable"], {
+LEVEL_DEFS: trainerLevels,
+state: testState,
+topicInGrade: id => topicGrades(id).includes(testState.grade)
+});
+assert(moduleTests.moduleTestTopicCount(6) === 1 && !moduleTests.moduleTestAvailable(6),
+"5-7 module 6 has no underpowered one-topic final test");
+assert(moduleTests.moduleTestTopicCount(13) >= 3 && moduleTests.moduleTestAvailable(13),
+"5-7 module 13 retains its test with at least three topics");
+assert(moduleTests.moduleTestTopicCount(1) >= 3 && moduleTests.moduleTestAvailable(1),
+"5-7 module 1 gains an algebra-base test with at least three topics");
+testState.grade = "senior";
+assert(moduleTests.moduleTestAvailable(6),
+"module 6 test remains available to 10-11");
 
 const ui = lib.loadUI();
 assert(ui.ru.gradeTitles.middle === "Математика 5–7" &&
@@ -148,6 +190,9 @@ assert(ui.ru.gradeTitles.middle === "Математика 5–7" &&
   ui.ua.gradeTitles.middle === "Математика 5–7" &&
   ui.ua.gradeTitles.preSenior === "Математика 8–9",
 "grade names are localized in Russian and Ukrainian");
+assert(["readinessCore","readinessCoreHint","readinessExtension","readinessExtensionHint","testNotEnoughTopics"]
+  .every(key => ui.ru[key] && ui.ua[key]),
+"readiness and limited-test messages are localized");
 
 function migrate(savedGrade, version) {
   const values = {};

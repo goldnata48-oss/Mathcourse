@@ -99,7 +99,7 @@ function checkRoadmap() {
   report("lesson ids unique", idSet.size === ids.length);
 
   /* GRADES: урок и тема тренажёра должны быть привязаны к блоку классов */
-  const { lessonGrades } = loadLessons();
+  const { lessonGrades, lessonReadiness } = loadLessons();
   const gradeValues = ["junior", "middle", "preSenior", "senior"];
   const badGrades = ids.filter(id => !Array.isArray(lessonGrades[id]) || !lessonGrades[id].length ||
     lessonGrades[id].some(g => !gradeValues.includes(g)));
@@ -115,10 +115,12 @@ function checkRoadmap() {
   const grades57 = ["middle", "preSenior", "senior"];
   const grades89 = ["preSenior", "senior"];
   report("5-7 lesson map matches the plan",
-    ["intro1","intro2","intro3","geo1","geoTriangles","geo2","geoAreas"]
+    ["m1div","m1frac","m1dec","m1remain","m1power","m1expr","m1ineq","m1mono","m1short",
+      "m1lineq","m1func","m1sys","m1sysTask","geo1","geoTriangles","geo2","geoAreas",
+      "geoBasics","geoQuadArea","geoCircleBasics","stereoBox","appRatio"]
       .every(id => hasGrades(id, grades57)));
   report("8-9 lesson map matches the plan",
-    ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
+    ["intro1","intro2","intro3","intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
       "geoCircles","geoVectors","geoVectorTasks","geoAxiom","stereoIntro",
       "comb1","comb2","prob1","prob2","stat1",
       "qf1","qe1","qi1","qa1","qs1","qa2",
@@ -126,6 +128,10 @@ function checkRoadmap() {
       .every(id => hasGrades(id, grades89)));
   report("10-11-only geometry remains in the senior block",
     ["geoSineCos","geoPerp","geoPrism","geoRevolve"].every(id => hasGrades(id, ["senior"])));
+  const middleLessonIds = ids.filter(id => lessonGrades[id].includes("middle"));
+  report("5-7 lessons all have a readiness label",
+    middleLessonIds.length === 24 && middleLessonIds.every(id =>
+      ["core","extension"].includes(lessonReadiness[id])));
   const topicsAll = loadTrainer().__L.flatMap(level => level.topics);
   const ctx = {};
   vm.createContext(ctx);
@@ -140,8 +146,9 @@ function checkRoadmap() {
   const topicHasGrades = (id, expected) =>
     JSON.stringify(topicGrades(id)) === JSON.stringify(expected);
   report("trainer topics match the 5-7 and 8-9 map",
-    ["triangleFeatures","height","angleBisector","median","midline","areaFigures"]
+    ["triangleFeatures","height","angleBisector","median","midline"]
       .every(id => topicHasGrades(id, grades57)) &&
+    topicHasGrades("areaFigures", ["senior"]) &&
     ["regularPolygon","inscribedAngle","circleRadii","vectorsDot","vectorsAngle","vectorsCross"]
       .every(id => topicHasGrades(id, grades89)));
   report("module 14 trainer topics are 8-9",
@@ -321,8 +328,8 @@ function checkNav() {
     .some(x => typeof x === "string" && inGrade(x, g)));
 
   const routes = Object.fromEntries(grades.map(g => [g, unlocked(g)]));
-  report("route module sets match the grade table (8-9 keeps 1,5,6,7,8,11,12,13,14,15)",
-    JSON.stringify(routes.middle) === JSON.stringify([1, 5, 13]) &&
+  report("route module sets match the grade table (5-7: 1,5,6,13; 8-9: 1,5,6,7,8,11,12,13,14,15)",
+    JSON.stringify(routes.middle) === JSON.stringify([1, 5, 6, 13]) &&
     JSON.stringify(routes.preSenior) === JSON.stringify([1, 5, 6, 7, 8, 11, 12, 13, 14, 15]) &&
     routes.senior.length === MODULE_ORDER.filter(m => roadmap[m]).length &&
     routes.junior.length === 0,
@@ -344,6 +351,13 @@ function checkNav() {
   realm.state.grade = "junior";
   report("junior renders the empty state (all modules locked)",
     realm.visibleSections().every(s => s.locked));
+
+  realm.state.grade = "middle";
+  report("5-7 sidebar hides unavailable modules",
+    JSON.stringify(realm.visibleSections().map(s => s.modId)) === JSON.stringify(routes.middle) &&
+    realm.visibleSections().every(s => !s.locked));
+  report("5-7 module labels hide the NMT-priority badge",
+    /state\.grade !== "middle" && mod\.exam_priority/.test(appSrc));
 
   const preSeniorNums = menuNumbers("preSenior");
   const expected89 = Array.from({ length: routes.preSenior.length }, (_, i) => i + 1);

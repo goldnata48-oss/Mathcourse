@@ -206,12 +206,11 @@ function moduleInGrade(moduleId){
 }
 /* Логический порядок модулей: алгебра 11–14 идут перед итоговым НМТ (10). */
 const MODULE_ORDER = [1,2,3,4,5,6,7,8,9,11,12,13,14,15,10];
-/* В маршруте 8–9 номера модулей идут по позиции видимого списка: скрытые
-   разделы не сдвигают счёт, нумерация получается непрерывной 1..9. */
+/* В маршрутах 5–7 и 8–9 номера модулей идут по позиции видимого списка. */
 function moduleTitle(moduleId, lang){
   if(!ROADMAP[moduleId] || !lang) return "";
   const title = ROADMAP[moduleId][lang];
-  if(state.grade !== "preSenior") return title;
+  if(state.grade !== "middle" && state.grade !== "preSenior") return title;
   const pos = visibleSections().map(section=>section.modId).indexOf(moduleId);
   if(pos < 0) return title;
   const number = pos + 1;
@@ -230,7 +229,9 @@ function moduleForGrades(moduleId){
 function visibleSections(){
   const sections = MODULE_ORDER.filter(modId=>ROADMAP[modId])
     .map(modId=>({modId, mod:ROADMAP[modId], locked:!moduleInGrade(modId)}));
-  return state.grade === "preSenior" ? sections.filter(section=>!section.locked) : sections;
+  return state.grade === "middle" || state.grade === "preSenior"
+    ? sections.filter(section=>!section.locked)
+    : sections;
 }
 /* Сквозной поток видимых в текущей ступени уроков: по порядку модулей, без скрытых. */
 function visibleLessonFlow(){
@@ -601,7 +602,7 @@ function renderSidebar(){
     const title = document.createElement("div");
     title.className = "module-title";
     title.textContent = faculty ? mod[state.lang] : moduleTitle(modId, state.lang);
-    if(mod.exam_priority || mod.advanced || faculty){
+    if((state.grade !== "middle" && mod.exam_priority) || mod.advanced || faculty){
       const flag = document.createElement("span");
       flag.className = "module-flag" + (mod.advanced ? " advanced" : faculty ? " faculty" : "");
       flag.textContent = mod.advanced ? UI[state.lang].advancedLabel : faculty ? UI[state.lang].facultativeLabel : UI[state.lang].examPriority;
@@ -650,8 +651,18 @@ function renderSidebar(){
         num.setAttribute("aria-hidden", "true");
         btn.appendChild(num);
         const span = document.createElement("span");
+        span.className = "lesson-title";
         span.textContent = lesson.title[state.lang];
         btn.appendChild(span);
+        const readiness = state.grade === "middle" ? lessonReadiness(item) : null;
+        if(readiness){
+          const badge = document.createElement("span");
+          badge.className = "lesson-readiness " + readiness;
+          badge.textContent = UI[state.lang][readiness === "core" ? "readinessCore" : "readinessExtension"];
+          badge.title = UI[state.lang][readiness === "core" ? "readinessCoreHint" : "readinessExtensionHint"];
+          badge.setAttribute("aria-hidden", "true");
+          btn.appendChild(badge);
+        }
         const stat = miniStat(item);
         let miniLabel = "";
         if(stat){
@@ -669,10 +680,13 @@ function renderSidebar(){
         status.title = state.doneLessons.has(item) ? UI[state.lang].completed : UI[state.lang].notCompleted;
         status.setAttribute("aria-hidden", "true");
         btn.appendChild(status);
-        btn.setAttribute("aria-label", lesson.title[state.lang] + " — " + status.title + miniLabel);
+        const readinessLabel = readiness
+          ? " — " + UI[state.lang][readiness === "core" ? "readinessCoreHint" : "readinessExtensionHint"]
+          : "";
+        btn.setAttribute("aria-label", lesson.title[state.lang] + readinessLabel + " — " + status.title + miniLabel);
         btn.addEventListener("click", ()=>{ state.mode="course"; state.lessonId=item; navFromUi=true; render(); });
       } else if(item.test){
-        if(!buildModuleTest(modId).length) return;
+        if(!moduleTestAvailable(modId)) return;
         btn.type = "button";
         btn.className = "lesson-item" + (state.mode==="moduletest" && state.testModuleId===modId ? " active":"");
         num.textContent = "✓";
@@ -1112,6 +1126,16 @@ function buildModuleTest(moduleId){
   return items;
 }
 
+function moduleTestTopicCount(moduleId){
+  return LEVEL_DEFS.reduce((count, level)=>count +
+    level.topics.filter(topic=>topic.module===moduleId && topicInGrade(topic.id)).length, 0);
+}
+
+function moduleTestAvailable(moduleId){
+  const topicCount = moduleTestTopicCount(moduleId);
+  return topicCount > 0 && (state.grade !== "middle" || topicCount >= 3);
+}
+
 function calculateQuizRating(correct, total){
   const questionCount = Math.max(0, Math.trunc(Number(total) || 0));
   const correctCount = Math.min(questionCount, Math.max(0, Math.trunc(Number(correct) || 0)));
@@ -1126,11 +1150,27 @@ function renderModuleTest(){
   const L = UI[state.lang];
   clearInterval(testTimerId);
   testTimerId = null;
-  if(!currentTest){ currentTest = buildModuleTest(state.testModuleId); testGraded = false; testTimeLeft = MODULE_TEST_DURATION; }
-
   const levelTitle = id => LEVEL_DEFS.find(l=>l.id===id).title[state.lang];
   const modName = moduleTitle(state.testModuleId, state.lang).split(".").slice(1).join(".").trim()
     || moduleTitle(state.testModuleId, state.lang);
+  const topicCount = moduleTestTopicCount(state.testModuleId);
+  if(!moduleTestAvailable(state.testModuleId)){
+    main.innerHTML = `
+      <div class="lesson-header">
+        <div class="lesson-kicker">${L.testKicker}</div>
+        <h2>${modName}</h2>
+      </div>
+      <div class="grade-empty">${topicCount ? L.testNotEnoughTopics : L.testNoTopics}</div>
+      <button class="btn" id="test-back-btn">${L.testBack}</button>
+    `;
+    main.querySelector("#test-back-btn").addEventListener("click", ()=>{
+      state.mode = "course"; state.testModuleId = null; currentTest = null; render();
+    });
+    currentTest = null;
+    return;
+  }
+  if(!currentTest){ currentTest = buildModuleTest(state.testModuleId); testGraded = false; testTimeLeft = MODULE_TEST_DURATION; }
+
   /* В ступени классов у модуля может не оказаться тем тренажёра —
      например, модуль 6 виден в 8–9 только уроком об аксиомах. Тогда
      вместо таймера без заданий показываем пустое состояние. */
@@ -1372,7 +1412,12 @@ applyTheme(localStorage.getItem("mc_theme") || "light");
 
 function applyGrade(grade){
   if(!GRADE_LEVELS.includes(grade)) throw new Error("Unknown grade block: " + grade);
+  const gradeChanged = state.grade !== grade;
   state.grade = grade;
+  if(gradeChanged && state.mode === "moduletest"){
+    currentTest = null;
+    testGraded = false;
+  }
   document.documentElement.setAttribute("data-grade", grade);
   document.querySelectorAll(".grade-switch button").forEach(b=>{
     const active = b.dataset.grade===grade;
