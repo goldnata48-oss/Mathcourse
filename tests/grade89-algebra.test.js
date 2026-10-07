@@ -337,6 +337,68 @@ sweep("quadratic roots satisfy the printed equation", c => {
   }
 });
 
+/* ---------------- Rational expressions (module 15) ---------------- */
+
+sweep("genRatSimplifyMC: (x² − a²)/(x − a) = x + a", c => {
+  const q = c.genRatSimplifyMC();
+  const m = q.question.ru.match(/Упростите выражение \(x² − (\d+)\) \/ \(x − (\d+)\)\./);
+  if (!m) return "unparsable: " + q.question.ru;
+  const a = Number(m[2]);
+  if (Number(m[1]) !== a * a) return "printed square does not match a = " + a + ": " + q.question.ru;
+  const truth = "x + " + a;
+  if (q.options.ru[q.correct] !== truth) {
+    return JSON.stringify({ q: q.question.ru, chosen: q.options.ru[q.correct], truth });
+  }
+  if (new Set(q.options.ru).size !== q.options.ru.length) return "duplicate options: " + q.options.ru.join(" | ");
+  if (new Set(q.options.ua).size !== q.options.ua.length) return "duplicate ua options: " + q.options.ua.join(" | ");
+});
+
+sweep("genRatPowerMC: (xᵐ · xⁿ) / xᵏ = xᵐ⁺ⁿ⁻ᵏ", c => {
+  const q = c.genRatPowerMC();
+  const m = q.question.ru.match(/Упростите выражение \(x\^(\d+) · x\^(\d+)\) \/ x\^(\d+)\./);
+  if (!m) return "unparsable: " + q.question.ru;
+  const pow = Number(m[1]) + Number(m[2]) - Number(m[3]);
+  if (pow < 1) return "negative exponent would confuse students: " + q.question.ru;
+  const truth = "x^" + pow;
+  if (q.options.ru[q.correct] !== truth) {
+    return JSON.stringify({ q: q.question.ru, chosen: q.options.ru[q.correct], truth });
+  }
+  if (new Set(q.options.ru).size !== q.options.ru.length) return "duplicate options: " + q.options.ru.join(" | ");
+});
+
+sweep("genRatEquationMC: (x + a)/(x − b) = k solved exactly", c => {
+  const q = c.genRatEquationMC();
+  const m = q.question.ru.match(/Решите уравнение \(x \+ (\d+)\) \/ \(x − (\d+)\) = (\d+)\./);
+  if (!m) return "unparsable: " + q.question.ru;
+  const a = Number(m[1]), b = Number(m[2]), k = Number(m[3]);
+  const den = k - 1;
+  if (den === 0) return "k = 1 makes the equation impossible to solve linearly: " + q.question.ru;
+  const truth = (k * b + a) / den;
+  if (!Number.isInteger(truth)) return "non-integer answer: " + q.question.ru;
+  if (truth === b) return "the printed root violates ОДЗ (x ≠ b): " + q.question.ru;
+  if (q.options.ru[q.correct] !== String(truth)) {
+    return JSON.stringify({ q: q.question.ru, chosen: q.options.ru[q.correct], truth });
+  }
+  if (new Set(q.options.ru).size !== q.options.ru.length) return "duplicate options: " + q.options.ru.join(" | ");
+  if (new Set(q.options.ua).size !== q.options.ua.length) return "duplicate ua options: " + q.options.ua.join(" | ");
+});
+
+sweep("genRatInequalityMC: intervals of (x − a)/(x − b) < 0 / > 0", c => {
+  const q = c.genRatInequalityMC();
+  const m = q.question.ru.match(/Решите неравенство \(x − (\d+)\) \/ \(x − (\d+)\) ([<>]) 0\./);
+  if (!m) return "unparsable: " + q.question.ru;
+  const a = Number(m[1]), b = Number(m[2]), sign = m[3];
+  if (a >= b) return "roots out of order: " + q.question.ru;
+  const truth = sign === ">"
+    ? "x < " + a + " или x > " + b
+    : a + " < x < " + b;
+  if (q.options.ru[q.correct] !== truth) {
+    return JSON.stringify({ q: q.question.ru, chosen: q.options.ru[q.correct], truth });
+  }
+  if (new Set(q.options.ru).size !== q.options.ru.length) return "duplicate options: " + q.options.ru.join(" | ");
+  if (new Set(q.options.ua).size !== q.options.ua.length) return "duplicate ua options: " + q.options.ua.join(" | ");
+});
+
 /* ---------------- Mini-check answer keys ----------------
    Каждый вопрос мини-проверки в уроках 11–14 пересчитывается здесь заново:
    expected — правильный вариант, который должен стоять на индексе `correct`. */
@@ -393,6 +455,11 @@ const answerKeys = {
   qa2: ["4 ч", "6 км/ч", "6 дней", "24 грн"],
   /* модуль 6: тела — объёмы и площадь, ознакомительный урок 8-9 */
   stereoIntro: ["24", "36", "20π", "12π", "64π"],
+  /* модуль 15: рациональные выражения, уравнения, неравенства и степени */
+  re1: ["x + 4", "x = 3", "x − 4", "x − 1"],
+  re2: ["x = 1", "x = 5", "одно", "x = 4"],
+  re3: ["x < −2 или x > 3", "3", "x > 1", "x > 2"],
+  re4: ["x⁷", "x⁶", "x⁵", "x²"],
 };
 
 Object.keys(answerKeys).forEach(id => {
@@ -408,11 +475,11 @@ Object.keys(answerKeys).forEach(id => {
       questions[mismatch].opts[questions[mismatch].correct] + "\", а правильный ответ \"" + want[mismatch] + "\""));
 });
 
-/* Структура мини-проверок новых уроков модуля 14: ровно 4 вопроса, в каждом 4 различных
+/* Структура мини-проверок новых уроков модулей 14–15: ровно 4 вопроса, в каждом 4 различных
    варианта и поле correct — целый индекс в диапазоне. */
-const NEW_LESSONS = ["qf1", "qe1", "qi1", "qa1", "qs1", "qa2"];
+const NEW_LESSONS = ["qf1", "qe1", "qi1", "qa1", "qs1", "qa2", "re1", "re2", "re3", "re4"];
 const newChecks = NEW_LESSONS.map(id => ({ id, qs: miniChecks(id) }));
-sweep("module 14: по 4 вопроса, 4 различных варианта, correct в диапазоне", (c, i) => {
+sweep("modules 14-15: по 4 вопроса, 4 различных варианта, correct в диапазоне", (c, i) => {
   const { id, qs } = newChecks[i % newChecks.length];
   if (qs.length !== 4) return id + ": " + qs.length + " вопросов вместо 4";
   for (let k = 0; k < qs.length; k++) {
@@ -585,6 +652,50 @@ const arithmetic = [
   ["stereoIntro: мини цилиндр π·2²·5 = 20π", 4 * 5, 20],
   ["stereoIntro: мини конус ⅓·π·3²·4 = 12π", 9 * 4 / 3, 12],
   ["stereoIntro: мини сфера S = 4π·4² = 64π", 4 * 16, 64],
+
+  /* ---------- Модуль 15: числовые утверждения из уроков пересчитаны заново ---------- */
+  /* re1 — рациональные выражения: ОДЗ и сокращение */
+  ["re1: x² − 9 = (x − 3)(x + 3) при x = 5: 25 − 9 = (5 − 3)(5 + 3)", 25 - 9, (5 - 3) * (5 + 3)],
+  ["re1: x − 3 при x = 5: 2", 5 - 3, 2],
+  ["re1: 16 / 2 = 8, а x + 3 = 8", 16 / 2, 8],
+  ["re1: x² − 5x + 6 = (x − 2)(x − 3) при x = 4: 16 − 20 + 6 = 2", 16 - 20 + 6, (4 - 2) * (4 - 3)],
+  ["re1: x² − 5x + 6 = (x − 2)(x − 3) при x = 2: 0 = 0", 4 - 10 + 6, (2 - 2) * (2 - 3)],
+  ["re1: 1/(x − 1) + 2/(x + 1) = (3x − 1)/(x² − 1) при x = 2: 3 = 5/3? нет — 1 + 2/3 = 5/3 и (6 − 1)/3 = 5/3",
+    1 / (2 - 1) + 2 / (2 + 1), (3 * 2 - 1) / (2 * 2 - 1)],
+  ["re1: мини x + 4 при x = 2: 6", 2 + 4, 6],
+  ["re1: мини x − 4 при x = 6: 2", 6 - 4, 2],
+  ["re1: мини x − 1 при x = 2: 1", 2 - 1, 1],
+
+  /* re2 — рациональные уравнения */
+  ["re2: (x² − 9)/(x − 3) при x = −1: (−8)/(−4) = 2", (1 - 9) / (-1 - 3), 2],
+  ["re2: после сокращения x + 3 = 2 → x = −1: −1 + 3 = 2", -1 + 3, 2],
+  ["re2: (x − 2)/(x + 3) = (x − 3)/x при x = 9/2: (5/2)/(15/2) = 1/3", (9 / 2 - 2) / (9 / 2 + 3), 1 / 3],
+  ["re2: правая часть при x = 9/2: (3/2)/(9/2) = 1/3", (9 / 2 - 3) / (9 / 2), 1 / 3],
+  ["re2: 2(x + 2) = 3(x − 1) при x = 7: 18 = 18", 2 * (7 + 2), 3 * (7 - 1)],
+  ["re2: проверка 2/6 = 1/3 и 3/9 = 1/3", 2 / 6, 3 / 9],
+  ["re2: мини (x² − 4)/(x − 2) = 3 при x = 1: (−3)/(−1) = 3", (1 - 4) / (1 - 2), 3],
+  ["re2: мини 2(x + 3) = 4(x − 1) при x = 5: 16 = 16", 2 * (5 + 3), 4 * (5 - 1)],
+  ["re2: мини (x² − 1) при x = −1 равно 0", 1 - 1, 0],
+
+  /* re3 — рациональные неравенства */
+  ["re3: (x − 2)/(x + 3) при x = 3: 1/6 > 0", (3 - 2) / (3 + 3), 1 / 6],
+  ["re3: (x − 2)/(x + 3) при x = 0: −2/3 < 0", (0 - 2) / (0 + 3), -2 / 3],
+  ["re3: (x + 1)/(x − 4) при x = 0: −1/4 < 0", (0 + 1) / (0 - 4), -1 / 4],
+  ["re3: (x + 1)/(x − 4) при x = 5: 6 > 0", (5 + 1) / (5 - 4), 6],
+  ["re3: x/(x − 1) − 1 = 1/(x − 1) при x = 2", 2 / (2 - 1) - 1, 1 / (2 - 1)],
+  ["re3: мини (x − 3)/(x + 2) при x = 4: 1/6 > 0", (4 - 3) / (4 + 2), 1 / 6],
+  ["re3: мини (x − 1)/(x − 5) при x = 3: −1 < 0", (3 - 1) / (3 - 5), -1],
+  ["re3: мини 2/(x − 1) при x = 2: 2 > 0", 2 / (2 - 1), 2],
+  ["re3: мини x/(x − 2) > 1 при x = 3: 3 > 1", 3 / (3 - 2), 3],
+
+  /* re4 — упрощение выражений со степенями */
+  ["re4: x² · x³ · x = x⁶: 2 + 3 + 1 = 6", 2 + 3 + 1, 6],
+  ["re4: x⁹ : x⁴ = x⁵: 9 − 4 = 5", 9 - 4, 5],
+  ["re4: (x³)² : x⁴ = x²: 3·2 − 4 = 2", 3 * 2 - 4, 2],
+  ["re4: мини x³ · x⁴ = x⁷: 3 + 4 = 7", 3 + 4, 7],
+  ["re4: мини x⁸ : x² = x⁶: 8 − 2 = 6", 8 - 2, 6],
+  ["re4: мини (x²)³ · x⁻¹ = x⁵: 2·3 − 1 = 5", 2 * 3 - 1, 5],
+  ["re4: мини (x⁵ · x⁻²) : x = x²: 5 − 2 − 1 = 2", 5 - 2 - 1, 2],
 ];
 const badArithmetic = arithmetic.filter(([, got, want]) => Math.abs(got - want) > 5e-5);
 ok(badArithmetic.length === 0,

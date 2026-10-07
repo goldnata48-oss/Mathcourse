@@ -49,8 +49,14 @@ const C_BOT = [0x2A, 0x34, 0x48];
 const AMBER = [0xFF, 0xB0, 0x20];
 const WHITE = [0xFF, 0xFF, 0xFF];
 const TRANSPARENT = [0, 0, 0, 0];
+/* Палитра квадратных иконок — синий градиент с янтарными акцентами. */
+const ICON_PALETTE = { top: C_TOP, bot: C_BOT, amber: AMBER };
+/* Палитра обложки для соцсетей — кораллово-фиолетовый градиент,
+   созвучный цветовой схеме интерфейса, акценты белые для читаемости. */
+const OG_PALETTE = { top: [0xFF, 0x7A, 0x45], bot: [0x9B, 0x5D, 0xE5], amber: WHITE };
 
-function drawIcon(u, v) {
+function drawIcon(u, v, palette) {
+  const pal = palette || ICON_PALETTE;
   const cor = 0.22;
   let qx = 0, qy = 0;
   if (u < cor) qx = cor - u; else if (u > 1 - cor) qx = u - (1 - cor);
@@ -59,9 +65,9 @@ function drawIcon(u, v) {
 
   const t = Math.min(1, (u + v) / 2);
   const bg = [
-    Math.round(C_TOP[0] + (C_BOT[0] - C_TOP[0]) * t),
-    Math.round(C_TOP[1] + (C_BOT[1] - C_TOP[1]) * t),
-    Math.round(C_TOP[2] + (C_BOT[2] - C_TOP[2]) * t),
+    Math.round(pal.top[0] + (pal.bot[0] - pal.top[0]) * t),
+    Math.round(pal.top[1] + (pal.bot[1] - pal.top[1]) * t),
+    Math.round(pal.top[2] + (pal.bot[2] - pal.top[2]) * t),
     255
   ];
 
@@ -80,12 +86,12 @@ function drawIcon(u, v) {
   const dty = relX * Math.sin(rot) + relY * Math.cos(rot);
   if (Math.hypot(u - (ecx + dtx), v - (ecy + dty)) < 0.045) return [...WHITE, 255];
 
-  if (Math.hypot(u - 0.32, v - 0.44) < 0.055 || Math.hypot(u - 0.68, v - 0.44) < 0.055) return [...AMBER, 255];
+  if (Math.hypot(u - 0.32, v - 0.44) < 0.055 || Math.hypot(u - 0.68, v - 0.44) < 0.055) return [...pal.amber, 255];
   if (Math.hypot(u - 0.335, v - 0.415) < 0.02 || Math.hypot(u - 0.695, v - 0.415) < 0.02) return [...WHITE, 255];
 
   const scx = 0.5, scy = 0.76, sr = 0.20, sw = 0.028;
   const sd = Math.hypot(u - scx, v - scy);
-  if (v < scy && v > 0.5 && Math.abs(sd - sr) < sw) return [...AMBER, 255];
+  if (v < scy && v > 0.5 && Math.abs(sd - sr) < sw) return [...pal.amber, 255];
 
   return bg;
 }
@@ -97,13 +103,13 @@ function generateIcons(outDir) {
     const u = x / 1200, v = y / 630;
     const t = Math.min(1, (u + v) / 2);
     const bg = [
-      Math.round(C_TOP[0] + (C_BOT[0] - C_TOP[0]) * t),
-      Math.round(C_TOP[1] + (C_BOT[1] - C_TOP[1]) * t),
-      Math.round(C_TOP[2] + (C_BOT[2] - C_TOP[2]) * t),
+      Math.round(OG_PALETTE.top[0] + (OG_PALETTE.bot[0] - OG_PALETTE.top[0]) * t),
+      Math.round(OG_PALETTE.top[1] + (OG_PALETTE.bot[1] - OG_PALETTE.top[1]) * t),
+      Math.round(OG_PALETTE.top[2] + (OG_PALETTE.bot[2] - OG_PALETTE.top[2]) * t),
       255
     ];
     const q = 560, off = (1200 - q) / 2, offY = (630 - q) / 2;
-    const p = drawIcon((x - off) / q, (y - offY) / q);
+    const p = drawIcon((x - off) / q, (y - offY) / q, OG_PALETTE);
     return p[3] === 0 ? bg : p;
   });
   fs.writeFileSync(path.join(outDir, "icon-180.png"), icon(180));

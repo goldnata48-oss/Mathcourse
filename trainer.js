@@ -2187,6 +2187,119 @@ function genSystemWordShort(){
     check(input){ const v=parseAnswer(input); return !isNaN(v) && v===t; }
   };
 }
+function genRatSimplifyMC(){
+  const a = rnd([2,3,4,5,6,7]);
+  const a2 = a*a;
+  const correct = "x + " + a;
+  const {opts, correctIdx} = buildMC(correct, ["x − " + a, "x² − " + a2, "x"]);
+  return {
+    topic:{ru:"Сокращение рациональной дроби",ua:"Скорочення раціонального дробу"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Упростите выражение (x² − ${a2}) / (x − ${a}).`,
+      ua:`Спростіть вираз (x² − ${a2}) / (x − ${a}).`
+    },
+    hint:{ru:`Разложите числитель как разность квадратов: (x − ${a})(x + ${a}), и сократите общий множитель x − ${a}.`,ua:`Розкладіть чисельник як різницю квадратів: (x − ${a})(x + ${a}), і скоротіть спільний множник x − ${a}.`},
+    solution:{
+      ru:`x² − ${a2} = (x − ${a})(x + ${a}). Делим числитель и знаменатель на x − ${a} (ОДЗ: x ≠ ${a}) и получаем x + ${a}.`,
+      ua:`x² − ${a2} = (x − ${a})(x + ${a}). Ділимо чисельник і знаменник на x − ${a} (ОДЗ: x ≠ ${a}) і отримуємо x + ${a}.`
+    },
+    options:{ru:opts, ua:opts}, correct:correctIdx
+  };
+}
+function genRatPowerMC(){
+  let m = 2, n = 1, k = 1, pow = 0;
+  for(let tries = 0; tries < 300; tries++){
+    m = rnd([2,3,4,5]);
+    n = rnd([1,2,3]);
+    k = rnd([1,2,3].filter(v => v !== n));
+    pow = m + n - k;
+    if(pow >= 1 && pow <= 8) break;
+  }
+  const correct = "x^" + pow;
+  const {opts, correctIdx} = buildMC(correct, ["x^" + (m+n), "x^" + m, "x^" + (m+n+k)]);
+  return {
+    topic:{ru:"Упрощение выражения со степенями",ua:"Спрощення виразу зі степенями"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Упростите выражение (x^${m} · x^${n}) / x^${k}.`,
+      ua:`Спростіть вираз (x^${m} · x^${n}) / x^${k}.`
+    },
+    hint:{ru:`Складывайте показатели при умножении и вычитайте при делении одинаковых оснований.`,ua:`Додавайте показники при множенні та віднімайте при діленні однакових основ.`},
+    solution:{
+      ru:`x^${m} · x^${n} = x^${m+n}. Затем x^${m+n} / x^${k} = x^${m+n-k} = x^${pow}.`,
+      ua:`x^${m} · x^${n} = x^${m+n}. Далі x^${m+n} / x^${k} = x^${m+n-k} = x^${pow}.`
+    },
+    options:{ru:opts, ua:opts}, correct:correctIdx
+  };
+}
+function genRatEquationMC(){
+  let a = 1, b = 2, k = 2, x = 0;
+  for(let tries = 0; tries < 300; tries++){
+    a = rnd([1,2,3,4,5]);
+    b = rnd([1,2,3,4,5].filter(v => v !== a));
+    k = rnd([2,3,4,5]);
+    const num = k*b + a;
+    const den = k - 1;
+    if(num % den) continue;
+    x = num / den;
+    if(new Set([x, a, b, x + k]).size === 4) break;
+  }
+  const correct = String(x);
+  const {opts, correctIdx} = buildMC(correct, [String(b), String(a), String(x + k)]);
+  return {
+    topic:{ru:"Рациональное уравнение",ua:"Раціональне рівняння"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Решите уравнение (x + ${a}) / (x − ${b}) = ${k}.`,
+      ua:`Розв’яжіть рівняння (x + ${a}) / (x − ${b}) = ${k}.`
+    },
+    hint:{ru:`Умножьте обе части на x − ${b} и решите линейное уравнение; проверьте, что x ≠ ${b}.`,ua:`Помножте обидві частини на x − ${b} і розв’яжіть лінійне рівняння; перевірте, що x ≠ ${b}.`},
+    solution:{
+      ru:`ОДЗ: x ≠ ${b}. x + ${a} = ${k}·(x − ${b}) ⇒ x + ${a} = ${k}x − ${k*b} ⇒ ${k-1}x = ${k*b + a} ⇒ x = ${x}. Подходит к ОДЗ.`,
+      ua:`ОДЗ: x ≠ ${b}. x + ${a} = ${k}·(x − ${b}) ⇒ x + ${a} = ${k}x − ${k*b} ⇒ ${k-1}x = ${k*b + a} ⇒ x = ${x}. Задовольняє ОДЗ.`
+    },
+    options:{ru:opts, ua:opts}, correct:correctIdx
+  };
+}
+function genRatInequalityMC(){
+  const range = [1,2,3,4,5,6];
+  const a = rnd(range.slice(0, -1));
+  const b = rnd(range.filter(v => v > a));
+  const gt = rnd([true, false]);
+  const sign = gt ? ">" : "<";
+  const correct = gt
+    ? {ru:`x < ${a} или x > ${b}`, ua:`x < ${a} або x > ${b}`}
+    : {ru:`${a} < x < ${b}`, ua:`${a} < x < ${b}`};
+  const mir = gt
+    ? {ru:`x < ${b} или x > ${a}`, ua:`x < ${b} або x > ${a}`}
+    : {ru:`${b} < x < ${a}`, ua:`${b} < x < ${a}`};
+  const flip = gt
+    ? {ru:`x ≤ ${a} или x ≥ ${b}`, ua:`x ≤ ${a} або x ≥ ${b}`}
+    : {ru:`${a} ≤ x ≤ ${b}`, ua:`${a} ≤ x ≤ ${b}`};
+  const ext = gt
+    ? {ru:"все действительные числа", ua:"усі дійсні числа"}
+    : {ru:"решений нет", ua:"розв’язків немає"};
+  const pool = [correct, mir, flip, ext];
+  const order = shuffleArr(pool);
+  const optsRu = order.map(e => e.ru);
+  const optsUa = order.map(e => e.ua);
+  const correctIdx = order.indexOf(correct);
+  return {
+    topic:{ru:"Рациональное неравенство",ua:"Раціональна нерівність"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{
+      ru:`Решите неравенство (x − ${a}) / (x − ${b}) ${sign} 0.`,
+      ua:`Розв’яжіть нерівність (x − ${a}) / (x − ${b}) ${sign} 0.`
+    },
+    hint:{ru:`Нули числителя ${a}, знаменателя ${b}. Знак дроби (x − ${a})/(x − ${b}): плюс снаружи (${a}; ${b}), минус между ними.`,ua:`Нулі чисельника ${a}, знаменника ${b}. Знак дробу (x − ${a})/(x − ${b}): плюс зовні (${a}; ${b}), мінус між ними.`},
+    solution:{
+      ru:`Нули числителя и знаменателя: x = ${a}, x = ${b}. Метод интервалов даёт ${correct.ru}. Точки x = ${a} и x = ${b} не входят в ответ при строгом знаке.`,
+      ua:`Нулі чисельника і знаменника: x = ${a}, x = ${b}. Метод інтервалів дає ${correct.ua}. Точки x = ${a} і x = ${b} не входять у відповідь при строгому знаку.`
+    },
+    options:{ru:optsRu, ua:optsUa}, correct:correctIdx
+  };
+}
 
 /* ---- Уровни тренажёра (НМТ-стиль) ---- */
 const LEVEL_DEFS = [
@@ -2224,6 +2337,8 @@ const LEVEL_DEFS = [
       ,{ id:"nmtTrig", module:2, title:{ru:"НМТ: тригонометрия",ua:"НМТ: тригонометрія"}, desc:{ru:"Комбинированная задача с четвертью угла",ua:"Комбінована задача з чвертю кута"}, generate: genNmtTrigMixedMC }
       ,{ id:"quadDiscriminant", module:14, title:{ru:"Дискриминант квадратного уравнения",ua:"Дискримінант квадратного рівняння"}, desc:{ru:"D = b² − 4ac",ua:"D = b² − 4ac"}, generate: genDiscriminantMC }
       ,{ id:"quadVertexX", module:14, title:{ru:"Вершина параболы",ua:"Вершина параболи"}, desc:{ru:"x_в = −b / (2a)",ua:"x_в = −b / (2a)"}, generate: genQuadraticVertexXShort }
+      ,{ id:"ratSimplify", module:15, title:{ru:"Сокращение рациональной дроби",ua:"Скорочення раціонального дробу"}, desc:{ru:"(x² − a²)/(x − a) = x + a",ua:"(x² − a²)/(x − a) = x + a"}, generate: genRatSimplifyMC }
+      ,{ id:"ratPowerExpr", module:15, title:{ru:"Выражение со степенями",ua:"Вираз зі степенями"}, desc:{ru:"(xᵐ · xⁿ) / xᵏ = xᵐ⁺ⁿ⁻ᵏ",ua:"(xᵐ · xⁿ) / xᵏ = xᵐ⁺ⁿ⁻ᵏ"}, generate: genRatPowerMC }
     ]
   },
   {
@@ -2298,6 +2413,8 @@ const LEVEL_DEFS = [
       ,{ id:"nmtParameter", module:2, title:{ru:"НМТ: параметр",ua:"НМТ: параметр"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genNmtParameterMC }
       ,{ id:"quadApplied", module:14, title:{ru:"Задача на квадратное уравнение",ua:"Задача на квадратне рівняння"}, desc:{ru:"Площадь прямоугольника",ua:"Площа прямокутника"}, generate: genQuadraticAppliedShort }
       ,{ id:"systemWord", module:14, title:{ru:"Задача на встречное движение",ua:"Задача на зустрічний рух"}, desc:{ru:"t = S / (v₁ + v₂)",ua:"t = S / (v₁ + v₂)"}, generate: genSystemWordShort }
+      ,{ id:"ratEquation", module:15, title:{ru:"Рациональное уравнение",ua:"Раціональне рівняння"}, desc:{ru:"(x + a) / (x − b) = k",ua:"(x + a) / (x − b) = k"}, generate: genRatEquationMC }
+      ,{ id:"ratInequality", module:15, title:{ru:"Рациональное неравенство",ua:"Раціональна нерівність"}, desc:{ru:"Метод интервалов по дробям",ua:"Метод інтервалів за дробами"}, generate: genRatInequalityMC }
     ]
   }
 ];

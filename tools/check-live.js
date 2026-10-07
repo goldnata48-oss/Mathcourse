@@ -69,6 +69,17 @@ function get(url) {
     "ten-module priority roadmap": body.indexOf("exam_priority:true") > 0 && body.indexOf("advanced:true") > 0,
     "m10 final set":       /"final1","final2","final3","final4","final5","final6"/.test(body),
     "final explanations":  body.indexOf("function buildFinalQuestions") > 0 && body.indexOf("mini-explanation") > 0,
+    "m15 re1 lesson":      body.indexOf('makeTopicLesson("re1"') > 0,
+    "m15 re4 lesson":      body.indexOf('makeTopicLesson("re4"') > 0,
+    "m15 roadmap 15":      body.indexOf('makeTopicLesson("re1", 15') > 0 || body.indexOf("15:{ru:\"Модуль 15") > 0,
+    "m15 test15 roadmap":  body.indexOf('{test:true, id:"test15"') > 0,
+    "m15 re hints":        body.indexOf("ratSimplify:{ru:") > 0 && body.indexOf("ratEquation:{ru:") > 0,
+    "m15 trainer topics":  body.indexOf('{ id:"ratSimplify"') > 0 && body.indexOf('{ id:"ratInequality"') > 0,
+    "m15 generators":      body.indexOf("function genRatSimplifyMC") > 0 &&
+                           body.indexOf("function genRatPowerMC") > 0 &&
+                           body.indexOf("function genRatEquationMC") > 0 &&
+                           body.indexOf("function genRatInequalityMC") > 0,
+    "m15 lesson grades":   body.indexOf("re1:[\"preSenior\",\"senior\"]") > 0,
     "m5 geoTri hint":      body.indexOf("geoTriangles:{ru:") > 0,
     "m5 geoPoly hint":     body.indexOf("geoPolygons:{ru:") > 0,
     "m5 dot gen":          body.indexOf("function genVectorsDotMC") > 0,

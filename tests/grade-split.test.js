@@ -20,7 +20,8 @@ assert(
   ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
     "geoCircles","geoVectors","geoVectorTasks","geoAxiom","stereoIntro",
     "comb1","comb2","prob1","prob2","stat1",
-    "qf1","qe1","qi1","qa1","qs1","qa2"]
+    "qf1","qe1","qi1","qa1","qs1","qa2",
+    "re1","re2","re3","re4"]
     .every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade89)),
   "8-9 lesson set follows the status map"
 );
@@ -42,12 +43,12 @@ assert(
   "percentages and proportions start in the 5-7 band and stay visible in 8-9"
 );
 assert(
-  [11, 12, 13, 14].every(id => roadmap[id] && roadmap[id].exam_priority === true),
-  "modules 11-14 are registered as exam-priority"
+  [11, 12, 13, 14, 15].every(id => roadmap[id] && roadmap[id].exam_priority === true),
+  "modules 11-15 are registered as exam-priority"
 );
 const routeCtx = {
   ROADMAP: roadmap,
-  MODULE_ORDER: [1,2,3,4,5,6,7,8,9,11,12,13,14,10],
+  MODULE_ORDER: [1,2,3,4,5,6,7,8,9,11,12,13,14,15,10],
   state: {grade:"preSenior"},
   lessonGrades: id => lessonGrades[id] || []
 };
@@ -58,7 +59,7 @@ vm.createContext(routeCtx);
 });
 const preSeniorModules = routeCtx.visibleSections().map(section => section.modId);
 assert(
-  JSON.stringify(preSeniorModules) === JSON.stringify([1,5,6,7,8,11,12,13,14]),
+  JSON.stringify(preSeniorModules) === JSON.stringify([1,5,6,7,8,11,12,13,14,15]),
   "8-9 route hides empty modules and continues directly after module 8"
 );
 assert(
@@ -66,13 +67,15 @@ assert(
   routeCtx.moduleTitle(11, "ru").startsWith("Модуль 6.") &&
   routeCtx.moduleTitle(12, "ru").startsWith("Модуль 7.") &&
   routeCtx.moduleTitle(13, "ru").startsWith("Модуль 8.") &&
-  routeCtx.moduleTitle(14, "ru").startsWith("Модуль 9."),
-  "8-9 modules are displayed as modules 1-9 with no gaps"
+  routeCtx.moduleTitle(14, "ru").startsWith("Модуль 9.") &&
+  routeCtx.moduleTitle(15, "ru").startsWith("Модуль 10."),
+  "8-9 modules are displayed as modules 1-10 with no gaps"
 );
 assert(
   routeCtx.courseNavigation("stat1").next === "seq1" &&
-  routeCtx.courseNavigation("seq4").next === "eq1",
-  "8-9 lesson navigation continues from module 8 into displayed modules 9 and 10"
+  routeCtx.courseNavigation("seq4").next === "eq1" &&
+  routeCtx.courseNavigation("qa2").next === "re1",
+  "8-9 lesson navigation continues from module 8 into displayed modules 9, 10 and 11"
 );
 routeCtx.state.grade = "senior";
 assert(
@@ -113,7 +116,7 @@ assert(
 );
 /* у каждого содержательного модуля есть итоговый тест; у вводного (1)
    и сводного НМТ (10) его нет by design */
-[2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14].forEach(m => {
+[2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15].forEach(m => {
   const tests = roadmap[m].lessons.filter(item => typeof item === "object" && item.test);
   assert(tests.length === 1, "module " + m + " has exactly one module test");
 });
@@ -127,6 +130,11 @@ assert(
   ["quadDiscriminant","quadVertexX","quadIneqInterval","quadYAtX","quadApplied","systemWord"]
     .every(id => JSON.stringify(topicGrades(id)) === JSON.stringify(grade89)),
   "module 14 trainer topics follow the 8-9 status map"
+);
+assert(
+  ["ratSimplify","ratEquation","ratInequality","ratPowerExpr"]
+    .every(id => JSON.stringify(topicGrades(id)) === JSON.stringify(grade89)),
+  "module 15 trainer topics follow the 8-9 status map"
 );
 assert(
   ["prismVolume","sphereSurface","pyramidVolume","coneSurface"]

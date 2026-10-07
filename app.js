@@ -205,7 +205,7 @@ function moduleInGrade(moduleId){
   return moduleLessons(moduleId).some(id=>lessonInGrade(id, state.grade));
 }
 /* Логический порядок модулей: алгебра 11–14 идут перед итоговым НМТ (10). */
-const MODULE_ORDER = [1,2,3,4,5,6,7,8,9,11,12,13,14,10];
+const MODULE_ORDER = [1,2,3,4,5,6,7,8,9,11,12,13,14,15,10];
 /* В маршруте 8–9 номера модулей идут по позиции видимого списка: скрытые
    разделы не сдвигают счёт, нумерация получается непрерывной 1..9. */
 function moduleTitle(moduleId, lang){

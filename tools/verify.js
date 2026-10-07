@@ -121,7 +121,8 @@ function checkRoadmap() {
     ["intro4","intro5","intro6","geoPolygons","geo3","geoSimilarity","geoPythagor",
       "geoCircles","geoVectors","geoVectorTasks","geoAxiom","stereoIntro",
       "comb1","comb2","prob1","prob2","stat1",
-      "qf1","qe1","qi1","qa1","qs1","qa2"]
+      "qf1","qe1","qi1","qa1","qs1","qa2",
+      "re1","re2","re3","re4"]
       .every(id => hasGrades(id, grades89)));
   report("10-11-only geometry remains in the senior block",
     ["geoSineCos","geoPerp","geoPrism","geoRevolve"].every(id => hasGrades(id, ["senior"])));
@@ -145,6 +146,9 @@ function checkRoadmap() {
       .every(id => topicHasGrades(id, grades89)));
   report("module 14 trainer topics are 8-9",
     ["quadDiscriminant","quadVertexX","quadIneqInterval","quadYAtX","quadApplied","systemWord"]
+      .every(id => topicHasGrades(id, grades89)));
+  report("module 15 trainer topics are 8-9",
+    ["ratSimplify","ratEquation","ratInequality","ratPowerExpr"]
       .every(id => topicHasGrades(id, grades89)));
   report("module 6 body topics are open for 8-9",
     ["prismVolume","sphereSurface","pyramidVolume","coneSurface"]
@@ -221,7 +225,7 @@ function checkRoadmap() {
   const nmtParameter = topics.find(topic => topic.id === "nmtParameter");
   report("NMT parameter topic is in the trigonometry module", !!nmtParameter && nmtParameter.module === 2);
   const priorityModules = Object.entries(roadmap).filter(([,module])=>module.exam_priority).map(([id])=>Number(id)).sort((a,b)=>a-b);
-  report("NMT-priority modules are 1-8 and 10-14", priorityModules.join(",") === "1,2,3,4,5,6,7,8,10,11,12,13,14");
+  report("NMT-priority modules are 1-8 and 10-15", priorityModules.join(",") === "1,2,3,4,5,6,7,8,10,11,12,13,14,15");
   const orderMatch = read("app.js").match(/const MODULE_ORDER = \[([^\]]+)\]/);
   const displayOrder = orderMatch ? orderMatch[1].split(",").map(n => Number(n.trim())) : [];
   const roadmapIds = Object.keys(roadmap).map(Number).sort((a, b) => a - b);
@@ -324,9 +328,9 @@ function checkNav() {
     .some(x => typeof x === "string" && inGrade(x, g)));
 
   const routes = Object.fromEntries(grades.map(g => [g, unlocked(g)]));
-  report("route module sets match the grade table (8-9 keeps 1,5,6,7,8,11,12,13,14)",
+  report("route module sets match the grade table (8-9 keeps 1,5,6,7,8,11,12,13,14,15)",
     JSON.stringify(routes.middle) === JSON.stringify([1, 5, 13]) &&
-    JSON.stringify(routes.preSenior) === JSON.stringify([1, 5, 6, 7, 8, 11, 12, 13, 14]) &&
+    JSON.stringify(routes.preSenior) === JSON.stringify([1, 5, 6, 7, 8, 11, 12, 13, 14, 15]) &&
     routes.senior.length === MODULE_ORDER.filter(m => roadmap[m]).length &&
     routes.junior.length === 0,
     "middle=[" + routes.middle.join(",") + "] preSenior=[" + routes.preSenior.join(",") + "] senior=" + routes.senior.length + " junior=" + routes.junior.length);
