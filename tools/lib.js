@@ -40,9 +40,9 @@ const DEG_TABLE = [
 function loadLessons() {
   const ctx = {};
   vm.createContext(ctx);
-  vm.runInContext(read("lessons.js") + "\n;var __L = LESSONS, __R = ROADMAP, __FAC = FACULTATIVE, __F = buildFinalQuestions, __G = LESSON_GRADES;", ctx);
+  vm.runInContext(read("lessons.js") + "\n;var __L = LESSONS, __R = ROADMAP, __FAC = FACULTATIVE, __F = buildFinalQuestions, __G = LESSON_GRADES, __TG = TOPIC_GRADES;", ctx);
   return { lessons: ctx.__L, roadmap: ctx.__R, facultative: ctx.__FAC,
-    buildFinalQuestions: ctx.__F, lessonGrades: ctx.__G };
+    buildFinalQuestions: ctx.__F, lessonGrades: ctx.__G, topicGrades: ctx.__TG };
 }
 
 function loadUI() {
@@ -69,4 +69,77 @@ function makeRealm(fnNames, globals = {}, file = "app.js") {
   return ctx;
 }
 
-module.exports = { ROOT, read, extractFn, TRAINER_STUB, loadLessons, loadUI, loadTrainer, makeRealm };
+/* ---- per-lesson mini-check extraction (shared by verify.js and audit.js) ----
+   Returns [{ id, module, qCount, corrects }] in LESSONS order. corrects holds the
+   authored `correct:` index of each question of the lesson's REAL mini-check
+   (the questions array of makeIntroLesson/makeTopicLesson or of renderMiniCheck),
+   excluding mistakes simulators and workouts that do not persist to mc_mini. */
+function lessonQuizStats(src, lessons) {
+  function balance(s, idx, openCh, closeCh) {
+    let depth = 0;
+    for (let j = idx; j < s.length; j++) {
+      const ch = s[j];
+      if (ch === openCh) depth++;
+      else if (ch === closeCh) { depth--; if (depth === 0) return s.slice(idx, j + 1); }
+    }
+    return null;
+  }
+  function skipString(s, i) {
+    const q = s[i];
+    for (let j = i + 1; j < s.length; j++) {
+      if (s[j] === "\\") { j++; continue; }
+      if (s[j] === q) return j + 1;
+    }
+    return s.length;
+  }
+  function topArrays(callBody) {
+    const out = [];
+    let depth = 0, seg = -1;
+    for (let j = 1; j < callBody.length - 1; j++) {
+      const ch = callBody[j];
+      if (ch === "\"" || ch === "'" || ch === "`") { j = skipString(callBody, j) - 1; continue; }
+      if (ch === "(" || ch === "[" || ch === "{") { if (depth === 0) seg = j; depth++; }
+      else if (ch === ")" || ch === "]" || ch === "}") {
+        depth--;
+        if (depth === 0 && seg >= 0) { const t = callBody.slice(seg, j + 1); if (t[0] === "[") out.push(t); seg = -1; }
+      }
+    }
+    return out;
+  }
+  /* anchor each lesson in source order */
+  const anchors = [];
+  for (const l of lessons) {
+    const id = l.id;
+    const esc = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = /^final\d$/.test(id)
+      ? new RegExp("makeFinalLesson\\(" + id.slice(5) + "\\)")
+      : new RegExp("(makeIntroLesson\\(\\\"|makeTopicLesson\\(\\\"|id\\:\\s*\\\"|id\\:\\s*\\`)(" + esc + ")(\\\"|\\`)");
+    const from = anchors.length ? anchors[anchors.length - 1] : 0;
+    const hit = src.slice(from).search(re);
+    if (hit < 0) throw new Error("anchor not found for lesson " + id);
+    anchors.push(from + hit);
+  }
+  return lessons.map((l, i) => {
+    const s = src.slice(anchors[i], i + 1 < anchors.length ? anchors[i + 1] : src.length);
+    let quizSrc = null;
+    const zi = s.search(/renderMiniCheck\(/);
+    const fcall = s.match(/^(makeIntroLesson|makeTopicLesson)\(/m);
+    if (zi >= 0) {
+      const call = balance(s, s.indexOf("(", zi), "(", ")");
+      const arrs = call ? topArrays(call) : [];
+      quizSrc = arrs.length ? arrs[arrs.length - 1] : null;
+    } else if (fcall) {
+      const call = balance(s, fcall[0].length - 1, "(", ")");
+      const arrs = call ? topArrays(call) : [];
+      quizSrc = arrs.length ? arrs[arrs.length - 1] : null;
+    }
+    const segs = quizSrc ? quizSrc.split(/\{\s*q\s*:\s*\{\s*ru\s*:/g) : [];
+    const corrects = segs.slice(1).map(seg => {
+      const m = [...seg.matchAll(/correct:\s*(\d+)/g)];
+      return m.length ? +m[m.length - 1][1] : null;
+    }).filter(x => x !== null);
+    return { id: l.id, module: l.module, qCount: segs.length - 1, corrects };
+  });
+}
+
+module.exports = { ROOT, read, extractFn, TRAINER_STUB, loadLessons, loadUI, loadTrainer, makeRealm, lessonQuizStats };

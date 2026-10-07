@@ -243,18 +243,11 @@ function checkRoadmap() {
   const guessHeavy = [];
   {
     const src = read("lessons.js");
-    const starts = [];
-    const re2 = /make(Intro|Topic)Lesson\("([A-Za-z0-9]+)"/g;
-    let mm;
-    while ((mm = re2.exec(src))) starts.push({ id: mm[1], at: mm.index });
-    for (let i = 0; i < starts.length; i++) {
-      const block = src.slice(starts[i].at, i + 1 < starts.length ? starts[i + 1].at : src.length);
-      const pos = [];
-      const cr = /correct:\s*(\d+)/g;
-      let c;
-      while ((c = cr.exec(block))) pos.push(Number(c[1]) + 1);
-      if (pos.length && pos.filter(p => p === 1).length / pos.length >= 0.7)
-        guessHeavy.push(starts[i].id + "[" + pos.join(",") + "]");
+    for (const stat of lib.lessonQuizStats(src, lessons)) {
+      if (stat.corrects.length < 2) continue;
+      const first = stat.corrects.filter(x => x === 0).length;
+      if (first / stat.corrects.length >= 0.7)
+        guessHeavy.push(stat.id + "[" + stat.corrects.join(",") + "]");
     }
   }
   report("no lesson puts 70% or more of correct answers on the first position",
