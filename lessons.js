@@ -15450,6 +15450,116 @@ makeTopicLesson("m1sysTask", 1,
     {q:{ru:"Сумма двух чисел равна 50, а разность равна 10. Найдите большее из них.",ua:"Сума двох чисел дорівнює 50, а різниця дорівнює 10. Знайдіть більше з них."},opts:["20","30","25","40"],correct:1,explanation:{ru:"2x = 50 + 10 = 60, x = 30 — это большее число.",ua:"2x = 50 + 10 = 60, x = 30 — це більше число."}},
   ]
   ),
+makeKidLesson("kidCount", 16,
+  {"ru":"Считаем до 10","ua":"Лічимо до 10"},
+  {
+    ru:{
+      lead:"Смотри на картинку и считай: один, два, три… Сколько предметов?",
+      examples:["🍎🍎🍎 — три яблока","⭐⭐⭐⭐⭐ — пять звёздочек","🐤🐤🐤🐤 — четыре цыплёнка"],
+      tip:"Можно трогать предметы по одному — так считать легче.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Дивись на картинку й лічи: один, два, три… Скільки предметів?",
+      examples:["🍎🍎🍎 — три яблука","⭐⭐⭐⭐⭐ — п'ять зірочок","🐤🐤🐤🐤 — чотири курчати"],
+      tip:"Можна торкатися предметів по одному — так лічити легше.",
+      checkTitle:"Пограємо"
+    }
+  },
+  [
+    {type:"count", ask:{ru:"Сколько яблок?",ua:"Скільки яблук?"}, emoji:"🍎", total:3, options:["2","4","3"], correct:2},
+    {type:"count", ask:{ru:"Сколько звёздочек?",ua:"Скільки зірочок?"}, emoji:"⭐", total:5, options:["5","6","4"], correct:0},
+    {type:"count", ask:{ru:"Сколько цыплят?",ua:"Скільки курчат?"}, emoji:"🐤", total:4, options:["3","5","4"], correct:2}
+  ]
+),
+makeKidLesson("kidCompare", 16,
+  {"ru":"Больше, меньше, равно","ua":"Більше, менше, порівну"},
+  {
+    ru:{
+      lead:"Сравниваем: где больше, где меньше, а где поровну.",
+      examples:["🍎🍎🍎 и 🍎🍎 — слева больше","2 < 5: два меньше пяти","3 = 3: одинаково"],
+      tip:"Значок «>» открывается к большему числу, «<» — к меньшему.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Порівнюємо: де більше, де менше, а де порівну.",
+      examples:["🍎🍎🍎 і 🍎🍎 — ліворуч більше","2 < 5: два менше п'яти","3 = 3: однаково"],
+      tip:"Знак «>» відкривається до більшого числа, «<» — до меншого.",
+      checkTitle:"Пограємо"
+    }
+  },
+  [
+    {type:"pick", ask:{ru:"Где яблок больше?",ua:"Де яблук більше?"}, visual:"🍎🍎🍎   🍎🍎", options:[{e:"🍎🍎🍎",t:{ru:"слева",ua:"ліворуч"}},{e:"🍎🍎",t:{ru:"справа",ua:"праворуч"}},{t:{ru:"поровну",ua:"порівну"}}], correct:0},
+    {type:"pick", ask:{ru:"Какой знак подходит: 4 … 7?",ua:"Який знак підходить: 4 … 7?"}, options:["<",">","="], correct:0},
+    {type:"pick", ask:{ru:"Какой знак подходит: 6 … 6?",ua:"Який знак підходить: 6 … 6?"}, options:["<",">","="], correct:2}
+  ]
+),
+makeKidLesson("kidPlace", 16,
+  {"ru":"Десятки и единицы","ua":"Десятки й одиниці"},
+  {
+    ru:{
+      lead:"В числе есть десятки и единицы. Один десяток — это десять.",
+      examples:["24 = 2 десятка и 4 единицы","30 = 3 десятка и 0 единиц","35 = 30 + 5"],
+      tip:"Последняя цифра справа — единицы, вторая справа — десятки.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"У числі є десятки й одиниці. Один десяток — це десять.",
+      examples:["24 = 2 десятки й 4 одиниці","30 = 3 десятки й 0 одиниць","35 = 30 + 5"],
+      tip:"Остання цифра праворуч — одиниці, друга праворуч — десятки.",
+      checkTitle:"Пограємо"
+    }
+  },
+  [
+    {type:"pick", ask:{ru:"В числе 24 сколько десятков?",ua:"У числі 24 скільки десятків?"}, options:["2","4","20","40"], correct:0},
+    {type:"pick", ask:{ru:"В числе 35 сколько единиц?",ua:"У числі 35 скільки одиниць?"}, options:["3","5","30","50"], correct:1},
+    {type:"pick", ask:{ru:"Какое число — это 4 десятка и 1 единица?",ua:"Яке число — це 4 десятки й 1 одиниця?"}, options:["14","41","40","5"], correct:1}
+  ]
+),
+makeKidLesson("kidOrder", 16,
+  {"ru":"Числовой ряд","ua":"Числовий ряд"},
+  {
+    ru:{
+      lead:"Нажимай числа по порядку: сначала самое маленькое.",
+      examples:["1, 2, 3, 4","5, 6, 7","10, 20, 30"],
+      tip:"Каждый раз выбирай самое маленькое из оставшихся чисел.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Натискай числа по порядку: спочатку найменше.",
+      examples:["1, 2, 3, 4","5, 6, 7","10, 20, 30"],
+      tip:"Щоразу вибирай найменше з чисел, що залишилися.",
+      checkTitle:"Пограємо"
+    }
+  },
+  [
+    {type:"order", ask:{ru:"Нажми по порядку",ua:"Натисни по порядку"}, items:[1,2,3]},
+    {type:"order", ask:{ru:"Нажми по порядку",ua:"Натисни по порядку"}, items:[2,4,6]},
+    {type:"order", ask:{ru:"Нажми по порядку",ua:"Натисни по порядку"}, items:[3,6,9,12]}
+  ]
+),
+makeKidLesson("kidAdd", 16,
+  {"ru":"Прибавляем и отнимаем","ua":"Додаємо й віднімаємо"},
+  {
+    ru:{
+      lead:"Складываем и вычитаем с картинками: прибавить — добавить, отнять — убрать.",
+      examples:["2 + 1 = 3","5 − 2 = 3","4 + 0 = 4"],
+      tip:"Считай предметы на картинке, чтобы проверить ответ.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Додаємо й віднімаємо з картинками: додати — докласти, відняти — прибрати.",
+      examples:["2 + 1 = 3","5 − 2 = 3","4 + 0 = 4"],
+      tip:"Лічи предмети на картинці, щоб перевірити відповідь.",
+      checkTitle:"Пограємо"
+    }
+  },
+  [
+    {type:"pick", ask:{ru:"🍎🍎 плюс ещё 🍎. Сколько яблок?",ua:"🍎🍎 плюс ще 🍎. Скільки яблук?"}, options:["2","3","4"], correct:1},
+    {type:"pick", ask:{ru:"5 − 2 = ?",ua:"5 − 2 = ?"}, options:["2","3","4"], correct:1},
+    {type:"pick", ask:{ru:"🐟🐟🐟🐟 плюс ещё 🐟🐟. Сколько рыб?",ua:"🐟🐟🐟🐟 плюс ще 🐟🐟. Скільки риб?"}, options:["6","5","4"], correct:0}
+  ]
+),
     makeFinalLesson(1),
   makeFinalLesson(2),
   makeFinalLesson(3),
@@ -15458,6 +15568,173 @@ makeTopicLesson("m1sysTask", 1,
   makeFinalLesson(6)
 
 ];
+
+/* ============================================================
+   ДЕТСКИЙ КУРС 1–4: игровой урок и мини-игры.
+   Без тестов, таймеров и процентов: только игра, подсказка и похвала.
+   ============================================================ */
+const KID_UI = {
+  ru:{stars:"⭐ {c} из {t}", done:"Готово! Ты молодец!"},
+  ua:{stars:"⭐ {c} з {t}", done:"Готово! Ти молодець!"}
+};
+function makeKidLesson(id, module, title, content, activities){
+  return {
+    id, module, title,
+    html(lang){
+      const t = content[lang];
+      const examples = (t.examples||[]).map(e=>`<div class="kid-example">${e}</div>`).join("");
+      return `
+        <p class="kid-lead">${t.lead}</p>
+        ${examples ? `<div class="kid-examples">${examples}</div>` : ""}
+        ${t.tip ? `<div class="kid-tip">💡 ${t.tip}</div>` : ""}
+        <div class="check-block kid">
+          <h3>${t.checkTitle}</h3>
+          <div id="mini-check"></div>
+        </div>
+      `;
+    },
+    mount(root, lang){
+      renderKidCheck(root.querySelector("#mini-check"), lang, activities);
+    }
+  };
+}
+function renderKidCheck(container, lang, activities){
+  const lessonId = (typeof state !== "undefined" && state.lessonId) ? state.lessonId : null;
+  const zeroCorrect = activities.map(()=>0);
+  let rec = lessonId ? state.miniChecks[lessonId] : null;
+  const valid = rec && Array.isArray(rec.choices) && rec.choices.length===activities.length &&
+    Array.isArray(rec.correct) && rec.correct.join(",")===zeroCorrect.join(",");
+  if(!valid){
+    rec = {total:activities.length, correct:zeroCorrect, choices:new Array(activities.length).fill(null)};
+    if(lessonId) state.miniChecks[lessonId]=rec;
+  }
+  const T = KID_UI[lang] || KID_UI.ru;
+  container.innerHTML = "";
+  const host = container.closest(".check-block");
+  const heading = host ? host.querySelector("h3") : null;
+  const badge = document.createElement("span");
+  badge.className = "mini-check-badge kid-badge";
+  if(heading){
+    const old = heading.querySelector(".mini-check-badge");
+    if(old) old.remove();
+    heading.appendChild(badge);
+  } else {
+    badge.classList.add("standalone");
+    container.appendChild(badge);
+  }
+  function refreshBadge(){
+    const done = rec.choices.filter(c=>c!==null).length;
+    const complete = done===rec.total;
+    badge.textContent = (complete ? "🎉 " : "") + T.stars.replace("{c}",done).replace("{t}",rec.total);
+    badge.classList.toggle("done", complete);
+    badge.classList.toggle("visible", done>0);
+  }
+  function persist(){
+    if(typeof saveMiniChecks==="function") saveMiniChecks();
+    if(typeof refreshMiniIndicators==="function") refreshMiniIndicators();
+  }
+  function note(wrap){
+    const el = document.createElement("div");
+    el.className = "kid-note";
+    el.textContent = T.done;
+    wrap.appendChild(el);
+  }
+  activities.forEach((act, qi)=>{
+    const solvedBefore = rec.choices[qi]!==null;
+    const wrap = document.createElement("div");
+    wrap.className = "kid-game" + (solvedBefore ? " kid-won" : "");
+    const ask = document.createElement("div");
+    ask.className = "kid-ask";
+    ask.textContent = (qi+1) + ". " + act.ask[lang];
+    wrap.appendChild(ask);
+    if(act.visual){
+      const v = document.createElement("div");
+      v.className = "kid-visual";
+      v.textContent = act.visual;
+      wrap.appendChild(v);
+    }
+    if(act.type==="count"){
+      const row = document.createElement("div");
+      row.className = "kid-items";
+      for(let i=0;i<act.total;i++){
+        const it = document.createElement("span");
+        it.className = "kid-item";
+        it.textContent = act.emoji;
+        row.appendChild(it);
+      }
+      wrap.appendChild(row);
+    }
+    const opts = document.createElement("div");
+    opts.className = "kid-options";
+    function finish(btn){
+      if(rec.choices[qi]!==null) return;
+      if(btn) btn.classList.add("kid-correct");
+      rec.choices[qi] = 0;
+      [...opts.querySelectorAll(".kid-opt")].forEach(o=>{ o.disabled = true; });
+      if(act.type!=="order" && act.correct!==undefined && opts.children[act.correct]) opts.children[act.correct].classList.add("kid-correct");
+      wrap.classList.add("kid-won");
+      note(wrap);
+      refreshBadge();
+      persist();
+      if(typeof mascotSay==="function") mascotSay("correct");
+    }
+    function miss(btn){
+      btn.classList.add("kid-try");
+      if(typeof mascotSay==="function") mascotSay("hint");
+      setTimeout(()=>btn.classList.remove("kid-try"), 700);
+    }
+    if(act.type==="order"){
+      const seq = [];
+      const sorted = [...act.items].sort((a,b)=>a-b);
+      [...act.items].reverse().forEach(n=>{
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "kid-opt kid-num";
+        b.textContent = n;
+        if(solvedBefore){ b.disabled = true; }
+        b.addEventListener("click", ()=>{
+          if(b.disabled || rec.choices[qi]!==null) return;
+          b.disabled = true;
+          b.classList.add("kid-picked");
+          seq.push(n);
+          if(seq.length===sorted.length){
+            if(seq.join(",")===sorted.join(",")){
+              finish(b);
+            } else {
+              setTimeout(()=>{
+                seq.length = 0;
+                [...opts.querySelectorAll(".kid-opt")].forEach(o=>{ o.disabled = false; o.classList.remove("kid-picked","kid-try"); });
+              }, 750);
+            }
+          }
+        });
+        opts.appendChild(b);
+      });
+    } else {
+      (act.options||[]).forEach((opt, oi)=>{
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "kid-opt";
+        if(opt !== null && typeof opt === "object"){
+          if(opt.e){ const e = document.createElement("span"); e.className = "kid-opt-e"; e.textContent = opt.e; b.appendChild(e); }
+          if(opt.t){ const t = document.createElement("span"); t.className = "kid-opt-t"; t.textContent = (typeof opt.t === "object") ? opt.t[lang] : opt.t; b.appendChild(t); }
+        } else {
+          b.textContent = opt;
+        }
+        if(solvedBefore && oi===act.correct){ b.classList.add("kid-correct"); b.disabled = true; }
+        b.addEventListener("click", ()=>{
+          if(rec.choices[qi]!==null) return;
+          if(oi===act.correct) finish(b); else miss(b);
+        });
+        opts.appendChild(b);
+      });
+    }
+    wrap.appendChild(opts);
+    if(solvedBefore) note(wrap);
+    container.appendChild(wrap);
+  });
+  refreshBadge();
+}
 
 /* ============================================================
    MINI-CHECK renderer (общий для всех уроков)
@@ -15551,6 +15828,9 @@ function renderMiniCheck(container, lang, questions){
    ROADMAP — заголовки будущих уроков (для навигации)
    ============================================================ */
 const ROADMAP = {
+  16:{ru:"Числа и счёт",ua:"Числа та лічба",kid:true, lessons:[
+    "kidCount","kidCompare","kidPlace","kidOrder","kidAdd"
+  ]},
   1:{ru:"Вводный модуль. Алгебраическая база (повторение)",ua:"Вступний модуль. Алгебраїчна база (повторення)",exam_priority:true, lessons:[
     "m1div","m1frac","m1dec","m1remain","m1power","m1expr","m1ineq","m1mono","m1short","m1lineq","m1func","m1sys","m1sysTask",
     "intro1","intro2","intro3","intro4","intro5","intro6",
@@ -15695,7 +15975,10 @@ const LESSON_GRADES = {
   final1:["senior"], final2:["senior"], final3:["senior"],
   final4:["senior"], final5:["senior"], final6:["senior"],
   /* факультатив — сверх программы, доступен на ступени 10–11 */
-  geoCurved:["senior"], geoRose:["senior"]
+  geoCurved:["senior"], geoRose:["senior"],
+  /* детский курс 1–4 — только ступень junior */
+  kidCount:["junior"], kidCompare:["junior"], kidPlace:["junior"],
+  kidOrder:["junior"], kidAdd:["junior"]
 };
 /* Маркировка готовности для ступени 5–7: базовый маршрут и темы для углубления. */
 const LESSON_READINESS = {

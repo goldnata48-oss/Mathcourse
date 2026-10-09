@@ -114,7 +114,7 @@ function lessonQuizStats(src, lessons) {
     const esc = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const re = /^final\d$/.test(id)
       ? new RegExp("makeFinalLesson\\(" + id.slice(5) + "\\)")
-      : new RegExp("(makeIntroLesson\\(\\\"|makeTopicLesson\\(\\\"|id\\:\\s*\\\"|id\\:\\s*\\`)(" + esc + ")(\\\"|\\`)");
+      : new RegExp("(makeIntroLesson\\(\\\"|makeTopicLesson\\(\\\"|makeKidLesson\\(\\\"|id\\:\\s*\\\"|id\\:\\s*\\`)(" + esc + ")(\\\"|\\`)");
     const from = anchors.length ? anchors[anchors.length - 1] : 0;
     const hit = src.slice(from).search(re);
     if (hit < 0) throw new Error("anchor not found for lesson " + id);

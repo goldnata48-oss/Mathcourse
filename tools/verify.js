@@ -109,7 +109,7 @@ function checkRoadmap() {
     [grade, ids.filter(id => lessonGrades[id].includes(grade)).length]));
   report("four grade blocks contain their assigned lessons (" +
     gradeValues.map(grade => grade + ": " + gradeCounts[grade]).join(" / ") + ")",
-    gradeValues.slice(1).every(grade => gradeCounts[grade] > 0));
+    gradeValues.every(grade => gradeCounts[grade] > 0));
   const hasGrades = (id, expected) =>
     JSON.stringify(lessonGrades[id]) === JSON.stringify(expected);
   const grades57 = ["middle", "preSenior", "senior"];
@@ -328,12 +328,12 @@ function checkNav() {
     .some(x => typeof x === "string" && inGrade(x, g)));
 
   const routes = Object.fromEntries(grades.map(g => [g, unlocked(g)]));
-  report("route module sets match the grade table (5-7: 1,5,6,13; 8-9: 1,5,6,7,8,11,12,13,14,15)",
+  report("route module sets match the grade table (1-4: 16; 5-7: 1,5,6,13; 8-9: 1,5,6,7,8,11,12,13,14,15; 10-11: all but junior)",
+    JSON.stringify(routes.junior) === JSON.stringify([16]) &&
     JSON.stringify(routes.middle) === JSON.stringify([1, 5, 6, 13]) &&
     JSON.stringify(routes.preSenior) === JSON.stringify([1, 5, 6, 7, 8, 11, 12, 13, 14, 15]) &&
-    routes.senior.length === MODULE_ORDER.filter(m => roadmap[m]).length &&
-    routes.junior.length === 0,
-    "middle=[" + routes.middle.join(",") + "] preSenior=[" + routes.preSenior.join(",") + "] senior=" + routes.senior.length + " junior=" + routes.junior.length);
+    routes.senior.length === 15 && !routes.senior.includes(16),
+    "junior=[" + routes.junior.join(",") + "] middle=[" + routes.middle.join(",") + "] preSenior=[" + routes.preSenior.join(",") + "] senior=" + routes.senior.length);
 
   const realm = lib.makeRealm(
     ["moduleLessons", "lessonInGrade", "moduleInGrade", "moduleTitle", "visibleSections",
@@ -349,8 +349,9 @@ function checkNav() {
   };
 
   realm.state.grade = "junior";
-  report("junior renders the empty state (all modules locked)",
-    realm.visibleSections().every(s => s.locked));
+  report("1-4 sidebar shows only the junior island(s)",
+    JSON.stringify(realm.visibleSections().map(s => s.modId)) === JSON.stringify(routes.junior) &&
+    realm.visibleSections().every(s => !s.locked));
 
   realm.state.grade = "middle";
   report("5-7 sidebar hides unavailable modules",
@@ -365,7 +366,7 @@ function checkNav() {
     JSON.stringify(preSeniorNums) === JSON.stringify(expected89),
     "shown=[" + preSeniorNums.join(",") + "] expected 1.." + expected89.length);
 
-  for (const g of ["middle", "senior"]) {
+  for (const g of ["junior", "middle", "senior"]) {
     const nums = menuNumbers(g);
     const unique = new Set(nums);
     report(g + " sidebar shows every module number exactly once",

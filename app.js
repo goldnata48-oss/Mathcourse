@@ -47,7 +47,7 @@ function refreshMiniIndicators(){
     if(!ind){ ind = document.createElement("span"); ind.className = "mini-ind"; btn.appendChild(ind); }
     if(!stat){ ind.textContent = ""; ind.className = "mini-ind"; ind.removeAttribute("title"); return; }
     ind.textContent = stat.complete ? "✓" : stat.correct+"/"+stat.total;
-    ind.title = UI[state.lang].miniCheckProgress.replace("{c}",stat.correct).replace("{t}",stat.total);
+    ind.title = (state.grade === "junior" ? UI[state.lang].kidProgress : UI[state.lang].miniCheckProgress).replace("{c}",stat.correct).replace("{t}",stat.total);
     ind.className = "mini-ind visible" + (stat.complete ? " done" : "");
   });
 }
@@ -204,16 +204,21 @@ function moduleProgress(moduleId){
 function moduleInGrade(moduleId){
   return moduleLessons(moduleId).some(id=>lessonInGrade(id, state.grade));
 }
-/* Логический порядок модулей: алгебра 11–14 идут перед итоговым НМТ (10). */
-const MODULE_ORDER = [1,2,3,4,5,6,7,8,9,11,12,13,14,15,10];
-/* В маршрутах 5–7 и 8–9 номера модулей идут по позиции видимого списка. */
+/* Логический порядок модулей: алгебра 11–14 идут перед итоговым НМТ (10).
+   Модули детского курса (16+) стоят первыми — в ступени 1–4 они видны как острова. */
+const MODULE_ORDER = [16,1,2,3,4,5,6,7,8,9,11,12,13,14,15,10];
+/* В маршрутах 1–4 (острова), 5–7 и 8–9 номера идут по позиции видимого списка. */
 function moduleTitle(moduleId, lang){
   if(!ROADMAP[moduleId] || !lang) return "";
   const title = ROADMAP[moduleId][lang];
-  if(state.grade !== "middle" && state.grade !== "preSenior") return title;
+  if(state.grade !== "middle" && state.grade !== "preSenior" && state.grade !== "junior") return title;
   const pos = visibleSections().map(section=>section.modId).indexOf(moduleId);
   if(pos < 0) return title;
   const number = pos + 1;
+  if(state.grade === "junior"){
+    const island = lang === "ua" ? "Острів" : "Остров";
+    return `${island} ${number}. ${title}`;
+  }
   return title
     .replace(/^Модуль \d+\./, `Модуль ${number}.`)
     .replace(/^(Вводный|Вступний) модуль\./, `Модуль ${number}.`);
@@ -227,11 +232,9 @@ function moduleForGrades(moduleId){
     .map(g=>GRADE_RANGES[g]||g).join(", ");
 }
 function visibleSections(){
-  const sections = MODULE_ORDER.filter(modId=>ROADMAP[modId])
-    .map(modId=>({modId, mod:ROADMAP[modId], locked:!moduleInGrade(modId)}));
-  return state.grade === "middle" || state.grade === "preSenior"
-    ? sections.filter(section=>!section.locked)
-    : sections;
+  return MODULE_ORDER.filter(modId=>ROADMAP[modId])
+    .map(modId=>({modId, mod:ROADMAP[modId], locked:!moduleInGrade(modId)}))
+    .filter(section=>!section.locked);
 }
 /* Сквозной поток видимых в текущей ступени уроков: по порядку модулей, без скрытых. */
 function visibleLessonFlow(){
@@ -669,7 +672,7 @@ function renderSidebar(){
           const ind = document.createElement("span");
           ind.className = "mini-ind visible" + (stat.complete ? " done":"");
           ind.textContent = stat.complete ? "✓" : stat.correct+"/"+stat.total;
-          ind.title = UI[state.lang].miniCheckProgress.replace("{c}",stat.correct).replace("{t}",stat.total);
+          ind.title = (state.grade === "junior" ? UI[state.lang].kidProgress : UI[state.lang].miniCheckProgress).replace("{c}",stat.correct).replace("{t}",stat.total);
           ind.setAttribute("aria-hidden", "true");
           btn.appendChild(ind);
           miniLabel = ", " + ind.title;
