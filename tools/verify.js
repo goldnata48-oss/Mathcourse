@@ -328,11 +328,16 @@ function checkNav() {
     .some(x => typeof x === "string" && inGrade(x, g)));
 
   const routes = Object.fromEntries(grades.map(g => [g, unlocked(g)]));
-  report("route module sets match the grade table (1-4: 16; 5-7: 1,5,6,13; 8-9: 1,5,6,7,8,11,12,13,14,15; 10-11: all but junior)",
-    JSON.stringify(routes.junior) === JSON.stringify([16]) &&
+  const juniorOnly = id => (lessonGrades[id] || []).every(g => g === "junior");
+  const juniorModulesClean = routes.junior.length > 0 && routes.junior.every(m =>
+    (roadmap[m].lessons || []).filter(x => typeof x === "string").every(juniorOnly));
+  const adultModules = new Set([...routes.middle, ...routes.preSenior, ...routes.senior]);
+  report("route module sets match the grade table (1-4: kid islands; 5-7: 1,5,6,13; 8-9: 1,5,6,7,8,11,12,13,14,15; 10-11: all but junior)",
+    juniorModulesClean &&
+    routes.junior.every(m => !adultModules.has(m)) &&
     JSON.stringify(routes.middle) === JSON.stringify([1, 5, 6, 13]) &&
     JSON.stringify(routes.preSenior) === JSON.stringify([1, 5, 6, 7, 8, 11, 12, 13, 14, 15]) &&
-    routes.senior.length === 15 && !routes.senior.includes(16),
+    routes.senior.length === 15 && routes.senior.every(m => m < 16),
     "junior=[" + routes.junior.join(",") + "] middle=[" + routes.middle.join(",") + "] preSenior=[" + routes.preSenior.join(",") + "] senior=" + routes.senior.length);
 
   const realm = lib.makeRealm(

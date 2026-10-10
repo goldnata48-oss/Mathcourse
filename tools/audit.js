@@ -9,7 +9,10 @@ const src = lib.read("lessons.js");
 const testSrc = lib.read("tests/grade89-algebra.test.js");
 const data = lib.loadLessons();
 const trainer = lib.loadTrainer();
-const { lessons, roadmap, topicGrades, buildFinalQuestions } = data;
+const { lessons, roadmap, topicGrades, buildFinalQuestions, lessonGrades } = data;
+ROUTE.junior = Object.keys(roadmap).map(Number).filter(m =>
+  (roadmap[m].lessons || []).some(x => typeof x === "string" && (lessonGrades[x] || []).includes("junior")))
+  .sort((a, b) => a - b);
 
 /* ------------- band routes (mirror of tools/verify.js) ------------- */
 const ROUTE = {
@@ -138,7 +141,9 @@ out.push("язык переживает перезагрузку? mc_lang в app
   (lib.read("app.js").includes("mc_lang") ? "да" : "НЕТ (подтверждённый долг)"));
 out.push("mini-explanation в уроках: " +
   (src.match(/(exp:|explanation:|mini-explanation)/g) || []).length + " вхождений (поддержка есть, наполнение нет)");
-out.push("ступень 1-4: уроков 0; 5-7: " +
+out.push("ступень 1-4: " +
+  lessons.filter(l => ROUTE.junior.includes(l.module)).length + " уроков (" +
+  ROUTE.junior.map(m => "м" + m).join(", ") + "); 5-7: " +
   lessons.filter(l => ROUTE.middle.includes(l.module)).length + " уроков (" +
   ROUTE.middle.map(m => "м" + m).join(", ") + ")");
 
