@@ -1,0 +1,57 @@
+{
+  "name": "Kvantik webhook (Маткурс)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kvantik",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "a1b2c3d4-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "kvantik"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $input.first().json.body || {};\nconst msg = String(b.message || '').toLowerCase();\nconst lang = b.lang === 'ua' ? 'ua' : 'ru';\nlet reply;\nif (/привет|привіт|hello|hi/.test(msg)) {\n  reply = lang === 'ua' ? 'Привіт! Я Квантик. Питай про урок.' : 'Привет! Я Квантик. Спроси что-нибудь по уроку.';\n} else if (/не понимаю|не зрозуміло|помоги|допоможи|help/.test(msg)) {\n  reply = lang === 'ua' ? 'Добре, розберімо крок за кроком. Що саме незрозуміло?' : 'Хорошо, разберём шаг за шагом. Что именно непонятно?';\n} else if (b.lessonId) {\n  reply = lang === 'ua' ? ('Тема уроку: ' + b.lessonId + '. Спробуй сформулювати точніше, що саме запитати.') : ('Тема урока: ' + b.lessonId + '. Попробуй сформулировать точнее, что спросить.');\n} else {\n  reply = lang === 'ua' ? 'Я на зв\\'язку. Постав питання про урок — і я підкажу.' : 'Я на связи. Задай вопрос по уроку — и я подскажу.';\n}\nreturn [{ json: { reply, lessonId: b.lessonId || null, lang } }];"
+      },
+      "id": "a1b2c3d4-0000-4000-8000-000000000002",
+      "name": "Kvantik logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "a1b2c3d4-0000-4000-8000-000000000003",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [480, 0]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Kvantik logic", "type": "main", "index": 0 }]
+      ]
+    },
+    "Kvantik logic": {
+      "main": [
+        [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
