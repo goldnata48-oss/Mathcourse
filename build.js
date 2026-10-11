@@ -47,6 +47,7 @@ function build() {
   writeFile(path.join(dist, "index.html"), bundle);
   fs.copyFileSync(path.join(root, "manifest.webmanifest"), path.join(dist, "manifest.webmanifest"));
   fs.copyFileSync(path.join(root, "icon.svg"), path.join(dist, "icon.svg"));
+  fs.copyFileSync(path.join(root, "sitemap.xml"), path.join(dist, "sitemap.xml"));
   generateIcons(root);
   generateIcons(dist);
   writeFile(path.join(dist, "sw.js"), sw);
