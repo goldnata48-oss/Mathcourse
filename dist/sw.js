@@ -1,10 +1,17 @@
 /* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
-const CACHE_NAME = "mathcourse-de0257ca";
+const CACHE_NAME = "mathcourse-954b4caf";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./icon.svg"
+  "./icon.svg",
+  "./theme.css",
+  "./styles.css",
+  "./i18n.js",
+  "./lessons.js",
+  "./trainer.js",
+  "./app.js",
+  "./privacy.html"
 ];
 
 self.addEventListener("install", event => {

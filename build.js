@@ -1,11 +1,11 @@
 /* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const { generateIcons } = require("./build-icons");
 
 const root = __dirname;
 const dist = path.join(root, "dist");
-const htmlPath = path.join(root, "index.html");
 
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
 /* Запись через временный файл: dist/index.html может быть открыт браузером или редактором,
@@ -15,48 +15,53 @@ const writeFile = (file, content) => {
   fs.writeFileSync(tmp, content, "utf8");
   fs.renameSync(tmp, file);
 };
-const crypto = require("crypto");
 
+/* Ассеты разделены: HTML остаётся маленьким, а скрипты/стили грузятся
+   отдельными файлами (SW кэширует их, браузер — отдельно от разметки). */
+const ASSETS = ["theme.css", "styles.css", "i18n.js", "lessons.js", "trainer.js", "app.js"];
+const APP_SHELL = [
+  "./", "./index.html", "./manifest.webmanifest", "./icon.svg",
+  "./theme.css", "./styles.css", "./i18n.js", "./lessons.js", "./trainer.js", "./app.js",
+  "./privacy.html",
+];
+
+/* Версия кэша из содержимого всех исходников — меняется при любой правке. */
+function computeCacheTag() {
+  const parts = ["index.html", ...ASSETS].map(read);
+  return crypto.createHash("sha1").update(parts.join("\n")).digest("hex").slice(0, 8);
+}
+
+/* Оставлено для tools/verify.js: возвращает только тег версии. */
 function computeBundle() {
-  const source = read("index.html");
-  const css = [read("theme.css"), read("styles.css")].join("\n");
-  const js = [read("i18n.js"), read("lessons.js"), read("trainer.js"), read("app.js")].join("\n");
-
-  const bundle = source
-    .replace(/\s*<link rel="stylesheet" href="theme\.css">\s*/g, "\n")
-    .replace(/\s*<link rel="stylesheet" href="styles\.css">\s*/g, "\n")
-    .replace(/\s*<script src="i18n\.js" defer><\/script>\s*/g, "\n")
-    .replace(/\s*<script src="lessons\.js" defer><\/script>\s*/g, "\n")
-    .replace(/\s*<script src="trainer\.js" defer><\/script>\s*/g, "\n")
-    .replace(/\s*<script src="app\.js" defer><\/script>\s*/g, "\n")
-    .replace("</head>", `  <style>\n${css}\n  </style>\n</head>`)
-    .replace("</body>", `  <script>\n${js}\n  </script>\n</body>`);
-
-  const cacheTag = crypto.createHash("sha1").update(bundle).digest("hex").slice(0, 8);
-  const sw = read("sw.js")
-    .replace(/const CACHE_NAME = "mathcourse-v1";/, `const CACHE_NAME = "mathcourse-${cacheTag}";`)
-    .replace(/const APP_SHELL = \[[\s\S]*?\];/, `const APP_SHELL = [\n  "./",\n  "./index.html",\n  "./manifest.webmanifest",\n  "./icon.svg"\n];`);
-
-  return { bundle, cacheTag, sw };
+  return { cacheTag: computeCacheTag() };
 }
 
 function build() {
-  const { bundle, cacheTag, sw } = computeBundle();
+  const cacheTag = computeCacheTag();
 
   fs.mkdirSync(dist, { recursive: true });
-  writeFile(path.join(dist, "index.html"), bundle);
+  for (const f of ASSETS) fs.copyFileSync(path.join(root, f), path.join(dist, f));
+
+  const html = read("index.html");
+  writeFile(path.join(dist, "index.html"), html);
   fs.copyFileSync(path.join(root, "manifest.webmanifest"), path.join(dist, "manifest.webmanifest"));
   fs.copyFileSync(path.join(root, "icon.svg"), path.join(dist, "icon.svg"));
   fs.copyFileSync(path.join(root, "sitemap.xml"), path.join(dist, "sitemap.xml"));
   fs.copyFileSync(path.join(root, "robots.txt"), path.join(dist, "robots.txt"));
   fs.copyFileSync(path.join(root, "privacy.html"), path.join(dist, "privacy.html"));
-  generateIcons(root);
-  generateIcons(dist);
+
+  const sw = read("sw.js")
+    .replace(/const CACHE_NAME = "mathcourse-v1";/, `const CACHE_NAME = "mathcourse-${cacheTag}";`)
+    .replace(/const APP_SHELL = \[[\s\S]*?\];/, `const APP_SHELL = ${JSON.stringify(APP_SHELL, null, 2)};`);
   writeFile(path.join(dist, "sw.js"), sw);
 
-  const size = Buffer.byteLength(bundle, "utf8");
+  generateIcons(root);
+  generateIcons(dist);
+
+  const size = Buffer.byteLength(html, "utf8");
   console.log(`Built ${path.relative(root, path.join(dist, "index.html"))}`);
   console.log(`Size: ${size} bytes`);
+  console.log(`Assets: ${ASSETS.join(", ")}`);
   return { size, cacheTag };
 }
 

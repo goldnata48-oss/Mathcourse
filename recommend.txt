@@ -2,7 +2,7 @@
 =========================================
 Запуск локально:
     node start-server.ps1            (или любой статический сервер из корня)
-Сборка production-бандла:
+Сборка production-файлов (HTML + внешние js/css, без инлайна):
     npm run build                    (= node build.js; пишет dist/)
 Все статические проверки:
     npm run verify                   (syntax, i18n, roadmap, генераторы, a11y, dist)
@@ -27,9 +27,9 @@
          git status
   2. Откатить незавершённую/битую сборку dist:
          git checkout -- dist
-  3. Пересобрать бандл:
+  3. Пересобрать dist:
          npm run build
-  4. Прогнать проверки (должно быть 67/67 зелёных):
+  4. Прогнать проверки (должно быть 91/91 зелёных):
          npm test
   5. Закрыть вкладку сайта и открыть заново (или Ctrl+F5): service worker
      кэширует app shell (cache-first), поэтому старое берётся из кэша.
@@ -57,7 +57,7 @@ Mathcourse/
   app.js                  state, навигация, рендеринг, прогресс, статистика
   sw.js                   service worker (кэш app shell)
   manifest.webmanifest    PWA-манифест
-  build.js                сборка бандла в dist/ (computeBundle/build, экспорт)
+  build.js                сборка в dist/ (копирует html/js/css, версия кэша; computeBundle для verify)
   package.json            npm-скрипты (build/verify/test/audit/check:live/deploy)
   tools/
     lib.js                общие загрузчики LESSONS/ROADMAP/UI/LEVEL_DEFS

@@ -62,7 +62,13 @@ function post(url, payload) {
   console.log("last-modified:", page.headers["last-modified"]);
   console.log("etag:", page.headers["etag"]);
 
-  const body = page.body;
+  const pageHtml = page.body;
+  const jsParts = [];
+  for (const f of ["i18n.js", "lessons.js", "trainer.js", "app.js"]) {
+    try { jsParts.push((await get(BASE + f)).body); }
+    catch (e) { console.log("  WARN could not load " + f + ": " + e.message); }
+  }
+  const body = [pageHtml, ...jsParts].join("\n");
   const checks = {
     "geoCircles lesson":   body.indexOf('id: "geoCircles"') > 0,
     "geoCircles hint":     body.indexOf("geoCircles:{ru:") > 0,
@@ -158,6 +164,12 @@ function post(url, payload) {
   check(robots.status === 200, "robots.txt".padEnd(22) + robots.status + "  " + robots.body.length + " bytes");
   check(robots.body.indexOf("Sitemap: https://roaring-melba-8c60da.netlify.app/sitemap.xml") !== -1,
     "robots.txt points to sitemap.xml");
+
+  console.log("\n=== page weight ===");
+  check(pageHtml.length < 1024 * 1024,
+    "index.html under 1 MB (" + Math.round(pageHtml.length / 1024) + " KB)");
+  check(pageHtml.indexOf("<script src=\"app.js\"") > 0 || pageHtml.indexOf("<script defer src=\"app.js\"") > 0,
+    "scripts external (not inlined in HTML)");
 
   console.log("\n=== cookie consent + privacy ===");
   check(body.indexOf('id="cookie-consent"') > 0, "consent banner present on live page");

@@ -595,6 +595,25 @@ function checkDist() {
   } catch (e) {
     report("dist/privacy.html exists", false, e.message.split("\n")[0]);
   }
+  try {
+    const html = read("dist/index.html");
+    report("dist/index.html under 1 MB (" + Math.round(html.length / 1024) + " KB)",
+      html.length < 1024 * 1024,
+      "run build");
+    report("dist/index.html references external scripts (not inlined)",
+      html.indexOf('<script src="app.js" defer></script>') !== -1 &&
+        html.indexOf('<script src="lessons.js" defer></script>') !== -1);
+  } catch (e) {
+    report("dist/index.html exists", false, e.message.split("\n")[0]);
+  }
+  for (const f of ["theme.css", "styles.css", "i18n.js", "lessons.js", "trainer.js", "app.js"]) {
+    try {
+      const n = read("dist/" + f).length;
+      report("dist/" + f + " present (" + Math.round(n / 1024) + " KB)", n > 0);
+    } catch (e) {
+      report("dist/" + f + " present", false, "run build");
+    }
+  }
 }
 
 function runChild(label, file) {
