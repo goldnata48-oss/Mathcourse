@@ -780,7 +780,7 @@ const ROADMAP = {
   22:{ru:"Пещера закономерностей",ua:"Печера закономірностей",kid:true, lessons:[
     "kidPattern","kidSequence","kidEvenOdd","kidCompare3","kidLogic"
   ]},
-  1:{ru:"Вводный модуль. Алгебраическая база (повторение)",ua:"Вступний модуль. Алгебраїчна база (повторення)",exam_priority:true, lessons:[
+  1:{ru:"Модуль 1. Алгебраическая база (повторение)",ua:"Модуль 1. Алгебраїчна база (повторення)",exam_priority:true, lessons:[
     "m1div","m1frac","m1dec","m1remain","m1power","m1expr","m1ineq","m1mono","m1short","m1lineq","m1func","m1sys","m1sysTask",
     "intro1","intro2","intro3","intro4","intro5","intro6",
     {test:true, id:"test1", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
@@ -862,19 +862,19 @@ const FACULTATIVE = {
    junior (1–4) | middle (5–7) | preSenior (8–9) |
    senior (10–11)
 
-   Разметка кумулятивная: старшие ступени включают предыдущие,
-   поэтому подготовка 10–11 охватывает весь материал 5–11 классов.
-   Отдельного блока для 1–4 классов пока нет.
+   Разметка кумулятивная: старшие ступени включают предыдущие.
+   Исключение — база 5–7 (модуль 1, m1div…m1sysTask): она не тянется
+   в 10–11, где повторение начинается с уровня 8–9 (intro1–6).
    ============================================================ */
 const LESSON_GRADES = {
-  /* модуль 1 — алгебраическая база */
-  m1div:["middle","preSenior","senior"], m1frac:["middle","preSenior","senior"],
-  m1dec:["middle","preSenior","senior"], m1remain:["middle","preSenior","senior"],
-  m1power:["middle","preSenior","senior"], m1expr:["middle","preSenior","senior"],
-  m1ineq:["middle","preSenior","senior"], m1lineq:["middle","preSenior","senior"],
-  m1func:["middle","preSenior","senior"],
-  m1mono:["middle","preSenior","senior"], m1short:["middle","preSenior","senior"],
-  m1sys:["middle","preSenior","senior"], m1sysTask:["middle","preSenior","senior"],
+  /* модуль 1 — алгебраическая база 5–7; в 10–11 не дублируется (там intro1–6) */
+  m1div:["middle","preSenior"], m1frac:["middle","preSenior"],
+  m1dec:["middle","preSenior"], m1remain:["middle","preSenior"],
+  m1power:["middle","preSenior"], m1expr:["middle","preSenior"],
+  m1ineq:["middle","preSenior"], m1lineq:["middle","preSenior"],
+  m1func:["middle","preSenior"],
+  m1mono:["middle","preSenior"], m1short:["middle","preSenior"],
+  m1sys:["middle","preSenior"], m1sysTask:["middle","preSenior"],
   intro1:["preSenior","senior"], intro2:["preSenior","senior"],
   intro3:["preSenior","senior"],
   intro4:["preSenior","senior"], intro5:["preSenior","senior"], intro6:["preSenior","senior"],
@@ -969,14 +969,19 @@ function lessonReadiness(lessonId){
    Темы распределены по тем же кумулятивным блокам, что и уроки.
    ============================================================ */
 const TOPIC_GRADES = {
-  /* 5–7: алгебраическая база — делимость, дроби, выражения, уравнения, функции */
-  m1div:["middle","preSenior","senior"], m1frac:["middle","preSenior","senior"],
-  m1dec:["middle","preSenior","senior"], m1remain:["middle","preSenior","senior"],
-  m1power:["middle","preSenior","senior"], m1expr:["middle","preSenior","senior"],
-  m1ineq:["middle","preSenior","senior"], m1lineq:["middle","preSenior","senior"],
-  m1func:["middle","preSenior","senior"],
-  m1mono:["middle","preSenior","senior"], m1short:["middle","preSenior","senior"],
-  m1sys:["middle","preSenior","senior"], m1sysTask:["middle","preSenior","senior"],
+  /* 5–7: алгебраическая база — делимость, дроби, выражения, уравнения, функции
+     (в 10–11 не дублируется: за базу отвечает повторение 8–9 intro1–6) */
+  m1div:["middle","preSenior"], m1frac:["middle","preSenior"],
+  m1dec:["middle","preSenior"], m1remain:["middle","preSenior"],
+  m1power:["middle","preSenior"], m1expr:["middle","preSenior"],
+  m1ineq:["middle","preSenior"], m1lineq:["middle","preSenior"],
+  m1func:["middle","preSenior"],
+  m1mono:["middle","preSenior"], m1short:["middle","preSenior"],
+  m1sys:["middle","preSenior"], m1sysTask:["middle","preSenior"],
+  /* повторение базы 8–11 (модуль 1, уроки intro1–6) — тест повторения */
+  revPower:["preSenior","senior"], revExpr:["preSenior","senior"],
+  revFrac:["preSenior","senior"], revSys:["preSenior","senior"],
+  revFunc:["preSenior","senior"],
   /* 5–7: геометрические понятия, элементы треугольника, площади, окружность и круг,
      объём параллелепипеда, проценты и пропорции */
   geoBasics:["middle","preSenior","senior"], geoQuadArea:["middle","preSenior","senior"],

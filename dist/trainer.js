@@ -3062,6 +3062,120 @@ function genSystemWordMC(){
   };
 }
 
+/* ============================================================
+   ПОВТОРЕНИЕ БАЗЫ 8–11 (модуль 1, уроки intro1–6)
+   ============================================================ */
+function revPick(correct, candidates){
+  const out = [];
+  for(const raw of candidates){
+    const c = Number(raw);
+    if(Number.isFinite(c) && c !== correct && !out.includes(c)) out.push(c);
+    if(out.length === 3) break;
+  }
+  let bump = 1;
+  while(out.length < 3){
+    const c = correct + (bump % 2 ? bump : -bump);
+    if(c !== correct && !out.includes(c)) out.push(c);
+    bump++;
+  }
+  return out.map(String);
+}
+function genRevPowerRootMC(){
+  const SUP = {"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+  const sup = n => String(n).split("").map(d => SUP[d]).join("");
+  if(Math.random() < 0.5){
+    const r = rnd([4,5,6,7,8,9,10,11,12,13,14,15]);
+    const n = r*r;
+    const {opts,correctIdx} = buildMC(String(r), revPick(r, [r+1, r-1, Math.round(n/2), r+2, r*2]));
+    return {
+      topic:{ru:"Степени и корни",ua:"Степені й корені"},
+      format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+      question:{ru:`Вычислите √${n}.`,ua:`Обчисліть √${n}.`},
+      hint:{ru:"Подберите число, квадрат которого равен подкоренному выражению.",ua:"Доберіть число, квадрат якого дорівнює підкореневому виразу."},
+      solution:{ru:`√${n} = ${r}, потому что ${r}² = ${n}.`,ua:`√${n} = ${r}, бо ${r}² = ${n}.`},
+      options:{ru:opts,ua:opts}, correct:correctIdx
+    };
+  }
+  const base = rnd([2,3,5]);
+  const exp = rnd([2,3]);
+  const result = Math.pow(base,exp);
+  const {opts,correctIdx} = buildMC(String(result), revPick(result, [base*exp, result+base, result-base, result+1]));
+  return {
+    topic:{ru:"Степени и корни",ua:"Степені й корені"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Вычислите ${base}${sup(exp)}.`,ua:`Обчисліть ${base}${sup(exp)}.`},
+    hint:{ru:"Степень — это произведение одинаковых множителей.",ua:"Степінь — це добуток однакових множників."},
+    solution:{ru:`${base}${sup(exp)} = ${result}.`,ua:`${base}${sup(exp)} = ${result}.`},
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genRevExprShort(){
+  const a = rnd([2,3,4,5,6]);
+  const b = rnd([1,2,3,4]);
+  const c = rnd(Array.from({length:a+b-1},(_,i)=>i+1));
+  const x0 = rnd([2,3,4,5]);
+  const coef = a + b - c;
+  const result = coef * x0;
+  return {
+    topic:{ru:"Преобразование выражений",ua:"Перетворення виразів"},
+    format:{ru:"целое число",ua:"ціле число"},
+    question:{ru:`Найдите значение выражения ${a}x + ${b}x − ${c}x при x = ${x0}.`,ua:`Знайдіть значення виразу ${a}x + ${b}x − ${c}x при x = ${x0}.`},
+    hint:{ru:"Сначала приведите подобные слагаемые, затем подставьте значение x.",ua:"Спочатку зведіть подібні доданки, потім підставте значення x."},
+    solution:{ru:`${a}x + ${b}x − ${c}x = ${coef}x. При x = ${x0}: ${coef}·${x0} = ${result}.`,ua:`${a}x + ${b}x − ${c}x = ${coef}x. При x = ${x0}: ${coef}·${x0} = ${result}.`},
+    expected:result, correctLabel:String(result),
+    check(input){ const v=parseAnswer(input); return !isNaN(v) && v===result; }
+  };
+}
+function genRevRatMC(){
+  const a = rnd([2,3,4,5,6,7]);
+  const a2 = a*a;
+  const correct = "x − " + a;
+  const {opts,correctIdx} = buildMC(correct, ["x + " + a, "x² − " + a2, "x"]);
+  return {
+    topic:{ru:"Дробно-рациональные выражения",ua:"Дробово-раціональні вирази"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Упростите выражение (x² − ${a2}) / (x + ${a}).`,ua:`Спростіть вираз (x² − ${a2}) / (x + ${a}).`},
+    hint:{ru:`Разложите числитель как разность квадратов: (x + ${a})(x − ${a}), и сократите общий множитель x + ${a}.`,ua:`Розкладіть чисельник як різницю квадратів: (x + ${a})(x − ${a}), і скоротіть спільний множник x + ${a}.`},
+    solution:{ru:`x² − ${a2} = (x + ${a})(x − ${a}). Делим числитель и знаменатель на x + ${a} (ОДЗ: x ≠ −${a}) и получаем x − ${a}.`,ua:`x² − ${a2} = (x + ${a})(x − ${a}). Ділимо чисельник і знаменник на x + ${a} (ОДЗ: x ≠ −${a}) і отримуємо x − ${a}.`},
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genRevSysShort(){
+  const x = rnd([4,5,6,7,8]);
+  const y = rnd([1,2,3].filter(v => v < x));
+  const s = x + y;
+  const d = x - y;
+  const answer = `${x};${y}`;
+  return {
+    topic:{ru:"Системы уравнений",ua:"Системи рівнянь"},
+    format:{ru:"пара через точку с запятой",ua:"пара через крапку з комою"},
+    question:{ru:`Решите систему: x + y = ${s}, x − y = ${d}. Ответ введите в формате x;y (без пробела).`,ua:`Розв'яжіть систему: x + y = ${s}, x − y = ${d}. Відповідь введіть у форматі x;y (без пробілу).`},
+    hint:{ru:"Сложите уравнения, чтобы найти x, затем вычтите, чтобы найти y.",ua:"Додайте рівняння, щоб знайти x, потім відніміть, щоб знайти y."},
+    solution:{ru:`Сложение: 2x = ${s + d} ⇒ x = ${x}. Вычитание: 2y = ${s - d} ⇒ y = ${y}. Ответ (${x}; ${y}).`,ua:`Додавання: 2x = ${s + d} ⇒ x = ${x}. Віднімання: 2y = ${s - d} ⇒ y = ${y}. Відповідь (${x}; ${y}).`},
+    expected:answer, correctLabel:`x = ${x}; y = ${y}`,
+    check(input){
+      const parts = String(input).split(/[;,]/).map(s=>parseAnswer(s));
+      return parts.length===2 && !isNaN(parts[0]) && !isNaN(parts[1]) && parts[0]===x && parts[1]===y;
+    }
+  };
+}
+function genRevFuncMC(){
+  const k = rnd([2,3,4,5]);
+  const b = rnd([-3,-2,-1,1,2,3]);
+  const x0 = rnd([1,2,3,4]);
+  const result = k*x0 + b;
+  const bstr = b > 0 ? ` + ${b}` : ` − ${-b}`;
+  const {opts,correctIdx} = buildMC(String(result), revPick(result, [k*x0 - b, k*(x0+1), result + k, result - k, -result]));
+  return {
+    topic:{ru:"Функции и графики",ua:"Функції та графіки"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`Функция задана формулой y = ${k}x${bstr}. Найдите y при x = ${x0}.`,ua:`Функція задана формулою y = ${k}x${bstr}. Знайдіть y при x = ${x0}.`},
+    hint:{ru:"Подставьте значение x в формулу и выполните действия.",ua:"Підставте значення x у формулу та виконайте дії."},
+    solution:{ru:`y = ${k}·${x0}${bstr} = ${result}.`,ua:`y = ${k}·${x0}${bstr} = ${result}.`},
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+
 /* ---- Уровни тренажёра (НМТ-стиль) ---- */
 const LEVEL_DEFS = [
   {
@@ -3118,6 +3232,11 @@ const LEVEL_DEFS = [
       ,{ id:"m1func", module:1, title:{ru:"Функции и линейная функция",ua:"Функції та лінійна функція"}, desc:{ru:"Значение функции, пересечение с Oy, распознавание",ua:"Значення функції, перетин із Oy, розпізнавання"}, generate: genLinearFuncShort }
       ,{ id:"m1sys", module:1, title:{ru:"Системы линейных уравнений",ua:"Системи лінійних рівнянь"}, desc:{ru:"Решение системы в формате x;y",ua:"Розв’язування системи у форматі x;y"}, generate: genSystemTwoEqShort }
       ,{ id:"m1sysTask", module:1, title:{ru:"Задачи на системы",ua:"Задачі на системи"}, desc:{ru:"Сумма и разность двух величин",ua:"Сума та різниця двох величин"}, generate: genSystemWordMC }
+      ,{ id:"revPower", module:1, title:{ru:"Степени и корни",ua:"Степені й корені"}, desc:{ru:"Значения степеней и квадратных корней",ua:"Значення степенів і квадратних коренів"}, generate: genRevPowerRootMC }
+      ,{ id:"revExpr", module:1, title:{ru:"Преобразование выражений",ua:"Перетворення виразів"}, desc:{ru:"Приведение подобных и подстановка",ua:"Зведення подібних і підстановка"}, generate: genRevExprShort }
+      ,{ id:"revFrac", module:1, title:{ru:"Дробно-рациональные выражения",ua:"Дробово-раціональні вирази"}, desc:{ru:"Сокращение разности квадратов",ua:"Скорочення різниці квадратів"}, generate: genRevRatMC }
+      ,{ id:"revSys", module:1, title:{ru:"Системы уравнений",ua:"Системи рівнянь"}, desc:{ru:"Сумма и разность, ответ x;y",ua:"Сума й різниця, відповідь x;y"}, generate: genRevSysShort }
+      ,{ id:"revFunc", module:1, title:{ru:"Функции и графики",ua:"Функції та графіки"}, desc:{ru:"Значение линейной функции",ua:"Значення лінійної функції"}, generate: genRevFuncMC }
     ]
   },
   {

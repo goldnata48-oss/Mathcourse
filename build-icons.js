@@ -112,10 +112,17 @@ function generateIcons(outDir) {
     const p = drawIcon((x - off) / q, (y - offY) / q, OG_PALETTE);
     return p[3] === 0 ? bg : p;
   });
-  fs.writeFileSync(path.join(outDir, "icon-180.png"), icon(180));
-  fs.writeFileSync(path.join(outDir, "icon-192.png"), icon(192));
-  fs.writeFileSync(path.join(outDir, "icon-512.png"), icon(512));
-  fs.writeFileSync(path.join(outDir, "icon-og.png"), og);
+  /* Атомарная запись через временный файл: файл может быть открыт браузером
+     или просмотрщиком, и прямое усечение тогда падает с UNKNOWN. rename перекрывает. */
+  const writeAtomically = (file, buffer) => {
+    const tmp = file + ".tmp";
+    fs.writeFileSync(tmp, buffer);
+    fs.renameSync(tmp, file);
+  };
+  writeAtomically(path.join(outDir, "icon-180.png"), icon(180));
+  writeAtomically(path.join(outDir, "icon-192.png"), icon(192));
+  writeAtomically(path.join(outDir, "icon-512.png"), icon(512));
+  writeAtomically(path.join(outDir, "icon-og.png"), og);
   return ["icon-180.png", "icon-192.png", "icon-512.png", "icon-og.png"];
 }
 

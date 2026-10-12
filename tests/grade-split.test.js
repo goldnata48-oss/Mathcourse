@@ -10,10 +10,16 @@ const assert = (condition, message) => {
 
 const { lessonGrades, roadmap, lessons, facultative, lessonReadiness } = lib.loadLessons();
 const grade57 = ["middle", "preSenior", "senior"];
+const grade57base = ["middle", "preSenior"];
 const grade89 = ["preSenior", "senior"];
 assert(
   ["m1div","m1frac","m1dec","m1remain","m1power","m1expr","m1ineq","m1mono","m1short",
-    "m1lineq","m1func","m1sys","m1sysTask","geo1","geoTriangles","geo2","geoAreas",
+    "m1lineq","m1func","m1sys","m1sysTask"]
+    .every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade57base)),
+  "5-7 algebra base stays out of 10-11"
+);
+assert(
+  ["geo1","geoTriangles","geo2","geoAreas",
     "geoBasics","geoQuadArea","geoCircleBasics","stereoBox","appRatio"]
     .every(id => JSON.stringify(lessonGrades[id]) === JSON.stringify(grade57)),
   "5-7 lesson set follows the status map"
@@ -100,10 +106,11 @@ assert(
 );
 routeCtx.state.grade = "senior";
 assert(
+  routeCtx.moduleTitle(1, "ru").startsWith("Модуль 1.") &&
   routeCtx.moduleTitle(9, "ru").startsWith("Модуль 9.") &&
   routeCtx.moduleTitle(10, "ru").startsWith("Модуль 10.") &&
   routeCtx.moduleTitle(11, "ru").startsWith("Модуль 11."),
-  "10-11 module numbering remains unchanged"
+  "10-11 course starts with an explicit module 1 and keeps real numbers"
 );
 assert(
   ["seq1","eq1","app1"].every(id =>
@@ -166,6 +173,11 @@ assert(
 JSON.stringify(topicGrades("areaFigures")) === JSON.stringify(["senior"]),
 "the sine-based area topic is restricted to 10-11"
 );
+assert(
+  ["revPower","revExpr","revFrac","revSys","revFunc"]
+    .every(id => JSON.stringify(topicGrades(id)) === JSON.stringify(grade89)),
+  "module 1 review topics are open for 8-9 and 10-11"
+);
 
 const trainerLevels = lib.loadTrainer().__L;
 const testState = { grade: "middle" };
@@ -183,6 +195,8 @@ assert(moduleTests.moduleTestTopicCount(1) >= 3 && moduleTests.moduleTestAvailab
 testState.grade = "senior";
 assert(moduleTests.moduleTestAvailable(6),
 "module 6 test remains available to 10-11");
+assert(moduleTests.moduleTestTopicCount(1) >= 3 && moduleTests.moduleTestAvailable(1),
+"10-11 module 1 review test is available with at least three topics");
 
 const ui = lib.loadUI();
 assert(ui.ru.gradeTitles.middle === "Математика 5–7" &&

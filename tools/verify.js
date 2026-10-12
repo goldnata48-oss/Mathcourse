@@ -114,10 +114,14 @@ function checkRoadmap() {
   const hasGrades = (id, expected) =>
     JSON.stringify(lessonGrades[id]) === JSON.stringify(expected);
   const grades57 = ["middle", "preSenior", "senior"];
+  const grades57base = ["middle", "preSenior"];
   const grades89 = ["preSenior", "senior"];
-  report("5-7 lesson map matches the plan",
+  report("5-7 algebra base stays out of 10-11",
     ["m1div","m1frac","m1dec","m1remain","m1power","m1expr","m1ineq","m1mono","m1short",
-      "m1lineq","m1func","m1sys","m1sysTask","geo1","geoTriangles","geo2","geoAreas",
+      "m1lineq","m1func","m1sys","m1sysTask"]
+      .every(id => hasGrades(id, grades57base)));
+  report("5-7 lesson map matches the plan",
+    ["geo1","geoTriangles","geo2","geoAreas",
       "geoBasics","geoQuadArea","geoCircleBasics","stereoBox","appRatio"]
       .every(id => hasGrades(id, grades57)));
   report("8-9 lesson map matches the plan",
