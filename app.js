@@ -1541,6 +1541,59 @@ function render(){
   } else if(state.mode==="moduletest"){
     document.title = `${UI[state.lang].testKicker} — ${BASE_TITLE}`;
   }
+  applyConsentText();
+}
+
+/* ============================================================
+   COOKIE CONSENT + GATED ANALYTICS
+   GA и Clarity подключаются только после согласия пользователя.
+   ============================================================ */
+const CONSENT_KEY = "mc_consent";
+function loadAnalytics(){
+  if(window.__mcAnalyticsLoaded) return;
+  window.__mcAnalyticsLoaded = true;
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "yvplsr9r1o");
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://www.googletagmanager.com/gtag/js?id=G-CVHX0XCZY3";
+  document.head.appendChild(s);
+  window.gtag("js", new Date());
+  window.gtag("config", "G-CVHX0XCZY3");
+}
+function applyConsentText(){
+  const t = UI[state.lang];
+  const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+  set("cookie-text", t.consentText);
+  set("cookie-accept", t.consentAccept);
+  set("cookie-reject", t.consentReject);
+  set("cookie-policy-link", t.consentPolicy);
+  set("privacy-link", t.consentPolicy);
+  set("cookie-settings", t.cookieSettings);
+}
+function showConsent(){ const el=document.getElementById("cookie-consent"); if(el) el.hidden=false; }
+function hideConsent(){ const el=document.getElementById("cookie-consent"); if(el) el.hidden=true; }
+function setConsent(value){
+  localStorage.setItem(CONSENT_KEY, value);
+  hideConsent();
+  if(value==="granted") loadAnalytics();
+}
+function initConsent(){
+  applyConsentText();
+  const accept = document.getElementById("cookie-accept");
+  const reject = document.getElementById("cookie-reject");
+  const settings = document.getElementById("cookie-settings");
+  if(accept) accept.addEventListener("click", ()=>setConsent("granted"));
+  if(reject) reject.addEventListener("click", ()=>setConsent("denied"));
+  if(settings) settings.addEventListener("click", showConsent);
+  const saved = localStorage.getItem(CONSENT_KEY);
+  if(saved==="granted") loadAnalytics();
+  else if(saved!=="denied") showConsent();
 }
 
 /* ============================================================
@@ -1635,6 +1688,7 @@ document.querySelectorAll(".grade-switch button").forEach(b=>{
 applyGrade(loadSavedGrade());
 
 initMascot();
+initConsent();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));

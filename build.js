@@ -49,6 +49,7 @@ function build() {
   fs.copyFileSync(path.join(root, "icon.svg"), path.join(dist, "icon.svg"));
   fs.copyFileSync(path.join(root, "sitemap.xml"), path.join(dist, "sitemap.xml"));
   fs.copyFileSync(path.join(root, "robots.txt"), path.join(dist, "robots.txt"));
+  fs.copyFileSync(path.join(root, "privacy.html"), path.join(dist, "privacy.html"));
   generateIcons(root);
   generateIcons(dist);
   writeFile(path.join(dist, "sw.js"), sw);

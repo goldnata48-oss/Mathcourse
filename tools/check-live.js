@@ -145,7 +145,7 @@ function post(url, payload) {
 
   console.log("\n=== companion files ===");
   let liveSwBody = null;
-  for (const f of ["sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-180.png", "icon-512.png", "icon-og.png"]) {
+  for (const f of ["sw.js", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-180.png", "icon-512.png", "icon-og.png", "privacy.html"]) {
     try {
       const r = await get(BASE + f);
       if (f === "sw.js") liveSwBody = r.body;
@@ -158,6 +158,17 @@ function post(url, payload) {
   check(robots.status === 200, "robots.txt".padEnd(22) + robots.status + "  " + robots.body.length + " bytes");
   check(robots.body.indexOf("Sitemap: https://roaring-melba-8c60da.netlify.app/sitemap.xml") !== -1,
     "robots.txt points to sitemap.xml");
+
+  console.log("\n=== cookie consent + privacy ===");
+  check(body.indexOf('id="cookie-consent"') > 0, "consent banner present on live page");
+  check(body.indexOf('<script async src="https://www.googletagmanager.com/gtag/js') < 0 &&
+        body.indexOf('<script type="text/javascript">\n    (function(c,l,a,r,i,t,y)') < 0,
+    "analytics not inlined in served HTML (gated by consent)");
+  try {
+    const privacy = await get(BASE + "privacy.html");
+    check(privacy.status === 200 && privacy.body.indexOf("Microsoft Clarity") > 0,
+      "privacy.html live (HTTP " + privacy.status + ")");
+  } catch (e) { check(false, "ERR privacy.html " + e.message); }
 
   let localTag = "none";
   try {

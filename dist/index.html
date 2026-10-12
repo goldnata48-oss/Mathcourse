@@ -7,22 +7,6 @@
 <meta name="description" content="Интерактивный курс математики: теория, формулы и тренажёр задач для разных классов.">
 <meta name="google-site-verification" content="SkkZIpE56F4gAJ7e4c1Vly7MOxsIVyD05GSXIy4Gd90" />
 <meta name="theme-color" content="#33415C">
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "yvplsr9r1o");
-</script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-CVHX0XCZY3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-CVHX0XCZY3');
-</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Маткурс: курс и тренажёр по математике">
 <meta property="og:description" content="Теория, интерактивные уроки и тренажёр задач по математике для разных классов.">
@@ -1217,6 +1201,24 @@
 [data-grade="junior"] .lesson-body{font-size:18px;}
 [data-grade="junior"] .check-block.kid h3{font-size:22px;}
 
+/* ---------- cookie consent + privacy link ---------- */
+#sidebar-foot{border-top:1px solid var(--sidebar-border);margin-top:10px;padding:12px 16px 16px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;}
+#sidebar-foot a,#sidebar-foot .linklike{color:var(--sidebar-ink-soft);text-decoration:underline;text-align:left;font:inherit;background:none;border:none;padding:0;cursor:pointer;}
+#sidebar-foot a:hover,#sidebar-foot .linklike:hover{color:var(--sidebar-ink);}
+.cookie-consent{position:fixed;left:16px;right:16px;bottom:16px;z-index:1200;max-width:640px;margin:0 auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:0 12px 34px rgba(0,0,0,.22);}
+.cookie-consent[hidden]{display:none;}
+.cookie-text{margin:0 0 12px;font-size:14px;line-height:1.5;color:var(--ink-soft);}
+.cookie-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+.cookie-btn{font:600 14px var(--sans);padding:9px 18px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:border-color .12s,background .12s;}
+.cookie-btn:hover{border-color:var(--accent);}
+.cookie-btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.cookie-btn-primary:hover{opacity:.92;}
+.cookie-link{margin-left:auto;font-size:13px;color:var(--ink-soft);text-decoration:underline;}
+@media (max-width:520px){
+  .cookie-actions{align-items:stretch;}
+  .cookie-link{margin-left:0;flex-basis:100%;}
+}
+
   </style>
 </head>
 <body>
@@ -1251,6 +1253,10 @@
     <button id="btn-mode-trainer" type="button" aria-pressed="false">Тренажёр</button>
   </div>
   <nav id="module-nav" aria-label="Навигация по урокам"></nav>
+  <div id="sidebar-foot">
+    <button id="cookie-settings" type="button" class="linklike"></button>
+    <a href="privacy.html" id="privacy-link"></a>
+  </div>
 </aside>
 
 <main id="main"></main>
@@ -1279,6 +1285,15 @@
     <span id="mascot-ping" aria-hidden="true"></span>
   </button>
 </div>
+<div id="cookie-consent" class="cookie-consent" role="dialog" aria-modal="false" aria-labelledby="cookie-text" hidden>
+  <p id="cookie-text" class="cookie-text"></p>
+  <div class="cookie-actions">
+    <button id="cookie-accept" type="button" class="cookie-btn cookie-btn-primary"></button>
+    <button id="cookie-reject" type="button" class="cookie-btn"></button>
+    <a href="privacy.html" id="cookie-policy-link" class="cookie-link"></a>
+  </div>
+</div>
+
   <script>
 /* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
 const UI = {
@@ -1361,7 +1376,12 @@ const UI = {
     testReviewPractice:"Потренировать: {topic}",
     testReviewAllDone:"Отличный раунд! Все темы этого модуля готовы к новому рекорду.",
     interactive:"Интерактив", progress:"Прогресс", previousLesson:"Шаг назад", nextLesson:"Шаг вперёд", testTimer:"Осталось времени", timeUp:"Время вышло. Тест отправлен автоматически.", minutes:"мин", search:"Поиск уроков и формул", searchEmpty:"Ничего не найдено", favorite:"В избранное", unfavorite:"Убрать из избранного", completed:"Выполнено", notCompleted:"Не выполнено", openMenu:"Открыть меню", closeMenu:"Закрыть меню", lessonNav:"Навигация по урокам", themeToggle:"Переключить тему", nmtResources:"Материалы НМТ", nmtReviews:"Разборы формата НМТ", videos:"Видео по сложным темам", downloadCheatsheet:"Скачать шпаргалку PDF", videoUnavailable:"Видео загружается с YouTube",
-    angle:"Угол", radians:"радианы", degrees:"градусы", point:"Точка (cos α; sin α)"
+    angle:"Угол", radians:"радианы", degrees:"градусы", point:"Точка (cos α; sin α)",
+    consentText:"Мы используем cookie и сервисы аналитики (Google Analytics, Microsoft Clarity), чтобы понимать, как используется курс. Аналитика включается только с вашего согласия.",
+    consentAccept:"Принять",
+    consentReject:"Отклонить",
+    consentPolicy:"Политика конфиденциальности",
+    cookieSettings:"Настройки cookie"
   },
   ua:{
     appTitle:"Математика 10–11",
@@ -1442,7 +1462,12 @@ const UI = {
     testReviewPractice:"Потренувати: {topic}",
     testReviewAllDone:"Чудовий раунд! Усі теми цього модуля готові до нового рекорду.",
     interactive:"Інтерактив", progress:"Прогрес", previousLesson:"Крок назад", nextLesson:"Крок уперед", testTimer:"Залишилось часу", timeUp:"Час вийшов. Тест надіслано автоматично.", minutes:"хв", search:"Пошук уроків і формул", searchEmpty:"Нічого не знайдено", favorite:"До обраного", unfavorite:"Прибрати з обраного", completed:"Виконано", notCompleted:"Не виконано", openMenu:"Відкрити меню", closeMenu:"Закрити меню", lessonNav:"Навігація по уроках", themeToggle:"Перемкнути тему", nmtResources:"Матеріали НМТ", nmtReviews:"Розбори формату НМТ", videos:"Відео зі складних тем", downloadCheatsheet:"Завантажити шпаргалку PDF", videoUnavailable:"Відео завантажується з YouTube",
-    angle:"Кут", radians:"радіани", degrees:"градуси", point:"Точка (cos α; sin α)"
+    angle:"Кут", radians:"радіани", degrees:"градуси", point:"Точка (cos α; sin α)",
+    consentText:"Ми використовуємо cookie та сервіси аналітики (Google Analytics, Microsoft Clarity), щоб розуміти, як використовується курс. Аналітика вмикається лише за вашою згодою.",
+    consentAccept:"Прийняти",
+    consentReject:"Відхилити",
+    consentPolicy:"Політика конфіденційності",
+    cookieSettings:"Налаштування cookie"
   }
 };
 
@@ -22971,6 +22996,59 @@ function render(){
   } else if(state.mode==="moduletest"){
     document.title = `${UI[state.lang].testKicker} — ${BASE_TITLE}`;
   }
+  applyConsentText();
+}
+
+/* ============================================================
+   COOKIE CONSENT + GATED ANALYTICS
+   GA и Clarity подключаются только после согласия пользователя.
+   ============================================================ */
+const CONSENT_KEY = "mc_consent";
+function loadAnalytics(){
+  if(window.__mcAnalyticsLoaded) return;
+  window.__mcAnalyticsLoaded = true;
+  (function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  })(window, document, "clarity", "script", "yvplsr9r1o");
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function(){ window.dataLayer.push(arguments); };
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://www.googletagmanager.com/gtag/js?id=G-CVHX0XCZY3";
+  document.head.appendChild(s);
+  window.gtag("js", new Date());
+  window.gtag("config", "G-CVHX0XCZY3");
+}
+function applyConsentText(){
+  const t = UI[state.lang];
+  const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+  set("cookie-text", t.consentText);
+  set("cookie-accept", t.consentAccept);
+  set("cookie-reject", t.consentReject);
+  set("cookie-policy-link", t.consentPolicy);
+  set("privacy-link", t.consentPolicy);
+  set("cookie-settings", t.cookieSettings);
+}
+function showConsent(){ const el=document.getElementById("cookie-consent"); if(el) el.hidden=false; }
+function hideConsent(){ const el=document.getElementById("cookie-consent"); if(el) el.hidden=true; }
+function setConsent(value){
+  localStorage.setItem(CONSENT_KEY, value);
+  hideConsent();
+  if(value==="granted") loadAnalytics();
+}
+function initConsent(){
+  applyConsentText();
+  const accept = document.getElementById("cookie-accept");
+  const reject = document.getElementById("cookie-reject");
+  const settings = document.getElementById("cookie-settings");
+  if(accept) accept.addEventListener("click", ()=>setConsent("granted"));
+  if(reject) reject.addEventListener("click", ()=>setConsent("denied"));
+  if(settings) settings.addEventListener("click", showConsent);
+  const saved = localStorage.getItem(CONSENT_KEY);
+  if(saved==="granted") loadAnalytics();
+  else if(saved!=="denied") showConsent();
 }
 
 /* ============================================================
@@ -23065,6 +23143,7 @@ document.querySelectorAll(".grade-switch button").forEach(b=>{
 applyGrade(loadSavedGrade());
 
 initMascot();
+initConsent();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));

@@ -79,7 +79,12 @@ const UI = {
     testReviewPractice:"Потренировать: {topic}",
     testReviewAllDone:"Отличный раунд! Все темы этого модуля готовы к новому рекорду.",
     interactive:"Интерактив", progress:"Прогресс", previousLesson:"Шаг назад", nextLesson:"Шаг вперёд", testTimer:"Осталось времени", timeUp:"Время вышло. Тест отправлен автоматически.", minutes:"мин", search:"Поиск уроков и формул", searchEmpty:"Ничего не найдено", favorite:"В избранное", unfavorite:"Убрать из избранного", completed:"Выполнено", notCompleted:"Не выполнено", openMenu:"Открыть меню", closeMenu:"Закрыть меню", lessonNav:"Навигация по урокам", themeToggle:"Переключить тему", nmtResources:"Материалы НМТ", nmtReviews:"Разборы формата НМТ", videos:"Видео по сложным темам", downloadCheatsheet:"Скачать шпаргалку PDF", videoUnavailable:"Видео загружается с YouTube",
-    angle:"Угол", radians:"радианы", degrees:"градусы", point:"Точка (cos α; sin α)"
+    angle:"Угол", radians:"радианы", degrees:"градусы", point:"Точка (cos α; sin α)",
+    consentText:"Мы используем cookie и сервисы аналитики (Google Analytics, Microsoft Clarity), чтобы понимать, как используется курс. Аналитика включается только с вашего согласия.",
+    consentAccept:"Принять",
+    consentReject:"Отклонить",
+    consentPolicy:"Политика конфиденциальности",
+    cookieSettings:"Настройки cookie"
   },
   ua:{
     appTitle:"Математика 10–11",
@@ -160,7 +165,12 @@ const UI = {
     testReviewPractice:"Потренувати: {topic}",
     testReviewAllDone:"Чудовий раунд! Усі теми цього модуля готові до нового рекорду.",
     interactive:"Інтерактив", progress:"Прогрес", previousLesson:"Крок назад", nextLesson:"Крок уперед", testTimer:"Залишилось часу", timeUp:"Час вийшов. Тест надіслано автоматично.", minutes:"хв", search:"Пошук уроків і формул", searchEmpty:"Нічого не знайдено", favorite:"До обраного", unfavorite:"Прибрати з обраного", completed:"Виконано", notCompleted:"Не виконано", openMenu:"Відкрити меню", closeMenu:"Закрити меню", lessonNav:"Навігація по уроках", themeToggle:"Перемкнути тему", nmtResources:"Матеріали НМТ", nmtReviews:"Розбори формату НМТ", videos:"Відео зі складних тем", downloadCheatsheet:"Завантажити шпаргалку PDF", videoUnavailable:"Відео завантажується з YouTube",
-    angle:"Кут", radians:"радіани", degrees:"градуси", point:"Точка (cos α; sin α)"
+    angle:"Кут", radians:"радіани", degrees:"градуси", point:"Точка (cos α; sin α)",
+    consentText:"Ми використовуємо cookie та сервіси аналітики (Google Analytics, Microsoft Clarity), щоб розуміти, як використовується курс. Аналітика вмикається лише за вашою згодою.",
+    consentAccept:"Прийняти",
+    consentReject:"Відхилити",
+    consentPolicy:"Політика конфіденційності",
+    cookieSettings:"Налаштування cookie"
   }
 };
 

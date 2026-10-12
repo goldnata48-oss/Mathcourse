@@ -541,6 +541,32 @@ function checkKvantik() {
   }
 }
 
+function checkConsent() {
+  section("cookie consent + privacy");
+  const html = read("index.html");
+  const app = read("app.js");
+  const i18n = read("i18n.js");
+  report("consent banner present in index.html",
+    html.indexOf('id="cookie-consent"') > 0 && html.indexOf('id="cookie-accept"') > 0);
+  report("privacy link present in index.html", html.indexOf('href="privacy.html"') > 0);
+  report("analytics gated behind consent in app.js",
+    app.indexOf("function loadAnalytics") > 0 && app.indexOf("mc_consent") > 0);
+  report("analytics scripts removed from index.html head",
+    html.indexOf("googletagmanager.com") < 0 && html.indexOf("clarity.ms/tag/") < 0);
+  report("consent strings exist in ru and ua",
+    (i18n.match(/consentText:/g) || []).length === 2 &&
+    (i18n.match(/consentAccept:/g) || []).length === 2);
+  try {
+    const privacy = read("privacy.html");
+    report("privacy.html mentions analytics providers",
+      privacy.indexOf("Google Analytics") > 0 && privacy.indexOf("Microsoft Clarity") > 0);
+    report("privacy.html has RU and UA versions",
+      privacy.indexOf('lang="ru"') > 0 && privacy.indexOf('lang="uk"') > 0);
+  } catch (e) {
+    report("privacy.html exists", false, e.message.split("\n")[0]);
+  }
+}
+
 function checkDist() {
   section("dist freshness");
   try {
@@ -560,6 +586,14 @@ function checkDist() {
       "run build to refresh dist/robots.txt");
   } catch (e) {
     report("dist/robots.txt exists", false, e.message.split("\n")[0]);
+  }
+  try {
+    const privacy = read("dist/privacy.html");
+    report("dist/privacy.html exists and mentions providers",
+      privacy.indexOf("Google Analytics") > 0 && privacy.indexOf("Microsoft Clarity") > 0,
+      "run build to refresh dist/privacy.html");
+  } catch (e) {
+    report("dist/privacy.html exists", false, e.message.split("\n")[0]);
   }
 }
 
@@ -586,6 +620,7 @@ if (onlyGenerators) {
   checkMix();
   checkA11y();
   checkKvantik();
+  checkConsent();
   checkDist();
   if (withTests) runChild("tests", "tests/run.js");
   if (withLive) runChild("live deployment", "tools/check-live.js");

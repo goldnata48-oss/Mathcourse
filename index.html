@@ -7,22 +7,6 @@
 <meta name="description" content="Интерактивный курс математики: теория, формулы и тренажёр задач для разных классов.">
 <meta name="google-site-verification" content="SkkZIpE56F4gAJ7e4c1Vly7MOxsIVyD05GSXIy4Gd90" />
 <meta name="theme-color" content="#33415C">
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "yvplsr9r1o");
-</script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-CVHX0XCZY3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-CVHX0XCZY3');
-</script>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Маткурс: курс и тренажёр по математике">
 <meta property="og:description" content="Теория, интерактивные уроки и тренажёр задач по математике для разных классов.">
@@ -77,6 +61,10 @@
     <button id="btn-mode-trainer" type="button" aria-pressed="false">Тренажёр</button>
   </div>
   <nav id="module-nav" aria-label="Навигация по урокам"></nav>
+  <div id="sidebar-foot">
+    <button id="cookie-settings" type="button" class="linklike"></button>
+    <a href="privacy.html" id="privacy-link"></a>
+  </div>
 </aside>
 
 <main id="main"></main>
@@ -110,6 +98,15 @@
 <script src="lessons.js" defer></script>
 <script src="trainer.js" defer></script>
 <script src="app.js" defer></script>
+
+<div id="cookie-consent" class="cookie-consent" role="dialog" aria-modal="false" aria-labelledby="cookie-text" hidden>
+  <p id="cookie-text" class="cookie-text"></p>
+  <div class="cookie-actions">
+    <button id="cookie-accept" type="button" class="cookie-btn cookie-btn-primary"></button>
+    <button id="cookie-reject" type="button" class="cookie-btn"></button>
+    <a href="privacy.html" id="cookie-policy-link" class="cookie-link"></a>
+  </div>
+</div>
 
 </body>
 </html>
