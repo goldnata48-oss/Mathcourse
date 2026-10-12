@@ -549,9 +549,17 @@ function checkDist() {
     const sw = read("dist/sw.js");
     const m = sw.match(/mathcourse-([a-f0-9]{8})/);
     report("dist/sw.js cache tag matches sources", !!m && m[1] === cacheTag,
-      "sources=" + cacheTag + " dist=" + (m ? m[1] : "none") + " (run `npm run build`)");
+      m ? m[1] + " != " + cacheTag : "cache tag not found");
   } catch (e) {
     report("dist/sw.js cache tag matches sources", false, e.message);
+  }
+  try {
+    const robots = read("dist/robots.txt");
+    report("dist/robots.txt points to sitemap.xml",
+      robots.indexOf("Sitemap: https://roaring-melba-8c60da.netlify.app/sitemap.xml") !== -1,
+      "run build to refresh dist/robots.txt");
+  } catch (e) {
+    report("dist/robots.txt exists", false, e.message.split("\n")[0]);
   }
 }
 

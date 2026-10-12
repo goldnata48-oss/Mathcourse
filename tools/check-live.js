@@ -153,6 +153,12 @@ function post(url, payload) {
     } catch (e) { check(false, "ERR " + f + " " + e.message); }
   }
 
+  let robots = { status: 0, body: "" };
+  try { robots = await get(BASE + "robots.txt"); } catch (_) { /* leave default */ }
+  check(robots.status === 200, "robots.txt".padEnd(22) + robots.status + "  " + robots.body.length + " bytes");
+  check(robots.body.indexOf("Sitemap: https://roaring-melba-8c60da.netlify.app/sitemap.xml") !== -1,
+    "robots.txt points to sitemap.xml");
+
   let localTag = "none";
   try {
     localTag = (fs.readFileSync(path.join(ROOT, "dist", "sw.js"), "utf8").match(/mathcourse-[a-f0-9]+/) || [])[0] || "none";

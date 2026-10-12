@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://roaring-melba-8c60da.netlify.app/sitemap.xml
