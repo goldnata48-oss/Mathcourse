@@ -351,9 +351,11 @@ const LESSON_HINTS = {
 };
 
 /* ============================================================
-   ПІДКЛЮЧЕННЯ КВАНТИКА ДО n8n (чат: питання → відповідь)
+   КВАНТИК → NETLIFY FUNCTION (чат: питання → відповідь)
+   Раніше ендпоінт був n8n webhook (localhost:5678); тепер
+   serverless-функція на тому ж домені — працює на статику.
    ============================================================ */
-const KVANTIK_ENDPOINT = "http://localhost:5678/webhook/kvantik";
+const KVANTIK_ENDPOINT = "/.netlify/functions/kvantik";
 const KVANTIK_TIMEOUT = 15000;
 const KVANTIK_UI = {
   ru:{

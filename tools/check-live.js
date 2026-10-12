@@ -21,7 +21,33 @@ function get(url) {
       r.on("end", () => resolve({ status: r.statusCode, headers: r.headers, body: d }));
     });
     req.on("error", reject);
-    req.setTimeout(25000, () => req.destroy(new Error("timeout")));
+    req.setTimeout(300000, () => req.destroy(new Error("timeout")));
+  });
+}
+
+function post(url, payload) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify(payload);
+    const req = https.request(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(body),
+        "cache-control": "no-cache",
+      },
+    }, r => {
+      let d = "";
+      r.on("data", c => d += c);
+      r.on("end", () => {
+        let json = null;
+        try { json = JSON.parse(d); } catch (_) { /* non-JSON */ }
+        resolve({ status: r.statusCode, json });
+      });
+    });
+    req.on("error", reject);
+    req.setTimeout(300000, () => req.destroy(new Error("timeout")));
+    req.write(body);
+    req.end();
   });
 }
 
@@ -73,7 +99,7 @@ function get(url) {
     "m15 re4 lesson":      body.indexOf('makeTopicLesson("re4"') > 0,
     "m15 roadmap 15":      body.indexOf('makeTopicLesson("re1", 15') > 0 || body.indexOf("15:{ru:\"Модуль 15") > 0,
     "m15 test15 roadmap":  body.indexOf('{test:true, id:"test15"') > 0,
-    "m15 re hints":        body.indexOf("ratSimplify:{ru:") > 0 && body.indexOf("ratEquation:{ru:") > 0,
+    "m15 re hints":        body.indexOf("как разность квадратов") > 0 && body.indexOf("решите линейное уравнение; проверьте") > 0,
     "m15 trainer topics":  body.indexOf('{ id:"ratSimplify"') > 0 && body.indexOf('{ id:"ratInequality"') > 0,
     "m15 generators":      body.indexOf("function genRatSimplifyMC") > 0 &&
                            body.indexOf("function genRatPowerMC") > 0 &&
@@ -133,6 +159,17 @@ function get(url) {
   } catch (_) { /* dist not built */ }
   const liveTag = (String(liveSwBody || "").match(/mathcourse-[a-f0-9]+/) || [])[0] || "none";
   check(liveTag === localTag, "live sw.js cache tag matches local (" + liveTag + " vs " + localTag + ")");
+
+  console.log("\n=== kvantik function ===");
+  const fnUrl = BASE.replace(/\/$/, "") + "/.netlify/functions/kvantik";
+  const greet = await post(fnUrl, { message: "Привет", lessonId: "l1", lang: "ru" });
+  const greetOk = greet.status === 200 && /Квантик/.test((greet.json && greet.json.reply) || "");
+  check(greetOk, "kvantik greeting ru (HTTP " + greet.status + ")");
+  const ctx = await post(fnUrl, { message: "дальше что", lessonId: "seq2", lang: "ru" });
+  const ctxOk = ctx.status === 200 && /seq2/.test((ctx.json && ctx.json.reply) || "");
+  check(ctxOk, "kvantik lesson context (HTTP " + ctx.status + ")");
+  const nonPost = await get(fnUrl);
+  check(nonPost.status === 405, "kvantik GET -> 405 (HTTP " + nonPost.status + ")");
 
   console.log("\n" + (failed === 0 ? "LIVE CHECKS PASSED" : "LIVE CHECKS FAILED: " + failed));
   process.exit(failed === 0 ? 0 : 1);

@@ -35,6 +35,7 @@ function checkSyntax() {
   const files = [
     "i18n.js", "lessons.js", "trainer.js", "app.js", "build.js", "build-icons.js", "sw.js",
     "tools/lib.js", "tools/deploy.js", "tools/verify.js", "tools/check-live.js",
+    "netlify/functions/kvantik.js",
   ];
   const bad = [];
   for (const f of files) {
@@ -516,6 +517,30 @@ function checkA11y() {
   report("decorative glyphs aria-hidden", app.includes('aria-hidden') || html.includes('aria-hidden'));
 }
 
+function checkKvantik() {
+  section("kvantik chat endpoint");
+  const fn = read("netlify/functions/kvantik.js");
+  const app = read("app.js");
+  report("netlify function exports a handler",
+    /exports\.handler\s*=\s*async\s+function/.test(fn));
+  report("app endpoint points to the netlify function",
+    /KVANTIK_ENDPOINT\s*=\s*"\/\.netlify\/functions\/kvantik"/.test(app));
+  report("no stale localhost n8n endpoint",
+    !/KVANTIK_ENDPOINT\s*=\s*["']http/.test(app));
+  report("function has bilingual (ru/ua) replies",
+    /Привет/.test(fn) && /Привіт/.test(fn));
+  report("function keeps the lesson context",
+    /lessonId/.test(fn) && /exports\.handler/.test(fn));
+  try {
+    const { loadFunctions } = require(path.join(ROOT, "tools/deploy.js"));
+    const fns = loadFunctions();
+    report("deploy bundles the function zip (sha256)",
+      fns.some(f => f.name === "kvantik" && f.sha256.length === 64));
+  } catch (e) {
+    report("deploy bundles the function zip (sha256)", false, e.message.split("\n")[0]);
+  }
+}
+
 function checkDist() {
   section("dist freshness");
   try {
@@ -552,6 +577,7 @@ if (onlyGenerators) {
   checkGenerators();
   checkMix();
   checkA11y();
+  checkKvantik();
   checkDist();
   if (withTests) runChild("tests", "tests/run.js");
   if (withLive) runChild("live deployment", "tools/check-live.js");

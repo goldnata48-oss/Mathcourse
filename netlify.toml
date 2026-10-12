@@ -1,0 +1,12 @@
+# Netlify configuration — «Маткурс»
+# Локальная разработка: `netlify dev` собирает site from dist/ и поднимает функции.
+
+[build]
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[build.environment]
+  NODE_VERSION = "20"

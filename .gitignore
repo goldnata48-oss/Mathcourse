@@ -1,6 +1,10 @@
 # Local Netlify folder
 .netlify
 
+# Node/npm artifacts
+node_modules/
+package-lock.json
+
 # Local Python env and build leftovers
 .venv
 *.tmp
