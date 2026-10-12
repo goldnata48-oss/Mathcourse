@@ -64,7 +64,7 @@ function post(url, payload) {
 
   const pageHtml = page.body;
   const jsParts = [];
-  for (const f of ["i18n.js", "lessons.js", "trainer.js", "app.js"]) {
+  for (const f of ["i18n.js", "lessons.js", "lesson-data.js", "trainer.js", "app.js"]) {
     try { jsParts.push((await get(BASE + f)).body); }
     catch (e) { console.log("  WARN could not load " + f + ": " + e.message); }
   }

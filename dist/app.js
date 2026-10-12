@@ -1685,13 +1685,36 @@ function loadSavedGrade(){
 document.querySelectorAll(".grade-switch button").forEach(b=>{
   b.addEventListener("click", ()=>{ applyGrade(b.dataset.grade); render(); });
 });
-applyGrade(loadSavedGrade());
-
-initMascot();
-initConsent();
-
-if("serviceWorker" in navigator){
-  window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+/* Данные уроков (массив LESSONS) лежат в отдельном файле lesson-data.js и
+   грузятся динамически: HTML и скрипты стартуют сразу, тяжёлые данные —
+   отдельным запросом. Если LESSONS уже определён (например, в тестах),
+   грузить нечего. */
+function loadLessonsData(){
+  return new Promise((resolve, reject)=>{
+    if(typeof LESSONS !== "undefined" && Array.isArray(LESSONS) && LESSONS.length){ resolve(); return; }
+    const script = document.createElement("script");
+    script.src = "lesson-data.js";
+    script.onload = ()=>resolve();
+    script.onerror = ()=>reject(new Error("lesson-data.js load failed"));
+    document.head.appendChild(script);
+  });
 }
 
-render();
+function boot(){
+  applyGrade(loadSavedGrade());
+  initMascot();
+  initConsent();
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+  }
+  render();
+}
+
+if(typeof LESSONS !== "undefined" && Array.isArray(LESSONS) && LESSONS.length){
+  boot();
+} else {
+  loadLessonsData().then(boot).catch(()=>{
+    const main = document.getElementById("main");
+    if(main) main.textContent = "Не удалось загрузить данные курса · Не вдалося завантажити дані курсу";
+  });
+}

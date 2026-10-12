@@ -5,6 +5,8 @@ const vm = require("vm");
 
 const ROOT = path.join(__dirname, "..");
 const read = rel => fs.readFileSync(path.join(ROOT, rel), "utf8");
+/* lessons.js (фабрики/метаданные) + lesson-data.js (массив LESSONS). */
+const readLessonsSource = () => read("lessons.js") + "\n" + read("lesson-data.js");
 
 /* Extract a top-level `function name(...) {...}` block by brace matching. */
 function extractFn(src, name) {
@@ -40,7 +42,7 @@ const DEG_TABLE = [
 function loadLessons() {
   const ctx = {};
   vm.createContext(ctx);
-  vm.runInContext(read("lessons.js") + "\n;var __L = LESSONS, __R = ROADMAP, __FAC = FACULTATIVE, __F = buildFinalQuestions, __G = LESSON_GRADES, __TG = TOPIC_GRADES, __LR = LESSON_READINESS;", ctx);
+  vm.runInContext(readLessonsSource() + "\n;var __L = LESSONS, __R = ROADMAP, __FAC = FACULTATIVE, __F = buildFinalQuestions, __G = LESSON_GRADES, __TG = TOPIC_GRADES, __LR = LESSON_READINESS;", ctx);
   return { lessons: ctx.__L, roadmap: ctx.__R, facultative: ctx.__FAC,
     buildFinalQuestions: ctx.__F, lessonGrades: ctx.__G, topicGrades: ctx.__TG,
     lessonReadiness: ctx.__LR };
@@ -143,4 +145,4 @@ function lessonQuizStats(src, lessons) {
   });
 }
 
-module.exports = { ROOT, read, extractFn, TRAINER_STUB, loadLessons, loadUI, loadTrainer, makeRealm, lessonQuizStats };
+module.exports = { ROOT, read, readLessonsSource, extractFn, TRAINER_STUB, loadLessons, loadUI, loadTrainer, makeRealm, lessonQuizStats };

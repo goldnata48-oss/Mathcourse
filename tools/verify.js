@@ -33,7 +33,7 @@ function section(title) { console.log("\n== " + title + " =="); }
 function checkSyntax() {
   section("syntax");
   const files = [
-    "i18n.js", "lessons.js", "trainer.js", "app.js", "build.js", "build-icons.js", "sw.js",
+    "i18n.js", "lessons.js", "lesson-data.js", "trainer.js", "app.js", "build.js", "build-icons.js", "sw.js",
     "tools/lib.js", "tools/deploy.js", "tools/verify.js", "tools/check-live.js",
     "netlify/functions/kvantik.js",
   ];
@@ -45,7 +45,7 @@ function checkSyntax() {
   report("source files (" + files.length + ")", bad.length === 0, bad.join(" | "));
 
   try {
-    new vm.Script([read("i18n.js"), read("lessons.js"), read("trainer.js"), read("app.js")].join("\n"), { filename: "bundle.js" });
+    new vm.Script([read("i18n.js"), read("lessons.js"), read("lesson-data.js"), read("trainer.js"), read("app.js")].join("\n"), { filename: "bundle.js" });
     report("concatenated bundle", true);
   } catch (e) { report("concatenated bundle", false, e.message); }
 }
@@ -65,7 +65,7 @@ function checkI18n() {
   let m;
   const re1 = /\bL\.([A-Za-z_][A-Za-z0-9_]*)/g;
   while ((m = re1.exec(appSrc))) used.add(m[1]);
-  for (const f of ["app.js", "lessons.js"]) {
+  for (const f of ["app.js", "lessons.js", "lesson-data.js"]) {
     const src = read(f);
     const re2 = /UI\[state\.lang\]\.([A-Za-z_][A-Za-z0-9_]*)/g;
     while ((m = re2.exec(src))) used.add(m[1]);
@@ -250,7 +250,7 @@ function checkRoadmap() {
     finalIds.join(",") === "final1,final2,final3,final4,final5,final6");
   const guessHeavy = [];
   {
-    const src = read("lessons.js");
+    const src = read("lesson-data.js");
     for (const stat of lib.lessonQuizStats(src, lessons)) {
       if (stat.corrects.length < 2) continue;
       const first = stat.corrects.filter(x => x === 0).length;
@@ -494,7 +494,7 @@ function checkMix() {
   const cyr = /[\u0400-\u04FF]/;
   const lat = /[A-Za-z]/;
   const hits = [];
-  for (const f of ["i18n.js", "lessons.js", "trainer.js", "app.js"]) {
+  for (const f of ["i18n.js", "lessons.js", "lesson-data.js", "trainer.js", "app.js"]) {
     read(f).split(/\r?\n/).forEach((line, i) => {
       const toks = line.match(/[\u0400-\u04FFA-Za-z]{2,}/g) || [];
       for (const tok of toks) if (cyr.test(tok) && lat.test(tok) && !allow.test(tok)) hits.push(f + ":" + (i + 1) + " " + tok);
@@ -653,7 +653,15 @@ function checkDist() {
   } catch (e) {
     report("dist/index.html exists", false, e.message.split("\n")[0]);
   }
-  for (const f of ["theme.css", "styles.css", "i18n.js", "lessons.js", "trainer.js", "app.js"]) {
+  try {
+    const sc = read("dist/app.js");
+    report("dist/app.js lazy-loads lesson-data.js",
+      /loadLessonsData/.test(read("app.js")) && read("app.js").indexOf('"lesson-data.js"') > 0,
+      "app.js should inject lesson-data.js");
+  } catch (e) {
+    report("dist/index.html lazily loads lesson data", false, e.message.split("\n")[0]);
+  }
+  for (const f of ["theme.css", "styles.css", "i18n.js", "lessons.js", "lesson-data.js", "trainer.js", "app.js"]) {
     try {
       const n = read("dist/" + f).length;
       report("dist/" + f + " present (" + Math.round(n / 1024) + " KB)", n > 0);

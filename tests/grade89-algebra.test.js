@@ -402,7 +402,7 @@ sweep("genRatInequalityMC: intervals of (x − a)/(x − b) < 0 / > 0", c => {
 /* ---------------- Mini-check answer keys ----------------
    Каждый вопрос мини-проверки в уроках 11–14 пересчитывается здесь заново:
    expected — правильный вариант, который должен стоять на индексе `correct`. */
-const lessonsSrc = lib.read("lessons.js");
+const lessonsSrc = lib.readLessonsSource();
 /* Последний makeTopicLesson может идти перед обычными объектами LESSONS. */
 function nextLesson(start) {
   const nextFactory = lessonsSrc.indexOf("\nmakeTopicLesson(\"", start + 1);

@@ -145,7 +145,7 @@ assert(
 /* темы тренажёра модуля 14 живут в той же ступени, что и его уроки */
 const topicGradesCtx = {};
 vm.createContext(topicGradesCtx);
-vm.runInContext(lib.read("lessons.js") + "\n;var __TG = TOPIC_GRADES;", topicGradesCtx);
+vm.runInContext(lib.readLessonsSource() + "\n;var __TG = TOPIC_GRADES;", topicGradesCtx);
 const topicGrades = id => topicGradesCtx.__TG[id] || [];
 assert(
   ["quadDiscriminant","quadVertexX","quadIneqInterval","quadYAtX","quadApplied","systemWord"]

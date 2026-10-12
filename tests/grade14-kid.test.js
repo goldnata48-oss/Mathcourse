@@ -3,7 +3,7 @@ const vm = require("vm");
 const lib = require("../tools/lib");
 
 const appSrc = lib.read("app.js");
-const lessonsSrc = lib.read("lessons.js");
+const lessonsSrc = lib.readLessonsSource();
 
 class ClassList {
   constructor(el) { this.el = el; this.set = new Set(); }

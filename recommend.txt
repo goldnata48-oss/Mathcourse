@@ -54,7 +54,8 @@ Mathcourse/
   styles.css              основные стили (+ focus-visible)
   theme.css               light/dark + возрастные палитры (data-grade)
   i18n.js                 переводы RU/UA
-  lessons.js              данные уроков + мини-проверки
+  lessons.js              фабрики уроков + метаданные (ROADMAP, GRADE_*, оценка)
+  lesson-data.js          данные уроков (массив LESSONS), грузится лениво из app.js
   trainer.js              генераторы задач (LEVEL_DEFS, 68 тем)
   app.js                  state, навигация, рендеринг, прогресс, статистика
   sw.js                   service worker (кэш app shell)

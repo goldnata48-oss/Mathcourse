@@ -5,14 +5,11 @@
 
 const lib = require("./lib");
 
-const src = lib.read("lessons.js");
+const src = lib.read("lesson-data.js");
 const testSrc = lib.read("tests/grade89-algebra.test.js");
 const data = lib.loadLessons();
 const trainer = lib.loadTrainer();
 const { lessons, roadmap, topicGrades, buildFinalQuestions, lessonGrades } = data;
-ROUTE.junior = Object.keys(roadmap).map(Number).filter(m =>
-  (roadmap[m].lessons || []).some(x => typeof x === "string" && (lessonGrades[x] || []).includes("junior")))
-  .sort((a, b) => a - b);
 
 /* ------------- band routes (mirror of tools/verify.js) ------------- */
 const ROUTE = {
@@ -21,6 +18,9 @@ const ROUTE = {
   preSenior: [1, 5, 6, 7, 8, 11, 12, 13, 14, 15],
   senior: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 };
+ROUTE.junior = Object.keys(roadmap).map(Number).filter(m =>
+  (roadmap[m].lessons || []).some(x => typeof x === "string" && (lessonGrades[x] || []).includes("junior")))
+  .sort((a, b) => a - b);
 
 const inBand = (band, l) => ROUTE[band].includes(l.module);
 const testCount = mods => mods.reduce((a, m) =>
