@@ -170,6 +170,11 @@ function post(url, payload) {
     "index.html under 1 MB (" + Math.round(pageHtml.length / 1024) + " KB)");
   check(pageHtml.indexOf("<script src=\"app.js\"") > 0 || pageHtml.indexOf("<script defer src=\"app.js\"") > 0,
     "scripts external (not inlined in HTML)");
+  try {
+    const ld = pageHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    const data = ld ? JSON.parse(ld[1]) : null;
+    check(!!data && data["@type"] === "Course", "JSON-LD Course present on live page");
+  } catch (e) { check(false, "JSON-LD parses (" + e.message + ")"); }
 
   console.log("\n=== cookie consent + privacy ===");
   check(body.indexOf('id="cookie-consent"') > 0, "consent banner present on live page");

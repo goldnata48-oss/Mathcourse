@@ -567,6 +567,26 @@ function checkConsent() {
   }
 }
 
+function checkJsonLd() {
+  section("structured data (JSON-LD)");
+  const html = read("index.html");
+  const m = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  if (!m) { report("index.html has a JSON-LD block", false); return; }
+  report("index.html has a JSON-LD block", true);
+  let data;
+  try { data = JSON.parse(m[1]); }
+  catch (e) { report("JSON-LD parses as JSON", false, e.message.split("\n")[0]); return; }
+  report("JSON-LD parses as JSON", true);
+  report("JSON-LD is a Course", data["@type"] === "Course");
+  report("JSON-LD has name, description and https url",
+    !!data.name && !!data.description && /^https:\/\//.test(data.url || ""));
+  report("JSON-LD is free and bilingual (ru/uk)",
+    data.isAccessibleForFree === true && Array.isArray(data.inLanguage) &&
+    data.inLanguage.includes("ru") && data.inLanguage.includes("uk"));
+  report("JSON-LD has provider Organization",
+    !!data.provider && data.provider["@type"] === "Organization");
+}
+
 function checkDist() {
   section("dist freshness");
   try {
@@ -578,6 +598,13 @@ function checkDist() {
       m ? m[1] + " != " + cacheTag : "cache tag not found");
   } catch (e) {
     report("dist/sw.js cache tag matches sources", false, e.message);
+  }
+  try {
+    const html = read("dist/index.html");
+    report("dist/index.html carries the JSON-LD block",
+      html.indexOf('"@type": "Course"') > 0, "run build");
+  } catch (e) {
+    report("dist/index.html carries the JSON-LD block", false, e.message.split("\n")[0]);
   }
   try {
     const robots = read("dist/robots.txt");
@@ -640,6 +667,7 @@ if (onlyGenerators) {
   checkA11y();
   checkKvantik();
   checkConsent();
+  checkJsonLd();
   checkDist();
   if (withTests) runChild("tests", "tests/run.js");
   if (withLive) runChild("live deployment", "tools/check-live.js");
