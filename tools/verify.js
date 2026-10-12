@@ -567,6 +567,18 @@ function checkConsent() {
   }
 }
 
+function check404() {
+  section("404 page");
+  try {
+    const s = read("404.html");
+    report("404.html is noindex", /name="robots"\s+content="noindex"/.test(s));
+    report("404.html bilingual (ru + uk)", s.indexOf('lang="ru"') > 0 && s.indexOf('lang="uk"') > 0);
+    report("404.html links to home", /href="\.\/"/.test(s));
+  } catch (e) {
+    report("404.html exists", false, e.message.split("\n")[0]);
+  }
+}
+
 function checkJsonLd() {
   section("structured data (JSON-LD)");
   const html = read("index.html");
@@ -605,6 +617,14 @@ function checkDist() {
       html.indexOf('"@type": "Course"') > 0, "run build");
   } catch (e) {
     report("dist/index.html carries the JSON-LD block", false, e.message.split("\n")[0]);
+  }
+  try {
+    const notFound = read("dist/404.html");
+    report("dist/404.html present and bilingual",
+      notFound.indexOf("Страница не найдена") > 0 && notFound.indexOf("Сторінку не знайдено") > 0,
+      "run build");
+  } catch (e) {
+    report("dist/404.html present", false, e.message.split("\n")[0]);
   }
   try {
     const robots = read("dist/robots.txt");
@@ -667,6 +687,7 @@ if (onlyGenerators) {
   checkA11y();
   checkKvantik();
   checkConsent();
+  check404();
   checkJsonLd();
   checkDist();
   if (withTests) runChild("tests", "tests/run.js");

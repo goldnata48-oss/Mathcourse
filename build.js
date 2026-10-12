@@ -49,6 +49,7 @@ function build() {
   fs.copyFileSync(path.join(root, "sitemap.xml"), path.join(dist, "sitemap.xml"));
   fs.copyFileSync(path.join(root, "robots.txt"), path.join(dist, "robots.txt"));
   fs.copyFileSync(path.join(root, "privacy.html"), path.join(dist, "privacy.html"));
+  fs.copyFileSync(path.join(root, "404.html"), path.join(dist, "404.html"));
 
   const sw = read("sw.js")
     .replace(/const CACHE_NAME = "mathcourse-v1";/, `const CACHE_NAME = "mathcourse-${cacheTag}";`)

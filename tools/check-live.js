@@ -176,6 +176,14 @@ function post(url, payload) {
     check(!!data && data["@type"] === "Course", "JSON-LD Course present on live page");
   } catch (e) { check(false, "JSON-LD parses (" + e.message + ")"); }
 
+  console.log("\n=== 404 page ===");
+  try {
+    const missing = await get(BASE + "no-such-page-" + Date.now());
+    check(missing.status === 404, "missing path returns 404 (HTTP " + missing.status + ")");
+    check(missing.body.indexOf("Страница не найдена") > 0 && missing.body.indexOf("Сторінку не знайдено") > 0,
+      "custom bilingual 404 page served");
+  } catch (e) { check(false, "ERR 404 page " + e.message); }
+
   console.log("\n=== cookie consent + privacy ===");
   check(body.indexOf('id="cookie-consent"') > 0, "consent banner present on live page");
   check(body.indexOf('<script async src="https://www.googletagmanager.com/gtag/js') < 0 &&

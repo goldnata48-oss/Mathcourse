@@ -49,6 +49,8 @@ i18n.js, styles.css, index.html) всегда делать `npm run build`, ин
 -----------
 Mathcourse/
   index.html              разметка (без инлайн-кода)
+  privacy.html            политика конфиденциальности (RU/UA, noindex)
+  404.html                страница «не найдено» (RU/UA, noindex)
   styles.css              основные стили (+ focus-visible)
   theme.css               light/dark + возрастные палитры (data-grade)
   i18n.js                 переводы RU/UA
