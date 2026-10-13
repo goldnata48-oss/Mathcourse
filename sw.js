@@ -8,6 +8,7 @@ const APP_SHELL = [
   "./i18n.js",
   "./lessons.js",
   "./lesson-data.js",
+  "./kid-widgets.js",
   "./trainer.js",
   "./app.js",
   "./manifest.webmanifest",

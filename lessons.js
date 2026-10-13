@@ -508,7 +508,11 @@ const KID_UI = {
   ru:{stars:"⭐ {c} из {t}", done:"Готово! Ты молодец!"},
   ua:{stars:"⭐ {c} з {t}", done:"Готово! Ти молодець!"}
 };
-function makeKidLesson(id, module, title, content, activities){
+const KID_DIFF = {
+  ru:{easy:"лёгкое", middle:"среднее", hard:"сложное"},
+  ua:{easy:"легке", middle:"середнє", hard:"складне"}
+};
+function makeKidLesson(id, module, title, content, activities, interactive){
   return {
     id, module, title,
     html(lang){
@@ -518,6 +522,7 @@ function makeKidLesson(id, module, title, content, activities){
         <p class="kid-lead">${t.lead}</p>
         ${examples ? `<div class="kid-examples">${examples}</div>` : ""}
         ${t.tip ? `<div class="kid-tip">💡 ${t.tip}</div>` : ""}
+        ${interactive ? `<div class="interactive-block kid" id="kid-interactive">${interactive.html(lang)}</div>` : ""}
         <div class="check-block kid">
           <h3>${t.checkTitle}</h3>
           <div id="mini-check"></div>
@@ -526,20 +531,29 @@ function makeKidLesson(id, module, title, content, activities){
     },
     mount(root, lang){
       renderKidCheck(root.querySelector("#mini-check"), lang, activities);
+      if(interactive && typeof interactive.mount === "function"){
+        const host = root.querySelector("#kid-interactive");
+        if(host) interactive.mount(host, lang);
+      }
     }
   };
 }
 function renderKidCheck(container, lang, activities){
   const lessonId = (typeof state !== "undefined" && state.lessonId) ? state.lessonId : null;
-  const zeroCorrect = activities.map(()=>0);
   let rec = lessonId ? state.miniChecks[lessonId] : null;
-  const valid = rec && Array.isArray(rec.choices) && rec.choices.length===activities.length &&
-    Array.isArray(rec.correct) && rec.correct.join(",")===zeroCorrect.join(",");
+  const dynamic = typeof activities === "function";
+  const seed = dynamic ? ((rec && rec.seed !== undefined && rec.seed !== null) ? rec.seed : ((Math.random() * 0xFFFFFFFF) >>> 0)) : null;
+  const items = dynamic ? activities(seed) : activities;
+  const zeroCorrect = items.map(()=>0);
+  const valid = rec && Array.isArray(rec.choices) && rec.choices.length===items.length &&
+    Array.isArray(rec.correct) && rec.correct.join(",")===zeroCorrect.join(",") &&
+    (!dynamic || rec.seed === seed);
   if(!valid){
-    rec = {total:activities.length, correct:zeroCorrect, choices:new Array(activities.length).fill(null)};
+    rec = {total:items.length, correct:zeroCorrect, choices:new Array(items.length).fill(null), seed};
     if(lessonId) state.miniChecks[lessonId]=rec;
   }
   const T = KID_UI[lang] || KID_UI.ru;
+  const D = (typeof KID_DIFF !== "undefined") ? (KID_DIFF[lang] || KID_DIFF.ru) : null;
   container.innerHTML = "";
   const host = container.closest(".check-block");
   const heading = host ? host.querySelector("h3") : null;
@@ -564,20 +578,38 @@ function renderKidCheck(container, lang, activities){
     if(typeof saveMiniChecks==="function") saveMiniChecks();
     if(typeof refreshMiniIndicators==="function") refreshMiniIndicators();
   }
-  function note(wrap){
+  function note(wrap, text){
     const el = document.createElement("div");
     el.className = "kid-note";
-    el.textContent = T.done;
+    el.textContent = text || T.done;
     wrap.appendChild(el);
   }
-  activities.forEach((act, qi)=>{
+  items.forEach((act, qi)=>{
     const solvedBefore = rec.choices[qi]!==null;
     const wrap = document.createElement("div");
     wrap.className = "kid-game" + (solvedBefore ? " kid-won" : "");
     const ask = document.createElement("div");
     ask.className = "kid-ask";
     ask.textContent = (qi+1) + ". " + act.ask[lang];
+    if(D && act.difficulty && D[act.difficulty]){
+      const d = document.createElement("span");
+      d.className = "kid-diff kid-diff-" + act.difficulty;
+      d.textContent = D[act.difficulty];
+      ask.appendChild(d);
+    }
     wrap.appendChild(ask);
+    if(act.robot){
+      const rb = document.createElement("div");
+      rb.className = "kid-robot";
+      rb.textContent = "🤖 " + act.robot[lang];
+      wrap.appendChild(rb);
+    }
+    if(act.widget){
+      const w = document.createElement("div");
+      w.className = "kid-widget";
+      if(typeof act.widget === "string") w.innerHTML = act.widget;
+      wrap.appendChild(w);
+    }
     if(act.visual){
       const v = document.createElement("div");
       v.className = "kid-visual";
@@ -602,9 +634,15 @@ function renderKidCheck(container, lang, activities){
       if(btn) btn.classList.add("kid-correct");
       rec.choices[qi] = 0;
       [...opts.querySelectorAll(".kid-opt")].forEach(o=>{ o.disabled = true; });
-      if(act.type!=="order" && act.correct!==undefined && opts.children[act.correct]) opts.children[act.correct].classList.add("kid-correct");
+      if(act.type!=="order" && act.type!=="input" && act.correct!==undefined && opts.children[act.correct]) opts.children[act.correct].classList.add("kid-correct");
       wrap.classList.add("kid-won");
-      note(wrap);
+      note(wrap, (act.type==="input" && act.answer!==undefined) ? ("= " + act.answer) : null);
+      if(act.explain){
+        const ex = document.createElement("div");
+        ex.className = "kid-note kid-explain";
+        ex.textContent = act.explain[lang];
+        wrap.appendChild(ex);
+      }
       refreshBadge();
       persist();
       if(typeof mascotSay==="function") mascotSay("correct");
@@ -641,6 +679,40 @@ function renderKidCheck(container, lang, activities){
         });
         opts.appendChild(b);
       });
+    } else if(act.type==="input"){
+      const display = document.createElement("div");
+      display.className = "kid-input-display";
+      let typed = "";
+      function renderDisplay(){ display.textContent = typed || "?"; }
+      if(solvedBefore) display.textContent = String(act.answer === undefined ? "" : act.answer);
+      else renderDisplay();
+      wrap.appendChild(display);
+      if(!solvedBefore){
+        ["1","2","3","4","5","6","7","8","9","0"].forEach(k=>{
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "kid-opt kid-key";
+          b.textContent = k;
+          b.addEventListener("click", ()=>{ if(rec.choices[qi]!==null) return; typed += k; renderDisplay(); });
+          opts.appendChild(b);
+        });
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "kid-opt kid-key kid-key-soft";
+        del.textContent = "⌫";
+        del.addEventListener("click", ()=>{ typed = typed.slice(0,-1); renderDisplay(); });
+        opts.appendChild(del);
+        const ok = document.createElement("button");
+        ok.type = "button";
+        ok.className = "kid-opt kid-key kid-key-ok";
+        ok.textContent = "✓";
+        ok.addEventListener("click", ()=>{
+          if(rec.choices[qi]!==null) return;
+          if(typed !== "" && typed === String(act.answer)) finish(ok);
+          else { miss(ok); typed = ""; renderDisplay(); }
+        });
+        opts.appendChild(ok);
+      }
     } else {
       (act.options||[]).forEach((opt, oi)=>{
         const b = document.createElement("button");
@@ -760,10 +832,10 @@ function renderMiniCheck(container, lang, questions){
    ============================================================ */
 const ROADMAP = {
   16:{ru:"Числа и счёт",ua:"Числа та лічба",kid:true, lessons:[
-    "kidCount","kidCompare","kidPlace","kidOrder","kidAdd"
+    "kidCount","kidCompare","kidPlace","kidOrder","kidAdd","kidZero","kidRiddle"
   ]},
   17:{ru:"Мастерская действий",ua:"Майстерня дій",kid:true, lessons:[
-    "kidAdd20","kidSub20","kidTimes","kidShare","kidOrderOps"
+    "kidAdd20","kidSub20","kidColumn","kidTimes","kidMulTable","kidMulSpecial","kidShare","kidOrderOps"
   ]},
   18:{ru:"Лаборатория измерений",ua:"Лабораторія вимірювань",kid:true, lessons:[
     "kidLength","kidMass","kidClock","kidMoney","kidUnits"
@@ -779,6 +851,9 @@ const ROADMAP = {
   ]},
   22:{ru:"Пещера закономерностей",ua:"Печера закономірностей",kid:true, lessons:[
     "kidPattern","kidSequence","kidEvenOdd","kidCompare3","kidLogic"
+  ]},
+  23:{ru:"Остров до 1000",ua:"Острів до 1000",kid:true, lessons:[
+    "kidHundred","kidPlace1000","kidAdd1000","kidCompare1000"
   ]},
   1:{ru:"Модуль 1. Алгебраическая база (повторение)",ua:"Модуль 1. Алгебраїчна база (повторення)",exam_priority:true, lessons:[
     "m1div","m1frac","m1dec","m1remain","m1power","m1expr","m1ineq","m1mono","m1short","m1lineq","m1func","m1sys","m1sysTask",
@@ -928,8 +1003,10 @@ const LESSON_GRADES = {
   /* детский курс 1–4 — только ступень junior */
   kidCount:["junior"], kidCompare:["junior"], kidPlace:["junior"],
   kidOrder:["junior"], kidAdd:["junior"],
+  kidZero:["junior"], kidRiddle:["junior"],
   /* остров 2 — мастерская действий */
-  kidAdd20:["junior"], kidSub20:["junior"], kidTimes:["junior"],
+  kidAdd20:["junior"], kidSub20:["junior"], kidColumn:["junior"],
+  kidTimes:["junior"], kidMulTable:["junior"], kidMulSpecial:["junior"],
   kidShare:["junior"], kidOrderOps:["junior"],
   /* остров 3 — лаборатория измерений */
   kidLength:["junior"], kidMass:["junior"], kidClock:["junior"],
@@ -945,7 +1022,10 @@ const LESSON_GRADES = {
   kidWordMoney:["junior"], kidWordSteps:["junior"],
   /* остров 7 — пещера закономерностей */
   kidPattern:["junior"], kidSequence:["junior"], kidEvenOdd:["junior"],
-  kidCompare3:["junior"], kidLogic:["junior"]
+  kidCompare3:["junior"], kidLogic:["junior"],
+  /* остров 8 — числа до 1000 */
+  kidHundred:["junior"], kidPlace1000:["junior"],
+  kidAdd1000:["junior"], kidCompare1000:["junior"]
 };
 /* Маркировка готовности для ступени 5–7: базовый маршрут и темы для углубления. */
 const LESSON_READINESS = {

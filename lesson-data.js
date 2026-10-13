@@ -15018,7 +15018,29 @@ makeKidLesson("kidPlace", 16,
     {type:"pick", ask:{ru:"В числе 24 сколько десятков?",ua:"У числі 24 скільки десятків?"}, options:["2","4","20","40"], correct:0},
     {type:"pick", ask:{ru:"В числе 35 сколько единиц?",ua:"У числі 35 скільки одиниць?"}, options:["3","5","30","50"], correct:1},
     {type:"pick", ask:{ru:"Какое число — это 4 десятка и 1 единица?",ua:"Яке число — це 4 десятки й 1 одиниця?"}, options:["14","41","40","5"], correct:1}
-  ]
+  ],
+  {
+    html: function(lang){
+      return '<div class="kid-widget" id="kid-place-blocks">' + KID_WIDGETS.baseTen(0, 3, 4) + "</div>" +
+        '<div class="kid-widget" id="kid-place-table">' + KID_WIDGETS.placeValueTable(34, lang) + "</div>" +
+        '<input type="range" id="kid-place-range" min="10" max="99" step="1" value="34" style="width:100%;">';
+    },
+    mount: function(root, lang){
+      const range = root.querySelector("#kid-place-range");
+      const blocks = root.querySelector("#kid-place-blocks");
+      const table = root.querySelector("#kid-place-table");
+      if(!range || !blocks || !table) return;
+      function draw(){
+        const v = parseInt(range.value, 10);
+        const tens = Math.floor(v / 10);
+        const ones = v % 10;
+        blocks.innerHTML = KID_WIDGETS.baseTen(0, tens, ones);
+        table.innerHTML = KID_WIDGETS.placeValueTable(v, lang);
+      }
+      range.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidOrder", 16,
   {"ru":"Числовой ряд","ua":"Числовий ряд"},
@@ -15064,6 +15086,96 @@ makeKidLesson("kidAdd", 16,
     {type:"pick", ask:{ru:"🐟🐟🐟🐟 плюс ещё 🐟🐟. Сколько рыб?",ua:"🐟🐟🐟🐟 плюс ще 🐟🐟. Скільки риб?"}, options:["6","5","4"], correct:0}
   ]
 ),
+makeKidLesson("kidZero", 16,
+  {"ru":"Ноль и круглые десятки","ua":"Нуль і круглі десятки"},
+  {
+    ru:{
+      lead:"Ноль значит «ничего». А десять и ещё десять — это двадцать.",
+      examples:["0 — это ничего","10, 20, 30 — круглые десятки","2 десятка = 20"],
+      tip:"Если число кончается нулём, оно круглое.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Нуль означає «нічого». А десять і ще десять — це двадцять.",
+      examples:["0 — це нічого","10, 20, 30 — круглі десятки","2 десятки = 20"],
+      tip:"Якщо число закінчується нулем, воно кругле.",
+      checkTitle:"Пограємо"
+    }
+  },
+  function(seed){
+    const r = KID_WIDGETS.rng(seed);
+    const n = KID_WIDGETS.rngInt(r, 2, 9);
+    const tens = n * 10;
+    const pool = [String(tens), String(n), String(tens + 10)];
+    const rot = KID_WIDGETS.rngInt(r, 0, 2);
+    const bar = [pool[rot % 3], pool[(rot + 1) % 3], pool[(rot + 2) % 3]];
+    return [
+      {type:"fix", difficulty:"easy",
+        ask:{ru:"Робот говорит: «0 — это один». Он прав?",ua:"Робот каже: «0 — це один». Він правий?"},
+        robot:{ru:"0 — это один",ua:"0 — це один"},
+        options:[{t:{ru:"Неверно: 0 — это ничего",ua:"Невірно: 0 — це нічого"}},
+                 {t:{ru:"Верно, 0 — это один",ua:"Правильно, 0 — це один"}},
+                 {t:{ru:"Неверно: 0 — это десять",ua:"Невірно: 0 — це десять"}}],
+        correct:0,
+        explain:{ru:"Ноль значит «ничего».",ua:"Нуль означає «нічого»."}},
+      {type:"input", difficulty:"middle",
+        ask:{ru:`Сколько получится: ${n} + 0?`,ua:`Скільки вийде: ${n} + 0?`},
+        answer:String(n)},
+      {type:"pick", difficulty:"hard",
+        ask:{ru:`${n} десятков — это сколько?`,ua:`${n} десятків — це скільки?`},
+        options:bar,
+        correct:bar.indexOf(String(tens)),
+        explain:{ru:"Каждый десяток — это десять.",ua:"Кожен десяток — це десять."}}
+    ];
+  },
+  {
+    html: function(){
+      return '<div class="kid-widget">' + KID_WIDGETS.tenFrame(0) + "</div>" +
+        '<div class="kid-widget">' + KID_WIDGETS.baseTen(0, 2, 0) + "</div>" +
+        '<div class="kid-widget">' + KID_WIDGETS.numberLine(0, 20) + "</div>";
+    }
+  }
+),
+makeKidLesson("kidRiddle", 16,
+  {"ru":"Задачи-загадки","ua":"Задачі-загадки"},
+  {
+    ru:{
+      lead:"В задачке-загадке есть подвох. Подумай, прежде чем отвечать.",
+      examples:["Полоску на 5 частей — это 4 разреза","На двух руках 10 пальцев, на десяти руках — 50","Два кота и петух: сколько ног?"],
+      tip:"Загадка любит хитрость: считай внимательно и проверяй себя.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"У задачці-загадці є підступ. Подумай, перш ніж відповідати.",
+      examples:["Смужку на 5 частин — це 4 розрізи","На двох руках 10 пальців, на десяти руках — 50","Два коти й півень: скільки ніг?"],
+      tip:"Загадка любить хитрість: лічи уважно й перевіряй себе.",
+      checkTitle:"Пограємо"
+    }
+  },
+  [
+    {type:"input", difficulty:"easy",
+      ask:{ru:"Смужку паперу нужно разрезать на 5 частей. Сколько разрезов?",ua:"Смужку паперу треба розрізати на 5 частин. Скільки розрізів?"},
+      answer:"4",
+      explain:{ru:"Частей всегда на одну больше, чем разрезов.",ua:"Частин завжди на одну більше, ніж розрізів."}},
+    {type:"fix", difficulty:"middle",
+      ask:{ru:"Робот говорит, что на 10 руках 20 пальцев. Он прав?",ua:"Робот каже, що на 10 руках 20 пальців. Він правий?"},
+      robot:{ru:"10 рук × 2 = 20 пальцев",ua:"10 рук × 2 = 20 пальців"},
+      options:[{t:{ru:"Неверно: на одной руке 5 — будет 50",ua:"Невірно: на одній руці 5 — буде 50"}},
+               {t:{ru:"Верно: 20",ua:"Правильно: 20"}},
+               {t:{ru:"Неверно: будет 100",ua:"Невірно: буде 100"}}],
+      correct:0,
+      explain:{ru:"На одной руке 5 пальцев, значит 10 × 5 = 50.",ua:"На одній руці 5 пальців, отже 10 × 5 = 50."}},
+    {type:"pick", difficulty:"hard",
+      ask:{ru:"Шли 2 кота и 1 петух. Сколько у них ног вместе?",ua:"Йшли 2 коти й 1 півень. Скільки в них ніг разом?"},
+      options:["8","10","12"], correct:1,
+      explain:{ru:"У кота 4 ноги, у петуха 2: 4 + 4 + 2 = 10.",ua:"У кота 4 ноги, у півня 2: 4 + 4 + 2 = 10."}}
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget">' + KID_WIDGETS.cutStrip(5) + "</div>";
+    }
+  }
+),
 makeKidLesson("kidAdd20", 17,
   {"ru":"Прибавляем","ua":"Додаємо"},
   {
@@ -15108,6 +15220,68 @@ makeKidLesson("kidSub20", 17,
     {type:"pick", ask:{ru:"Сколько будет 14 − 5?",ua:"Скільки буде 14 − 5?"}, options:["8","9","10"], correct:1}
   ]
 ),
+makeKidLesson("kidColumn", 17,
+  {"ru":"Считаем столбиком","ua":"Лічимо стовпчиком"},
+  {
+    ru:{
+      lead:"Большие числа удобно складывать и вычитать столбиком: единицы пишем под единицами, десятки под десятками.",
+      examples:["23 + 9 = 32","40 − 7 = 33","сначала единицы, потом десятки"],
+      tip:"Сначала считаем единицы, потом десятки.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Великі числа зручно додавати й віднімати стовпчиком: одиниці пишемо під одиницями, десятки під десятками.",
+      examples:["23 + 9 = 32","40 − 7 = 33","спочатку одиниці, потім десятки"],
+      tip:"Спочатку лічимо одиниці, потім десятки.",
+      checkTitle:"Пограємо"
+    }
+  },
+  function(seed){
+    const r = KID_WIDGETS.rng(seed);
+    const a = KID_WIDGETS.rngInt(r, 21, 78);
+    const b = KID_WIDGETS.rngInt(r, 12, Math.max(12, a - 6));
+    const sum = a + b;
+    const diff = a - b;
+    const rot = KID_WIDGETS.rngInt(r, 0, 2);
+    const pool = [String(sum), String(sum + 10), String(sum - 1)];
+    const bar = [pool[rot % 3], pool[(rot + 1) % 3], pool[(rot + 2) % 3]];
+    return [
+      {type:"pick", difficulty:"easy",
+        ask:{ru:`Сложи столбиком: ${a} + ${b}`,ua:`Додай стовпчиком: ${a} + ${b}`},
+        options:bar, correct:bar.indexOf(String(sum))},
+      {type:"input", difficulty:"middle",
+        ask:{ru:`Вычти: ${a} − ${b} = ?`,ua:`Відніми: ${a} − ${b} = ?`},
+        answer:String(diff)},
+      {type:"input", difficulty:"hard",
+        ask:{ru:`Сумма чисел ${a} и ${b} — сколько?`,ua:`Сума чисел ${a} і ${b} — скільки?`},
+        answer:String(sum)}
+    ];
+  },
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-col-add">' + KID_WIDGETS.columnAdd(23, 9) + "</div>" +
+        '<div class="kid-widget" id="kid-col-sub">' + KID_WIDGETS.columnSub(40, 7) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-col-a" min="20" max="99" step="1" value="23">' +
+        '<output class="kid-out" id="kid-col-out">23 и 9</output>' +
+        '<input type="range" id="kid-col-b" min="1" max="9" step="1" value="9"></div>';
+    },
+    mount: function(root, lang){
+      const ra = root.querySelector("#kid-col-a"), rb = root.querySelector("#kid-col-b");
+      const add = root.querySelector("#kid-col-add"), sub = root.querySelector("#kid-col-sub");
+      const out = root.querySelector("#kid-col-out");
+      if(!ra || !rb || !add || !sub || !out) return;
+      function draw(){
+        const a = parseInt(ra.value, 10), b = parseInt(rb.value, 10);
+        add.innerHTML = KID_WIDGETS.columnAdd(a, b);
+        sub.innerHTML = KID_WIDGETS.columnSub(a, Math.min(b, a));
+        out.textContent = a + (lang === "ua" ? " і " : " и ") + b;
+      }
+      ra.addEventListener("input", draw);
+      rb.addEventListener("input", draw);
+      draw();
+    }
+  }
+),
 makeKidLesson("kidTimes", 17,
   {"ru":"Умножаем","ua":"Множимо"},
   {
@@ -15130,6 +15304,116 @@ makeKidLesson("kidTimes", 17,
     {type:"pick", ask:{ru:"Сколько будет 2 × 5?",ua:"Скільки буде 2 × 5?"}, options:["10","7","12"], correct:0}
   ]
 ),
+makeKidLesson("kidMulTable", 17,
+  {"ru":"Таблица умножения","ua":"Таблиця множення"},
+  {
+    ru:{
+      lead:"Таблица умножения помогает считать быстро. Найди строку и столбец, а на пересечении — ответ.",
+      examples:["3 × 4 = 12","5 × 5 = 25","6 × 7 = 42"],
+      tip:"Умножение — это сложение одинаковых чисел.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Таблиця множення допомагає лічити швидко. Знайди рядок і стовпець, а на перетині — відповідь.",
+      examples:["3 × 4 = 12","5 × 5 = 25","6 × 7 = 42"],
+      tip:"Множення — це додавання однакових чисел.",
+      checkTitle:"Пограємо"
+    }
+  },
+  function(seed){
+    const r = KID_WIDGETS.rng(seed);
+    function put(correct, d1, d2){
+      const pool = [String(correct), String(d1), String(d2)];
+      const rot = KID_WIDGETS.rngInt(r, 0, 2);
+      const bar = [pool[rot % 3], pool[(rot + 1) % 3], pool[(rot + 2) % 3]];
+      return {options:bar, correct:bar.indexOf(String(correct))};
+    }
+    const a1 = KID_WIDGETS.rngInt(r, 2, 9), b1 = KID_WIDGETS.rngInt(r, 2, 9);
+    const a2 = KID_WIDGETS.rngInt(r, 2, 9), b2 = KID_WIDGETS.rngInt(r, 2, 9);
+    const a3 = KID_WIDGETS.rngInt(r, 2, 9), b3 = KID_WIDGETS.rngInt(r, 2, 9);
+    const g1 = put(a1 * b1, a1 * b1 + a1, a1 * b1 - 1);
+    const g2 = put(a3 * b3, a3 * b3 + b3, a3 * b3 + 1);
+    return [
+      {type:"pick", difficulty:"easy",
+        ask:{ru:`${a1} × ${b1} = ?`,ua:`${a1} × ${b1} = ?`},
+        options:g1.options, correct:g1.correct},
+      {type:"input", difficulty:"middle",
+        ask:{ru:`${a2} × ${b2} = ?`,ua:`${a2} × ${b2} = ?`},
+        answer:String(a2 * b2)},
+      {type:"pick", difficulty:"hard",
+        ask:{ru:`${b3} × ${a3} = ?`,ua:`${b3} × ${a3} = ?`},
+        options:g2.options, correct:g2.correct}
+    ];
+  },
+  {
+    html: function(){
+      return '<div class="kid-widget">' + KID_WIDGETS.mulTable(10) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-mul-a" min="1" max="10" step="1" value="3">' +
+        '<output class="kid-out" id="kid-mul-out">3 × 4 = 12</output>' +
+        '<input type="range" id="kid-mul-b" min="1" max="10" step="1" value="4"></div>';
+    },
+    mount: function(root){
+      const a = root.querySelector("#kid-mul-a"), b = root.querySelector("#kid-mul-b"), out = root.querySelector("#kid-mul-out");
+      if(!a || !b || !out) return;
+      function draw(){ const x = parseInt(a.value, 10), y = parseInt(b.value, 10); out.textContent = x + " × " + y + " = " + (x * y); }
+      a.addEventListener("input", draw);
+      b.addEventListener("input", draw);
+      draw();
+    }
+  }
+),
+makeKidLesson("kidMulSpecial", 17,
+  {"ru":"Особые случаи × и :","ua":"Особливі випадки × і :"},
+  {
+    ru:{
+      lead:"Запомни правила: умножить на 0 — получится 0, на 1 — то же число, на 10 — число с нулём. Делить на 0 нельзя.",
+      examples:["5 × 0 = 0","7 × 1 = 7","6 × 10 = 60","0 : 4 = 0"],
+      tip:"На ноль делить нельзя — это запрещено.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Запам'ятай правила: помножити на 0 — буде 0, на 1 — те саме число, на 10 — число з нулем. Ділити на 0 не можна.",
+      examples:["5 × 0 = 0","7 × 1 = 7","6 × 10 = 60","0 : 4 = 0"],
+      tip:"На нуль ділити не можна — це заборонено.",
+      checkTitle:"Пограємо"
+    }
+  },
+  function(seed){
+    const r = KID_WIDGETS.rng(seed);
+    function put(correct, d1, d2){
+      const pool = [String(correct), String(d1), String(d2)];
+      const rot = KID_WIDGETS.rngInt(r, 0, 2);
+      const bar = [pool[rot % 3], pool[(rot + 1) % 3], pool[(rot + 2) % 3]];
+      return {options:bar, correct:bar.indexOf(String(correct))};
+    }
+    const a = KID_WIDGETS.rngInt(r, 2, 9);
+    const c = KID_WIDGETS.rngInt(r, 2, 9);
+    const g0 = put(0, a, a * 10);
+    const g10 = put(a * 10, a, a + 10);
+    return [
+      {type:"pick", difficulty:"easy",
+        ask:{ru:`${a} × 0 = ?`,ua:`${a} × 0 = ?`},
+        options:g0.options, correct:g0.correct,
+        explain:{ru:"Любое число, умноженное на 0, даёт 0.",ua:"Будь-яке число, помножене на 0, дає 0."}},
+      {type:"pick", difficulty:"middle",
+        ask:{ru:`${c} × 10 = ?`,ua:`${c} × 10 = ?`},
+        options:g10.options, correct:g10.correct},
+      {type:"input", difficulty:"hard",
+        ask:{ru:`${c} × 1 = ?`,ua:`${c} × 1 = ?`},
+        answer:String(c)}
+    ];
+  },
+  {
+    html: function(lang){
+      const rows = lang === "ua"
+        ? [["× 0","завжди 0"],["× 1","те саме число"],["× 10","допиши нуль"],["0 : a","буде 0"],["a : 1","те саме число"]]
+        : [["× 0","всегда 0"],["× 1","то же число"],["× 10","допиши ноль"],["0 : a","будет 0"],["a : 1","то же число"]];
+      let body = "";
+      rows.forEach(function(row){ body += "<tr><th>" + row[0] + "</th><td>" + row[1] + "</td></tr>"; });
+      return '<div class="kid-widget"><table class="kid-table kid-special"><tbody>' + body + "</tbody></table></div>";
+    }
+  }
+),
 makeKidLesson("kidShare", 17,
   {"ru":"Делим поровну","ua":"Ділимо порівну"},
   {
@@ -15150,7 +15434,29 @@ makeKidLesson("kidShare", 17,
     {type:"pick", ask:{ru:"6 конфет разделим на 2 — по сколько?",ua:"6 цукерок розділимо на 2 — по скільки?"}, visual:"🍬🍬🍬🍬🍬🍬  →  👦  👧", options:["2","3","4"], correct:1},
     {type:"pick", ask:{ru:"Сколько будет 8 : 2?",ua:"Скільки буде 8 : 2?"}, options:["3","4","6"], correct:1},
     {type:"pick", ask:{ru:"Сколько будет 9 : 3?",ua:"Скільки буде 9 : 3?"}, options:["2","3","4"], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-share-groups">' + KID_WIDGETS.groups(12, 3) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-share-total" min="2" max="24" step="1" value="12">' +
+        '<output class="kid-out" id="kid-share-out">12 : 3 = 4</output>' +
+        '<input type="range" id="kid-share-parts" min="2" max="6" step="1" value="3"></div>';
+    },
+    mount: function(root){
+      const tot = root.querySelector("#kid-share-total"), parts = root.querySelector("#kid-share-parts");
+      const box = root.querySelector("#kid-share-groups"), out = root.querySelector("#kid-share-out");
+      if(!tot || !parts || !box || !out) return;
+      function draw(){
+        const t = parseInt(tot.value, 10), p = parseInt(parts.value, 10);
+        box.innerHTML = KID_WIDGETS.groups(t, p);
+        const q = Math.floor(t / p), rem = t % p;
+        out.textContent = t + " : " + p + " = " + q + (rem ? " (ост. " + rem + ")" : "");
+      }
+      tot.addEventListener("input", draw);
+      parts.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidOrderOps", 17,
   {"ru":"Порядок действий","ua":"Порядок дій"},
@@ -15172,7 +15478,24 @@ makeKidLesson("kidOrderOps", 17,
     {type:"pick", ask:{ru:"Сколько будет 2 + 3 × 2?",ua:"Скільки буде 2 + 3 × 2?"}, options:["10","8","7"], correct:1},
     {type:"pick", ask:{ru:"Сколько будет 10 − 4 : 2?",ua:"Скільки буде 10 − 4 : 2?"}, options:["3","8","6"], correct:1},
     {type:"pick", ask:{ru:"Сколько будет 2 × 3 + 1?",ua:"Скільки буде 2 × 3 + 1?"}, options:["7","8","6"], correct:0}
-  ]
+  ],
+  {
+    html: function(lang){
+      const steps = lang === "ua"
+        ? ["Спочатку множення: 3 × 2 = 6","Потім додавання: 2 + 6 = 8"]
+        : ["Сначала умножение: 3 × 2 = 6","Потом сложение: 2 + 6 = 8"];
+      return '<div class="kid-steps"><div class="kid-expr">2 + 3 × 2</div>' +
+        '<button type="button" class="kid-reveal" id="kid-order-btn"></button>' +
+        '<ol class="kid-steplist" id="kid-order-steps" hidden>' +
+        steps.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ol></div>";
+    },
+    mount: function(root, lang){
+      const btn = root.querySelector("#kid-order-btn"), list = root.querySelector("#kid-order-steps");
+      if(!btn || !list) return;
+      btn.textContent = lang === "ua" ? "Показати кроки" : "Показать шаги";
+      btn.addEventListener("click", function(){ list.hidden = !list.hidden; });
+    }
+  }
 ),
 makeKidLesson("kidLength", 18,
   {"ru":"Измеряем длину","ua":"Вимірюємо довжину"},
@@ -15194,7 +15517,21 @@ makeKidLesson("kidLength", 18,
     {type:"pick", ask:{ru:"Сколько будет 3 см + 2 см?",ua:"Скільки буде 3 см + 2 см?"}, options:["4","5","6"], correct:1},
     {type:"pick", ask:{ru:"1 метр — это сколько сантиметров?",ua:"1 метр — це скільки сантиметрів?"}, options:["10","100","1000"], correct:1},
     {type:"pick", ask:{ru:"Что длиннее: 1 м или 90 см?",ua:"Що довше: 1 м чи 90 см?"}, options:[{t:{ru:"1 м",ua:"1 м"}},{t:{ru:"90 см",ua:"90 см"}},{t:{ru:"равно",ua:"однаково"}}], correct:0}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-rul">' + KID_WIDGETS.ruler(15, 8) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-rul-seg" min="1" max="15" step="1" value="8">' +
+        '<output class="kid-out" id="kid-rul-out">8 см</output></div>';
+    },
+    mount: function(root){
+      const box = root.querySelector("#kid-rul"), sl = root.querySelector("#kid-rul-seg"), out = root.querySelector("#kid-rul-out");
+      if(!box || !sl || !out) return;
+      function draw(){ const v = parseInt(sl.value, 10); box.innerHTML = KID_WIDGETS.ruler(15, v); out.textContent = v + " см"; }
+      sl.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidMass", 18,
   {"ru":"Взвешиваем","ua":"Зважуємо"},
@@ -15216,7 +15553,28 @@ makeKidLesson("kidMass", 18,
     {type:"pick", ask:{ru:"1 килограмм — это сколько граммов?",ua:"1 кілограм — це скільки грамів?"}, options:["100","1000","10"], correct:1},
     {type:"pick", ask:{ru:"Что тяжелее: 1 кг или 900 г?",ua:"Що важче: 1 кг чи 900 г?"}, options:[{t:{ru:"1 кг",ua:"1 кг"}},{t:{ru:"900 г",ua:"900 г"}},{t:{ru:"равно",ua:"однаково"}}], correct:0},
     {type:"pick", ask:{ru:"Что тяжелее: 1 кг или 1200 г?",ua:"Що важче: 1 кг чи 1200 г?"}, options:[{t:{ru:"1 кг",ua:"1 кг"}},{t:{ru:"1200 г",ua:"1200 г"}},{t:{ru:"равно",ua:"однаково"}}], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-mass-bal">' + KID_WIDGETS.balanceScale(500, 500) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-mass-l" min="100" max="1000" step="100" value="500">' +
+        '<output class="kid-out" id="kid-mass-out">500 г = 500 г</output>' +
+        '<input type="range" id="kid-mass-r" min="100" max="1000" step="100" value="500"></div>';
+    },
+    mount: function(root){
+      const l = root.querySelector("#kid-mass-l"), r = root.querySelector("#kid-mass-r");
+      const box = root.querySelector("#kid-mass-bal"), out = root.querySelector("#kid-mass-out");
+      if(!l || !r || !box || !out) return;
+      function draw(){
+        const a = parseInt(l.value, 10), b = parseInt(r.value, 10);
+        box.innerHTML = KID_WIDGETS.balanceScale(a, b);
+        out.textContent = a + " г " + (a === b ? "=" : (a > b ? ">" : "<")) + " " + b + " г";
+      }
+      l.addEventListener("input", draw);
+      r.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidClock", 18,
   {"ru":"Который час?","ua":"Котра година?"},
@@ -15238,7 +15596,28 @@ makeKidLesson("kidClock", 18,
     {type:"pick", ask:{ru:"Сколько минут в одном часе?",ua:"Скільки хвилин в одній годині?"}, options:["30","60","100"], correct:1},
     {type:"pick", ask:{ru:"Прошло 30 минут от 2:00. Который час?",ua:"Минуло 30 хвилин від 2:00. Котра година?"}, options:["2:30","3:30","2:60"], correct:0},
     {type:"pick", ask:{ru:"Прошёл 1 час от 4:00. Который час?",ua:"Минула 1 година від 4:00. Котра година?"}, options:["4:30","5:00","5:60"], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-clk">' + KID_WIDGETS.clockFace(3, 0, 0) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-clk-h" min="1" max="12" value="3">' +
+        '<output class="kid-out" id="kid-clk-out">3:00</output>' +
+        '<input type="range" id="kid-clk-m" min="0" max="55" step="5" value="0"></div>';
+    },
+    mount: function(root){
+      const h = root.querySelector("#kid-clk-h"), m = root.querySelector("#kid-clk-m");
+      const box = root.querySelector("#kid-clk"), out = root.querySelector("#kid-clk-out");
+      if(!h || !m || !box || !out) return;
+      function draw(){
+        const hh = parseInt(h.value, 10), mm = parseInt(m.value, 10);
+        box.innerHTML = KID_WIDGETS.clockFace(hh, mm, 0);
+        out.textContent = hh + ":" + (mm < 10 ? "0" : "") + mm;
+      }
+      h.addEventListener("input", draw);
+      m.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidMoney", 18,
   {"ru":"Считаем деньги","ua":"Лічимо гроші"},
@@ -15260,7 +15639,37 @@ makeKidLesson("kidMoney", 18,
     {type:"pick", ask:{ru:"3 монеты по 2 грн — сколько всего?",ua:"3 монети по 2 грн — скільки всього?"}, options:["5","6","7"], correct:1},
     {type:"pick", ask:{ru:"1 гривна — это сколько копеек?",ua:"1 гривня — це скільки копійок?"}, options:["10","100","1000"], correct:1},
     {type:"pick", ask:{ru:"У тебя 10 грн, мороженое стоит 7 грн. Сколько сдачи?",ua:"У тебе 10 грн, морожено коштує 7 грн. Скільки решти?"}, options:["2","3","4"], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-money-coins">' + KID_WIDGETS.coins([1, 2, 5]) + "</div>" +
+        '<div class="kid-lab">' +
+        '<input type="range" id="kid-m1" min="0" max="5" value="1">' +
+        '<input type="range" id="kid-m2" min="0" max="5" value="1">' +
+        '<input type="range" id="kid-m5" min="0" max="5" value="1">' +
+        '<input type="range" id="kid-m10" min="0" max="5" value="0">' +
+        '<output class="kid-out" id="kid-money-out">8 грн</output></div>';
+    },
+    mount: function(root){
+      const ids = ["#kid-m1", "#kid-m2", "#kid-m5", "#kid-m10"], vals = [1, 2, 5, 10];
+      const els = ids.map(function(id){ return root.querySelector(id); });
+      const box = root.querySelector("#kid-money-coins"), out = root.querySelector("#kid-money-out");
+      if(!box || !out || els.some(function(e){ return !e; })) return;
+      function draw(){
+        const list = [];
+        let sum = 0;
+        els.forEach(function(e, i){
+          const c = parseInt(e.value, 10);
+          sum += c * vals[i];
+          for(let k = 0; k < c; k++) list.push(vals[i]);
+        });
+        box.innerHTML = KID_WIDGETS.coins(list);
+        out.textContent = sum + " грн";
+      }
+      els.forEach(function(e){ e.addEventListener("input", draw); });
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidUnits", 18,
   {"ru":"Сравниваем величины","ua":"Порівнюємо величини"},
@@ -15349,7 +15758,24 @@ makeKidLesson("kidPerimeter", 19,
     {type:"pick", ask:{ru:"Квадрат со стороной 3 см. Чему равен периметр?",ua:"Квадрат зі стороною 3 см. Чому дорівнює периметр?"}, options:["6","9","12"], correct:2},
     {type:"pick", ask:{ru:"Прямоугольник 4 см и 2 см. Чему равен периметр?",ua:"Прямокутник 4 см і 2 см. Чому дорівнює периметр?"}, options:["6","8","12"], correct:2},
     {type:"pick", ask:{ru:"Квадрат со стороной 5 см. Чему равен периметр?",ua:"Квадрат зі стороною 5 см. Чому дорівнює периметр?"}, options:["10","20","25"], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-per">' + KID_WIDGETS.rectGrid(4, 2) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-per-a" min="2" max="8" value="4">' +
+        '<output class="kid-out" id="kid-per-out">P = 12 см</output>' +
+        '<input type="range" id="kid-per-b" min="2" max="8" value="2"></div>';
+    },
+    mount: function(root){
+      const a = root.querySelector("#kid-per-a"), b = root.querySelector("#kid-per-b");
+      const box = root.querySelector("#kid-per"), out = root.querySelector("#kid-per-out");
+      if(!a || !b || !box || !out) return;
+      function draw(){ const x = parseInt(a.value, 10), y = parseInt(b.value, 10); box.innerHTML = KID_WIDGETS.rectGrid(x, y); out.textContent = "P = " + 2 * (x + y) + " см"; }
+      a.addEventListener("input", draw);
+      b.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidArea", 19,
   {"ru":"Площадь","ua":"Площа"},
@@ -15371,7 +15797,24 @@ makeKidLesson("kidArea", 19,
     {type:"pick", ask:{ru:"Прямоугольник 3 клетки на 2. Чему равна площадь?",ua:"Прямокутник 3 клітинки на 2. Чому дорівнює площа?"}, options:["5","6","8"], correct:1},
     {type:"pick", ask:{ru:"Квадрат 2 × 2. Чему равна площадь?",ua:"Квадрат 2 × 2. Чому дорівнює площа?"}, options:["2","4","6"], correct:1},
     {type:"pick", ask:{ru:"Квадрат 3 × 3. Чему равна площадь?",ua:"Квадрат 3 × 3. Чому дорівнює площа?"}, options:["6","9","12"], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-area">' + KID_WIDGETS.rectGrid(3, 2) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-area-a" min="2" max="8" value="3">' +
+        '<output class="kid-out" id="kid-area-out">S = 6 см²</output>' +
+        '<input type="range" id="kid-area-b" min="2" max="8" value="2"></div>';
+    },
+    mount: function(root){
+      const a = root.querySelector("#kid-area-a"), b = root.querySelector("#kid-area-b");
+      const box = root.querySelector("#kid-area"), out = root.querySelector("#kid-area-out");
+      if(!a || !b || !box || !out) return;
+      function draw(){ const x = parseInt(a.value, 10), y = parseInt(b.value, 10); box.innerHTML = KID_WIDGETS.rectGrid(x, y); out.textContent = "S = " + (x * y) + " см²"; }
+      a.addEventListener("input", draw);
+      b.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidSymmetry", 19,
   {"ru":"Симметрия","ua":"Симетрія"},
@@ -15393,7 +15836,12 @@ makeKidLesson("kidSymmetry", 19,
     {type:"pick", ask:{ru:"Какая фигура симметрична во все стороны?",ua:"Яка фігура симетрична в усі боки?"}, options:[{t:{ru:"круг",ua:"круг"}},{t:{ru:"флаг",ua:"прапор"}},{t:{ru:"треугольник",ua:"трикутник"}}], correct:0},
     {type:"pick", ask:{ru:"Сколько линий симметрии у квадрата?",ua:"Скільки ліній симетрії у квадрата?"}, options:["1","4","0"], correct:1},
     {type:"pick", ask:{ru:"У какой буквы есть симметрия сверху вниз?",ua:"У якої літери є симетрія згори вниз?"}, options:[{e:"Г"},{e:"А"},{e:"S"}], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget">' + KID_WIDGETS.symmetry() + "</div>";
+    }
+  }
 ),
 /* ===================== ОСТРОВ 5 — МАГАЗИН ДОЛЕЙ (модуль 20) ===================== */
 makeKidLesson("kidHalf", 20,
@@ -15416,7 +15864,22 @@ makeKidLesson("kidHalf", 20,
     {type:"pick", ask:{ru:"Половина от 8 — это…",ua:"Половина від 8 — це…"}, options:["2","4","6"], correct:1},
     {type:"pick", ask:{ru:"Половина от 10 — это…",ua:"Половина від 10 — це…"}, options:["5","6","8"], correct:0},
     {type:"pick", ask:{ru:"Пиццу разрезали на 2 равные части. Как называется одна часть?",ua:"Піцу розрізали на 2 рівні частини. Як називається одна частина?"}, options:["1/2","1/3","1/4"], correct:0}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-fr">' + KID_WIDGETS.fractionPie(1, 2) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-fr-filled" min="0" max="2" value="1">' +
+        '<output class="kid-out" id="kid-fr-out">1/2</output></div>';
+    },
+    mount: function(root){
+      const box = root.querySelector("#kid-fr"), sl = root.querySelector("#kid-fr-filled"), out = root.querySelector("#kid-fr-out");
+      if(!box || !sl || !out) return;
+      const parts = 2;
+      function draw(){ const f = parseInt(sl.value, 10); box.innerHTML = KID_WIDGETS.fractionPie(f, parts); out.textContent = f + "/" + parts; }
+      sl.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidQuarter", 20,
   {"ru":"Четверть","ua":"Чверть"},
@@ -15438,7 +15901,22 @@ makeKidLesson("kidQuarter", 20,
     {type:"pick", ask:{ru:"Четверть от 8 — это…",ua:"Чверть від 8 — це…"}, options:["2","4","6"], correct:0},
     {type:"pick", ask:{ru:"Сколько четвертей в целом?",ua:"Скільки чвертей у цілому?"}, options:["2","3","4"], correct:2},
     {type:"pick", ask:{ru:"Одна долька апельсина из 4 — это…",ua:"Одна часточка апельсина з 4 — це…"}, options:["1/2","1/4","1/3"], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-fr">' + KID_WIDGETS.fractionPie(1, 4) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-fr-filled" min="0" max="4" value="1">' +
+        '<output class="kid-out" id="kid-fr-out">1/4</output></div>';
+    },
+    mount: function(root){
+      const box = root.querySelector("#kid-fr"), sl = root.querySelector("#kid-fr-filled"), out = root.querySelector("#kid-fr-out");
+      if(!box || !sl || !out) return;
+      const parts = 4;
+      function draw(){ const f = parseInt(sl.value, 10); box.innerHTML = KID_WIDGETS.fractionPie(f, parts); out.textContent = f + "/" + parts; }
+      sl.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidThird", 20,
   {"ru":"Треть","ua":"Третина"},
@@ -15460,7 +15938,22 @@ makeKidLesson("kidThird", 20,
     {type:"pick", ask:{ru:"Треть от 9 — это…",ua:"Третина від 9 — це…"}, options:["3","4","6"], correct:0},
     {type:"pick", ask:{ru:"Сколько третей в целом?",ua:"Скільки третин у цілому?"}, options:["2","3","4"], correct:1},
     {type:"pick", ask:{ru:"Один кусок ленты из 3 равных — это…",ua:"Один шматок стрічки з 3 рівних — це…"}, options:["1/2","1/3","1/4"], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-fr">' + KID_WIDGETS.fractionPie(1, 3) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-fr-filled" min="0" max="3" value="1">' +
+        '<output class="kid-out" id="kid-fr-out">1/3</output></div>';
+    },
+    mount: function(root){
+      const box = root.querySelector("#kid-fr"), sl = root.querySelector("#kid-fr-filled"), out = root.querySelector("#kid-fr-out");
+      if(!box || !sl || !out) return;
+      const parts = 3;
+      function draw(){ const f = parseInt(sl.value, 10); box.innerHTML = KID_WIDGETS.fractionPie(f, parts); out.textContent = f + "/" + parts; }
+      sl.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidFraction", 20,
   {"ru":"Числитель и знаменатель","ua":"Чисельник і знаменник"},
@@ -15482,7 +15975,30 @@ makeKidLesson("kidFraction", 20,
     {type:"pick", ask:{ru:"В дроби 2/5 сколько частей всего?",ua:"У дробі 2/5 скільки частин усього?"}, options:["2","5","7"], correct:1},
     {type:"pick", ask:{ru:"В дроби 3/4 сколько частей взяли?",ua:"У дробі 3/4 скільки частин узяли?"}, options:["1","3","4"], correct:1},
     {type:"pick", ask:{ru:"Что показывает знаменатель (нижнее число)?",ua:"Що показує знаменник (нижнє число)?"}, options:[{t:{ru:"сколько взяли",ua:"скільки взяли"}},{t:{ru:"на сколько частей делили",ua:"на скільки частин ділили"}},{t:{ru:"сумму",ua:"суму"}}], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-frac">' + KID_WIDGETS.fractionPie(3, 4) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-frac-n" min="0" max="8" value="3">' +
+        '<output class="kid-out" id="kid-frac-out">3/4</output>' +
+        '<input type="range" id="kid-frac-d" min="2" max="8" value="4"></div>';
+    },
+    mount: function(root){
+      const box = root.querySelector("#kid-frac"), n = root.querySelector("#kid-frac-n");
+      const d = root.querySelector("#kid-frac-d"), out = root.querySelector("#kid-frac-out");
+      if(!box || !n || !d || !out) return;
+      function draw(){
+        const den = parseInt(d.value, 10);
+        let num = parseInt(n.value, 10);
+        if(num > den) num = den;
+        box.innerHTML = KID_WIDGETS.fractionPie(num, den);
+        out.textContent = num + "/" + den;
+      }
+      n.addEventListener("input", draw);
+      d.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidCompareFrac", 20,
   {"ru":"Сравниваем доли","ua":"Порівнюємо частини"},
@@ -15504,7 +16020,12 @@ makeKidLesson("kidCompareFrac", 20,
     {type:"pick", ask:{ru:"Что больше: 1/2 или 1/4?",ua:"Що більше: 1/2 чи 1/4?"}, options:[{t:{ru:"1/2",ua:"1/2"}},{t:{ru:"1/4",ua:"1/4"}},{t:{ru:"равно",ua:"однаково"}}], correct:0},
     {type:"pick", ask:{ru:"Что меньше: 1/3 или 1/4?",ua:"Що менше: 1/3 чи 1/4?"}, options:[{t:{ru:"1/3",ua:"1/3"}},{t:{ru:"1/4",ua:"1/4"}},{t:{ru:"равно",ua:"однаково"}}], correct:1},
     {type:"pick", ask:{ru:"Что больше: 1/5 или 1/2?",ua:"Що більше: 1/5 чи 1/2?"}, options:[{t:{ru:"1/5",ua:"1/5"}},{t:{ru:"1/2",ua:"1/2"}},{t:{ru:"равно",ua:"однаково"}}], correct:1}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget">' + KID_WIDGETS.fractionPie(1, 2) + KID_WIDGETS.fractionPie(1, 4) + "</div>";
+    }
+  }
 ),
 /* ===================== ОСТРОВ 6 — ГОРОД ЗАДАЧ (модуль 21) ===================== */
 makeKidLesson("kidWordAdd", 21,
@@ -15615,7 +16136,24 @@ makeKidLesson("kidWordSteps", 21,
     {type:"pick", ask:{ru:"Было 5 яблок, купили 3, потом съели 2. Сколько осталось?",ua:"Було 5 яблук, купили 3, потім з'їли 2. Скільки залишилось?"}, options:["5","6","7"], correct:1},
     {type:"pick", ask:{ru:"В корзине 4 яблока, добавили 5, потом убрали 3. Сколько стало?",ua:"У кошику 4 яблука, додали 5, потім прибрали 3. Скільки стало?"}, options:["5","6","7"], correct:1},
     {type:"pick", ask:{ru:"У Маши 6 конфет, дали 4, съела 5. Сколько осталось?",ua:"У Маші 6 цукерок, дали 4, з'їла 5. Скільки залишилось?"}, options:["4","5","6"], correct:1}
-  ]
+  ],
+  {
+    html: function(lang){
+      const steps = lang === "ua"
+        ? ["Крок 1: 5 + 3 = 8", "Крок 2: 8 − 2 = 6", "Відповідь: 6 яблук"]
+        : ["Шаг 1: 5 + 3 = 8", "Шаг 2: 8 − 2 = 6", "Ответ: 6 яблок"];
+      return '<div class="kid-steps"><div class="kid-expr">5 → 8 → 6</div>' +
+        '<button type="button" class="kid-reveal" id="kid-steps-btn"></button>' +
+        '<ol class="kid-steplist" id="kid-steps-list" hidden>' +
+        steps.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ol></div>";
+    },
+    mount: function(root, lang){
+      const btn = root.querySelector("#kid-steps-btn"), list = root.querySelector("#kid-steps-list");
+      if(!btn || !list) return;
+      btn.textContent = lang === "ua" ? "Показати розв'язок" : "Показать решение";
+      btn.addEventListener("click", function(){ list.hidden = !list.hidden; });
+    }
+  }
 ),
 /* ===================== ОСТРОВ 7 — ПЕЩЕРА ЗАКОНОМЕРНОСТЕЙ (модуль 22) ===================== */
 makeKidLesson("kidPattern", 22,
@@ -15682,7 +16220,27 @@ makeKidLesson("kidEvenOdd", 22,
     {type:"pick", ask:{ru:"Какое число чётное?",ua:"Яке число парне?"}, options:["3","4","5"], correct:1},
     {type:"pick", ask:{ru:"Какое число нечётное?",ua:"Яке число непарне?"}, options:["2","6","7"], correct:2},
     {type:"pick", ask:{ru:"8 — это какое число?",ua:"8 — це яке число?"}, options:[{t:{ru:"чётное",ua:"парне"}},{t:{ru:"нечётное",ua:"непарне"}},{t:{ru:"ни то ни то",ua:"ні те ні те"}}], correct:0}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-eo">' + KID_WIDGETS.groups(6, 2) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-eo-n" min="1" max="20" value="6">' +
+        '<output class="kid-out" id="kid-eo-out">6 — чётное</output></div>';
+    },
+    mount: function(root, lang){
+      const box = root.querySelector("#kid-eo"), sl = root.querySelector("#kid-eo-n"), out = root.querySelector("#kid-eo-out");
+      if(!box || !sl || !out) return;
+      function draw(){
+        const n = parseInt(sl.value, 10);
+        box.innerHTML = KID_WIDGETS.groups(n, 2);
+        const even = lang === "ua" ? "парне" : "чётное";
+        const odd = lang === "ua" ? "непарне" : "нечётное";
+        out.textContent = n + " — " + (n % 2 ? odd : even);
+      }
+      sl.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidCompare3", 22,
   {"ru":"Больше, меньше, равно","ua":"Більше, менше, дорівнює"},
@@ -15704,7 +16262,28 @@ makeKidLesson("kidCompare3", 22,
     {type:"pick", ask:{ru:"Какой знак между 7 и 7?",ua:"Який знак між 7 і 7?"}, options:[" > "," < "," = "], correct:2},
     {type:"pick", ask:{ru:"Какой знак между 4 и 9?",ua:"Який знак між 4 і 9?"}, options:[" > "," < "," = "], correct:1},
     {type:"pick", ask:{ru:"Какой знак между 8 и 3?",ua:"Який знак між 8 і 3?"}, options:[" > "," < "," = "], correct:0}
-  ]
+  ],
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-cmp">' + KID_WIDGETS.numberLine(0, 20) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-cmp-a" min="0" max="20" value="4">' +
+        '<output class="kid-out" id="kid-cmp-out">4 < 9</output>' +
+        '<input type="range" id="kid-cmp-b" min="0" max="20" value="9"></div>';
+    },
+    mount: function(root){
+      const a = root.querySelector("#kid-cmp-a"), b = root.querySelector("#kid-cmp-b");
+      const box = root.querySelector("#kid-cmp"), out = root.querySelector("#kid-cmp-out");
+      if(!a || !b || !box || !out) return;
+      function draw(){
+        const x = parseInt(a.value, 10), y = parseInt(b.value, 10);
+        box.innerHTML = KID_WIDGETS.numberLine(0, 20);
+        out.textContent = x + " " + (x === y ? "=" : (x > y ? ">" : "<")) + " " + y;
+      }
+      a.addEventListener("input", draw);
+      b.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
 makeKidLesson("kidLogic", 22,
   {"ru":"Логические задачки","ua":"Логічні задачі"},
@@ -15726,7 +16305,255 @@ makeKidLesson("kidLogic", 22,
     {type:"pick", ask:{ru:"Аня выше Бори, а Боря выше Вити. Кто выше всех?",ua:"Аня вища за Борю, а Боря вищий за Вітю. Хто вищий за всіх?"}, options:[{t:{ru:"Аня",ua:"Аня"}},{t:{ru:"Боря",ua:"Боря"}},{t:{ru:"Витя",ua:"Вітя"}}], correct:0},
     {type:"pick", ask:{ru:"У кошки 4 лапы. Сколько лап у двух кошек?",ua:"У кішки 4 лапи. Скільки лап у двох кішок?"}, options:["4","8","6"], correct:1},
     {type:"pick", ask:{ru:"Сегодня среда. Какой день был вчера?",ua:"Сьогодні середа. Який день був учора?"}, options:[{t:{ru:"вторник",ua:"вівторок"}},{t:{ru:"четверг",ua:"четвер"}},{t:{ru:"понедельник",ua:"понеділок"}}], correct:0}
-  ]
+  ],
+  {
+    html: function(lang){
+      const steps = lang === "ua"
+        ? ["Аня вища за Борю", "Боря вищий за Вітю", "Отже, Аня найвища"]
+        : ["Аня выше Бори", "Боря выше Вити", "Значит, Аня выше всех"];
+      return '<div class="kid-steps"><div class="kid-expr">А > Б > В</div>' +
+        '<button type="button" class="kid-reveal" id="kid-logic-btn"></button>' +
+        '<ol class="kid-steplist" id="kid-logic-list" hidden>' +
+        steps.map(function(s){ return "<li>" + s + "</li>"; }).join("") + "</ol></div>";
+    },
+    mount: function(root, lang){
+      const btn = root.querySelector("#kid-logic-btn"), list = root.querySelector("#kid-logic-list");
+      if(!btn || !list) return;
+      btn.textContent = lang === "ua" ? "Показати міркування" : "Показать рассуждение";
+      btn.addEventListener("click", function(){ list.hidden = !list.hidden; });
+    }
+  }
+),
+/* ===================== ОСТРОВ 8 — ЧИСЛА ДО 1000 (модуль 23) ===================== */
+makeKidLesson("kidHundred", 23,
+  {"ru":"Сотня","ua":"Сотня"},
+  {
+    ru:{
+      lead:"Десять десятков — это сотня. Один десяток — десять, десять десятков — сто.",
+      examples:["10 десятков = 100","100 = сто","2 сотни = 200"],
+      tip:"В сотне сто единиц или десять десятков.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Десять десятків — це сотня. Один десяток — десять, десять десятків — сто.",
+      examples:["10 десятків = 100","100 = сто","2 сотні = 200"],
+      tip:"У сотні сто одиниць або десять десятків.",
+      checkTitle:"Пограємо"
+    }
+  },
+  function(seed){
+    const r = KID_WIDGETS.rng(seed);
+    function put(correct, d1, d2){
+      const pool = [String(correct), String(d1), String(d2)];
+      const rot = KID_WIDGETS.rngInt(r, 0, 2);
+      const bar = [pool[rot % 3], pool[(rot + 1) % 3], pool[(rot + 2) % 3]];
+      return {options:bar, correct:bar.indexOf(String(correct))};
+    }
+    const s = KID_WIDGETS.rngInt(r, 1, 8) * 100;
+    const g = put(10, 100, 1);
+    return [
+      {type:"input", difficulty:"easy",
+        ask:{ru:"Сколько будет 10 десятков?",ua:"Скільки буде 10 десятків?"},
+        answer:"100"},
+      {type:"pick", difficulty:"middle",
+        ask:{ru:"100 — это сколько десятков?",ua:"100 — це скільки десятків?"},
+        options:g.options, correct:g.correct},
+      {type:"input", difficulty:"hard",
+        ask:{ru:`Прибавь 100 к ${s}.`,ua:`Додай 100 до ${s}.`},
+        answer:String(s + 100)}
+    ];
+  },
+  {
+    html: function(){
+      return '<div class="kid-widget">' + KID_WIDGETS.baseTen(1, 0, 0) + "</div>" +
+        '<div class="kid-widget">' + KID_WIDGETS.placeValueTable(100, "ru") + "</div>";
+    }
+  }
+),
+makeKidLesson("kidPlace1000", 23,
+  {"ru":"Разряды до 1000","ua":"Розряди до 1000"},
+  {
+    ru:{
+      lead:"Число 342 — это 3 сотни, 4 десятка и 2 единицы.",
+      examples:["342 = 300 + 40 + 2","сотни, десятки, единицы","слева сотни, справа единицы"],
+      tip:"Читай число по разрядам: сотни, потом десятки, потом единицы.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Число 342 — це 3 сотні, 4 десятки й 2 одиниці.",
+      examples:["342 = 300 + 40 + 2","сотні, десятки, одиниці","зліва сотні, справа одиниці"],
+      tip:"Читай число за розрядами: сотні, потім десятки, потім одиниці.",
+      checkTitle:"Пограємо"
+    }
+  },
+  function(seed){
+    const r = KID_WIDGETS.rng(seed);
+    function put(correct, d1, d2){
+      const pool = [String(correct), String(d1), String(d2)];
+      const rot = KID_WIDGETS.rngInt(r, 0, 2);
+      const bar = [pool[rot % 3], pool[(rot + 1) % 3], pool[(rot + 2) % 3]];
+      return {options:bar, correct:bar.indexOf(String(correct))};
+    }
+    const h = KID_WIDGETS.rngInt(r, 1, 9);
+    let t = KID_WIDGETS.rngInt(r, 0, 9);
+    while(t === h) t = KID_WIDGETS.rngInt(r, 0, 9);
+    let o = KID_WIDGETS.rngInt(r, 0, 9);
+    while(o === h || o === t) o = KID_WIDGETS.rngInt(r, 0, 9);
+    const n = h * 100 + t * 10 + o;
+    const gh = put(h, t, o);
+    const gt = put(t, h, o);
+    return [
+      {type:"pick", difficulty:"easy",
+        ask:{ru:`В числе ${n} сколько сотен?`,ua:`У числі ${n} скільки сотень?`},
+        options:gh.options, correct:gh.correct},
+      {type:"pick", difficulty:"middle",
+        ask:{ru:`В числе ${n} сколько десятков?`,ua:`У числі ${n} скільки десятків?`},
+        options:gt.options, correct:gt.correct},
+      {type:"input", difficulty:"hard",
+        ask:{ru:`${h * 100} + ${t * 10} + ${o} = ?`,ua:`${h * 100} + ${t * 10} + ${o} = ?`},
+        answer:String(n)}
+    ];
+  },
+  {
+    html: function(lang){
+      return '<div class="kid-widget" id="kid-p1000-blocks">' + KID_WIDGETS.baseTen(3, 4, 2) + "</div>" +
+        '<div class="kid-widget" id="kid-p1000-table">' + KID_WIDGETS.placeValueTable(342, lang) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-p1000-range" min="100" max="999" step="1" value="342"></div>';
+    },
+    mount: function(root, lang){
+      const sl = root.querySelector("#kid-p1000-range");
+      const blocks = root.querySelector("#kid-p1000-blocks"), table = root.querySelector("#kid-p1000-table");
+      if(!sl || !blocks || !table) return;
+      function draw(){
+        const v = parseInt(sl.value, 10);
+        const h = Math.floor(v / 100), t = Math.floor(v / 10) % 10, o = v % 10;
+        blocks.innerHTML = KID_WIDGETS.baseTen(h, t, o);
+        table.innerHTML = KID_WIDGETS.placeValueTable(v, lang);
+      }
+      sl.addEventListener("input", draw);
+      draw();
+    }
+  }
+),
+makeKidLesson("kidAdd1000", 23,
+  {"ru":"Складываем до 1000","ua":"Додаємо до 1000"},
+  {
+    ru:{
+      lead:"Сотни складываем с сотнями: 200 + 300 = 500.",
+      examples:["200 + 300 = 500","150 + 150 = 300","1000 = 900 + 100"],
+      tip:"Складывай по разрядам: сотни с сотнями, десятки с десятками.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Сотні додаємо до сотень: 200 + 300 = 500.",
+      examples:["200 + 300 = 500","150 + 150 = 300","1000 = 900 + 100"],
+      tip:"Додавай за розрядами: сотні до сотень, десятки до десятків.",
+      checkTitle:"Пограємо"
+    }
+  },
+  function(seed){
+    const r = KID_WIDGETS.rng(seed);
+    function put(correct, d1, d2){
+      const pool = [String(correct), String(d1), String(d2)];
+      const rot = KID_WIDGETS.rngInt(r, 0, 2);
+      const bar = [pool[rot % 3], pool[(rot + 1) % 3], pool[(rot + 2) % 3]];
+      return {options:bar, correct:bar.indexOf(String(correct))};
+    }
+    const a1 = KID_WIDGETS.rngInt(r, 1, 8) * 100;
+    const b1 = KID_WIDGETS.rngInt(r, 1, 8) * 100;
+    const a2 = KID_WIDGETS.rngInt(r, 1, 8) * 100;
+    const b2 = KID_WIDGETS.rngInt(r, 1, 8) * 100;
+    const sum = a2 + b2;
+    const g = put(sum, sum + 100, sum - 100);
+    const c = KID_WIDGETS.rngInt(r, 1, 9) * 100;
+    return [
+      {type:"input", difficulty:"easy",
+        ask:{ru:`${a1} + ${b1} = ?`,ua:`${a1} + ${b1} = ?`},
+        answer:String(a1 + b1)},
+      {type:"pick", difficulty:"middle",
+        ask:{ru:`${a2} + ${b2} = ?`,ua:`${a2} + ${b2} = ?`},
+        options:g.options, correct:g.correct},
+      {type:"input", difficulty:"hard",
+        ask:{ru:`1000 − ${c} = ?`,ua:`1000 − ${c} = ?`},
+        answer:String(1000 - c)}
+    ];
+  },
+  {
+    html: function(){
+      return '<div class="kid-widget" id="kid-add1000">' + KID_WIDGETS.columnAdd(300, 400) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-add1000-a" min="100" max="800" step="100" value="300">' +
+        '<output class="kid-out" id="kid-add1000-out">300 + 400 = 700</output>' +
+        '<input type="range" id="kid-add1000-b" min="100" max="800" step="100" value="400"></div>';
+    },
+    mount: function(root){
+      const a = root.querySelector("#kid-add1000-a"), b = root.querySelector("#kid-add1000-b");
+      const box = root.querySelector("#kid-add1000"), out = root.querySelector("#kid-add1000-out");
+      if(!a || !b || !box || !out) return;
+      function draw(){
+        const x = parseInt(a.value, 10), y = parseInt(b.value, 10);
+        box.innerHTML = KID_WIDGETS.columnAdd(x, y);
+        out.textContent = x + " + " + y + " = " + (x + y);
+      }
+      a.addEventListener("input", draw);
+      b.addEventListener("input", draw);
+      draw();
+    }
+  }
+),
+makeKidLesson("kidCompare1000", 23,
+  {"ru":"Сравниваем до 1000","ua":"Порівнюємо до 1000"},
+  {
+    ru:{
+      lead:"Сравниваем числа до 1000 знаками > < =.",
+      examples:["500 > 400","250 < 520","700 = 700"],
+      tip:"Сначала сравни сотни, потом десятки, потом единицы.",
+      checkTitle:"Поиграем"
+    },
+    ua:{
+      lead:"Порівнюємо числа до 1000 знаками > < =.",
+      examples:["500 > 400","250 < 520","700 = 700"],
+      tip:"Спочатку порівняй сотні, потім десятки, потім одиниці.",
+      checkTitle:"Пограємо"
+    }
+  },
+  function(seed){
+    const r = KID_WIDGETS.rng(seed);
+    function signGame(x, y){
+      const s = x === y ? "=" : (x > y ? ">" : "<");
+      const opts = [" > ", " = ", " < "];
+      return {options:opts, correct:opts.indexOf(s)};
+    }
+    const a1 = KID_WIDGETS.rngInt(r, 101, 999), b1 = KID_WIDGETS.rngInt(r, 101, 999);
+    const a2 = KID_WIDGETS.rngInt(r, 101, 999), b2 = KID_WIDGETS.rngInt(r, 101, 999);
+    const a3 = KID_WIDGETS.rngInt(r, 101, 999), b3 = KID_WIDGETS.rngInt(r, 101, 999);
+    const g1 = signGame(a1, b1), g2 = signGame(a2, b2), g3 = signGame(a3, b3);
+    return [
+      {type:"pick", difficulty:"easy", ask:{ru:`${a1} ? ${b1} — какой знак?`,ua:`${a1} ? ${b1} — який знак?`}, options:g1.options, correct:g1.correct},
+      {type:"pick", difficulty:"middle", ask:{ru:`${a2} ? ${b2} — какой знак?`,ua:`${a2} ? ${b2} — який знак?`}, options:g2.options, correct:g2.correct},
+      {type:"pick", difficulty:"hard", ask:{ru:`${a3} ? ${b3} — какой знак?`,ua:`${a3} ? ${b3} — який знак?`}, options:g3.options, correct:g3.correct}
+    ];
+  },
+  {
+    html: function(lang){
+      return '<div class="kid-widget" id="kid-c1000-t">' + KID_WIDGETS.placeValueTable(342, lang) + KID_WIDGETS.placeValueTable(259, lang) + "</div>" +
+        '<div class="kid-lab"><input type="range" id="kid-c1000-a" min="100" max="999" value="342">' +
+        '<output class="kid-out" id="kid-c1000-out">342 > 259</output>' +
+        '<input type="range" id="kid-c1000-b" min="100" max="999" value="259"></div>';
+    },
+    mount: function(root, lang){
+      const a = root.querySelector("#kid-c1000-a"), b = root.querySelector("#kid-c1000-b");
+      const box = root.querySelector("#kid-c1000-t"), out = root.querySelector("#kid-c1000-out");
+      if(!a || !b || !box || !out) return;
+      function draw(){
+        const x = parseInt(a.value, 10), y = parseInt(b.value, 10);
+        box.innerHTML = KID_WIDGETS.placeValueTable(x, lang) + KID_WIDGETS.placeValueTable(y, lang);
+        out.textContent = x + " " + (x === y ? "=" : (x > y ? ">" : "<")) + " " + y;
+      }
+      a.addEventListener("input", draw);
+      b.addEventListener("input", draw);
+      draw();
+    }
+  }
 ),
     makeFinalLesson(1),
   makeFinalLesson(2),

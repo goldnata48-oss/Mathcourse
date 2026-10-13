@@ -77,6 +77,8 @@ function makeContext(miniChecks) {
   vm.createContext(ctx);
   const kidUi = lessonsSrc.match(/const KID_UI = (\{[\s\S]*?\n\});/);
   vm.runInContext("var KID_UI = " + kidUi[1] + ";", ctx);
+  const kidDiff = lessonsSrc.match(/const KID_DIFF = (\{[\s\S]*?\n\});/);
+  vm.runInContext("var KID_DIFF = " + kidDiff[1] + ";", ctx);
   vm.runInContext(lib.extractFn(appSrc, "saveMiniChecks"), ctx);
   vm.runInContext(lib.extractFn(appSrc, "miniStat"), ctx);
   vm.runInContext(lib.extractFn(appSrc, "refreshMiniIndicators"), ctx);
@@ -138,6 +140,48 @@ assert(dom.h3.querySelectorAll(".mini-check-badge").length === 1, "no duplicate 
 ctx.renderKidCheck(dom.container, "ru", activities.slice(0, 2));
 assert(ctx.state.miniChecks.K1.choices.length === 2 && ctx.state.miniChecks.K1.choices.every(c => c === null),
   "changed activity count resets the record");
+
+/* Новые типы: метка сложности, виджет, ввод с клавиатуры, «исправь робота». */
+const richActivities = [
+  { type: "pick", difficulty: "easy", ask: { ru: "Раз, два", ua: "Раз, два" }, options: ["a", "b"], correct: 1, widget: "<svg></svg>" },
+  { type: "input", difficulty: "hard", ask: { ru: "Посчитай", ua: "Порахуй" }, answer: "36" },
+  { type: "fix", ask: { ru: "Где ошибка?", ua: "Де помилка?" }, robot: { ru: "2 + 2 = 5", ua: "2 + 2 = 5" },
+    options: ["3", "4", "5"], correct: 1, explain: { ru: "Два плюс два — четыре", ua: "Два плюс два — чотири" } }
+];
+
+({ ctx, dom } = makeContext({}));
+ctx.renderKidCheck(dom.container, "ru", richActivities);
+const r0 = dom.container.children[0];
+assert(r0.querySelector(".kid-diff") && r0.querySelector(".kid-diff").textContent === "лёгкое", "difficulty label rendered");
+assert(!!r0.querySelector(".kid-widget"), "widget container rendered");
+const r1 = dom.container.children[1];
+assert(r1.children[1].classList.contains("kid-input-display"), "input display rendered");
+const keys = r1.children[2].children;
+assert(keys.length === 12, "input keypad has 12 keys (got " + keys.length + ")");
+keys[2].click();
+keys[5].click();
+keys[11].click();
+assert(ctx.state.miniChecks.K1.choices[1] === 0, "input solved with typed answer");
+const r2 = dom.container.children[2];
+assert(!!r2.querySelector(".kid-robot"), "robot hint rendered");
+assert(r2.children[2].children.length === 3, "fix offers 3 options");
+r2.children[2].children[1].click();
+assert(ctx.state.miniChecks.K1.choices[2] === 0, "fix solved by choosing corrected option");
+assert(!!r2.querySelector(".kid-explain"), "explanation shown after fix");
+
+/* Вариативность: activities-функция + стабильный seed в записи. */
+function dyn(seed){
+  const base = (seed % 5) + 1;
+  return [{ type: "input", ask: { ru: "Сколько?", ua: "Скільки?" }, answer: String(base) }];
+}
+({ ctx, dom } = makeContext({}));
+ctx.renderKidCheck(dom.container, "ru", (s) => dyn(s));
+const firstSeed = ctx.state.miniChecks.K1.seed;
+assert(typeof firstSeed === "number", "dynamic seed stored in record");
+ctx.state.miniChecks.K1.choices[0] = 0;
+ctx.renderKidCheck(dom.container, "ru", (s) => dyn(s));
+assert(ctx.state.miniChecks.K1.seed === firstSeed, "seed stable across renders");
+assert(ctx.state.miniChecks.K1.choices[0] === 0, "progress kept with dynamic activities");
 
 console.log(fails === 0 ? "\nALL KID-LESSON TESTS PASSED" : "\n" + fails + " TEST(S) FAILED");
 process.exit(fails ? 1 : 0);

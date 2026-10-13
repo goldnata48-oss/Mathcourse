@@ -33,7 +33,7 @@ function section(title) { console.log("\n== " + title + " =="); }
 function checkSyntax() {
   section("syntax");
   const files = [
-    "i18n.js", "lessons.js", "lesson-data.js", "trainer.js", "app.js", "build.js", "build-icons.js", "sw.js",
+    "i18n.js", "lessons.js", "kid-widgets.js", "lesson-data.js", "trainer.js", "app.js", "build.js", "build-icons.js", "sw.js",
     "tools/lib.js", "tools/deploy.js", "tools/verify.js", "tools/check-live.js",
     "netlify/functions/kvantik.js",
   ];
@@ -45,7 +45,7 @@ function checkSyntax() {
   report("source files (" + files.length + ")", bad.length === 0, bad.join(" | "));
 
   try {
-    new vm.Script([read("i18n.js"), read("lessons.js"), read("lesson-data.js"), read("trainer.js"), read("app.js")].join("\n"), { filename: "bundle.js" });
+    new vm.Script([read("i18n.js"), read("lessons.js"), read("kid-widgets.js"), read("lesson-data.js"), read("trainer.js"), read("app.js")].join("\n"), { filename: "bundle.js" });
     report("concatenated bundle", true);
   } catch (e) { report("concatenated bundle", false, e.message); }
 }
@@ -498,7 +498,7 @@ function checkMix() {
   const cyr = /[\u0400-\u04FF]/;
   const lat = /[A-Za-z]/;
   const hits = [];
-  for (const f of ["i18n.js", "lessons.js", "lesson-data.js", "trainer.js", "app.js"]) {
+  for (const f of ["i18n.js", "lessons.js", "kid-widgets.js", "lesson-data.js", "trainer.js", "app.js"]) {
     read(f).split(/\r?\n/).forEach((line, i) => {
       const toks = line.match(/[\u0400-\u04FFA-Za-z]{2,}/g) || [];
       for (const tok of toks) if (cyr.test(tok) && lat.test(tok) && !allow.test(tok)) hits.push(f + ":" + (i + 1) + " " + tok);
@@ -665,7 +665,7 @@ function checkDist() {
   } catch (e) {
     report("dist/index.html lazily loads lesson data", false, e.message.split("\n")[0]);
   }
-  for (const f of ["theme.css", "styles.css", "i18n.js", "lessons.js", "lesson-data.js", "trainer.js", "app.js"]) {
+  for (const f of ["theme.css", "styles.css", "i18n.js", "lessons.js", "lesson-data.js", "kid-widgets.js", "trainer.js", "app.js"]) {
     try {
       const n = read("dist/" + f).length;
       report("dist/" + f + " present (" + Math.round(n / 1024) + " KB)", n > 0);

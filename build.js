@@ -18,10 +18,10 @@ const writeFile = (file, content) => {
 
 /* Ассеты разделены: HTML остаётся маленьким, а скрипты/стили грузятся
    отдельными файлами (SW кэширует их, браузер — отдельно от разметки). */
-const ASSETS = ["theme.css", "styles.css", "i18n.js", "lessons.js", "lesson-data.js", "trainer.js", "app.js"];
+const ASSETS = ["theme.css", "styles.css", "i18n.js", "lessons.js", "lesson-data.js", "kid-widgets.js", "trainer.js", "app.js"];
 const APP_SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./icon.svg",
-  "./theme.css", "./styles.css", "./i18n.js", "./lessons.js", "./lesson-data.js", "./trainer.js", "./app.js",
+  "./theme.css", "./styles.css", "./i18n.js", "./lessons.js", "./lesson-data.js", "./kid-widgets.js", "./trainer.js", "./app.js",
   "./privacy.html",
 ];
 
