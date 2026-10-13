@@ -1,5 +1,5 @@
 /* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
-const CACHE_NAME = "mathcourse-66f14cd5";
+const CACHE_NAME = "mathcourse-d622661d";
 const APP_SHELL = [
   "./",
   "./index.html",

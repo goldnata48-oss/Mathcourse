@@ -1,6 +1,6 @@
 /* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
 let state = {
-  lang: "ru",
+  lang: "ua",
   mode: "course",      // course | trainer | moduletest
   lessonId: "l1",
   trainerLevel: null,
@@ -734,6 +734,8 @@ function renderSidebar(){
   const btnTrainer = document.getElementById("btn-mode-trainer");
   if(appTitle) appTitle.textContent = gradeTitle();
   if(appSubtitle) appSubtitle.textContent = UI[state.lang].gradeSubtitles[state.grade] || UI[state.lang].appSubtitle;
+  const betaBadge = document.getElementById("beta-badge");
+  if(betaBadge) betaBadge.textContent = UI[state.lang].beta;
   if(btnRu){ btnRu.classList.toggle("active", state.lang==="ru"); btnRu.setAttribute("aria-pressed", String(state.lang==="ru")); }
   if(btnUa){ btnUa.classList.toggle("active", state.lang==="ua"); btnUa.setAttribute("aria-pressed", String(state.lang==="ua")); }
   if(btnCourse){
@@ -1605,8 +1607,8 @@ const btnModeCourse = document.getElementById("btn-mode-course");
 const btnModeTrainer = document.getElementById("btn-mode-trainer");
 const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
 
-if(btnLangRu){ btnLangRu.addEventListener("click", ()=>{ state.lang="ru"; document.documentElement.lang="ru"; trainerCurrent=null; render(); }); }
-if(btnLangUa){ btnLangUa.addEventListener("click", ()=>{ state.lang="ua"; document.documentElement.lang="uk"; trainerCurrent=null; render(); }); }
+if(btnLangRu){ btnLangRu.addEventListener("click", ()=>{ state.lang="ru"; localStorage.setItem("mc_lang","ru"); document.documentElement.lang="ru"; trainerCurrent=null; render(); }); }
+if(btnLangUa){ btnLangUa.addEventListener("click", ()=>{ state.lang="ua"; localStorage.setItem("mc_lang","ua"); document.documentElement.lang="uk"; trainerCurrent=null; render(); }); }
 if(btnModeCourse){ btnModeCourse.addEventListener("click", ()=>{ state.mode="course"; render(); }); }
 if(btnModeTrainer){ btnModeTrainer.addEventListener("click", ()=>{ state.mode="trainer"; state.trainerLevel=null; state.trainerTopic=null; state.trainerReview=null; render(); }); }
 if(mobileMenuToggle){ mobileMenuToggle.addEventListener("click", ()=>{
@@ -1672,6 +1674,10 @@ function applyGrade(grade){
     state.trainerLevel = null;
   }
 }
+function loadSavedLang(){
+  const saved = localStorage.getItem("mc_lang");
+  return saved === "ru" || saved === "ua" ? saved : "ua";
+}
 function loadSavedGrade(){
   const savedGrade = localStorage.getItem("mc_grade");
   const storageVersion = localStorage.getItem("mc_grade_version");
@@ -1701,6 +1707,8 @@ function loadLessonsData(){
 }
 
 function boot(){
+  state.lang = loadSavedLang();
+  document.documentElement.lang = state.lang === "ua" ? "uk" : "ru";
   applyGrade(loadSavedGrade());
   initMascot();
   initConsent();

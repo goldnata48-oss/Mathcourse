@@ -4356,11 +4356,17 @@ makeTopicLesson("re4", 15,
   html(lang){
     const t = lang==="ru" ? {
       p1:"Площадь поверхности многогранника или тела вращения складывается из боковой поверхности и площадей оснований. Для круглых тел все формулы выводятся через развёртку.",
-      prismTitle:"Призма и пирамида",
-      f1:"Sбок(призма) = P·h  (P — периметр основания, h — высота)",
-      f2:"Sполн(призма) = Sбок + 2Sосн",
-      f3:"Sбок(правильная пирамида) = ½·P·l  (l — апофема, т.е. высота боковой грани)",
-      f4:"Sполн(пирамида) = Sбок + Sосн",
+      prismTitle:"Прямая призма",
+      f1:"Sбок = P·h  (P — периметр основания, h — высота)",
+      f2:"Sполн = Sбок + 2Sосн",
+      fv:"V(прямая призма) = Sосн · h",
+      pyrTitle:"Правильная пирамида",
+      f3:"Sбок = ½·P·l",
+      apoNote:"l — апофема: высота боковой грани, то есть перпендикуляр из вершины S к стороне основания. Не путать с радиусом вписанной в основание окружности r — тот идёт из центра основания к стороне.",
+      f4:"Sполн = Sбок + Sосн",
+      fpv:"V(правильная пирамида) = ⅓ · Sосн · h",
+      prismInterLabel:"Двигай a и h — смотри объём прямой призмы: V = Sосн·h",
+      pyrInterLabel:"Двигай a и h — смотри апофему l и объём правильной пирамиды: V = ⅓Sосн·h",
       roundTitle:"Круглые тела",
       f5:"Цилиндр: Sбок=2πRh,  Sполн=2πR(R+h)",
       f6:"Конус: l=√(R²+h²),  Sбок=πRl,  Sполн=πR(R+l)",
@@ -4376,11 +4382,17 @@ makeTopicLesson("re4", 15,
       checkTitle:"Мини-проверка"
     } : {
       p1:"Площа поверхні многогранника чи тіла обертання складається з бічної поверхні та площ основ. Для круглих тіл усі формули виводяться через розгортку.",
-      prismTitle:"Призма і піраміда",
-      f1:"Sбіч(призма) = P·h  (P — периметр основи, h — висота)",
-      f2:"Sповн(призма) = Sбіч + 2Sосн",
-      f3:"Sбіч(правильна піраміда) = ½·P·l  (l — апофема, тобто висота бічної грані)",
-      f4:"Sповн(піраміда) = Sбіч + Sосн",
+      prismTitle:"Пряма призма",
+      f1:"Sбіч = P·h  (P — периметр основи, h — висота)",
+      f2:"Sповн = Sбіч + 2Sосн",
+      fv:"V(пряма призма) = Sосн · h",
+      pyrTitle:"Правильна піраміда",
+      f3:"Sбіч = ½·P·l",
+      apoNote:"l — апофема: висота бічної грані, тобто перпендикуляр з вершини S до сторони основи. Не плутати з радіусом вписаного в основу кола r — той іде з центра основи до сторони.",
+      f4:"Sповн = Sбіч + Sосн",
+      fpv:"V(правильна піраміда) = ⅓ · Sосн · h",
+      prismInterLabel:"Рухай a і h — дивись об'єм прямої призми: V = Sосн·h",
+      pyrInterLabel:"Рухай a і h — дивись апофему l та об'єм правильної піраміди: V = ⅓Sосн·h",
       roundTitle:"Круглі тіла",
       f5:"Циліндр: Sбіч=2πRh,  Sповн=2πR(R+h)",
       f6:"Конус: l=√(R²+h²),  Sбіч=πRl,  Sповн=πR(R+l)",
@@ -4400,8 +4412,48 @@ makeTopicLesson("re4", 15,
       <h3>${t.prismTitle}</h3>
       <div class="formula-box">${t.f1}</div>
       <div class="formula-box">${t.f2}</div>
+      <div class="formula-box">${t.fv}</div>
+      <div class="interactive-block">
+        <div class="interactive-label">${t.prismInterLabel}</div>
+        <label style="font-size:12px;color:var(--ink-soft);">a</label>
+        <input type="range" id="s1-pr-a" min="1" max="5" step="0.5" value="3" style="width:100%;">
+        <label style="font-size:12px;color:var(--ink-soft);">h</label>
+        <input type="range" id="s1-pr-h" min="1" max="6" step="0.5" value="4" style="width:100%;">
+        <div class="readout" id="s1-pr-readout"></div>
+        <canvas id="s1-pr-canvas" width="600" height="280" style="width:100%;height:auto;margin-top:10px;"></canvas>
+      </div>
+      <h3>${t.pyrTitle}</h3>
       <div class="formula-box">${t.f3}</div>
+      <p>${t.apoNote}</p>
+      <svg viewBox="0 0 360 300" role="img" aria-label="${lang==='ru'?'Правильная пирамида: h — высота, l — апофема, a — сторона основания':'Правильна піраміда: h — висота, l — апофема, a — сторона основи'}" style="width:100%;max-width:420px;height:auto;display:block;margin:10px auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;">
+        <polygon points="100,230 260,230 300,160 140,160" fill="var(--accent-soft)" stroke="var(--ink)" stroke-width="2"/>
+        <line x1="100" y1="230" x2="140" y2="160" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <line x1="260" y1="230" x2="300" y2="160" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <line x1="200" y1="60" x2="100" y2="230" stroke="var(--ink)" stroke-width="2"/>
+        <line x1="200" y1="60" x2="260" y2="230" stroke="var(--ink)" stroke-width="2"/>
+        <line x1="200" y1="60" x2="300" y2="160" stroke="var(--ink)" stroke-width="2"/>
+        <line x1="200" y1="60" x2="140" y2="160" stroke="var(--ink)" stroke-width="2"/>
+        <line x1="200" y1="60" x2="200" y2="195" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 4"/>
+        <line x1="200" y1="60" x2="180" y2="230" stroke="var(--accent)" stroke-width="2"/>
+        <circle cx="200" cy="195" r="3" fill="var(--accent)"/>
+        <circle cx="180" cy="230" r="3" fill="var(--accent)"/>
+        <text x="206" y="128" font-size="15" fill="var(--ink)">h</text>
+        <text x="168" y="150" font-size="15" fill="var(--accent)">l</text>
+        <text x="176" y="250" font-size="15" fill="var(--ink)">a</text>
+        <text x="204" y="54" font-size="15" fill="var(--ink)">S</text>
+        <text x="204" y="206" font-size="13" fill="var(--accent)">O</text>
+      </svg>
       <div class="formula-box">${t.f4}</div>
+      <div class="formula-box">${t.fpv}</div>
+      <div class="interactive-block">
+        <div class="interactive-label">${t.pyrInterLabel}</div>
+        <label style="font-size:12px;color:var(--ink-soft);">a</label>
+        <input type="range" id="s1-py-a" min="1" max="6" step="0.5" value="4" style="width:100%;">
+        <label style="font-size:12px;color:var(--ink-soft);">h</label>
+        <input type="range" id="s1-py-h" min="1" max="7" step="0.5" value="4" style="width:100%;">
+        <div class="readout" id="s1-py-readout"></div>
+        <canvas id="s1-py-canvas" width="600" height="300" style="width:100%;height:auto;margin-top:10px;"></canvas>
+      </div>
       <h3>${t.roundTitle}</h3>
       <div class="formula-box">${t.f5}</div>
       <div class="formula-box">${t.f6}</div>
@@ -4469,11 +4521,74 @@ makeTopicLesson("re4", 15,
     hSlider.addEventListener("input", draw);
     draw();
 
+    // --- прямая четырёхугольная призма: Sбок, Sполн, V ---
+    const prA = root.querySelector("#s1-pr-a");
+    const prH = root.querySelector("#s1-pr-h");
+    const prOut = root.querySelector("#s1-pr-readout");
+    const prCtx = root.querySelector("#s1-pr-canvas").getContext("2d");
+    const LP = { ru:{a:"a",h:"h",sbok:"Sбок",sfull:"Sполн",v:"V"}, ua:{a:"a",h:"h",sbok:"Sбіч",sfull:"Sповн",v:"V"} }[lang];
+    function drawPrism(){
+      const a=parseFloat(prA.value), h=parseFloat(prH.value);
+      const Sosn=a*a, P=4*a, Slat=P*h, Sfull=Slat+2*Sosn, V=Sosn*h;
+      prCtx.clearRect(0,0,600,280);
+      const scale=30, ox=200, oy=220, half=a/2;
+      const b1=project3D(-half,0,-half,ox,oy,scale), b2=project3D(half,0,-half,ox,oy,scale);
+      const b3=project3D(half,0,half,ox,oy,scale), b4=project3D(-half,0,half,ox,oy,scale);
+      const t1=project3D(-half,h,-half,ox,oy,scale), t2=project3D(half,h,-half,ox,oy,scale);
+      const t3=project3D(half,h,half,ox,oy,scale), t4=project3D(-half,h,half,ox,oy,scale);
+      draw3DPolygon(prCtx,[t1,t2,t3,t4],cAccentSoft,cInk);
+      draw3DPolygon(prCtx,[b1,b2,b3,b4],cAccentSoft,cInk);
+      [[b1,t1],[b2,t2],[b3,t3],[b4,t4]].forEach(pr=>draw3DLine(prCtx,pr[0],pr[1],cInk,2));
+      draw3DLine(prCtx,b4,b1,cLine,1,true);
+      draw3DLine(prCtx,b3,b4,cLine,1,true);
+      draw3DLine(prCtx,t4,t1,cLine,1,true);
+      draw3DLine(prCtx,t3,t4,cLine,1,true);
+      const hFoot=project3D(0,0,-half,ox,oy,scale), hTop=project3D(0,h,-half,ox,oy,scale);
+      draw3DLine(prCtx,hFoot,hTop,cAccent,2,true);
+      prCtx.fillStyle=cAccent; prCtx.font="13px sans-serif";
+      prCtx.fillText("h", hTop.x+5, (hTop.y+hFoot.y)/2);
+      prCtx.fillStyle=cInk; prCtx.fillText("a", (b1.x+b2.x)/2-4, (b1.y+b2.y)/2+16);
+      prOut.innerHTML = `<div><span>${LP.a}</span>${a}</div><div><span>${LP.h}</span>${h}</div><div><span>${LP.sbok}</span>${Slat.toFixed(2)}</div><div><span>${LP.sfull}</span>${Sfull.toFixed(2)}</div><div><span>${LP.v}</span>${V.toFixed(2)}</div>`;
+    }
+    prA.addEventListener("input", drawPrism); prH.addEventListener("input", drawPrism); drawPrism();
+
+    // --- правильная четырёхугольная пирамида: апофема l, Sбок, Sполн, V ---
+    const pyA = root.querySelector("#s1-py-a");
+    const pyH = root.querySelector("#s1-py-h");
+    const pyOut = root.querySelector("#s1-py-readout");
+    const pyCtx = root.querySelector("#s1-py-canvas").getContext("2d");
+    const LY = { ru:{a:"a",h:"h",l:"l (апофема)",sbok:"Sбок",sfull:"Sполн",v:"V"}, ua:{a:"a",h:"h",l:"l (апофема)",sbok:"Sбіч",sfull:"Sповн",v:"V"} }[lang];
+    function drawPyr(){
+      const a=parseFloat(pyA.value), h=parseFloat(pyH.value);
+      const Sosn=a*a, P=4*a, l=Math.sqrt(h*h+(a/2)*(a/2));
+      const Slat=0.5*P*l, Sfull=Slat+Sosn, V=Sosn*h/3;
+      pyCtx.clearRect(0,0,600,300);
+      const scale=32, ox=200, oy=235, half=a/2;
+      const b1=project3D(-half,0,-half,ox,oy,scale), b2=project3D(half,0,-half,ox,oy,scale);
+      const b3=project3D(half,0,half,ox,oy,scale), b4=project3D(-half,0,half,ox,oy,scale);
+      const apex=project3D(0,h,0,ox,oy,scale), O=project3D(0,0,0,ox,oy,scale);
+      const midF={x:(b1.x+b2.x)/2, y:(b1.y+b2.y)/2};
+      draw3DPolygon(pyCtx,[b1,b2,b3,b4],cAccentSoft,cInk);
+      [b1,b2,b3,b4].forEach(b=>draw3DLine(pyCtx,b,apex,cInk,2));
+      draw3DLine(pyCtx,b4,b1,cLine,1,true);
+      draw3DLine(pyCtx,b3,b4,cLine,1,true);
+      draw3DLine(pyCtx,apex,O,cAccent,2,true);
+      draw3DLine(pyCtx,apex,midF,cAccent,2);
+      pyCtx.fillStyle=cAccent; pyCtx.font="13px sans-serif";
+      pyCtx.fillText("h", O.x+5, (apex.y+O.y)/2);
+      pyCtx.fillText("l", (apex.x+midF.x)/2-13, (apex.y+midF.y)/2);
+      pyCtx.fillStyle=cInk; pyCtx.fillText("a", midF.x-4, midF.y+16);
+      pyOut.innerHTML = `<div><span>${LY.a}</span>${a}</div><div><span>${LY.h}</span>${h}</div><div><span>${LY.l}</span>${l.toFixed(2)}</div><div><span>${LY.sbok}</span>${Slat.toFixed(2)}</div><div><span>${LY.sfull}</span>${Sfull.toFixed(2)}</div><div><span>${LY.v}</span>${V.toFixed(2)}</div>`;
+    }
+    pyA.addEventListener("input", drawPyr); pyH.addEventListener("input", drawPyr); drawPyr();
+
     renderMiniCheck(root.querySelector("#mini-check"), lang, [
       { q:{ru:"Sбок цилиндра равна:",ua:"Sбіч циліндра дорівнює:"}, opts:["πR²","2πRh","πRh","4πR²"], correct:1 },
       { q:{ru:"Образующая конуса l равна:",ua:"Твірна конуса l дорівнює:"}, opts:["R+h","√(R²+h²)","R·h","√(R²−h²)"], correct:1 },
       { q:{ru:"Площадь поверхности сферы:",ua:"Площа поверхні сфери:"}, opts:["πR²","2πR²","4πR²","4/3πR³"], correct:2 },
-      { q:{ru:"Sбок правильной пирамиды равна:",ua:"Sбіч правильної піраміди дорівнює:"}, opts:["P·l","½P·l","P·h","Sосн+P"], correct:1 }
+      { q:{ru:"Sбок правильной пирамиды равна:",ua:"Sбіч правильної піраміди дорівнює:"}, opts:["P·l","½P·l","P·h","Sосн+P"], correct:1 },
+      { q:{ru:"Объём прямой призмы:",ua:"Об'єм прямої призми:"}, opts:["Sосн·h","⅓Sосн·h","P·h","2Sосн"], correct:0 },
+      { q:{ru:"Объём правильной пирамиды:",ua:"Об'єм правильної піраміди:"}, opts:["Sосн·h","⅓Sосн·h","½Sосн·h","P·h"], correct:1 }
     ]);
   }
 },
@@ -10993,6 +11108,9 @@ makeTopicLesson("stereoIntro", 6,
           const Vpyr   = S*h/3;
           const Slat   = P*h;
           const Sfull  = 2*S + Slat;
+          const apoPyr = Math.sqrt(h*h + apo*apo);
+          const SlatPyr = 0.5*P*apoPyr;
+          const SfullPyr = SlatPyr + S;
           let cells = "";
 
           if(mode === "prism"){
@@ -11024,13 +11142,24 @@ makeTopicLesson("stereoIntro", 6,
             rightAngle(svg, O, unit({x:B[0].x-O.x, y:B[0].y-O.y}), unit({x:Ot.x-O.x, y:Ot.y-O.y}), 9, COL.purple);
             lbl(svg, "h", (O.x+Ot.x)/2 + 10, (O.y+Ot.y)/2, COL.purple, "start", 12);
             lbl(svg, "S_осн", O.x + 30, O.y + 22, COL.blue, "start", 11);
+            /* переднее ребро основания: подписываем сторону a */
+            let fi = 0, fj = 1, fd = -1e9;
+            for(let i = 0; i < n; i++){ const j = (i+1)%n; const d = B[i].x+B[i].y+B[j].x+B[j].y; if(d > fd){ fd = d; fi = i; fj = j; } }
+            const midP = {x:(B[fi].x+B[fj].x)/2, y:(B[fi].y+B[fj].y)/2};
+            lbl(svg, "a", midP.x, midP.y + 16, COL.blue, "middle", 12);
+            /* апофема основания r: из центра к середине стороны */
+            line3(svg, [O, midP], COL.amber, 2, "4,3");
+            lbl(svg, "r", (O.x+midP.x)/2 + 6, (O.y+midP.y)/2 - 4, COL.amber, "start", 12);
 
             cells += "<div><span>n</span>" + n + "</div>";
             cells += "<div><span>a</span>" + f2(side) + "</div>";
+            cells += "<div><span>P = n·a</span>" + f2(P) + "</div>";
             cells += "<div><span>r</span>" + f2(apo) + "</div>";
-            cells += "<div><span>S</span>" + f2(S) + "</div>";
+            cells += "<div><span>S_осн</span>" + f2(S) + "</div>";
             cells += "<div><span>h</span>" + f1(h) + "</div>";
-            cells += "<div><span>V = S·h</span>" + f2(Vprism) + "</div>";
+            cells += "<div class=\"wide\"><span>S_бок = P·h</span>" + f2(Slat) + "</div>";
+            cells += "<div class=\"wide\"><span>S_полн = S_бок + 2S_осн</span>" + f2(Sfull) + "</div>";
+            cells += "<div class=\"wide\"><span>V = S_осн·h</span>" + f2(Vprism) + "</div>";
           } else if(mode === "pyr"){
             const base = ngon(n, R, 0);
             const B = base.map(p => iso(p.x, p.y, p.z));
@@ -11051,12 +11180,27 @@ makeTopicLesson("stereoIntro", 6,
             /* подпись сечения */
             const q = iso(R*t, 0, h*t);
             lbl(svg, "t=0.4 → S=" + f2(t*t*S), q.x + 8, q.y - 2, COL.teal, "start", 11);
+            /* переднее ребро основания: сторона a, апофема основания r и апофема пирамиды l */
+            let fi = 0, fj = 1, fd = -1e9;
+            for(let i = 0; i < n; i++){ const j = (i+1)%n; const d = B[i].x+B[i].y+B[j].x+B[j].y; if(d > fd){ fd = d; fi = i; fj = j; } }
+            const midP = {x:(B[fi].x+B[fj].x)/2, y:(B[fi].y+B[fj].y)/2};
+            lbl(svg, "a", midP.x, midP.y + 16, COL.blue, "middle", 12);
+            line3(svg, [O, midP], COL.amber, 1.8, "4,3");
+            line3(svg, [Sp, midP], COL.amber, 2.2);
+            lbl(svg, "r", (O.x+midP.x)/2 - 6, (O.y+midP.y)/2 + 10, COL.amber, "end", 12);
+            lbl(svg, "l", (Sp.x+midP.x)/2 - 10, (Sp.y+midP.y)/2, COL.amber, "end", 12);
 
             cells += "<div><span>n</span>" + n + "</div>";
-            cells += "<div><span>S</span>" + f2(S) + "</div>";
+            cells += "<div><span>a</span>" + f2(side) + "</div>";
+            cells += "<div><span>P = n·a</span>" + f2(P) + "</div>";
+            cells += "<div><span>r</span>" + f2(apo) + "</div>";
+            cells += "<div><span>S_осн</span>" + f2(S) + "</div>";
             cells += "<div><span>h</span>" + f1(h) + "</div>";
-            cells += "<div><span>V = S·h/3</span>" + f2(Vpyr) + "</div>";
-            cells += "<div><span>S(0.4)</span>" + f2(0.16*S) + "</div>";
+            cells += "<div><span>l = √(h² + r²)</span>" + f2(apoPyr) + "</div>";
+            cells += "<div class=\"wide\"><span>S_бок = ½·P·l</span>" + f2(SlatPyr) + "</div>";
+            cells += "<div class=\"wide\"><span>S_полн = S_бок + S_осн</span>" + f2(SfullPyr) + "</div>";
+            cells += "<div class=\"wide\"><span>V = ⅓·S_осн·h</span>" + f2(Vpyr) + "</div>";
+            cells += "<div><span>S(t=0.4)</span>" + f2(0.16*S) + "</div>";
             cells += "<div><span>V_призмы</span>" + f2(Vprism) + "</div>";
             cells += "<div class=\"wide\"><span>" + (lang === "ru" ? "отношение" : "відношення") + "</span>1/3</div>";
           } else {
