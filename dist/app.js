@@ -1545,6 +1545,7 @@ function render(){
   }
   applyConsentText();
   applyIntroTexts();
+  applyCommunityTexts();
 }
 
 /* ============================================================
@@ -1578,6 +1579,22 @@ function applyConsentText(){
   set("cookie-policy-link", t.consentPolicy);
   set("privacy-link", t.consentPolicy);
   set("cookie-settings", t.cookieSettings);
+}
+/* Блок «Спільнота та допомога»: контакты и кнопка-письмо. */
+const COMMUNITY_EMAIL = "gold_nata@ukr.net";
+function applyCommunityTexts(){
+  const t = UI[state.lang];
+  const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+  set("community-title", t.communityTitle);
+  set("community-lead", t.communityLead);
+  set("community-soon", t.soon);
+  const bug = document.getElementById("community-bug");
+  if(bug){
+    bug.textContent = t.communityBug;
+    const subject = encodeURIComponent(t.communityBugSubject);
+    const body = encodeURIComponent(t.communityBugBody);
+    bug.href = "mailto:" + COMMUNITY_EMAIL + "?subject=" + subject + "&body=" + body;
+  }
 }
 function showConsent(){ const el=document.getElementById("cookie-consent"); if(el) el.hidden=false; }
 function hideConsent(){ const el=document.getElementById("cookie-consent"); if(el) el.hidden=true; }

@@ -18,8 +18,9 @@
   "teaches": "Математика",
   "provider": {
     "@type": "Organization",
-    "name": "Маткурс",
-    "url": "https://roaring-melba-8c60da.netlify.app/"
+    "name": "Chimera Labs",
+    "url": "https://roaring-melba-8c60da.netlify.app/",
+    "sameAs": ["https://t.me/ChimeraLab"]
   },
   "hasCourseInstance": {
     "@type": "CourseInstance",
@@ -86,6 +87,33 @@
     <button id="btn-mode-trainer" type="button" aria-pressed="false">Тренажёр</button>
   </div>
   <nav id="module-nav" aria-label="Навигация по урокам"></nav>
+  <section id="community" class="community" aria-labelledby="community-title">
+    <div class="community-head">
+      <span class="community-avatar" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="34" height="34" focusable="false" aria-hidden="true">
+          <circle cx="32" cy="34" r="22" fill="#ffffff"/>
+          <circle cx="32" cy="37" r="17" class="community-avatar-face"/>
+          <circle cx="26" cy="37" r="2.3" fill="#ffffff"/>
+          <circle cx="38" cy="37" r="2.3" fill="#ffffff"/>
+          <path d="M27 44 Q32 48 37 44" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M14 31 A18 18 0 0 1 50 31 Z" fill="#1d2f52"/>
+          <ellipse cx="32" cy="31" rx="22" ry="4.4" fill="#16233a"/>
+          <circle cx="32" cy="14" r="2.3" fill="#16233a"/>
+        </svg>
+      </span>
+      <div class="community-head-text">
+        <p class="community-brand">Chimera Labs</p>
+        <h2 class="community-title" id="community-title"></h2>
+      </div>
+    </div>
+    <p class="community-lead" id="community-lead"></p>
+    <div class="community-links">
+      <a class="community-chip" href="https://t.me/ChimeraLab" target="_blank" rel="noopener noreferrer">Telegram</a>
+      <a class="community-chip" href="mailto:gold_nata@ukr.net">E-mail</a>
+      <span class="community-chip community-chip-soon" aria-disabled="true">Instagram <em id="community-soon"></em></span>
+    </div>
+    <a class="community-bug" id="community-bug" href="#"></a>
+  </section>
   <div id="sidebar-foot">
     <button id="cookie-settings" type="button" class="linklike"></button>
     <a href="privacy.html" id="privacy-link"></a>

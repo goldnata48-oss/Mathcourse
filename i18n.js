@@ -91,7 +91,12 @@ const UI = {
     consentAccept:"Принять",
     consentReject:"Отклонить",
     consentPolicy:"Политика конфиденциальности",
-    cookieSettings:"Настройки cookie"
+    cookieSettings:"Настройки cookie",
+    communityTitle:"Сообщество и помощь",
+    communityLead:"Напишите нам: идеи, ошибки, отзывы",
+    communityBug:"Сообщить об ошибке",
+    communityBugSubject:"Ошибка на сайте Маткурс",
+    communityBugBody:"Опишите, пожалуйста, что произошло:\n\n1) На какой странице или в каком шаге:\n2) Что вы делали:\n3) Что ожидали увидеть:\n\n Спасибо!"
   },
   ua:{
     appTitle:"Математика 10–11",
@@ -184,7 +189,12 @@ const UI = {
     consentAccept:"Прийняти",
     consentReject:"Відхилити",
     consentPolicy:"Політика конфіденційності",
-    cookieSettings:"Налаштування cookie"
+    cookieSettings:"Налаштування cookie",
+    communityTitle:"Спільнота та допомога",
+    communityLead:"Напишіть нам: ідеї, помилки, відгуки",
+    communityBug:"Повідомити про помилку",
+    communityBugSubject:"Помилка на сайті Маткурс",
+    communityBugBody:"Опишіть, будь ласка, що сталося:\n\n1) На якій сторінці або в якому кроці:\n2) Що ви робили:\n3) Що очікували побачити:\n\n Дякую!"
   }
 };
 
