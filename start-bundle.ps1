@@ -20,7 +20,7 @@ Write-Host "Bundled Mathcourse running at $url"
 Write-Host "Press Ctrl+C in this terminal to stop the server."
 Push-Location $dist
 try {
-  python -m http.server $Port --bind 127.0.0.1
+  python -m http.server $Port --bind ::
 }
 finally {
   Pop-Location

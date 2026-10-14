@@ -12,7 +12,8 @@ const APP_SHELL = [
   "./trainer.js",
   "./app.js",
   "./manifest.webmanifest",
-  "./icon.svg"
+  "./icon.svg",
+  "./chimeralab.jpg"
 ];
 
 self.addEventListener("install", event => {

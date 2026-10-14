@@ -19,15 +19,18 @@ const writeFile = (file, content) => {
 /* Ассеты разделены: HTML остаётся маленьким, а скрипты/стили грузятся
    отдельными файлами (SW кэширует их, браузер — отдельно от разметки). */
 const ASSETS = ["theme.css", "styles.css", "i18n.js", "lessons.js", "lesson-data.js", "kid-widgets.js", "trainer.js", "app.js"];
+/* Статичные картинки: копируются как есть и кэшируются SW. */
+const MEDIA = ["chimeralab.jpg"];
 const APP_SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./icon.svg",
   "./theme.css", "./styles.css", "./i18n.js", "./lessons.js", "./lesson-data.js", "./kid-widgets.js", "./trainer.js", "./app.js",
+  "./chimeralab.jpg",
   "./privacy.html",
 ];
 
 /* Версия кэша из содержимого всех исходников — меняется при любой правке. */
 function computeCacheTag() {
-  const parts = ["index.html", ...ASSETS].map(read);
+  const parts = ["index.html", ...ASSETS, ...MEDIA].map(read);
   return crypto.createHash("sha1").update(parts.join("\n")).digest("hex").slice(0, 8);
 }
 
@@ -41,6 +44,7 @@ function build() {
 
   fs.mkdirSync(dist, { recursive: true });
   for (const f of ASSETS) fs.copyFileSync(path.join(root, f), path.join(dist, f));
+  for (const f of MEDIA) fs.copyFileSync(path.join(root, f), path.join(dist, f));
 
   const html = read("index.html");
   writeFile(path.join(dist, "index.html"), html);

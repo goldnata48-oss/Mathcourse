@@ -43,6 +43,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preload" as="image" href="chimeralab.jpg">
 <link rel="preconnect" href="https://www.youtube-nocookie.com">
 <link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
 <title>Маткурс · Интерактивный курс математики</title>
@@ -123,6 +124,27 @@
 <script src="kid-widgets.js" defer></script>
 <script src="trainer.js" defer></script>
 <script src="app.js" defer></script>
+
+<div id="intro-screen" class="intro-screen" role="dialog" aria-modal="true" aria-labelledby="intro-title" hidden>
+  <div class="intro-lang" role="group" aria-label="Мова · Язык">
+    <button id="intro-lang-ua" type="button" aria-pressed="true">UA</button>
+    <button id="intro-lang-ru" type="button" aria-pressed="false">RU</button>
+  </div>
+  <div class="intro-card">
+    <div class="intro-logo-frame">
+      <img class="intro-logo" src="chimeralab.jpg" alt="Маткурс" width="192" height="256" decoding="async">
+    </div>
+    <div class="intro-body">
+      <p class="intro-kicker" id="intro-kicker"></p>
+      <h2 class="intro-title" id="intro-title"></h2>
+      <p class="intro-lead" id="intro-lead"></p>
+      <p class="intro-choose" id="intro-choose"></p>
+      <div class="intro-grades" id="intro-grades" role="group"></div>
+      <button id="intro-start" class="intro-start" type="button"></button>
+      <p class="intro-note" id="intro-note"></p>
+    </div>
+  </div>
+</div>
 
 <div id="cookie-consent" class="cookie-consent" role="dialog" aria-modal="false" aria-labelledby="cookie-text" hidden>
   <p id="cookie-text" class="cookie-text"></p>

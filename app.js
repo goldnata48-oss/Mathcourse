@@ -1544,6 +1544,7 @@ function render(){
     document.title = `${UI[state.lang].testKicker} — ${BASE_TITLE}`;
   }
   applyConsentText();
+  applyIntroTexts();
 }
 
 /* ============================================================
@@ -1599,6 +1600,93 @@ function initConsent(){
 }
 
 /* ============================================================
+   INTRO / SPLASH (фирменная стартовая обложка)
+   Показывается один раз первому посетителю; флаг mc_seen_intro
+   позволяет вернувшимся сразу попадать к курсу.
+   ============================================================ */
+const INTRO_KEY = "mc_seen_intro";
+const INTRO_GRADE_LABELS = { junior:"1–4", middle:"5–7", preSenior:"8–9", senior:"10–11" };
+let introGrade = "senior";
+let introReady = false;
+
+function applyIntroTexts(){
+  const screen = document.getElementById("intro-screen");
+  if(!screen) return;
+  const t = UI[state.lang];
+  const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+  set("intro-kicker", t.brand);
+  set("intro-title", t.introTitle);
+  set("intro-lead", t.introLead);
+  set("intro-choose", t.introChoose);
+  set("intro-start", t.introStart);
+  set("intro-note", t.introNote);
+  screen.querySelectorAll("#intro-grades button").forEach(b=>{
+    const active = b.dataset.grade === introGrade;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", String(active));
+  });
+  [["intro-lang-ua","ua"],["intro-lang-ru","ru"]].forEach(([id,code])=>{
+    const b = document.getElementById(id);
+    if(b){ const on = state.lang===code; b.classList.toggle("active", on); b.setAttribute("aria-pressed", String(on)); }
+  });
+}
+
+function startIntro(){
+  localStorage.setItem(INTRO_KEY, "1");
+  const el = document.getElementById("intro-screen");
+  if(el) el.hidden = true;
+  document.body.classList.remove("intro-open");
+  applyGrade(introGrade);
+  render();
+}
+
+function initIntro(){
+  const el = document.getElementById("intro-screen");
+  if(!el) return;
+  if(localStorage.getItem(INTRO_KEY) === "1"){
+    el.hidden = true;
+    document.body.classList.remove("intro-open");
+    return;
+  }
+  if(!introReady){
+    introReady = true;
+    const gradesEl = document.getElementById("intro-grades");
+    if(gradesEl){
+      GRADE_LEVELS.forEach(g=>{
+        const b = document.createElement("button");
+        b.type = "button";
+        b.dataset.grade = g;
+        b.textContent = INTRO_GRADE_LABELS[g] || g;
+        b.addEventListener("click", ()=>{ introGrade = g; applyIntroTexts(); });
+        gradesEl.appendChild(b);
+      });
+    }
+    const startBtn = document.getElementById("intro-start");
+    if(startBtn) startBtn.addEventListener("click", startIntro);
+    const ua = document.getElementById("intro-lang-ua");
+    const ru = document.getElementById("intro-lang-ru");
+    if(ua) ua.addEventListener("click", ()=>setLang("ua"));
+    if(ru) ru.addEventListener("click", ()=>setLang("ru"));
+  }
+  introGrade = state.grade;
+  applyIntroTexts();
+  el.hidden = false;
+  document.body.classList.add("intro-open");
+  const startBtn = document.getElementById("intro-start");
+  if(startBtn) startBtn.focus();
+}
+
+function setLang(lang){
+  if(lang !== "ru" && lang !== "ua") return;
+  state.lang = lang;
+  localStorage.setItem("mc_lang", lang);
+  document.documentElement.lang = lang === "ua" ? "uk" : "ru";
+  trainerCurrent = null;
+  applyIntroTexts();
+  render();
+}
+
+/* ============================================================
    EVENTS
    ============================================================ */
 const btnLangRu = document.getElementById("btn-lang-ru");
@@ -1607,8 +1695,8 @@ const btnModeCourse = document.getElementById("btn-mode-course");
 const btnModeTrainer = document.getElementById("btn-mode-trainer");
 const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
 
-if(btnLangRu){ btnLangRu.addEventListener("click", ()=>{ state.lang="ru"; localStorage.setItem("mc_lang","ru"); document.documentElement.lang="ru"; trainerCurrent=null; render(); }); }
-if(btnLangUa){ btnLangUa.addEventListener("click", ()=>{ state.lang="ua"; localStorage.setItem("mc_lang","ua"); document.documentElement.lang="uk"; trainerCurrent=null; render(); }); }
+if(btnLangRu){ btnLangRu.addEventListener("click", ()=>setLang("ru")); }
+if(btnLangUa){ btnLangUa.addEventListener("click", ()=>setLang("ua")); }
 if(btnModeCourse){ btnModeCourse.addEventListener("click", ()=>{ state.mode="course"; render(); }); }
 if(btnModeTrainer){ btnModeTrainer.addEventListener("click", ()=>{ state.mode="trainer"; state.trainerLevel=null; state.trainerTopic=null; state.trainerReview=null; render(); }); }
 if(mobileMenuToggle){ mobileMenuToggle.addEventListener("click", ()=>{
@@ -1712,6 +1800,7 @@ function boot(){
   applyGrade(loadSavedGrade());
   initMascot();
   initConsent();
+  initIntro();
   if("serviceWorker" in navigator){
     window.addEventListener("load", ()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
   }
@@ -1721,6 +1810,7 @@ function boot(){
 if(typeof LESSONS !== "undefined" && Array.isArray(LESSONS) && LESSONS.length){
   boot();
 } else {
+  initIntro();
   loadLessonsData().then(boot).catch(()=>{
     const main = document.getElementById("main");
     if(main) main.textContent = "Не удалось загрузить данные курса · Не вдалося завантажити дані курсу";
