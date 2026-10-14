@@ -30,7 +30,12 @@ const samples = [
   ["ruler", W.ruler(15, 8)],
   ["coins", W.coins([1, 2, 5])],
   ["rectGrid", W.rectGrid(3, 2)],
-  ["symmetry", W.symmetry()]
+  ["symmetry", W.symmetry()],
+  ["classTable", W.classTable(94736015, "ru")],
+  ["unitLadder", W.unitLadder("ru")],
+  ["motionDiagram", W.motionDiagram("toward", "ru")],
+  ["motionDiagram-apart", W.motionDiagram("apart", "ua")],
+  ["motionDiagram-chase", W.motionDiagram("chase", "ru")]
 ];
 samples.forEach(([name, html]) => {
   assert(typeof html === "string" && html.length > 20 && html.indexOf("undefined") < 0 && html.indexOf("NaN") < 0,
@@ -38,6 +43,8 @@ samples.forEach(([name, html]) => {
 });
 
 assert(/Сотни|Сотні/.test(W.placeValueTable(207, "ua")), "placeValueTable localizes (ua)");
+assert(/Миллионов|Тысяч|Единиц/.test(W.classTable(94736015, "ru")), "classTable groups classes (ru)");
+assert(/Мільйонів/.test(W.classTable(94736015, "ua")), "classTable localizes (ua)");
 assert(samples.find(s => s[0] === "mulTable")[1].indexOf("100") > 0, "mulTable contains 10×10 = 100");
 assert(W.numberBar(10, 4).length < W.numberBar(10, 4).length + 1, "numberBar stable");
 

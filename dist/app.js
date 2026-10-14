@@ -12,6 +12,7 @@ let state = {
   searchQuery: "",
   favoriteFormulas: new Set(JSON.parse(localStorage.getItem("mc_favorites")||"[]")),
   miniChecks: JSON.parse(localStorage.getItem("mc_mini")||"{}"),
+  stickers: new Set(JSON.parse(localStorage.getItem("mc_stickers")||"[]")),
   trainerStats: JSON.parse(localStorage.getItem("mc_trainer")||"{}"),
   trainerReview: null
 };
@@ -32,6 +33,7 @@ const VIDEO_RESOURCES = [
 function saveDone(){ localStorage.setItem("mc_done", JSON.stringify([...state.doneLessons])); }
 function saveFavoriteFormulas(){ localStorage.setItem("mc_favorites", JSON.stringify([...state.favoriteFormulas])); }
 function saveMiniChecks(){ localStorage.setItem("mc_mini", JSON.stringify(state.miniChecks)); }
+function saveStickers(){ localStorage.setItem("mc_stickers", JSON.stringify([...state.stickers])); }
 function miniStat(lessonId){
   const rec = state.miniChecks[lessonId];
   if(!rec || !Array.isArray(rec.choices)) return null;
@@ -206,7 +208,7 @@ function moduleInGrade(moduleId){
 }
 /* Логический порядок модулей: алгебра 11–14 идут перед итоговым НМТ (10).
    Модули детского курса (16+) стоят первыми — в ступени 1–4 они видны как острова. */
-const MODULE_ORDER = [16,17,18,19,20,21,22,23,1,2,3,4,5,6,7,8,9,11,12,13,14,15,10];
+const MODULE_ORDER = [16,17,18,19,20,21,22,23,24,1,2,3,4,5,6,7,8,9,11,12,13,14,15,10];
 /* В маршрутах 1–4 (острова), 5–7 и 8–9 номера идут по позиции видимого списка. */
 function moduleTitle(moduleId, lang){
   if(!ROADMAP[moduleId] || !lang) return "";

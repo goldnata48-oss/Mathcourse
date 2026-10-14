@@ -1101,6 +1101,27 @@
 .kid-col-blank{opacity:0;}
 .kid-col-line{border-top:3px solid var(--ink);margin:4px 0;}
 .kid-col-total .kid-col-cell{color:var(--success);}
+
+/* Праздничные уроки-итоги и коллекция наклеек */
+.kid-party-banner{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--accent-soft),var(--success-soft));border-radius:18px;padding:16px 20px;font:800 22px var(--sans);margin:0 0 18px;}
+.kid-party-emoji{font-size:34px;line-height:1;}
+.kid-shelf-wrap{margin:24px 0 0;padding:16px 16px 18px;border-radius:18px;background:var(--surface);border:1px dashed var(--line);}
+.kid-shelf-title{font-size:18px;margin:0 0 12px;}
+.kid-shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:12px;}
+.kid-sticker{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:16px;border:2px solid var(--line);background:var(--surface);text-align:center;}
+.kid-sticker-emoji{font-size:32px;line-height:1;}
+.kid-sticker-name{font:600 13px var(--sans);line-height:1.25;color:var(--ink);}
+.kid-sticker-locked{opacity:.55;}
+.kid-sticker-locked .kid-sticker-emoji{filter:grayscale(1);}
+.kid-sticker-earned{border-color:var(--success);background:var(--success-soft);}
+.kid-sticker-current{box-shadow:0 0 0 3px var(--accent-soft);}
+
+/* Виджеты «числа и величины» */
+.kid-classes th[colspan]{background:var(--accent-soft);color:var(--accent);font-weight:800;}
+.kid-classes td{font-size:22px;font-weight:800;color:var(--accent);}
+.kid-units td{font-size:15px;}
+.kid-units-note{font-size:13px;color:var(--ink-soft);font-weight:600;text-align:left;}
+.kid-svg.kid-motion{max-width:100%;}
 .kid-diff{margin-left:8px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;vertical-align:middle;}
 .kid-diff-easy{background:var(--success-soft);color:var(--success);}
 .kid-diff-middle{background:var(--accent-soft);color:var(--accent);}

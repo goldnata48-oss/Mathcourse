@@ -329,6 +329,80 @@ var KID_WIDGETS = (function(){
     return wrap(out.join(""), "0 0 280 200", "kid-sym");
   }
 
+  /* Таблица классов: число разбито по три разряда (классы единиц, тысяч, …). */
+  function classTable(value, lang){
+    var v = String(Math.max(0, Math.floor(Number(value) || 0)));
+    var groups = [];
+    for(var end = v.length; end > 0; end -= 3) groups.unshift(v.slice(Math.max(0, end - 3), end));
+    var names = (lang === "ua")
+      ? ["Мільярдів", "Мільйонів", "Тисяч", "Одиниць"]
+      : ["Миллиардов", "Миллионов", "Тысяч", "Единиц"];
+    var places = (lang === "ua") ? ["Сотні", "Десятки", "Одиниці"] : ["Сотни", "Десятки", "Единицы"];
+    var head1 = "", head2 = "", body = "";
+    for(var gi = 0; gi < groups.length; gi++){
+      var name = names[names.length - groups.length + gi];
+      if(!name) name = (lang === "ua") ? "Старших" : "Старших";
+      head1 += '<th colspan="3">' + esc(name) + "</th>";
+      for(var p = 0; p < places.length; p++) head2 += "<th>" + esc(places[p]) + "</th>";
+      var s = groups[gi];
+      while(s.length < 3) s = "0" + s;
+      for(var d = 0; d < s.length; d++) body += "<td>" + esc(s[d]) + "</td>";
+    }
+    return '<table class="kid-table kid-classes"><thead><tr>' + head1 + '</tr><tr>' + head2 +
+      "</tr></thead><tbody><tr>" + body + "</tr></tbody></table>";
+  }
+
+  /* Таблица единиц длины (км…мм) с соотношениями. */
+  function unitLadder(lang){
+    var words = (lang === "ua")
+      ? ["кілометр", "метр", "дециметр", "сантиметр", "міліметр"]
+      : ["километр", "метр", "дециметр", "сантиметр", "миллиметр"];
+    var abbr = ["км", "м", "дм", "см", "мм"];
+    var head = "", body = "";
+    for(var i = 0; i < abbr.length; i++){
+      head += "<th>" + esc(abbr[i]) + "</th>";
+      body += "<td>" + esc(words[i]) + "</td>";
+    }
+    var conv = (lang === "ua")
+      ? "1 км = 1000 м · 1 м = 10 дм = 100 см = 1000 мм · 1 дм = 10 см · 1 см = 10 мм"
+      : "1 км = 1000 м · 1 м = 10 дм = 100 см = 1000 мм · 1 дм = 10 см · 1 см = 10 мм";
+    return '<table class="kid-table kid-units"><thead><tr>' + head + "</tr></thead><tbody><tr>" +
+      body + '</tr><tr><td class="kid-units-note" colspan="5">' + esc(conv) + "</td></tr></tbody></table>";
+  }
+
+  /* Диаграмма движения: kind = toward | apart | chase. */
+  function motionDiagram(kind, lang){
+    var y = 66, x0 = 40, x1 = 320, out = [];
+    function arrow(x1a, x2a, yy, color){
+      var size = 10, ang = Math.atan2(0, x2a - x1a);
+      var p2x = x2a - size * Math.cos(ang - Math.PI / 6), p2y = yy - size * Math.sin(ang - Math.PI / 6);
+      var p3x = x2a - size * Math.cos(ang + Math.PI / 6), p3y = yy - size * Math.sin(ang + Math.PI / 6);
+      return '<line x1="' + x1a + '" y1="' + yy + '" x2="' + x2a + '" y2="' + yy + '" stroke="' + color + '" stroke-width="3"/>' +
+        '<polygon points="' + x2a + "," + yy + " " + p2x.toFixed(1) + "," + p2y.toFixed(1) + " " + p3x.toFixed(1) + "," + p3y.toFixed(1) + '" fill="' + color + '"/>';
+    }
+    out.push('<line x1="20" y1="' + y + '" x2="340" y2="' + y + '" stroke="var(--line)" stroke-width="4"/>');
+    out.push('<circle cx="' + x0 + '" cy="' + y + '" r="13" fill="var(--accent)"/>');
+    out.push('<circle cx="' + x1 + '" cy="' + y + '" r="13" fill="var(--coral)"/>');
+    if(kind === "toward"){
+      out.push(arrow(x0 + 20, 168, y - 30, "var(--accent)"));
+      out.push(arrow(x1 - 20, 192, y - 30, "var(--coral)"));
+    } else if(kind === "apart"){
+      out.push(arrow(x0 - 20, 12, y - 30, "var(--accent)"));
+      out.push(arrow(x1 + 20, 348, y - 30, "var(--coral)"));
+    } else {
+      out.push(arrow(x0 + 20, 150, y - 30, "var(--accent)"));
+      out.push(arrow(190, 320 + 20 - 20, y - 30, "var(--coral)"));
+    }
+    var caps = {
+      toward: { ru: "навстречу", ua: "назустріч" },
+      apart: { ru: "в противоположных направлениях", ua: "у протилежних напрямках" },
+      chase: { ru: "вдогонку", ua: "навздогін" }
+    };
+    var cap = caps[kind] || caps.toward;
+    out.push('<text x="180" y="106" text-anchor="middle" font-size="15" fill="var(--ink-soft)">' + esc(cap[lang] || cap.ru) + "</text>");
+    return wrap(out.join(""), "0 0 360 120", "kid-motion");
+  }
+
   /* Детерминированный генератор для меняющихся чисел: rng(seed) -> () => [0,1). */
   function rng(seed){
     var a = (seed >>> 0) || 1;
@@ -360,6 +434,9 @@ var KID_WIDGETS = (function(){
     coins: coins,
     rectGrid: rectGrid,
     symmetry: symmetry,
+    classTable: classTable,
+    unitLadder: unitLadder,
+    motionDiagram: motionDiagram,
     rng: rng,
     rngInt: rngInt,
     esc: esc

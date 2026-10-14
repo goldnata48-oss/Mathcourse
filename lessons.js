@@ -505,13 +505,27 @@ let LESSONS = [];
    Без тестов, таймеров и процентов: только игра, подсказка и похвала.
    ============================================================ */
 const KID_UI = {
-  ru:{stars:"⭐ {c} из {t}", done:"Готово! Ты молодец!"},
-  ua:{stars:"⭐ {c} з {t}", done:"Готово! Ти молодець!"}
+  ru:{stars:"⭐ {c} из {t}", done:"Готово! Ты молодец!",
+      stickers:"Моя коллекция наклеек", stickerLocked:"Ещё не открыто"},
+  ua:{stars:"⭐ {c} з {t}", done:"Готово! Ти молодець!",
+      stickers:"Моя колекція наклейок", stickerLocked:"Ще не відкрито"}
 };
 const KID_DIFF = {
   ru:{easy:"лёгкое", middle:"среднее", hard:"сложное"},
   ua:{easy:"легке", middle:"середнє", hard:"складне"}
 };
+/* Наклейки-праздники: по одной на каждый остров (id совпадает с уроком-праздником). */
+const KID_STICKERS = [
+  {id:"kidParty16", emoji:"🔢", name:{ru:"Волшебные числа", ua:"Чарівні числа"}},
+  {id:"kidParty17", emoji:"➕", name:{ru:"Знак действий", ua:"Знак дій"}},
+  {id:"kidParty18", emoji:"📏", name:{ru:"Линейка", ua:"Лінійка"}},
+  {id:"kidParty19", emoji:"🔷", name:{ru:"Кристалл", ua:"Кристал"}},
+  {id:"kidParty20", emoji:"🍰", name:{ru:"Тортик", ua:"Тортик"}},
+  {id:"kidParty21", emoji:"🧩", name:{ru:"Мозаика", ua:"Мозаїка"}},
+  {id:"kidParty22", emoji:"🔮", name:{ru:"Волшебный шар", ua:"Чарівна куля"}},
+  {id:"kidParty23", emoji:"🏝️", name:{ru:"Островок", ua:"Острівець"}},
+  {id:"kidParty24", emoji:"🚀", name:{ru:"Числа и величины", ua:"Числа та величини"}}
+];
 function makeKidLesson(id, module, title, content, activities, interactive){
   return {
     id, module, title,
@@ -538,7 +552,91 @@ function makeKidLesson(id, module, title, content, activities, interactive){
     }
   };
 }
-function renderKidCheck(container, lang, activities){
+/* Праздничный урок-итог: та же игровая механика, но с баннером и
+   коллекцией наклеек. Завершение всех мини-игр открывает наклейку. */
+function makeKidParty(id, module, title, content, activities, interactive, sticker){
+  return {
+    id, module, title,
+    html(lang){
+      const t = content[lang];
+      const examples = (t.examples||[]).map(e=>`<div class="kid-example">${e}</div>`).join("");
+      return `
+        <div class="kid-party">
+          <div class="kid-party-banner"><span class="kid-party-emoji" aria-hidden="true">🎉</span><span>${t.banner}</span></div>
+          <p class="kid-lead">${t.lead}</p>
+          ${examples ? `<div class="kid-examples">${examples}</div>` : ""}
+          ${t.tip ? `<div class="kid-tip">💡 ${t.tip}</div>` : ""}
+          ${interactive ? `<div class="interactive-block kid" id="kid-interactive">${interactive.html(lang)}</div>` : ""}
+          <div class="check-block kid kid-party-block">
+            <h3>${t.checkTitle}</h3>
+            <div id="mini-check"></div>
+          </div>
+          <div class="kid-shelf-wrap" id="kid-stickers"></div>
+        </div>
+      `;
+    },
+    mount(root, lang){
+      const t = content[lang];
+      const shelf = root.querySelector("#kid-stickers");
+      renderStickerShelf(shelf, lang, sticker ? sticker.id : null);
+      renderKidCheck(root.querySelector("#mini-check"), lang, activities, {
+        onComplete(){
+          const fresh = sticker ? grantSticker(sticker.id) : false;
+          renderStickerShelf(shelf, lang, sticker ? sticker.id : null);
+          if(fresh && typeof mascotSay==="function") mascotSay("correct", t.cheer ? t.cheer[lang] : null);
+        }
+      });
+      if(interactive && typeof interactive.mount === "function"){
+        const host = root.querySelector("#kid-interactive");
+        if(host) interactive.mount(host, lang);
+      }
+    }
+  };
+}
+/* Наклейка считается открытой, если её id есть в state.stickers. */
+function kidHasSticker(id){
+  return typeof state !== "undefined" && state && state.stickers &&
+    typeof state.stickers.has === "function" && state.stickers.has(id);
+}
+function grantSticker(id){
+  if(typeof state === "undefined" || !state || !id) return false;
+  if(!(state.stickers instanceof Set)) state.stickers = new Set(state.stickers || []);
+  if(state.stickers.has(id)) return false;
+  state.stickers.add(id);
+  if(typeof saveStickers === "function") saveStickers();
+  return true;
+}
+function renderStickerShelf(host, lang, currentId){
+  if(!host) return;
+  const T = KID_UI[lang] || KID_UI.ru;
+  host.innerHTML = "";
+  const title = document.createElement("h4");
+  title.className = "kid-shelf-title";
+  title.textContent = T.stickers;
+  host.appendChild(title);
+  const grid = document.createElement("div");
+  grid.className = "kid-shelf";
+  KID_STICKERS.forEach(st=>{
+    const has = kidHasSticker(st.id);
+    const cell = document.createElement("div");
+    cell.className = "kid-sticker" + (has ? " kid-sticker-earned" : " kid-sticker-locked") +
+      (st.id === currentId ? " kid-sticker-current" : "");
+    cell.setAttribute("aria-label", has ? st.name[lang] : T.stickerLocked);
+    const em = document.createElement("span");
+    em.className = "kid-sticker-emoji";
+    em.setAttribute("aria-hidden", "true");
+    em.textContent = has ? st.emoji : "❔";
+    const nm = document.createElement("span");
+    nm.className = "kid-sticker-name";
+    nm.textContent = st.name[lang];
+    cell.appendChild(em);
+    cell.appendChild(nm);
+    grid.appendChild(cell);
+  });
+  host.appendChild(grid);
+}
+function renderKidCheck(container, lang, activities, opts){
+  opts = opts || {};
   const lessonId = (typeof state !== "undefined" && state.lessonId) ? state.lessonId : null;
   let rec = lessonId ? state.miniChecks[lessonId] : null;
   const dynamic = typeof activities === "function";
@@ -577,6 +675,14 @@ function renderKidCheck(container, lang, activities){
   function persist(){
     if(typeof saveMiniChecks==="function") saveMiniChecks();
     if(typeof refreshMiniIndicators==="function") refreshMiniIndicators();
+  }
+  let completed = false;
+  function maybeComplete(){
+    if(completed) return;
+    if(rec.choices.every(c=>c!==null)){
+      completed = true;
+      if(typeof opts.onComplete==="function") opts.onComplete();
+    }
   }
   function note(wrap, text){
     const el = document.createElement("div");
@@ -645,6 +751,7 @@ function renderKidCheck(container, lang, activities){
       }
       refreshBadge();
       persist();
+      maybeComplete();
       if(typeof mascotSay==="function") mascotSay("correct");
     }
     function miss(btn){
@@ -737,6 +844,7 @@ function renderKidCheck(container, lang, activities){
     container.appendChild(wrap);
   });
   refreshBadge();
+  maybeComplete();
 }
 
 /* ============================================================
@@ -832,28 +940,31 @@ function renderMiniCheck(container, lang, questions){
    ============================================================ */
 const ROADMAP = {
   16:{ru:"Числа и счёт",ua:"Числа та лічба",kid:true, lessons:[
-    "kidCount","kidCompare","kidPlace","kidOrder","kidAdd","kidZero","kidRiddle"
+    "kidCount","kidCompare","kidPlace","kidOrder","kidAdd","kidZero","kidRiddle","kidParty16"
   ]},
   17:{ru:"Мастерская действий",ua:"Майстерня дій",kid:true, lessons:[
-    "kidAdd20","kidSub20","kidColumn","kidTimes","kidMulTable","kidMulSpecial","kidShare","kidOrderOps"
+    "kidAdd20","kidSub20","kidColumn","kidTimes","kidMulTable","kidMulSpecial","kidShare","kidOrderOps","kidParty17"
   ]},
   18:{ru:"Лаборатория измерений",ua:"Лабораторія вимірювань",kid:true, lessons:[
-    "kidLength","kidMass","kidClock","kidMoney","kidUnits"
+    "kidLength","kidMass","kidClock","kidMoney","kidUnits","kidParty18"
   ]},
   19:{ru:"Сад фигур",ua:"Сад фігур",kid:true, lessons:[
-    "kidFigures","kidSides","kidPerimeter","kidArea","kidSymmetry"
+    "kidFigures","kidSides","kidPerimeter","kidArea","kidSymmetry","kidParty19"
   ]},
   20:{ru:"Магазин долей",ua:"Магазин частин",kid:true, lessons:[
-    "kidHalf","kidQuarter","kidThird","kidFraction","kidCompareFrac"
+    "kidHalf","kidQuarter","kidThird","kidFraction","kidCompareFrac","kidParty20"
   ]},
   21:{ru:"Город задач",ua:"Місто задач",kid:true, lessons:[
-    "kidWordAdd","kidWordSub","kidWordMul","kidWordMoney","kidWordSteps"
+    "kidWordAdd","kidWordSub","kidWordMul","kidWordMoney","kidWordSteps","kidParty21"
   ]},
   22:{ru:"Пещера закономерностей",ua:"Печера закономірностей",kid:true, lessons:[
-    "kidPattern","kidSequence","kidEvenOdd","kidCompare3","kidLogic"
+    "kidPattern","kidSequence","kidEvenOdd","kidCompare3","kidLogic","kidParty22"
   ]},
   23:{ru:"Остров до 1000",ua:"Острів до 1000",kid:true, lessons:[
-    "kidHundred","kidPlace1000","kidAdd1000","kidCompare1000"
+    "kidHundred","kidPlace1000","kidAdd1000","kidCompare1000","kidParty23"
+  ]},
+  24:{ru:"Числа и величины",ua:"Числа та величини",kid:true, lessons:[
+    "kidBigRead","kidPlaceClasses","kidMillion","kidBigLength","kidBigOps","kidBigMass","kidSpeed","kidMotion","kidMotionTasks","kidParty24"
   ]},
   1:{ru:"Модуль 1. Алгебраическая база (повторение)",ua:"Модуль 1. Алгебраїчна база (повторення)",exam_priority:true, lessons:[
     "m1div","m1frac","m1dec","m1remain","m1power","m1expr","m1ineq","m1mono","m1short","m1lineq","m1func","m1sys","m1sysTask",
@@ -1025,7 +1136,16 @@ const LESSON_GRADES = {
   kidCompare3:["junior"], kidLogic:["junior"],
   /* остров 8 — числа до 1000 */
   kidHundred:["junior"], kidPlace1000:["junior"],
-  kidAdd1000:["junior"], kidCompare1000:["junior"]
+  kidAdd1000:["junior"], kidCompare1000:["junior"],
+  /* праздники-итоги по одному на остров */
+  kidParty16:["junior"], kidParty17:["junior"], kidParty18:["junior"],
+  kidParty19:["junior"], kidParty20:["junior"], kidParty21:["junior"],
+  kidParty22:["junior"], kidParty23:["junior"],
+  /* остров 9 — числа и величины */
+  kidBigRead:["junior"], kidPlaceClasses:["junior"], kidMillion:["junior"],
+  kidBigLength:["junior"], kidBigOps:["junior"], kidBigMass:["junior"],
+  kidSpeed:["junior"], kidMotion:["junior"], kidMotionTasks:["junior"],
+  kidParty24:["junior"]
 };
 /* Маркировка готовности для ступени 5–7: базовый маршрут и темы для углубления. */
 const LESSON_READINESS = {

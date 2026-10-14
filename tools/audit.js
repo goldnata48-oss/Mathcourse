@@ -34,7 +34,7 @@ const spans = [];
     const esc = l.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const re = /^final\d$/.test(l.id)
       ? new RegExp("makeFinalLesson\\(" + l.id.slice(5) + "\\)")
-      : new RegExp("(makeIntroLesson\\(\\\"|makeTopicLesson\\(\\\"|makeKidLesson\\(\\\"|id\\:\\s*\\\"|id\\:\\s*\\`)(" + esc + ")(\\\"|\\`)");
+      : new RegExp("(makeIntroLesson\\(\\\"|makeTopicLesson\\(\\\"|makeKidLesson\\(\\\"|makeKidParty\\(\\\"|id\\:\\s*\\\"|id\\:\\s*\\`)(" + esc + ")(\\\"|\\`)");
     const hit = src.slice(prev).search(re) + prev;
     spans.push([prev, hit]);
     prev = hit;
@@ -49,7 +49,7 @@ const stat = quiz.map((q, i) => {
     id: q.id, module: q.module,
     titleRu: (lessons[i].title && lessons[i].title.ru || "").trim(),
     titleUa: (lessons[i].title && lessons[i].title.ua || "").trim(),
-    custom: !/^(makeIntroLesson|makeTopicLesson|makeKidLesson)\(/m.test(s),
+    custom: !/^(makeIntroLesson|makeTopicLesson|makeKidLesson|makeKidParty)\(/m.test(s),
     miniQ: q.qCount,
     hasRenderMini: s.includes("renderMiniCheck("),
     corrects: q.corrects,
