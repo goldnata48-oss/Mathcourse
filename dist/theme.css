@@ -99,3 +99,23 @@
     --success:#2F9E63;
     --success-soft:#E3F7EC;
   }
+  [data-grade="preSenior"]{
+    --sidebar-bg:#16213E;
+    --sidebar-border:rgba(255,255,255,.14);
+    --sidebar-ink:#F4F7FF;
+    --sidebar-ink-soft:#B9C4E6;
+    --accent:#3B82F6;
+    --accent-soft:#E7F1FF;
+    --amber:#F59E0B;
+    --amber-soft:#FFF3CD;
+    --blue:#3B82F6;
+    --blue-soft:#E7F1FF;
+    --purple:#8B5CF6;
+    --purple-soft:#F3E8FF;
+    --coral:#F87171;
+    --coral-soft:#FEE2E2;
+    --teal:#14B8A6;
+    --teal-soft:#CCFBF1;
+    --success:#22C55E;
+    --success-soft:#DCFCE7;
+  }
