@@ -431,6 +431,9 @@ function miniChecks(id) {
   if (from < 0 || end < 0) throw new Error("mini-check not parsed for " + id);
   return vm.runInNewContext("(" + tail.slice(from, end) + ")");
 }
+function optionsRu(question) {
+  return Array.isArray(question.opts) ? question.opts : question.opts.ru;
+}
 /* правильный вариант для каждого вопроса мини-проверки, посчитанный вручную */
 const answerKeys = {
   seq1: ["16", "арифметическая", "4", "геометрическая прогрессия"],
@@ -489,10 +492,10 @@ Object.keys(answerKeys).forEach(id => {
     ok(false, id + ": " + questions.length + " вопросов, а ключ содержит " + want.length);
     return;
   }
-  const mismatch = questions.findIndex((q, k) => q.opts[q.correct] !== want[k]);
+  const mismatch = questions.findIndex((q, k) => optionsRu(q)[q.correct] !== want[k]);
   ok(mismatch < 0, id + ": все " + want.length + " мини-проверок отмечены верно" +
     (mismatch < 0 ? "" : " — вопрос " + (mismatch + 1) + ": стоит \"" +
-      questions[mismatch].opts[questions[mismatch].correct] + "\", а правильный ответ \"" + want[mismatch] + "\""));
+      optionsRu(questions[mismatch])[questions[mismatch].correct] + "\", а правильный ответ \"" + want[mismatch] + "\""));
 });
 
 /* Структура мини-проверок новых уроков модулей 5–7 и 14–15: ровно 4 вопроса,
@@ -507,10 +510,11 @@ sweep("modules 5-7 and 14-15: по 4 вопроса, 4 различных вар
   if (qs.length !== 4) return id + ": " + qs.length + " вопросов вместо 4";
   for (let k = 0; k < qs.length; k++) {
     const q = qs[k], where = id + ", вопрос " + (k + 1);
+    const options = optionsRu(q);
     if (!q.q || !q.q.ru || !q.q.ua) return where + ": нет текста ru/ua";
-    if (q.opts.length !== 4) return where + ": " + q.opts.length + " варианта вместо 4";
-    if (new Set(q.opts).size !== 4) return where + ": повторяющиеся варианты — " + q.opts.join(" | ");
-    if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.opts.length) {
+    if (options.length !== 4) return where + ": " + options.length + " варианта вместо 4";
+    if (new Set(options).size !== 4) return where + ": повторяющиеся варианты — " + options.join(" | ");
+    if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= options.length) {
       return where + ": correct = " + q.correct + " вне диапазона";
     }
   }
@@ -523,10 +527,11 @@ sweep("stereoIntro: 5 вопросов, по 4 разных варианта, co
   if (STEREO_INTRO.length !== 5) return "5 вопросов вместо " + STEREO_INTRO.length;
   for (let k = 0; k < STEREO_INTRO.length; k++) {
     const q = STEREO_INTRO[k], where = "stereoIntro, вопрос " + (k + 1);
+    const options = optionsRu(q);
     if (!q.q || !q.q.ru || !q.q.ua) return where + ": нет текста ru/ua";
-    if (q.opts.length !== 4) return where + ": " + q.opts.length + " варианта вместо 4";
-    if (new Set(q.opts).size !== 4) return where + ": повторяющиеся варианты — " + q.opts.join(" | ");
-    if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.opts.length) {
+    if (options.length !== 4) return where + ": " + options.length + " варианта вместо 4";
+    if (new Set(options).size !== 4) return where + ": повторяющиеся варианты — " + options.join(" | ");
+    if (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= options.length) {
       return where + ": correct = " + q.correct + " вне диапазона";
     }
   }

@@ -34,17 +34,18 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Маткурс: курс и тренажёр по математике">
 <meta property="og:description" content="Теория, интерактивные уроки и тренажёр задач по математике для разных классов.">
-<meta property="og:url" content="./">
+<meta property="og:url" content="https://roaring-melba-8c60da.netlify.app/">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:locale:alternate" content="uk_UA">
-<meta property="og:image" content="./icon-og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Маткурс — курс и тренажёр по математике">
+<link rel="canonical" href="https://roaring-melba-8c60da.netlify.app/">
+<meta property="og:image" content="./assets/chimera-cover.jpg">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="343">
+<meta property="og:image:alt" content="Chimera Labs — космический мир математики">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
-<link rel="preload" as="image" href="chimeralab.jpg">
+<link rel="preload" as="image" href="assets/chimera-cover.jpg">
 <link rel="preconnect" href="https://www.youtube-nocookie.com">
 <link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
 <title>Маткурс · Интерактивный курс математики</title>
@@ -54,8 +55,8 @@
 <link rel="stylesheet" href="styles.css">
 
 </head>
-<body>
-<noscript><div class="noscript-notice">Для работы сайта включите JavaScript · Для роботи сайту увімкніть JavaScript</div></noscript>
+<body class="intro-open">
+<noscript><style>#intro-screen{display:none}body.intro-open{overflow:auto}</style><div class="noscript-notice">Для работы сайта включите JavaScript · Для роботи сайту увімкніть JavaScript</div></noscript>
 <button id="mobile-menu-toggle" class="mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="sidebar">☰<span class="sr-only">Открыть меню</span></button>
 
 <aside id="sidebar">
@@ -109,10 +110,15 @@
     <p class="community-lead" id="community-lead"></p>
     <div class="community-links">
       <a class="community-chip" href="https://t.me/ChimeraLab" target="_blank" rel="noopener noreferrer">Telegram</a>
-      <a class="community-chip" href="mailto:gold_nata@ukr.net">E-mail</a>
-      <span class="community-chip community-chip-soon" aria-disabled="true">Instagram <em id="community-soon"></em></span>
+      <a class="community-chip" href="mailto:info@chimeralabs.store">Пошта</a>
+      <a class="community-chip" href="https://www.instagram.com/chimeralabs.store/" target="_blank" rel="noopener noreferrer">Instagram</a>
     </div>
     <a class="community-bug" id="community-bug" href="#"></a>
+  </section>
+  <section class="student-voices" aria-labelledby="student-voices-title">
+    <h2 class="student-voices-title" id="student-voices-title">Відгуки учнів</h2>
+    <p class="student-voices-copy">Збираємо враження про уроки та математичні ігри. Поділися своєю історією — і ми додамо її сюди.</p>
+    <a class="student-voices-link" href="mailto:info@chimeralabs.store?subject=%D0%92%D1%96%D0%B4%D0%B3%D1%83%D0%BA%20%D0%BF%D1%80%D0%BE%20%D0%9C%D0%B0%D1%82%D0%BA%D1%83%D1%80%D1%81">Поділитися враженням</a>
   </section>
   <div id="sidebar-foot">
     <button id="cookie-settings" type="button" class="linklike"></button>
@@ -151,16 +157,17 @@
 <script src="lessons.js" defer></script>
 <script src="kid-widgets.js" defer></script>
 <script src="trainer.js" defer></script>
+<script src="kvantik-math.js" defer></script>
 <script src="app.js" defer></script>
 
-<div id="intro-screen" class="intro-screen" role="dialog" aria-modal="true" aria-labelledby="intro-title" hidden>
+<div id="intro-screen" class="intro-screen" role="dialog" aria-modal="true" aria-labelledby="intro-title">
   <div class="intro-lang" role="group" aria-label="Мова · Язык">
     <button id="intro-lang-ua" type="button" aria-pressed="true">UA</button>
     <button id="intro-lang-ru" type="button" aria-pressed="false">RU</button>
   </div>
   <div class="intro-card">
     <div class="intro-logo-frame">
-      <img class="intro-logo" src="chimeralab.jpg" alt="Маткурс" width="192" height="256" decoding="async">
+      <img class="intro-logo" src="assets/chimera-cover.jpg" alt="Chimera Labs — космический мир математики" width="512" height="343" fetchpriority="high">
     </div>
     <div class="intro-body">
       <p class="intro-kicker" id="intro-kicker"></p>

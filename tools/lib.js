@@ -77,7 +77,7 @@ function makeRealm(fnNames, globals = {}, file = "app.js") {
    authored `correct:` index of each question of the lesson's REAL mini-check
    (the questions array of makeIntroLesson/makeTopicLesson or of renderMiniCheck),
    excluding mistakes simulators and workouts that do not persist to mc_mini. */
-function lessonQuizStats(src, lessons) {
+function lessonQuizStats(src, lessons, includeQuizSource = false) {
   function balance(s, idx, openCh, closeCh) {
     let depth = 0;
     for (let j = idx; j < s.length; j++) {
@@ -141,7 +141,9 @@ function lessonQuizStats(src, lessons) {
       const m = [...seg.matchAll(/correct:\s*(\d+)/g)];
       return m.length ? +m[m.length - 1][1] : null;
     }).filter(x => x !== null);
-    return { id: l.id, module: l.module, qCount: segs.length - 1, corrects };
+    const stat = { id: l.id, module: l.module, qCount: segs.length - 1, corrects };
+    if (includeQuizSource) stat.quizSource = quizSrc;
+    return stat;
   });
 }
 

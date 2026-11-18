@@ -358,7 +358,7 @@ const LESSON_HINTS = {
    serverless-функція на тому ж домені — працює на статику.
    ============================================================ */
 const KVANTIK_ENDPOINT = "/.netlify/functions/kvantik";
-const KVANTIK_TIMEOUT = 15000;
+const KVANTIK_TIMEOUT = 6000;
 const KVANTIK_UI = {
   ru:{
     placeholder:"Твой вопрос…",
@@ -491,7 +491,16 @@ async function askKvantik(text){
   pending.className = "kvantik-msg bot pending";
   pending.textContent = T.thinking;
   if(log){ log.appendChild(pending); log.scrollTop = log.scrollHeight; }
+  const localReply = window.KVANTIK_MATH && typeof window.KVANTIK_MATH.solve === "function"
+    ? window.KVANTIK_MATH.solve(text, state.lang)
+    : null;
+  if(localReply){
+    if(pending.remove) pending.remove();
+    appendKvantikMsg("bot", localReply);
+    return;
+  }
   let reply = "";
+  let connectionFailed = false;
   try{
     const ctrl = new AbortController();
     const timer = setTimeout(()=>ctrl.abort(), KVANTIK_TIMEOUT);
@@ -510,14 +519,15 @@ async function askKvantik(text){
     catch(_){ data = await res.text().catch(()=>""); }
     reply = kvantikExtract(data);
   }catch(err){
-    reply = null;
+    connectionFailed = true;
   }
   if(pending.remove) pending.remove();
   if(reply && reply.trim()){
     appendKvantikMsg("bot", reply.trim());
   }else{
     const hint = (LESSON_HINTS[state.lessonId] || {})[state.lang];
-    appendKvantikMsg("bot", T.error + (hint ? " " + hint : ""));
+    const message = connectionFailed ? T.offline : T.error;
+    appendKvantikMsg("bot", message + (hint ? " " + hint : ""));
   }
 }
 
@@ -1459,6 +1469,10 @@ function renderModuleTest(){
       t: scoreByLevel.base.t + scoreByLevel.medium.t + scoreByLevel.high.t
     };
     const rating = calculateQuizRating(total.c, total.t);
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
+    const shareUrl = canonicalLink ? canonicalLink.href : window.location.href;
+    const shareText = `Я щойно пройшов тест у Chimera Labs! Спробуй і ти! Мій результат: ${total.c}/${total.t}, рейтинг ${rating.rating.toFixed(1)}/5, ${rating.points} XP.`;
+    const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
     main.querySelector("#test-summary").innerHTML = `
       <div class="test-summary-box">
         ${timedOut ? `<div class="test-summary-row">${L.timeUp}</div>` : ""}
@@ -1467,8 +1481,24 @@ function renderModuleTest(){
         <div class="test-summary-row">${LEVEL_DEFS[0].title[state.lang]}: ${scoreByLevel.base.c}/${scoreByLevel.base.t}</div>
         <div class="test-summary-row">${LEVEL_DEFS[1].title[state.lang]}: ${scoreByLevel.medium.c}/${scoreByLevel.medium.t}</div>
         <div class="test-summary-row">${LEVEL_DEFS[2].title[state.lang]}: ${scoreByLevel.high.c}/${scoreByLevel.high.t}</div>
+        <div class="test-share">
+          <a class="btn test-share-button" href="${telegramShareUrl}" target="_blank" rel="noopener noreferrer">Поділитися в Telegram</a>
+        </div>
+        <section class="leaderboard-placeholder" aria-labelledby="leaderboard-title">
+          <h3 id="leaderboard-title">Топ учнів</h3>
+          <p>Тут з’явиться таблиця лідерів. А поки що святкуй свій прогрес!</p>
+        </section>
         <div class="test-review-topics" id="test-review-topics"></div>
       </div>`;
+    main.querySelector("#test-summary").innerHTML += `
+      <section class="test-subscribe" aria-label="Chimera Labs">
+        <p class="test-subscribe-copy">Чудова робота! Хочеш першим дізнаватися про нові уроки, книжки та математичні ігри від Chimera Labs? Приєднуйся там, де тобі зручніше:</p>
+        <div class="test-subscribe-actions">
+          <a class="btn test-subscribe-button" href="https://t.me/ChimeraLab" target="_blank" rel="noopener noreferrer">Telegram</a>
+          <a class="btn test-subscribe-button" href="https://www.instagram.com/chimeralabs.store/" target="_blank" rel="noopener noreferrer">Instagram</a>
+        </div>
+        <a class="test-subscribe-email" href="mailto:info@chimeralabs.store">Або пиши на пошту: info@chimeralabs.store</a>
+      </section>`;
     const review = main.querySelector("#test-review-topics");
     if(reviewTopics.size){
       const heading = document.createElement("div");
@@ -1583,13 +1613,12 @@ function applyConsentText(){
   set("cookie-settings", t.cookieSettings);
 }
 /* Блок «Спільнота та допомога»: контакты и кнопка-письмо. */
-const COMMUNITY_EMAIL = "gold_nata@ukr.net";
+const COMMUNITY_EMAIL = "info@chimeralabs.store";
 function applyCommunityTexts(){
   const t = UI[state.lang];
   const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
   set("community-title", t.communityTitle);
   set("community-lead", t.communityLead);
-  set("community-soon", t.soon);
   const bug = document.getElementById("community-bug");
   if(bug){
     bug.textContent = t.communityBug;
@@ -1620,10 +1649,9 @@ function initConsent(){
 
 /* ============================================================
    INTRO / SPLASH (фирменная стартовая обложка)
-   Показывается один раз первому посетителю; флаг mc_seen_intro
-   позволяет вернувшимся сразу попадать к курсу.
+   Показывается при каждом открытии страницы; плавно открывает курс.
    ============================================================ */
-const INTRO_KEY = "mc_seen_intro";
+let introDismissed = false;
 const INTRO_GRADE_LABELS = { junior:"1–4", middle:"5–7", preSenior:"8–9", senior:"10–11" };
 let introGrade = "senior";
 let introReady = false;
@@ -1650,25 +1678,53 @@ function applyIntroTexts(){
   });
 }
 
+function setIntroBackgroundInert(value){
+  ["sidebar", "main", "mobile-menu-toggle", "mascot-wrap", "cookie-consent"].forEach(id=>{
+    const node = document.getElementById(id);
+    if(node) node.inert = value;
+  });
+}
+
 function startIntro(){
-  localStorage.setItem(INTRO_KEY, "1");
+  if(introDismissed) return;
+  introDismissed = true;
   const el = document.getElementById("intro-screen");
-  if(el) el.hidden = true;
-  document.body.classList.remove("intro-open");
   applyGrade(introGrade);
   render();
+  const finish = ()=>{
+    el.hidden = true;
+    document.body.classList.remove("intro-open");
+    setIntroBackgroundInert(false);
+    const main = document.getElementById("main");
+    main.setAttribute("tabindex", "-1");
+    main.focus({preventScroll:true});
+  };
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){ finish(); return; }
+  el.classList.add("is-leaving");
+  el.addEventListener("transitionend", event=>{
+    if(event.target === el && event.propertyName === "opacity") finish();
+  }, {once:true});
+  window.setTimeout(()=>{ if(!el.hidden) finish(); }, 700);
 }
 
 function initIntro(){
   const el = document.getElementById("intro-screen");
   if(!el) return;
-  if(localStorage.getItem(INTRO_KEY) === "1"){
+  if(introDismissed){
     el.hidden = true;
     document.body.classList.remove("intro-open");
     return;
   }
+  setIntroBackgroundInert(true);
   if(!introReady){
     introReady = true;
+    el.addEventListener("keydown", event=>{
+      if(event.key !== "Tab") return;
+      const buttons = [...el.querySelectorAll("button")];
+      const first = buttons[0], last = buttons[buttons.length-1];
+      if(event.shiftKey && document.activeElement === first){ event.preventDefault(); last.focus(); }
+      else if(!event.shiftKey && document.activeElement === last){ event.preventDefault(); first.focus(); }
+    });
     const gradesEl = document.getElementById("intro-grades");
     if(gradesEl){
       GRADE_LEVELS.forEach(g=>{

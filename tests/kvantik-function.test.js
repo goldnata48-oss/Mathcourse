@@ -1,4 +1,5 @@
 /* Kvantik Netlify Function: RU/UA answers, lesson context, safety on bad input. */
+process.env.KVANTIK_N8N = "off";
 const { handler, replyFor } = require("../netlify/functions/kvantik.js");
 
 let fails = 0;
@@ -16,16 +17,22 @@ async function main() {
   assert(/Квантик/.test(parse(res).reply), "greeting ua works with lowercase")
 
   res = await call({ message: "помоги мне", lessonId: "l3", lang: "ru" });
-  assert(/шаг за шагом/.test(parse(res).reply), "help ru returns step-by-step offer");
+  assert(/пошагово/.test(parse(res).reply), "help ru returns step-by-step offer");
 
   res = await call({ message: "не розумію", lessonId: "l3", lang: "ua" });
-  assert(/крок за кроком/.test(parse(res).reply), "help ua works");
+  assert(/кроках/.test(parse(res).reply), "help ua works");
 
   res = await call({ message: "ну тут ничего", lessonId: "seq2", lang: "ru" });
-  const ctxReply = parse(res).reply;
-  assert(ctxReply.indexOf("seq2") >= 0, "generic reply keeps lesson id (got: " + ctxReply + ")");
+  assert(parse(res).lessonId === "seq2", "response keeps lesson id");
   res = await call({ message: "?", lessonId: null, lang: "ua" });
-  assert(/зв'язку/.test(parse(res).reply), "no-lesson ua fallback generic phrase");
+  assert(/питання|задачу/.test(parse(res).reply), "no-lesson ua fallback phrase");
+
+  res = await call({ message: "переведи 350 градусов в радианы", lang: "ru" });
+  assert(/35π\/18/.test(parse(res).reply), "degree-to-radian conversion is exact (got: " + parse(res).reply.split("\n")[0] + ")");
+
+  res = await call({ message: "Реши 2x + 5 = 9", lessonId: "intro1", lang: "ru" });
+  assert(/Ответ: x = 2/.test(parse(res).reply), "linear equation gets a worked solution");
+  assert(parse(res).lessonId === "intro1", "math solution preserves lesson context");
 
   res = await call({ message: "что это", lang: "uk" });
   const langRes = parse(res);

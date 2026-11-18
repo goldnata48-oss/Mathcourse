@@ -525,6 +525,8 @@ function checkKvantik() {
   section("kvantik chat endpoint");
   const fn = read("netlify/functions/kvantik.js");
   const app = read("app.js");
+  const math = read("kvantik-math.js");
+  const html = read("index.html");
   report("netlify function exports a handler",
     /exports\.handler\s*=\s*async\s+function/.test(fn));
   report("app endpoint points to the netlify function",
@@ -535,6 +537,12 @@ function checkKvantik() {
     /Привет/.test(fn) && /Привіт/.test(fn));
   report("function keeps the lesson context",
     /lessonId/.test(fn) && /exports\.handler/.test(fn));
+  report("deterministic math solver runs before n8n",
+    /solveMath\(message, lang\)/.test(fn) && /KVANTIK_MATH/.test(app));
+  report("offline chat can solve math without the server",
+    /KVANTIK_MATH\.solve\(text, state\.lang\)/.test(app) && html.includes('src="kvantik-math.js"'));
+  report("shared math solver is bundled for static and serverless use",
+    /function solveEquation/.test(math) && /function solveArithmetic/.test(math));
   try {
     const { loadFunctions } = require(path.join(ROOT, "tools/deploy.js"));
     const fns = loadFunctions();
@@ -619,6 +627,9 @@ function checkDist() {
     const html = read("dist/index.html");
     report("dist/index.html carries the JSON-LD block",
       html.indexOf('"@type": "Course"') > 0, "run build");
+    report("dist canonical URL uses the primary domain",
+      html.includes('<link rel="canonical" href="https://roaring-melba-8c60da.netlify.app/">'),
+      "run build");
   } catch (e) {
     report("dist/index.html carries the JSON-LD block", false, e.message.split("\n")[0]);
   }
@@ -637,6 +648,15 @@ function checkDist() {
       "run build to refresh dist/robots.txt");
   } catch (e) {
     report("dist/robots.txt exists", false, e.message.split("\n")[0]);
+  }
+  try {
+    const sitemap = read("dist/sitemap.xml");
+    report("dist/sitemap.xml uses the primary domain and current lastmod",
+      sitemap.includes("<loc>https://roaring-melba-8c60da.netlify.app/</loc>") &&
+      sitemap.includes("<lastmod>2026-11-17</lastmod>"),
+      "run build to refresh dist/sitemap.xml");
+  } catch (e) {
+    report("dist/sitemap.xml exists", false, e.message.split("\n")[0]);
   }
   try {
     const privacy = read("dist/privacy.html");

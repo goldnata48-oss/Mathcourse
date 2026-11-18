@@ -208,8 +208,11 @@ function post(url, payload) {
   const greetOk = greet.status === 200 && /Квантик/.test((greet.json && greet.json.reply) || "");
   check(greetOk, "kvantik greeting ru (HTTP " + greet.status + ")");
   const ctx = await post(fnUrl, { message: "дальше что", lessonId: "seq2", lang: "ru" });
-  const ctxOk = ctx.status === 200 && /seq2/.test((ctx.json && ctx.json.reply) || "");
+  const ctxOk = ctx.status === 200 && ctx.json && ctx.json.lessonId === "seq2" && !!ctx.json.reply;
   check(ctxOk, "kvantik lesson context (HTTP " + ctx.status + ")");
+  const math = await post(fnUrl, { message: "Реши 2x + 5 = 9", lessonId: "intro1", lang: "ru" });
+  check(math.status === 200 && /Ответ: x = 2/.test((math.json && math.json.reply) || ""),
+    "kvantik solves a linear equation (HTTP " + math.status + ")");
   const nonPost = await get(fnUrl);
   check(nonPost.status === 405, "kvantik GET -> 405 (HTTP " + nonPost.status + ")");
 

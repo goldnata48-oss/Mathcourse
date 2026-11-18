@@ -80,6 +80,36 @@
 			"command": "powershell -ExecutionPolicy Bypass -File \"${workspaceFolder}\\deploy-netlify.ps1\"",
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "Temporary local build validation",
+			"type": "shell",
+			"command": "node build.js",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Project build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Targeted verification suite",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"test"
+			],
+			"isBackground": false,
+			"problemMatcher": []
 		}
 	]
 }

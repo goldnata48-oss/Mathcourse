@@ -18,13 +18,14 @@ const writeFile = (file, content) => {
 
 /* Ассеты разделены: HTML остаётся маленьким, а скрипты/стили грузятся
    отдельными файлами (SW кэширует их, браузер — отдельно от разметки). */
-const ASSETS = ["theme.css", "styles.css", "i18n.js", "lessons.js", "lesson-data.js", "kid-widgets.js", "trainer.js", "app.js"];
+const ASSETS = ["theme.css", "styles.css", "i18n.js", "lessons.js", "lesson-data.js", "kid-widgets.js", "trainer.js", "kvantik-math.js", "app.js"];
 /* Статичные картинки: копируются как есть и кэшируются SW. */
-const MEDIA = ["chimeralab.jpg"];
+const MEDIA = ["chimeralab.jpg", "assets/chimera-cover.jpg"];
 const APP_SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./icon.svg",
-  "./theme.css", "./styles.css", "./i18n.js", "./lessons.js", "./lesson-data.js", "./kid-widgets.js", "./trainer.js", "./app.js",
+  "./theme.css", "./styles.css", "./i18n.js", "./lessons.js", "./lesson-data.js", "./kid-widgets.js", "./trainer.js", "./kvantik-math.js", "./app.js",
   "./chimeralab.jpg",
+  "./assets/chimera-cover.jpg",
   "./privacy.html",
 ];
 
@@ -44,7 +45,11 @@ function build() {
 
   fs.mkdirSync(dist, { recursive: true });
   for (const f of ASSETS) fs.copyFileSync(path.join(root, f), path.join(dist, f));
-  for (const f of MEDIA) fs.copyFileSync(path.join(root, f), path.join(dist, f));
+  for (const f of MEDIA) {
+    const dest = path.join(dist, f);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(path.join(root, f), dest);
+  }
 
   const html = read("index.html");
   writeFile(path.join(dist, "index.html"), html);
