@@ -20,11 +20,13 @@ const writeFile = (file, content) => {
    отдельными файлами (SW кэширует их, браузер — отдельно от разметки). */
 const ASSETS = ["theme.css", "styles.css", "i18n.js", "lessons.js", "lesson-data.js", "kid-widgets.js", "trainer.js", "kvantik-math.js", "app.js"];
 /* Статичные картинки: копируются как есть и кэшируются SW. */
-const MEDIA = ["chimeralab.jpg", "assets/chimera-cover.jpg"];
+const MEDIA = ["chimeralab.jpg", "assets/chimera-cover.jpg", "assets/nmt-reference-ua.pdf", "assets/nmt-reference-ru.pdf"];
 const APP_SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./icon.svg",
   "./theme.css", "./styles.css", "./i18n.js", "./lessons.js", "./lesson-data.js", "./kid-widgets.js", "./trainer.js", "./kvantik-math.js", "./app.js",
   "./chimeralab.jpg",
+  "./assets/nmt-reference-ua.pdf",
+  "./assets/nmt-reference-ru.pdf",
   "./assets/chimera-cover.jpg",
   "./privacy.html",
 ];

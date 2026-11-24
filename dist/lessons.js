@@ -1189,6 +1189,9 @@ const TOPIC_GRADES = {
   triangleFeatures:["middle","preSenior","senior"], height:["middle","preSenior","senior"],
   angleBisector:["middle","preSenior","senior"], median:["middle","preSenior","senior"],
   midline:["middle","preSenior","senior"], areaFigures:["senior"],
+  pythagoreanSides:["preSenior","senior"], rightTrigRatios:["preSenior","senior"],
+  pythagoreanElements:["preSenior","senior"], metricRelations:["preSenior","senior"],
+  rightTrigFindSide:["preSenior","senior"], pythagoreanNmt:["preSenior","senior"],
   stereoBox:["middle","preSenior","senior"], appRatio:["middle","preSenior","senior"],
   /* 8–9: многоугольники, окружность и векторы на плоскости */
   regularPolygon:["preSenior","senior"], inscribedAngle:["preSenior","senior"],

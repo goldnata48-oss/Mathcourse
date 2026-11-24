@@ -1,6 +1,127 @@
 /* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
 const PY_TRIPLES = [ {a:3,b:4,c:5}, {a:5,b:12,c:13}, {a:7,b:24,c:25}, {a:8,b:15,c:17}, {a:9,b:40,c:41} ];
 
+/* ---- Теорема Пифагора, метрические и тригонометрические задачи ---- */
+function genPythagoreanSidesMC(){
+  const tr = rnd(PY_TRIPLES);
+  const askLeg = Math.random() < 0.5;
+  const correct = askLeg ? String(tr.b) : String(tr.c);
+  const given = askLeg
+    ? `Гипотенуза ${tr.c}, катет ${tr.a}`
+    : `Катеты ${tr.a} и ${tr.b}`;
+  const givenUa = askLeg
+    ? `Гіпотенуза ${tr.c}, катет ${tr.a}`
+    : `Катети ${tr.a} і ${tr.b}`;
+  const distractors = askLeg
+    ? [`${tr.c-tr.a}`,`${tr.a+tr.b}`,`${tr.c+1}`,`${tr.a}`]
+    : [`${tr.a+tr.b}`,`${tr.c-1}`,`${tr.a*tr.b}`,`${tr.b}`];
+  const {opts,correctIdx} = buildMC(correct, [...new Set(distractors)].filter(v=>v!==correct).slice(0,3));
+  return {
+    topic:{ru:"Теорема Пифагора: стороны",ua:"Теорема Піфагора: сторони"},
+    format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},
+    question:{ru:`В прямоугольном треугольнике дано: ${given}. Найдите ${askLeg?"второй катет":"гипотенузу"}.`,ua:`У прямокутному трикутнику дано: ${givenUa}. Знайдіть ${askLeg?"другий катет":"гіпотенузу"}.`},
+    hint:{ru:"Гипотенуза равна наибольшей стороне; примените c²=a²+b² или b²=c²−a².",ua:"Гіпотенуза — найбільша сторона; застосуйте c²=a²+b² або b²=c²−a²."},
+    solution:{ru:`${askLeg?`${tr.c}² − ${tr.a}² = ${tr.c*tr.c}-${tr.a*tr.a}=${tr.b*tr.b}, поэтому b=${tr.b}`:`${tr.a}² + ${tr.b}² = ${tr.a*tr.a}+${tr.b*tr.b}=${tr.c*tr.c}, поэтому c=${tr.c}`}.`,ua:`${askLeg?`${tr.c}² − ${tr.a}² = ${tr.c*tr.c}-${tr.a*tr.a}=${tr.b*tr.b}, тому b=${tr.b}`:`${tr.a}² + ${tr.b}² = ${tr.a*tr.a}+${tr.b*tr.b}=${tr.c*tr.c}, тому c=${tr.c}`}.`},
+    options:{ru:opts,ua:opts}, correct:correctIdx
+  };
+}
+function genPythagoreanElementsMC(){
+  const tr = rnd(PY_TRIPLES.slice(0,4));
+  const mode = rnd(["median","diagonal","height","irr"]);
+  let correct, question, solution, pool;
+  if(mode==="median"){
+    correct=String(tr.c/2);
+    question={ru:`В прямоугольном треугольнике гипотенуза c=${tr.c}. Чему равна медиана к гипотенузе?`,ua:`У прямокутному трикутнику гіпотенуза c=${tr.c}. Чому дорівнює медіана до гіпотенузи?`};
+    solution={ru:`Медиана к гипотенузе равна её половине: m_c=c/2=${tr.c}/2=${correct}.`,ua:`Медіана до гіпотенузи дорівнює її половині: m_c=c/2=${tr.c}/2=${correct}.`};
+    pool=[String(tr.c),String(tr.c-1),String(tr.a),String(tr.b)];
+  } else if(mode==="diagonal"){
+    correct=String(tr.c);
+    question={ru:`Прямоугольник имеет стороны ${tr.a} и ${tr.b}. Чему равна диагональ?`,ua:`Прямокутник має сторони ${tr.a} і ${tr.b}. Чому дорівнює діагональ?`};
+    solution={ru:`d²=${tr.a}²+${tr.b}²=${tr.c}², поэтому d=${tr.c}.`,ua:`d²=${tr.a}²+${tr.b}²=${tr.c}², тому d=${tr.c}.`};
+    pool=[String(tr.a+tr.b),String(tr.a),String(tr.b),String(tr.c+1)];
+  } else if(mode==="height"){
+    const side=rnd([6,8,10]);
+    const h=side*Math.sqrt(3)/2;
+    correct=`${side/2}√3`;
+    question={ru:`Сторона равностороннего треугольника равна ${side}. Найдите высоту.`,ua:`Сторона рівностороннього трикутника дорівнює ${side}. Знайдіть висоту.`};
+    solution={ru:`h²=${side}²−(${side}/2)², поэтому h=${correct}.`,ua:`h²=${side}²−(${side}/2)², тому h=${correct}.`};
+    pool=[`${side/2}`,`${side/2}√2`,`${side}√3`,`${side/2}√5`];
+  } else {
+    correct="√2";
+    question={ru:"Катеты прямоугольного треугольника равны 1 и 1. Найдите гипотенузу.",ua:"Катети прямокутного трикутника дорівнюють 1 і 1. Знайдіть гіпотенузу."};
+    solution={ru:"c²=1²+1²=2, поэтому c=√2.",ua:"c²=1²+1²=2, тому c=√2."};
+    pool=["1","2","√3","2√2"];
+  }
+  const {opts,correctIdx}=buildMC(correct,[...new Set(pool)].filter(v=>v!==correct).slice(0,3));
+  return {topic:{ru:"Пифагор: элементы треугольника",ua:"Піфагор: елементи трикутника"},format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},question,hint:{ru:"Сначала выделите прямоугольный треугольник и запишите c²=a²+b².",ua:"Спершу виділіть прямокутний трикутник і запишіть c²=a²+b²."},solution,options:{ru:opts,ua:opts},correct:correctIdx};
+}
+function genMetricRelationsMC(){
+  const p=rnd([4,9,16]), q=rnd([9,16,25].filter(v=>v!==p));
+  const c=p+q, h=Math.sqrt(p*q), a=Math.sqrt(c*p), b=Math.sqrt(c*q);
+  const mode=rnd(["h","area","leg"]);
+  let correct,pool,question,solution;
+  if(mode==="h"){
+    correct=String(Math.sqrt(p*q)); question={ru:`Проекции катетов на гипотенузу p=${p}, q=${q}. Найдите высоту h.`,ua:`Проєкції катетів на гіпотенузу p=${p}, q=${q}. Знайдіть висоту h.`}; solution={ru:`h²=pq=${p*q}, поэтому h=√${p*q}=${correct}.`,ua:`h²=pq=${p*q}, тому h=√${p*q}=${correct}.`}; pool=[String(p+q),String(p*q),`√${p+q}`,String(Math.abs(p-q))];
+  } else if(mode==="area"){
+    const area=Math.abs(a*b/2); correct=fmtNum(area); question={ru:`Проекции катетов p=${p}, q=${q}. Найдите площадь треугольника.`,ua:`Проєкції катетів p=${p}, q=${q}. Знайдіть площу трикутника.`}; solution={ru:`c=p+q=${c}, h=√pq=√${p*q}. Катеты находятся через a²=cp, b²=cq; S=½ab=½ch=${fmtNum(area)}.`,ua:`c=p+q=${c}, h=√pq=√${p*q}. Катети знаходяться через a²=cp, b²=cq; S=½ab=½ch=${fmtNum(area)}.`}; pool=["2","6","12",String(c)];
+  } else {
+    correct=fmtNum(Math.sqrt(c*p)); question={ru:`Гипотенуза c=${c}, проекция катета p=${p}. Найдите этот катет.`,ua:`Гіпотенуза c=${c}, проєкція катета p=${p}. Знайдіть цей катет.`}; solution={ru:`a²=c·p=${c}·${p}=${c*p}, поэтому a=√${c*p}=${correct}.`,ua:`a²=c·p=${c}·${p}=${c*p}, тому a=√${c*p}=${correct}.`}; pool=[String(c-p),String(c+p),fmtNum(Math.sqrt(c*(c-p))),String(p)];
+  }
+  const {opts,correctIdx}=buildMC(correct,[...new Set(pool)].filter(v=>v!==correct).slice(0,3));
+  return {topic:{ru:"Метрические соотношения",ua:"Метричні співвідношення"},format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},question,hint:{ru:"Используйте h²=pq, a²=cp, b²=cq, c=p+q.",ua:"Використайте h²=pq, a²=cp, b²=cq, c=p+q."},solution,options:{ru:opts,ua:opts},correct:correctIdx};
+}
+function genRightTrigRatiosMC(){
+  const tr=rnd(PY_TRIPLES);
+  const mode=rnd(["sin","cos","tg","ctg"]);
+  const vals={sin:`${tr.a}/${tr.c}`,cos:`${tr.b}/${tr.c}`,tg:`${tr.a}/${tr.b}`,ctg:`${tr.b}/${tr.a}`};
+  const correct=vals[mode];
+  const labels={sin:{ru:"sin α",ua:"sin α"},cos:{ru:"cos α",ua:"cos α"},tg:{ru:"tg α",ua:"tg α"},ctg:{ru:"ctg α",ua:"ctg α"}};
+  const pool=shuffleArr([vals.sin,vals.cos,vals.tg,vals.ctg]).filter(v=>v!==correct).slice(0,3);
+  const {opts,correctIdx}=buildMC(correct,pool);
+  return {topic:{ru:"Тригонометрия прямоугольного треугольника",ua:"Тригонометрія прямокутного трикутника"},format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},question:{ru:`Катеты треугольника ${tr.a} и ${tr.b}, гипотенуза ${tr.c}. Угол α против катета ${tr.a}. Найдите ${labels[mode].ru}.`,ua:`Катети трикутника ${tr.a} і ${tr.b}, гіпотенуза ${tr.c}. Кут α лежить проти катета ${tr.a}. Знайдіть ${labels[mode].ua}.`},hint:{ru:"Определите противолежащий и прилежащий катеты относительно угла α.",ua:"Визначте протилежний і прилеглий катети відносно кута α."},solution:{ru:`Стороны треугольника: против α — ${tr.a}, прилежащий катет — ${tr.b}, гипотенуза — ${tr.c}. Поэтому ${labels[mode].ru} = ${correct}.`,ua:`Сторони трикутника: проти α — ${tr.a}, прилеглий катет — ${tr.b}, гіпотенуза — ${tr.c}. Тому ${labels[mode].ua} = ${correct}.`},options:{ru:opts,ua:opts},correct:correctIdx};
+}
+function genRightTrigFindSideMC(){
+  const mode=rnd(["hyp","leg"]);
+  if(mode==="hyp"){
+    const cat=rnd([4,6,8,10]); const correct=String(2*cat);
+    const {opts,correctIdx}=buildMC(correct,[String(cat),String(cat+2),String(cat*3)]);
+    return {topic:{ru:"Нахождение стороны через угол",ua:"Знаходження сторони через кут"},format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},question:{ru:`Катет ${cat} лежит против угла 30°. Найдите гипотенузу.`,ua:`Катет ${cat} лежить проти кута 30°. Знайдіть гіпотенузу.`},hint:{ru:"Катет против 30° равен половине гипотенузы.",ua:"Катет проти 30° дорівнює половині гіпотенузи."},solution:{ru:`c=2a=2·${cat}=${correct}.`,ua:`c=2a=2·${cat}=${correct}.`},options:{ru:opts,ua:opts},correct:correctIdx};
+  }
+  const c=rnd([6,8,10,12]); const correct=String(c/2);
+  const pool=[String(c),String(c-2),String(c/2+2),String(c/2-1)].filter(v=>v!==correct);
+  const {opts,correctIdx}=buildMC(correct,[...new Set(pool)].slice(0,3));
+  return {topic:{ru:"Нахождение катета через угол",ua:"Знаходження катета через кут"},format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},question:{ru:`Гипотенуза равна ${c}, угол α=60°. Найдите прилежащий катет.`,ua:`Гіпотенуза дорівнює ${c}, кут α=60°. Знайдіть прилеглий катет.`},hint:{ru:"Прилежащий катет находится как c·cos α.",ua:"Прилеглий катет знаходиться як c·cos α."},solution:{ru:`cos60°=1/2, поэтому b=c·cos60°=${c}/2=${correct}.`,ua:`cos60°=1/2, тому b=c·cos60°=${c}/2=${correct}.`},options:{ru:opts,ua:opts},correct:correctIdx};
+}
+
+function genPythagoreanNmtMC(){
+  const mode=rnd(["circles","plane","stereo"]);
+  if(mode==="circles"){
+    const tr=rnd(PY_TRIPLES);
+    const r=(tr.a+tr.b-tr.c)/2;
+    const correct=`r=${r}; R=${tr.c/2}`;
+    const pool=[
+      `r=${tr.c/2}; R=${r}`,
+      `r=${tr.a/2}; R=${tr.b/2}`,
+      `r=${tr.b-tr.a}/2; R=${tr.c}`
+    ];
+    const {opts,correctIdx}=buildMC(correct,pool);
+    return {topic:{ru:"НМТ: окружности прямоугольного треугольника",ua:"НМТ: кола прямокутного трикутника"},format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},question:{ru:`Катеты прямоугольного треугольника равны ${tr.a} и ${tr.b}, гипотенуза ${tr.c}. Найдите радиусы вписанной r и описанной R окружностей.`,ua:`Катети прямокутного трикутника дорівнюють ${tr.a} і ${tr.b}, гіпотенуза ${tr.c}. Знайдіть радіуси вписаного r і описаного R кіл.`},hint:{ru:"R=c/2, r=(a+b−c)/2.",ua:"R=c/2, r=(a+b−c)/2."},solution:{ru:`R=${tr.c}/2=${tr.c/2}; r=(${tr.a}+${tr.b}−${tr.c})/2=${r}.`,ua:`R=${tr.c}/2=${tr.c/2}; r=(${tr.a}+${tr.b}−${tr.c})/2=${r}.`},options:{ru:opts,ua:opts},correct:correctIdx};
+  }
+  if(mode==="plane"){
+    const tr=rnd(PY_TRIPLES);
+    const correct=String(tr.c);
+    const {opts,correctIdx}=buildMC(correct,[String(tr.a),String(tr.b),String(tr.a+tr.b)]);
+    return {topic:{ru:"НМТ: планиметрия прямоугольного треугольника",ua:"НМТ: планіметрія прямокутного трикутника"},format:{ru:"выбор одного ответа",ua:"вибір однієї відповіді"},question:{ru:`Прямоугольник имеет стороны ${tr.a} и ${tr.b}. Найдите его диагональ.`,ua:`Прямокутник має сторони ${tr.a} і ${tr.b}. Знайдіть його діагональ.`},hint:{ru:"Диагональ прямоугольника — гипотенуза треугольника со сторонами a и b.",ua:"Діагональ прямокутника — гіпотенуза трикутника зі сторонами a і b."},solution:{ru:`d=√(${tr.a}²+${tr.b}²)=√${tr.c*tr.c}=${tr.c}.`,ua:`d=√(${tr.a}²+${tr.b}²)=√${tr.c*tr.c}=${tr.c}.`},options:{ru:opts,ua:opts},correct:correctIdx};
+  }
+  const tr=rnd(PY_TRIPLES.slice(0,4));
+  const h=rnd([12,16,20,24]);
+  const d2=tr.c*tr.c+h*h;
+  const correct=Math.sqrt(d2).toFixed(2);
+  const pool=[String(tr.c+h),String(tr.a+tr.b+h),String(tr.c)];
+  const {opts,correctIdx}=buildMC(correct,[...new Set(pool)].slice(0,3));
+  return {topic:{ru:"НМТ: прямоугольный треугольник в стереометрии",ua:"НМТ: прямокутний трикутник у стереометрії"},format:{ru:"десятичная дробь, выбор одного ответа",ua:"десятковий дріб, вибір однієї відповіді"},question:{ru:`Прямоугольный параллелепипед имеет основание ${tr.a}×${tr.b} и высоту ${h}. Найдите диагональ параллелепипеда (округлите до 0.01).`,ua:`Прямокутний паралелепіпед має основу ${tr.a}×${tr.b} і висоту ${h}. Знайдіть діагональ паралелепіпеда (округліть до 0.01).`},hint:{ru:"Диагональ основания равна √(a²+b²), затем D=√(диагональ основания²+h²).",ua:"Діагональ основи дорівнює √(a²+b²), потім D=√(діагональ основи²+h²)."},solution:{ru:`Диагональ основания = √(${tr.a}²+${tr.b}²)=${tr.c}; D=√(${tr.c}²+${h}²)=√${d2}≈${correct}.`,ua:`Діагональ основи = √(${tr.a}²+${tr.b}²)=${tr.c}; D=√(${tr.c}²+${h}²)=√${d2}≈${correct}.`},options:{ru:opts,ua:opts},correct:correctIdx};
+}
+
 function fmtSignedTerm(coef, varName, isFirst){
   if(coef===0) return "";
   const absC = Math.abs(coef);
@@ -3183,6 +3304,8 @@ const LEVEL_DEFS = [
     title:{ru:"Базовый",ua:"Базовий"},
     desc:{ru:"Прямое применение формул, тестовый формат",ua:"Пряме застосування формул, тестовий формат"},
     topics:[
+      { id:"pythagoreanSides", module:5, title:{ru:"Пифагоровы тройки и стороны",ua:"Піфагорові трійки та сторони"}, desc:{ru:"Нахождение катета или гипотенузы",ua:"Знаходження катета або гіпотенузи"}, generate: genPythagoreanSidesMC },
+      { id:"rightTrigRatios", module:5, title:{ru:"Тригонометрия прямоугольного треугольника",ua:"Тригонометрія прямокутного трикутника"}, desc:{ru:"sin, cos, tg, ctg по сторонам",ua:"sin, cos, tg, ctg за сторонами"}, generate: genRightTrigRatiosMC },
       { id:"identity", module:2, title:{ru:"Основное тождество",ua:"Основна тотожність"}, desc:{ru:"sin²+cos²=1 и родственные формы",ua:"sin²+cos²=1 і споріднені форми"}, generate: genIdentityBasicMC },
       { id:"radconv", module:2, title:{ru:"Градусы ↔ радианы",ua:"Градуси ↔ радіани"}, desc:{ru:"Перевод угловых мер",ua:"Переведення кутових мір"}, generate: genRadConvertMC },
       { id:"simplesteq", module:2, title:{ru:"Простейшие уравнения",ua:"Найпростіші рівняння"}, desc:{ru:"Общие решения sin x=a, cos x=a",ua:"Загальні розв'язки sin x=a, cos x=a"}, generate: genSimplestEqMC },
@@ -3244,6 +3367,9 @@ const LEVEL_DEFS = [
     title:{ru:"Средний",ua:"Середній"},
     desc:{ru:"Комбинация 2–3 понятий, короткий ответ",ua:"Комбінація 2–3 понять, коротка відповідь"},
     topics:[
+      { id:"pythagoreanElements", module:5, title:{ru:"Пифагор: высота, медиана, диагонали",ua:"Піфагор: висота, медіана, діагоналі"}, desc:{ru:"Целые, дробные и иррациональные элементы",ua:"Цілі, дробові та ірраціональні елементи"}, generate: genPythagoreanElementsMC },
+      { id:"metricRelations", module:5, title:{ru:"Метрические соотношения",ua:"Метричні співвідношення"}, desc:{ru:"h²=pq, a²=cp, b²=cq, площадь",ua:"h²=pq, a²=cp, b²=cq, площа"}, generate: genMetricRelationsMC },
+      { id:"rightTrigFindSide", module:5, title:{ru:"Сторона по углу и стороне",ua:"Сторона за кутом і стороною"}, desc:{ru:"Угол 30°/60° и тригонометрические формулы",ua:"Кут 30°/60° та тригонометричні формули"}, generate: genRightTrigFindSideMC },
       { id:"tanExpr", module:2, title:{ru:"Выражение через tg α",ua:"Вираз через tg α"}, desc:{ru:"Деление на cos α",ua:"Ділення на cos α"}, generate: genTanExpr },
       { id:"simplifyEval", module:2, title:{ru:"sin α + cos α по tg α",ua:"sin α + cos α за tg α"}, desc:{ru:"Знаки по четверти + тождество",ua:"Знаки за чвертю + тотожність"}, generate: genSimplifyEval },
       { id:"doubleAngle", module:2, title:{ru:"Формула двойного угла",ua:"Формула подвійного кута"}, desc:{ru:"Упрощение через sin2α, cos2α",ua:"Спрощення через sin2α, cos2α"}, generate: genDoubleAngleSimplify },
@@ -3273,6 +3399,7 @@ const LEVEL_DEFS = [
     title:{ru:"Наисложнейший",ua:"Найскладніший"},
     desc:{ru:"Комбинированные и параметрические задачи",ua:"Комбіновані та параметричні задачі"},
     topics:[
+      { id:"pythagoreanNmt", module:5, title:{ru:"НМТ: прямоугольный треугольник",ua:"НМТ: прямокутний трикутник"}, desc:{ru:"Окружности, планиметрия и стереометрия",ua:"Кола, планіметрія та стереометрія"}, generate: genPythagoreanNmtMC },
       { id:"homogen", module:2, title:{ru:"Однородные уравнения",ua:"Однорідні рівняння"}, desc:{ru:"Сведение к квадратному относительно tg x",ua:"Зведення до квадратного відносно tg x"}, generate: genHomogen },
       { id:"rootsCount", module:2, title:{ru:"Число корней на промежутке",ua:"Кількість коренів на проміжку"}, desc:{ru:"Периодичность решений",ua:"Періодичність розв'язків"}, generate: genRootsCount },
       { id:"paramRange", module:2, title:{ru:"Параметр в уравнении",ua:"Параметр у рівнянні"}, desc:{ru:"Условие существования решений",ua:"Умова існування розв'язків"}, generate: genParamRange },

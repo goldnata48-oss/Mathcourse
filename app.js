@@ -1038,33 +1038,457 @@ function renderTrainerLevelPicker(){
   renderStudyResources(main);
 }
 
-function createPdfBlob(){
-  const lines = [
-    "MATHCOURSE - FORMULA CHEAT SHEET",
-    "",
-    "Trigonometry: sin^2 x + cos^2 x = 1",
-    "tan x = sin x / cos x",
-    "sin 2x = 2 sin x cos x",
-    "",
-    "Exponents and logarithms: a^x = b => x = log_a(b)",
-    "log_a(a^x) = x; log_a(xy) = log_a x + log_a y",
-    "",
-    "Calculus: (x^n)' = n x^(n-1)",
-    "integral x^n dx = x^(n+1)/(n+1) + C",
-    "",
-    "Geometry: V_prism = S_base * h",
-    "V_pyramid = S_base * h / 3",
-    "S_sphere = 4 * pi * R^2"
-  ];
-  const escapePdf = line=>line.replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
-  const stream = ["BT","/F1 14 Tf","50 760 Td",...lines.map((line,index)=>`(${escapePdf(line)}) Tj${index<lines.length-1 ? " 0 -24 Td" : ""}`),"ET"].join("\n");
-  const objects = ["<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids [3 0 R] /Count 1 >>","<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"];
-  let pdf="%PDF-1.4\n";
-  const offsets=[0];
-  objects.forEach((object,index)=>{ offsets.push(pdf.length); pdf += `${index+1} 0 obj\n${object}\nendobj\n`; });
-  const xref=pdf.length;
-  pdf += `xref\n0 ${objects.length+1}\n0000000000 65535 f \n${offsets.slice(1).map(offset=>String(offset).padStart(10,"0")+" 00000 n ").join("\n")}\ntrailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
-  return new Blob([pdf],{type:"application/pdf"});
+async function createPdfBlob(lang){
+  const UA = lang==="ua";
+  const SCALE = 2;
+  const PW = 595, PH = 842;
+  const pages = [];
+
+  function makePage(){
+    const canvas=document.createElement("canvas");
+    canvas.width=PW*SCALE; canvas.height=PH*SCALE;
+    const ctx=canvas.getContext("2d");
+    ctx.scale(SCALE,SCALE);
+    ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,PW,PH);
+    ctx.fillStyle="#172033";
+    ctx.textBaseline="top";
+    return {canvas,ctx,y:38};
+  }
+
+  function title(page,text,part){
+    const ctx=page.ctx;
+    ctx.fillStyle="#f5f7fb"; ctx.fillRect(0,0,PW,70);
+    ctx.fillStyle="#172033"; ctx.font="bold 18px Segoe UI, Arial";
+    ctx.fillText(text,28,22);
+    ctx.fillStyle="#64748b"; ctx.font="9px Segoe UI, Arial";
+    ctx.fillText(part,28,47);
+    ctx.fillStyle="#2f86c7"; ctx.fillRect(28,63,539,2);
+    page.y=78;
+  }
+
+  function block(page,heading,lines,options={}){
+    const ctx=page.ctx;
+    const x=options.x || 28, width=options.width || 539;
+    const fontSize=options.fontSize || 8.7;
+    const pad=6;
+    ctx.fillStyle="#edf4fa"; ctx.fillRect(x,page.y-3,width,12);
+    ctx.font="bold 9.5px Segoe UI, Arial"; ctx.fillStyle="#1f5f8b";
+    ctx.fillText(heading,x+pad,page.y);
+    ctx.font=`${fontSize}px Segoe UI, Arial`; ctx.fillStyle="#172033";
+    let yy=page.y+15;
+    lines.forEach(line=>{
+      const words=String(line).split(" ");
+      let row="";
+      words.forEach(word=>{
+        const test=row ? row+" "+word : word;
+        if(ctx.measureText(test).width>width-pad*2 && row){ctx.fillText(row,x+pad,yy); yy+=fontSize+3; row=word;}
+        else row=test;
+      });
+      if(row){ctx.fillText(row,x+pad,yy); yy+=fontSize+3;}
+    });
+    page.y=yy+7;
+  }
+
+  function twoBlocks(page,leftHead,leftLines,rightHead,rightLines){
+    const ctx=page.ctx;
+    const gap=10, x=28, w=(539-gap)/2;
+    const start=page.y;
+    const leftHeight=drawBlock(ctx,x,w,start,leftHead,leftLines);
+    const rightHeight=drawBlock(ctx,x+w+gap,w,start,rightHead,rightLines);
+    page.y=Math.max(leftHeight,rightHeight)+7;
+  }
+
+  function drawBlock(ctx,x,width,y,heading,lines){
+    const fontSize=8.3, pad=6;
+    ctx.fillStyle="#edf4fa"; ctx.fillRect(x,y,width,12);
+    ctx.strokeStyle="#dbe4ef"; ctx.strokeRect(x,y,width,12);
+    ctx.font="bold 9.2px Segoe UI, Arial"; ctx.fillStyle="#1f5f8b";
+    ctx.fillText(heading,x+pad,y+2);
+    let yy=y+20;
+    ctx.font=`${fontSize}px Segoe UI, Arial`; ctx.fillStyle="#172033";
+    lines.forEach(line=>{
+      const words=String(line).split(" ");
+      let row="";
+      words.forEach(word=>{
+        const test=row ? row+" "+word : word;
+        if(ctx.measureText(test).width>width-pad*2 && row){ctx.fillText(row,x+pad,yy); yy+=11; row=word;}
+        else row=test;
+      });
+      if(row){ctx.fillText(row,x+pad,yy); yy+=11;}
+    });
+    ctx.strokeStyle="#dbe4ef"; ctx.strokeRect(x,y,width,yy-y+6);
+    return yy+8;
+  }
+
+  function footer(page,num){
+    const ctx=page.ctx;
+    ctx.fillStyle="#64748b"; ctx.font="8px Segoe UI, Arial";
+    ctx.fillText(UA?"МАТКУРС · Довідник формул НМТ":"МАТКУРС · Справочник формул НМТ",28,820);
+    ctx.textAlign="right"; ctx.fillText(String(num),567,820); ctx.textAlign="left";
+  }
+
+  const page1=makePage();
+  title(page1,UA?"Алгебра і початки аналізу":"Алгебра и начала анализа",UA?"Розділ 1 · Алгебра":"Раздел 1 · Алгебра");
+  twoBlocks(page1,
+    UA?"Формули скороченого множення":"Формулы сокращённого умножения",
+    [ "(a±b)²=a²±2ab+b²", "a²−b²=(a−b)(a+b)",
+      "(a±b)³=a³±3a²b+3ab²±b³", "a³±b³=(a±b)(a²∓ab+b²)" ],
+    UA?"Квадратне рівняння":"Квадратное уравнение",
+    [ "ax²+bx+c=0, a≠0", "D=b²−4ac",
+      "x₁,₂=(-b±√D)/(2a)", "D>0: два корені; D=0: один; D<0: дійсних немає",
+      "ax²+bx+c=a(x−x₁)(x−x₂)", "x₁+x₂=-b/a; x₁x₂=c/a" ]);
+  twoBlocks(page1,
+    UA?"Степені":"Степени",
+    [ "aᵐaⁿ=aᵐ⁺ⁿ; aᵐ/aⁿ=aᵐ⁻ⁿ", "(ab)ⁿ=aⁿbⁿ; (a/b)ⁿ=aⁿ/bⁿ",
+      "(aᵐ)ⁿ=aᵐⁿ; a⁻ⁿ=1/aⁿ", "aᵐ⁄ⁿ=ⁿ√(aᵐ)", "√(a²)=|a|" ],
+    UA?"Арифметичний корінь n-го степеня":"Арифметический корень n-й степени",
+    [ "ⁿ√a=b ⇔ bⁿ=a, b≥0, a≥0", "ⁿ√(ab)=ⁿ√a·ⁿ√b",
+      "ⁿ√(a/b)=ⁿ√a/ⁿ√b", "ᵐ√(ⁿ√a)=ᵐⁿ√a",
+      "(ⁿ√a)ᵐ=ⁿ√(aᵐ)" ]);
+  twoBlocks(page1,
+    UA?"Логарифми":"Логарифмы",
+    [ "logₐb=x ⇔ aˣ=b; a>0, a≠1, b>0",
+      "logₐ(aˣ)=x; a^{logₐb}=b",
+      "logₐ(bc)=logₐb+logₐc", "logₐ(b/c)=logₐb−logₐc",
+      "logₐ(bᵏ)=k logₐb", "logₐb=logc b/logc a; logₐb=1/logb a" ],
+    UA?"Показникові співвідношення":"Показательные соотношения",
+    [ "aˣaʸ=aˣ⁺ʸ; aˣ/aʸ=aˣ⁻ʸ",
+      "(aˣ)ʸ=aˣʸ; (ab)ˣ=aˣbˣ",
+      "a⁰=1 (a≠0); a⁻ˣ=1/aˣ",
+      "ln x=logₑx; lg x=log₁₀x" ]);
+  pages.push(page1);
+
+  const page2=makePage();
+  title(page2,UA?"Прогресії, комбінаторика й ймовірність":"Прогрессии, комбинаторика и вероятность",UA?"Розділ 1 · Формули вибору та рядів":"Раздел 1 · Формулы выбора и рядов");
+  twoBlocks(page2,
+    UA?"Арифметична прогресія":"Арифметическая прогрессия",
+    [ "aₙ=a₁+(n−1)d", "Sₙ=(a₁+aₙ)n/2=(2a₁+(n−1)d)n/2",
+      "aₙ=(aₙ₋₁+aₙ₊₁)/2" ],
+    UA?"Геометрична прогресія":"Геометрическая прогрессия",
+    [ "bₙ=b₁qⁿ⁻¹", "Sₙ=b₁(qⁿ−1)/(q−1), q≠1",
+      "bₙ²=bₙ₋₁bₙ₊₁ (додатні члени)", "|q|<1: S=b₁/(1−q)" ]);
+  twoBlocks(page2,
+    UA?"Комбінаторика":"Комбинаторика",
+    [ "Pₙ=n!", "Aₙᵐ=n!/(n−m)!",
+      "Cₙᵐ=n!/(m!(n−m)!)", "Cₙᵐ=Cₙⁿ⁻ᵐ",
+      "(a+b)ⁿ=Σ Cₙᵏaⁿ⁻ᵏbᵏ" ],
+    UA?"Ймовірність":"Вероятность",
+    [ "P(A)=m/n", "P(Ā)=1−P(A)",
+      "P(A∪B)=P(A)+P(B)−P(A∩B)",
+      "Якщо несумісні: P(A∪B)=P(A)+P(B)",
+      "Незалежні події: P(A∩B)=P(A)P(B)" ]);
+  twoBlocks(page2,
+    UA?"Похідні — основні":"Производные — основные",
+    [ "(C)′=0; (x)′=1", "(xⁿ)′=nxⁿ⁻¹",
+      "(aˣ)′=aˣ ln a; (eˣ)′=eˣ",
+      "(ln x)′=1/x; (logₐx)′=1/(x ln a)",
+      "(sin x)′=cos x; (cos x)′=−sin x",
+      "(tg x)′=1/cos²x; (ctg x)′=−1/sin²x",
+      "(arcsin x)′=1/√(1−x²); (arccos x)′=−1/√(1−x²)",
+      "(arctg x)′=1/(1+x²); (arcctg x)′=−1/(1+x²)" ],
+    UA?"Правила диференціювання":"Правила дифференцирования",
+    [ "(Cu)′=Cu′", "(u±v)′=u′±v′",
+      "(uv)′=u′v+uv′", "(u/v)′=(u′v−uv′)/v²",
+      "(u(v))′=u′(v)v′", "f′(x₀)=tg α дотичної" ]);
+  twoBlocks(page2,
+    UA?"Первісні (інтеграли)":"Первообразные (интегралы)",
+    [ "∫0dx=C; ∫dx=x+C",
+      "∫xⁿdx=xⁿ⁺¹/(n+1)+C, n≠−1",
+      "∫dx/x=ln|x|+C", "∫eˣdx=eˣ+C",
+      "∫aˣdx=aˣ/ln a+C",
+      "∫cos xdx=sin x+C; ∫sin xdx=−cos x+C",
+      "∫dx/cos²x=tg x+C; ∫dx/sin²x=−ctg x+C",
+      "∫ₐᵇf(x)dx=F(b)−F(a)" ],
+    UA?"Властивості інтеграла":"Свойства интеграла",
+    [ "∫(f±g)dx=∫f dx±∫g dx",
+      "∫k f dx=k∫f dx",
+      "∫ₐᵇf dx=−∫ᵇₐf dx; ∫ₐᵃf dx=0",
+      "∫ₐᵇf dx=∫ₐᶜf dx+∫ᶜᵇf dx",
+      "S=Sₐᵇf(x)dx для f≥0" ]);
+  pages.push(page2);
+
+  const page3=makePage();
+  title(page3,UA?"Тригонометрія · тотожності й кути":"Тригонометрия · тождества и углы",UA?"Розділ 2 · Тригонометрія":"Раздел 2 · Тригонометрия");
+  twoBlocks(page3,
+    UA?"Основні тотожності":"Основные тождества",
+    [ "sin²α+cos²α=1", "tgα=sinα/cosα", "ctgα=cosα/sinα",
+      "tgα·ctgα=1", "1+tg²α=1/cos²α", "1+ctg²α=1/sin²α" ],
+    UA?"Сума, різниця, подвійний кут":"Сумма, разность, двойной угол",
+    [ "sin(α±β)=sinαcosβ±cosαsinβ",
+      "cos(α±β)=cosαcosβ∓sinαsinβ",
+      "tg(α±β)=(tgα±tgβ)/(1∓tgαtgβ)",
+      "sin2α=2sinαcosα",
+      "cos2α=cos²α−sin²α=2cos²α−1=1−2sin²α",
+      "tg2α=2tgα/(1−tg²α)" ]);
+  twoBlocks(page3,
+    UA?"Формули приведення":"Формулы приведения",
+    [ "sin(π/2−α)=cosα; cos(π/2−α)=sinα",
+      "tg(π/2−α)=ctgα; ctg(π/2−α)=tgα",
+      "sin(π−α)=sinα; cos(π−α)=−cosα",
+      "sin(π+α)=−sinα; cos(π+α)=−cosα",
+      "sin(2π−α)=−sinα; cos(2π−α)=cosα" ],
+    UA?"Знаки за чвертями":"Знаки по четвертям",
+    [ "I: sin+, cos+, tg+, ctg+", "II: sin+, cos−, tg−, ctg−",
+      "III: sin−, cos−, tg+, ctg+", "IV: sin−, cos+, tg−, ctg−",
+      "Допомога: функція переходить у кофункцію лише при π/2 або 3π/2" ]);
+  twoBlocks(page3,
+    UA?"Значення кутів":"Таблица углов",
+    [ "α     0° 30° 45° 60° 90° 180° 270°",
+      "рад   0 π/6 π/4 π/3 π/2 π 3π/2",
+      "sin   0 1/2 √2/2 √3/2 1 0 −1",
+      "cos   1 √3/2 √2/2 1/2 0 −1 0",
+      "tg    0 √3/3 1 √3 — 0 —",
+      "ctg   — √3 1 √3/3 0 — 0" ],
+    UA?"Обратні функції":"Обратные функции",
+    [ "arcsin 0=0; arcsin(1/2)=π/6; arcsin(√2/2)=π/4",
+      "arcsin(√3/2)=π/3; arcsin1=π/2",
+      "arccos1=0; arccos(√3/2)=π/6; arccos(√2/2)=π/4",
+      "arccos(1/2)=π/3; arccos0=π/2",
+      "arctg0=0; arctg(√3/3)=π/6; arctg1=π/4",
+      "arctg√3=π/3; arcctg√3=π/6; arcctg1=π/4" ]);
+  pages.push(page3);
+
+  const page4=makePage();
+  title(page4,UA?"Таблиці квадратів і коренів":"Таблицы квадратов и корней",UA?"Розділ 2 · Швидкі таблиці":"Раздел 2 · Быстрые таблицы");
+  const squares1=["n  n²"];
+  for(let n=1;n<=25;n++) squares1.push(`${n}  ${n*n}`);
+  twoBlocks(page4,
+    UA?"Квадрати 1–25":"Квадраты 1–25",
+    squares1,
+    UA?"Основні корені":"Основные корни",
+    [ "√1=1; √4=2; √9=3; √16=4; √25=5",
+      "√36=6; √49=7; √64=8; √81=9; √100=10",
+      "√121=11; √144=12; √169=13; √196=14",
+      "√225=15; √256=16; √324=18; √400=20",
+      "√625=25; √3≈1,732; √2≈1,414",
+      "³√8=2; ³√27=3; ³√64=4; ³√125=5" ]);
+  twoBlocks(page4,
+    UA?"Квадратні корені простих чисел":"Квадратные корни простых чисел",
+    [ "√2≈1,4142; √3≈1,7321; √5≈2,2361",
+      "√6≈2,4495; √7≈2,6458; √10≈3,1623",
+      "√11≈3,3166; √13≈3,6055; √15≈3,8730",
+      "√17≈4,1231; √19≈4,3589; √20≈4,4721" ],
+    UA?"Тригонометричні степені":"Тригонометрические степени",
+    [ "sin²α=(1−cos2α)/2", "cos²α=(1+cos2α)/2",
+      "sinαcosβ=[sin(α+β)+sin(α−β)]/2",
+      "cosαcosβ=[cos(α+β)+cos(α−β)]/2",
+      "sinαsinβ=[cos(α−β)−cos(α+β)]/2" ]);
+  block(page4,UA?"Добутки та суми тригонометричних функцій":"Произведения и суммы тригонометрических функций",[
+    "sinα+sinβ=2sin((α+β)/2)cos((α−β)/2)",
+    "sinα−sinβ=2cos((α+β)/2)sin((α−β)/2)",
+    "cosα+cosβ=2cos((α+β)/2)cos((α−β)/2)",
+    "cosα−cosβ=−2sin((α+β)/2)sin((α−β)/2)"
+  ]);
+  pages.push(page4);
+
+  const page5=makePage();
+  title(page5,UA?"Планіметрія · трикутники":"Планиметрия · треугольники",UA?"Розділ 3 · Трикутники":"Раздел 3 · Треугольники");
+  twoBlocks(page5,
+    UA?"Довільний трикутник":"Произвольный треугольник",
+    [ "S=ahₐ/2=½ab sin C", "S=abc/(4R)", "S=rp",
+      "S=√[p(p−a)(p−b)(p−c)], p=(a+b+c)/2",
+      "a/sin A=b/sin B=c/sin C=2R",
+      "c²=a²+b²−2ab cos C" ],
+    UA?"Прямокутний трикутник":"Прямоугольный треугольник",
+    [ "C=90°: c²=a²+b²", "a=c sin A=c cos B",
+      "b=c cos A=c sin B", "sin A=a/c; cos A=b/c",
+      "tg A=a/b; ctg A=b/a",
+      "h²=pq; a²=cp; b²=cq",
+      "h=ab/c; p=a²/c; q=b²/c",
+      "r=(a+b−c)/2; R=c/2" ]);
+  twoBlocks(page5,
+    UA?"Рівносторонній трикутник":"Равносторонний треугольник",
+    [ "h=a√3/2", "S=a²√3/4",
+      "r=a√3/6; R=a√3/3",
+      "R=2r; h=3r=3h₁" ],
+    UA?"Властивості прямокутного треугольника":"Свойства прямоугольного треугольника",
+    [ "α+β=90°",
+      "Катет проти 30° дорівнює c/2",
+      "Медіана до гіпотенузи m_c=c/2",
+      "sin²α+cos²α=1",
+      "tgα·ctgα=1",
+      "1+tg²α=1/cos²α" ]);
+  block(page5,UA?"Інші площі та радіуси":"Другие площади и радиусы",[
+    "S=(a+b+c)r/2=pr",
+    "R=abc/(4S)",
+    "r=√[(p-a)(p-b)(p-c)/p]",
+    "Прямокутний: S=ab/2=ch/2"
+  ]);
+  pages.push(page5);
+
+  const page6=makePage();
+  title(page6,UA?"Чотирикутники, многокутники і коло":"Четырёхугольники, многоугольники и окружность",UA?"Розділ 3 · Планіметрія":"Раздел 3 · Планиметрия");
+  twoBlocks(page6,
+    UA?"Паралелограм і прямокутник":"Параллелограмм и прямоугольник",
+    [ "P=2(a+b); S=ah=ab sin α",
+      "S=½d₁d₂ sin φ",
+      "Прямокутник: d=√(a²+b²)",
+      "Прямокутник: S=ab, P=2(a+b)" ],
+    UA?"Ромб і квадрат":"Ромб и квадрат",
+    [ "Ромб: P=4a; S=ah=½d₁d₂=a² sin α",
+      "Квадрат: P=4a; S=a²=d²/2",
+      "d=a√2; r=a/2; R=d/2=a√2/2" ]);
+  twoBlocks(page6,
+    UA?"Трапеція":"Трапеция",
+    [ "P=a+b+c+d; m=(a+b)/2",
+      "S=(a+b)h/2=m h",
+      "Рівнобічна: діагоналі рівні",
+      "Рівнобічна трапеція: осьова висота опускається у середину більшої основи" ],
+    UA?"Правильний n-кутник":"Правильный n-угольник",
+    [ "αₙ=(n−2)·180°/n",
+      "Rₙ=a/[2sin(π/n)]",
+      "rₙ=a/[2tg(π/n)]",
+      "S=narₙ/2=nRₙ²sin(2π/n)/2",
+      "n=3: R=a/√3, r=a√3/6",
+      "n=4: R=a√2/2, r=a/2",
+      "n=6: R=a, r=a√3/2" ]);
+  twoBlocks(page6,
+    UA?"Коло і круг":"Окружность и круг",
+    [ "C=2πR=πd", "l=Rφ, φ у радіанах",
+      "S=πR²=πd²/4", "S_сект=R²φ/2",
+      "S_сект=πR²α/360°",
+      "S_сегм=S_сект−S_трикутника" ],
+    UA?"Рівняння кола і дуги":"Уравнение окружности и дуги",
+    [ "(x−x₀)²+(y−y₀)²=R²",
+      "x²+y²+Ax+By+C=0",
+      "Центр (−A/2; −B/2)",
+      "R=√[(A²+B²)/4−C]",
+      "Центральний кут дорівнює дузі",
+      "Вписаний кут = половині дуги" ]);
+  block(page6,UA?"Вписане і описане коло трикутника":"Вписанная и описанная окружность треугольника",[
+    "R=abc/(4S)", "r=S/p",
+    "Прямокутний: R=c/2, r=(a+b−c)/2",
+    "Рівносторонній: R=2r"
+  ]);
+  pages.push(page6);
+
+  const page7=makePage();
+  title(page7,UA?"Стереометрія · тіла і площі":"Стереометрия · тела и площади",UA?"Розділ 4 · Стереометрія":"Раздел 4 · Стереометрия");
+  twoBlocks(page7,
+    UA?"Призма і паралелепіпед":"Призма и параллелепипед",
+    [ "Пряма призма: Sб=P осн·l; Sп=Sб+2S осн; V=S осн·h",
+      "Куб: Sб=4a²; Sп=6a²; V=a³; d=a√3",
+      "Прямокутний паралелепіпед:",
+      "Sп=2(ab+bc+ac); V=abc; d=√(a²+b²+c²)" ],
+    UA?"Піраміда і правильна піраміда":"Пирамида и правильная пирамида",
+    [ "V=(1/3)S осн·h",
+      "Бічна площа правильної піраміди Sб=P осн·l/2",
+      "Sп=Sб+S осн",
+      "Апофема l: l²=r осн²+h²",
+      "Бічне ребро L: L²=R осн²+h²" ]);
+  twoBlocks(page7,
+    UA?"Циліндр":"Цилиндр",
+    [ "Sб=2πRh", "Sп=2πR(R+h)",
+      "V=πR²h",
+      "Осевий переріз прямого циліндра — прямокутник 2R×h" ],
+    UA?"Конус":"Конус",
+    [ "l²=R²+h²",
+      "Sб=πRl", "Sп=πR(R+l)",
+      "V=(1/3)πR²h",
+      "Розгортка бічної поверхні — сектор радіуса l" ]);
+  twoBlocks(page7,
+    UA?"Куля і сфера":"Шар и сфера",
+    [ "S сфери=4πR²",
+      "V кулі=(4/3)πR³",
+      "Площа круга великого перерізу=πR²",
+      "Переріз на відстані d: r=√(R²−d²)" ],
+    UA?"Ключові позначення":"Ключевые обозначения",
+    [ "h — висота, l — твірна",
+      "R — радіус описаного кола/сфери",
+      "r — радіус вписаного кола/основи",
+      "P осн — периметр основи",
+      "S осн — площа основи" ]);
+  pages.push(page7);
+
+  const page8=makePage();
+  title(page8,UA?"Координати і вектори в просторі":"Координаты и векторы в пространстве",UA?"Розділ 5 · Аналітична геометрія":"Раздел 5 · Аналитическая геометрия");
+  twoBlocks(page8,
+    UA?"Координати точки і відрізка":"Координаты точки и отрезка",
+    [ "A(x₁;y₁;z₁), B(x₂;y₂;z₂)",
+      "Середина AB: ((x₁+x₂)/2;(y₁+y₂)/2;(z₁+z₂)/2)",
+      "|AB|=√[(x₂−x₁)²+(y₂−y₁)²+(z₂−z₁)²]",
+      "Відстань до площини Ax+By+Cz+D=0:",
+      "d=|Ax₀+By₀+Cz₀+D|/√(A²+B²+C²)" ],
+    UA?"Вектори":"Векторы",
+    [ "a⃗=(a₁;a₂;a₃)", "b⃗=(b₁;b₂;b₃)",
+      "a⃗±b⃗=(a₁±b₁;a₂±b₂;a₃±b₃)",
+      "ka⃗=(ka₁;ka₂;ka₃)",
+      "|a⃗|=√(a₁²+a₂²+a₃²)",
+      "AB⃗=(x₂−x₁;y₂−y₁;z₂−z₁)" ]);
+  twoBlocks(page8,
+    UA?"Скалярний добуток":"Скалярное произведение",
+    [ "a⃗·b⃗=a₁b₁+a₂b₂+a₃b₃",
+      "a⃗·b⃗=|a⃗||b⃗|cos φ",
+      "cos φ=(a⃗·b⃗)/(|a⃗||b⃗|)",
+      "a⃗⊥b⃗ ⇔ a⃗·b⃗=0" ],
+    UA?"Кути і геометричні формули":"Углы и геометрические формулы",
+    [ "cos кута до осі Ox=a₁/|a⃗|",
+      "cos кута до осі Oy=a₂/|a⃗|",
+      "cos кута до осі Oz=a₃/|a⃗|",
+      "Колінеарні: a⃗=kb⃗",
+      "Компоненти вектора визначаються координатами кінця мінус координатами початку" ]);
+  block(page8,UA?"Площі і об'єми координатним методом":"Площади и объёмы координатным методом",[
+    "Площа паралелограма на площині: S=|x₁y₂−x₂y₁|",
+    "Площа треугольника: S=½|x₁y₂−x₂y₁|",
+    "У просторі координати зазвичай зводять до прямокутних треугольників і теореми Піфагора",
+    "Діагональ прямокутного паралелепіпеда: d=√(a²+b²+c²)"
+  ]);
+  pages.push(page8);
+
+  pages.forEach((page,index)=>{footer(page,index+1);});
+
+  const enc=new TextEncoder();
+  const jpegPages=[];
+  for(const page of pages){
+    const blob=await new Promise(resolve=>page.canvas.toBlob(resolve,"image/jpeg",0.92));
+    jpegPages.push(new Uint8Array(await blob.arrayBuffer()));
+  }
+
+  const pageIds=pages.map((_,i)=>3+i);
+  const imageIds=pages.map((_,i)=>11+i);
+  const contentIds=pages.map((_,i)=>19+i);
+  const objects=[];
+  objects[1]="<< /Type /Catalog /Pages 2 0 R >>";
+  objects[2]=`<< /Type /Pages /Kids [${pageIds.map(id=>`${id} 0 R`).join(" ")}] /Count ${pages.length} >>`;
+  pages.forEach((_,i)=>{
+    objects[pageIds[i]]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im${i+1} ${imageIds[i]} 0 R >> >> /Contents ${contentIds[i]} 0 R >>`;
+  });
+  pages.forEach((_,i)=>{
+    const stream=`q\n${PW} 0 0 ${PH} 0 0 cm\n/Im${i+1} Do\nQ`;
+    objects[contentIds[i]]= `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`;
+  });
+
+  const output=[];
+  let byteLength=0;
+  function append(parts){
+    parts.forEach(part=>{
+      const bytes=typeof part==="string" ? enc.encode(part) : part;
+      output.push(bytes);
+      byteLength+=bytes.length;
+    });
+  }
+  append(["%PDF-1.4\n"]);
+  const offsets=new Array(objects.length).fill(0);
+  for(let id=1;id<objects.length;id++){
+    offsets[id]=byteLength;
+    append([`${id} 0 obj\n`]);
+    if(id>=11 && id<=18){
+      const i=id-11;
+      append([`<< /Type /XObject /Subtype /Image /Width ${PW*SCALE} /Height ${PH*SCALE} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegPages[i].length} >>\nstream\n`,jpegPages[i]," \nendstream\nendobj\n"]);
+    }else{
+      append([objects[id],"\nendobj\n"]);
+    }
+  }
+  const xrefOffset=byteLength;
+  append([`xref\n0 ${objects.length}\n0000000000 65535 f \n`]);
+  for(let id=1;id<objects.length;id++){
+    append([String(offsets[id]).padStart(10,"0")+" 00000 n \n"]);
+  }
+  append([`trailer\n<< /Size ${objects.length} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`]);
+  const pdfBytes=new Uint8Array(byteLength);
+  let at=0;
+  output.forEach(bytes=>{pdfBytes.set(bytes,at); at+=bytes.length;});
+  return new Blob([pdfBytes],{type:"application/pdf"});
 }
 function renderStudyResources(main){
   const L = UI[state.lang];
@@ -1078,12 +1502,10 @@ function renderStudyResources(main){
     details.innerHTML = `<summary>${review.year} · ${review.title[state.lang]}</summary><p>${review.text[state.lang]}</p>`;
     reviews.appendChild(details);
   });
-  section.querySelector("#download-cheatsheet").addEventListener("click", ()=>{
-    const url = URL.createObjectURL(createPdfBlob());
-    const link = document.createElement("a");
-    link.href=url; link.download="mathcourse-formulas.pdf"; link.click();
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
-  });
+  const pdfButton=section.querySelector("#download-cheatsheet");
+  const pdfFile=lang==="ua"?"nmt-reference-ua.pdf":"nmt-reference-ru.pdf";
+  const pdfName=lang==="ua"?"matkurs-dovidnyk-nmt.pdf":"matkurs-spravochnik-nmt.pdf";
+  pdfButton.outerHTML=`<a class="btn" id="download-cheatsheet" href="./assets/${pdfFile}" download="${pdfName}">${L.downloadCheatsheet}</a>`;
 }
 
 function renderTrainerTopicPicker(){
