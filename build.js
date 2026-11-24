@@ -63,7 +63,7 @@ function build() {
   fs.copyFileSync(path.join(root, "404.html"), path.join(dist, "404.html"));
 
   const sw = read("sw.js")
-    .replace(/const CACHE_NAME = "mathcourse-v1";/, `const CACHE_NAME = "mathcourse-${cacheTag}";`)
+    .replace(/const CACHE_NAME = "mathcourse-[^"]+";/, `const CACHE_NAME = "mathcourse-${cacheTag}";`)
     .replace(/const APP_SHELL = \[[\s\S]*?\];/, `const APP_SHELL = ${JSON.stringify(APP_SHELL, null, 2)};`);
   writeFile(path.join(dist, "sw.js"), sw);
 

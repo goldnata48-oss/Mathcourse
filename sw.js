@@ -1,5 +1,5 @@
 /* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
-const CACHE_NAME = "mathcourse-v1";
+const CACHE_NAME = "mathcourse-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -33,7 +33,8 @@ self.addEventListener("activate", event => {
 
 // Prefer deployed files online; retain the complete course for offline use.
 self.addEventListener("fetch", event => {
-  if(event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
+  const requestUrl = new URL(event.request.url);
+  if(event.request.method !== "GET" || requestUrl.origin !== self.location.origin || requestUrl.pathname.toLowerCase().endsWith(".pdf")) return;
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_NAME);
     try {

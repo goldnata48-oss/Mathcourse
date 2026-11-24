@@ -1494,7 +1494,8 @@ function renderStudyResources(main){
   const L = UI[state.lang];
   const section = document.createElement("section");
   section.className = "resources-section";
-  section.innerHTML = `<h3>${L.nmtResources}</h3><div class="resource-grid"><article class="resource-card"><h4>${L.nmtReviews}</h4><div id="nmt-reviews"></div></article><article class="resource-card"><h4>${L.videos}</h4><p>${L.videoUnavailable}</p><iframe class="video-frame" loading="lazy" title="${VIDEO_RESOURCES[0].title[state.lang]}" src="${VIDEO_RESOURCES[0].src}" allowfullscreen></iframe></article><article class="resource-card"><h4>PDF</h4><p>${L.downloadCheatsheet}</p><button class="btn" id="download-cheatsheet">${L.downloadCheatsheet}</button></article></div>`;
+  const pdfFile=state.lang==="ua"?"nmt-reference-ua.pdf":"nmt-reference-ru.pdf";
+  section.innerHTML = `<h3>${L.nmtResources}</h3><div class="resource-grid"><article class="resource-card"><h4>${L.nmtReviews}</h4><div id="nmt-reviews"></div></article><article class="resource-card"><h4>${L.videos}</h4><p>${L.videoUnavailable}</p><iframe class="video-frame" loading="lazy" title="${VIDEO_RESOURCES[0].title[state.lang]}" src="${VIDEO_RESOURCES[0].src}" allowfullscreen></iframe></article><article class="resource-card"><h4>PDF</h4><p>${L.downloadCheatsheet}</p><a class="btn" id="download-cheatsheet" href="/assets/${pdfFile}" target="_blank" rel="noopener">${L.downloadCheatsheet}</a></article></div>`;
   main.appendChild(section);
   const reviews = section.querySelector("#nmt-reviews");
   NMT_REVIEWS.forEach(review=>{
@@ -1502,10 +1503,6 @@ function renderStudyResources(main){
     details.innerHTML = `<summary>${review.year} · ${review.title[state.lang]}</summary><p>${review.text[state.lang]}</p>`;
     reviews.appendChild(details);
   });
-  const pdfButton=section.querySelector("#download-cheatsheet");
-  const pdfFile=lang==="ua"?"nmt-reference-ua.pdf":"nmt-reference-ru.pdf";
-  const pdfName=lang==="ua"?"matkurs-dovidnyk-nmt.pdf":"matkurs-spravochnik-nmt.pdf";
-  pdfButton.outerHTML=`<a class="btn" id="download-cheatsheet" href="./assets/${pdfFile}" download="${pdfName}">${L.downloadCheatsheet}</a>`;
 }
 
 function renderTrainerTopicPicker(){
