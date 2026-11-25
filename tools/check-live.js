@@ -82,7 +82,7 @@ function post(url, payload) {
     "no stale geoCurved":  body.indexOf('soon:true, t:{ru:"Площади криволинейных фигур"') < 0,
     "geoRose lesson":      body.indexOf('id: "geoRose"') > 0,
     "geoRose hint":        body.indexOf("geoRose:{ru:") > 0,
-    "facultative label":   body.indexOf("Факультатив") > 0,
+    "facultative label":   body.indexOf("Рівень ПРО • 200 балів") > 0,
     "no stale geoRose":    body.indexOf('soon:true, t:{ru:"Полярные кривые. Роза"') < 0,
     "geoSineCos lesson":   body.indexOf('id: "geoSineCos"') > 0,
     "geoVectorTasks":      body.indexOf('id: "geoVectorTasks"') > 0,

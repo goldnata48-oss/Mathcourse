@@ -532,6 +532,8 @@
   .mini-check-badge.standalone{margin:0 0 12px;}
   .q-item{margin-bottom:18px;}
   .q-text{font-size:15px;margin-bottom:8px;font-family:var(--mono);}
+  .geo-revolve-check .q-text{max-width:100%;overflow-wrap:anywhere;word-break:normal;}
+  .geo-revolve-final-note{margin-top:18px;padding:12px 14px;border-left:3px solid var(--accent);border-radius:0 7px 7px 0;background:var(--accent-soft);font-size:14px;line-height:1.55;}
   .q-options{display:flex;flex-direction:column;gap:6px;}
   .mini-explanation{margin-top:9px;padding:11px 13px;border-left:3px solid var(--accent);border-radius:0 7px 7px 0;background:var(--accent-soft);font-size:14px;line-height:1.6;}
   .mini-explanation[hidden]{display:none;}

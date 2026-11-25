@@ -308,7 +308,7 @@ function checkRoadmap() {
   report("no distractor equals the correct answer numerically", equalDistractors.length === 0, equalDistractors.join(", "));
   const inRoadmap = facultyIds.filter(id => Object.values(roadmap)
     .some(module => module.lessons.some(item => item === id)));
-  report("facultative section holds geoCurved and geoRose", facultyIds.join(",") === "geoCurved,geoRose", facultyIds.join(","));
+  report("facultative section holds three PRO lessons", facultyIds.join(",") === "geoCurved,geoRose,geoTrigPro", facultyIds.join(","));
   report("facultative lessons are bilingual and noted", !!facultative && !!facultative.ru && !!facultative.ua &&
     !!facultative.note && !!facultative.note.ru && !!facultative.note.ua);
   report("facultative lessons exist in LESSONS", facultyIds.every(id => idSet.has(id)));
@@ -428,7 +428,9 @@ function checkNav() {
   report("sidebar titles the facultative block without moduleTitle",
     /faculty \? mod\[state\.lang\] : moduleTitle\(modId, state\.lang\)/.test(appSrc));
   report("facultative lessons carry a grade (block renders in 10-11)",
-    (lessonGrades.geoCurved || []).includes("senior") && (lessonGrades.geoRose || []).includes("senior"));
+    (lessonGrades.geoCurved || []).includes("senior") &&
+    (lessonGrades.geoRose || []).includes("senior") &&
+    (lessonGrades.geoTrigPro || []).includes("senior"));
   realm.state.grade = "senior";
   report("visibleSections stays module-only (facultative is appended by the sidebar)",
     !realm.visibleSections().some(s => s.modId === null));
