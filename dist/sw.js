@@ -1,5 +1,5 @@
 /* 2026 Наталия Кравченко. Все права защищены. Образовательный курс — «Маткурс» */
-const CACHE_NAME = "mathcourse-073f4683";
+const CACHE_NAME = "mathcourse-f12a68cd";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -18,6 +18,26 @@ const APP_SHELL = [
   "./assets/nmt-reference-ua.pdf",
   "./assets/nmt-reference-ru.pdf",
   "./assets/chimera-cover.jpg",
+  "./assets/nmt-2024/question-03.png",
+  "./assets/nmt-2024/question-05.png",
+  "./assets/nmt-2024/question-07.png",
+  "./assets/nmt-2024/question-14.png",
+  "./assets/nmt-2024/question-18.png",
+  "./assets/nmt-2024/question-19.png",
+  "./assets/nmt-2025/question-01.png",
+  "./assets/nmt-2025/question-02.png",
+  "./assets/nmt-2025/question-05.png",
+  "./assets/nmt-2025/question-08.png",
+  "./assets/nmt-2025/question-15.png",
+  "./assets/nmt-2025/question-18.png",
+  "./assets/nmt-2025/question-20.png",
+  "./assets/nmt-2026/question-01.png",
+  "./assets/nmt-2026/question-02.png",
+  "./assets/nmt-2026/question-06.png",
+  "./assets/nmt-2026/question-10.png",
+  "./assets/nmt-2026/question-12.png",
+  "./assets/nmt-2026/question-15.png",
+  "./assets/nmt-2026/question-18.png",
   "./privacy.html"
 ];
 

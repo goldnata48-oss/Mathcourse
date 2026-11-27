@@ -496,6 +496,44 @@ function makeFinalLesson(variant){
   };
 }
 
+function makeNmtYearLesson(year){
+  const id = `nmt${year}`;
+  const questions = year===2022 ? NMT_2022_QUESTIONS :
+    year===2023 ? NMT_2023_QUESTIONS :
+    year===2024 ? NMT_2024_QUESTIONS :
+    year===2025 ? NMT_2025_QUESTIONS :
+    year===2026 ? NMT_2026_QUESTIONS : null;
+  const available = Array.isArray(questions);
+  return {
+    id,
+    module:10,
+    title:{
+      ru:`Демонстрационный вариант НМТ ${year}`,
+      ua:`Демонстраційний варіант НМТ ${year}`
+    },
+    html(lang){
+      if(!available){
+        const copy = lang==="ru"
+          ? "Место в архиве подготовлено. Материалы этого года появятся после загрузки PDF."
+          : "Місце в архіві підготовлено. Матеріали цього року з’являться після завантаження PDF.";
+        return `<p class="nmt-archive-placeholder">${copy}</p>`;
+      }
+      const copy = lang==="ru"
+        ? {lead:`Демонстрационный вариант НМТ-${year}: ${questions.length} заданий. Выберите ответ или введите его, затем при необходимости откройте разбор.`,check:`Тренировка НМТ-${year}`,notice:year===2022?"Авторский тренировочный вариант по согласованным темам; это не официальный вариант НМТ-2022.":year===2023?"Авторский тренировочный вариант по темам скана; это не официальный вариант НМТ-2023.":""}
+        : {lead:`Демонстраційний варіант НМТ-${year}: ${questions.length} завдань. Оберіть відповідь або введіть її, а потім за потреби відкрийте розбір.`,check:`Тренування НМТ-${year}`,notice:year===2022?"Авторський тренувальний варіант за погодженими темами; це не офіційний варіант НМТ-2022.":year===2023?"Авторський тренувальний варіант за темами скану; це не офіційний варіант НМТ-2023.":""};
+      return `<p>${copy.lead}</p>${copy.notice ? `<p class="nmt-archive-note">${copy.notice}</p>` : ""}<div class="check-block nmt-check-block"><h3>${copy.check}</h3><div id="nmt-year-check"></div></div>`;
+    },
+    mount(root,lang){
+      if(!available) return;
+      const expectedCount = year===2022 ? 20 : 22;
+      if(questions.length!==expectedCount){
+        throw new Error(`NMT-${year} question data is missing or incomplete`);
+      }
+      renderNmtVariant(root.querySelector("#nmt-year-check"),lang,questions,id);
+    }
+  };
+}
+
 /* Данные уроков вынесены в lesson-data.js (загружается динамически). Фабрики и метаданные остаются здесь. */
 let LESSONS = [];
 
@@ -935,6 +973,253 @@ function renderMiniCheck(container, lang, questions){
   });
 }
 
+function nmtNormalizeAnswer(value){
+  return String(value===undefined ? "" : value)
+    .trim()
+    .toLowerCase()
+    .replace(/[−–—]/g,"-")
+    .replace(/\s+/g,"")
+    .replace(",",".");
+}
+
+function renderNmtVariant(container, lang, questions, lessonId){
+  if(!container) throw new Error("NMT question container was not found");
+  const labels = lang==="ru"
+    ? {answered:"Отвечено",correct:"Верно",back:"Step back",forward:"Step forward",check:"Проверить ответ",review:"Показать разбор",hide:"Скрыть разбор",right:"Верно.",wrong:"Ответ не совпадает. Можно попробовать ещё раз.",input:"Введите ответ",pick:"Выберите соответствие",answer:"Ответ",topic:"Тема"}
+    : {answered:"Відповіли",correct:"Правильно",back:"Step back",forward:"Step forward",check:"Перевірити відповідь",review:"Показати розбір",hide:"Сховати розбір",right:"Правильно.",wrong:"Відповідь не збігається. Спробуйте ще раз.",input:"Введіть відповідь",pick:"Установіть відповідність",answer:"Відповідь",topic:"Тема"};
+  const correctAnswers = questions.map(q=>q.correct);
+  let rec = state.miniChecks[lessonId];
+  if(!rec || !Array.isArray(rec.choices) || rec.choices.length!==questions.length ||
+    !Array.isArray(rec.correct) || rec.correct.join("\u001f")!==correctAnswers.join("\u001f")){
+    rec = {
+      total:questions.length,
+      correct:correctAnswers,
+      choices:new Array(questions.length).fill(null),
+      responses:new Array(questions.length).fill(null),
+      revealed:new Array(questions.length).fill(false)
+    };
+    state.miniChecks[lessonId] = rec;
+  } else {
+    if(!Array.isArray(rec.responses) || rec.responses.length!==questions.length)
+      rec.responses = new Array(questions.length).fill(null);
+    if(!Array.isArray(rec.revealed) || rec.revealed.length!==questions.length)
+      rec.revealed = new Array(questions.length).fill(false);
+  }
+  let current = 0;
+  container.innerHTML = "";
+
+  const counter = document.createElement("div");
+  counter.className = "nmt-counter";
+  counter.setAttribute("aria-live","polite");
+  const progress = document.createElement("div");
+  progress.className = "nmt-progress";
+  progress.setAttribute("role","progressbar");
+  progress.setAttribute("aria-valuemin","0");
+  progress.setAttribute("aria-valuemax",String(questions.length));
+  const progressFill = document.createElement("span");
+  progress.appendChild(progressFill);
+  const nav = document.createElement("nav");
+  nav.className = "nmt-question-nav";
+  nav.setAttribute("aria-label",lang==="ru" ? "Навигация по заданиям" : "Навігація завданнями");
+  const panel = document.createElement("section");
+  panel.className = "nmt-question-panel";
+  panel.setAttribute("aria-live","polite");
+  const stepButtons = document.createElement("div");
+  stepButtons.className = "nmt-step-buttons";
+  const back = document.createElement("button");
+  back.type = "button";
+  back.className = "btn secondary";
+  back.textContent = labels.back;
+  const forward = document.createElement("button");
+  forward.type = "button";
+  forward.className = "btn";
+  forward.textContent = labels.forward;
+  stepButtons.append(back,forward);
+  container.append(counter,progress,nav,panel,stepButtons);
+
+  const navButtons = questions.map((question,index)=>{
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "nmt-question-number";
+    button.textContent = String(index+1);
+    button.setAttribute("aria-label",`${lang==="ru" ? "Задание" : "Завдання"} ${index+1}`);
+    button.addEventListener("click",()=>showQuestion(index));
+    nav.appendChild(button);
+    return button;
+  });
+
+  function persist(){
+    if(typeof saveMiniChecks==="function") saveMiniChecks();
+    if(typeof refreshMiniIndicators==="function") refreshMiniIndicators();
+  }
+  function updateProgress(){
+    const answered = rec.choices.filter(value=>value!==null).length;
+    const correct = rec.choices.filter((value,index)=>value!==null &&
+      nmtNormalizeAnswer(value)===nmtNormalizeAnswer(rec.correct[index])).length;
+    counter.textContent = `${labels.answered}: ${answered}/${questions.length} · ${labels.correct}: ${correct}/${questions.length}`;
+    progress.setAttribute("aria-valuenow",String(answered));
+    progressFill.style.width = `${100*answered/questions.length}%`;
+    navButtons.forEach((button,index)=>{
+      const value = rec.choices[index];
+      button.classList.toggle("active",index===current);
+      button.classList.toggle("answered",value!==null);
+      button.classList.toggle("correct",value!==null &&
+        nmtNormalizeAnswer(value)===nmtNormalizeAnswer(rec.correct[index]));
+      button.setAttribute("aria-current",index===current ? "step" : "false");
+    });
+    back.disabled = current===0;
+    forward.disabled = current===questions.length-1;
+  }
+  function recordAnswer(index,value,response){
+    rec.choices[index] = value;
+    rec.responses[index] = response===undefined ? value : response;
+    persist();
+    showQuestion(current);
+  }
+  function showQuestion(index){
+    current = Math.max(0,Math.min(questions.length-1,index));
+    const question = questions[current];
+    panel.innerHTML = "";
+    const title = document.createElement("h4");
+    title.className = "nmt-question-title";
+    title.textContent = `${lang==="ru" ? "Задание" : "Завдання"} ${current+1} · ${question.topic[lang]}`;
+    const prompt = document.createElement("p");
+    prompt.className = "nmt-question-prompt";
+    prompt.textContent = question.prompt[lang];
+    panel.append(title,prompt);
+    if(question.image){
+      const figure = document.createElement("figure");
+      figure.className = "nmt-question-figure";
+      const image = document.createElement("img");
+      image.src = question.image.src;
+      image.alt = question.image.alt[lang];
+      figure.appendChild(image);
+      panel.appendChild(figure);
+    }
+    if(question.note){
+      const note = document.createElement("p");
+      note.className = "nmt-source-note";
+      note.textContent = question.note[lang];
+      panel.appendChild(note);
+    }
+
+    const feedback = document.createElement("p");
+    feedback.className = "nmt-feedback";
+    feedback.setAttribute("aria-live","polite");
+    function updateFeedback(){
+      const response = rec.choices[current];
+      if(response===null){ feedback.textContent = ""; feedback.className = "nmt-feedback"; return; }
+      const isCorrect = nmtNormalizeAnswer(response)===nmtNormalizeAnswer(question.correct);
+      feedback.textContent = isCorrect ? labels.right : labels.wrong;
+      feedback.className = "nmt-feedback " + (isCorrect ? "correct" : "wrong");
+    }
+
+    if(question.kind==="choice"){
+      const options = document.createElement("div");
+      options.className = "nmt-options";
+      question.options.forEach(option=>{
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "nmt-option";
+        button.textContent = `${option.key}) ${option[lang]}`;
+        if(rec.choices[current]===option.key) button.classList.add("selected");
+        button.setAttribute("aria-pressed",String(rec.choices[current]===option.key));
+        button.addEventListener("click",()=>recordAnswer(current,option.key));
+        options.appendChild(button);
+      });
+      panel.appendChild(options);
+    } else if(question.kind==="matching"){
+      const rows = document.createElement("div");
+      rows.className = "nmt-matching";
+      const selects = [];
+      question.items.forEach((item,itemIndex)=>{
+        const label = document.createElement("label");
+        label.className = "nmt-match-row";
+        const text = document.createElement("span");
+        text.textContent = `${itemIndex+1}) ${item[lang]}`;
+        const select = document.createElement("select");
+        select.setAttribute("aria-label",`${labels.pick}: ${item[lang]}`);
+        const empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = "—";
+        select.appendChild(empty);
+        question.matches.forEach(match=>{
+          const option = document.createElement("option");
+          option.value = match.key;
+          option.textContent = `${match.key}) ${match[lang]}`;
+          select.appendChild(option);
+        });
+        const saved = rec.responses[current];
+        if(Array.isArray(saved) && saved[itemIndex]) select.value = saved[itemIndex];
+        label.append(text,select);
+        rows.appendChild(label);
+        selects.push(select);
+      });
+      const check = document.createElement("button");
+      check.type = "button";
+      check.className = "btn nmt-check-answer";
+      check.textContent = labels.check;
+      check.addEventListener("click",()=>{
+        if(selects.some(select=>!select.value)) return;
+        const response = selects.map(select=>select.value);
+        recordAnswer(current,response.join("|"),response);
+      });
+      panel.append(rows,check);
+    } else if(question.kind==="short"){
+      const form = document.createElement("form");
+      form.className = "nmt-short-answer";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.inputMode = "decimal";
+      input.autocomplete = "off";
+      input.placeholder = labels.input;
+      input.setAttribute("aria-label",labels.input);
+      if(rec.responses[current]!==null) input.value = rec.responses[current];
+      const check = document.createElement("button");
+      check.type = "submit";
+      check.className = "btn nmt-check-answer";
+      check.textContent = labels.check;
+      form.addEventListener("submit",event=>{
+        event.preventDefault();
+        const value = input.value.trim();
+        if(value) recordAnswer(current,nmtNormalizeAnswer(value),value);
+      });
+      form.append(input,check);
+      panel.appendChild(form);
+    } else {
+      throw new Error(`Unknown NMT question type: ${question.kind}`);
+    }
+    updateFeedback();
+    panel.appendChild(feedback);
+
+    const reviewButton = document.createElement("button");
+    reviewButton.type = "button";
+    reviewButton.className = "btn secondary nmt-review-toggle";
+    reviewButton.textContent = rec.revealed[current] ? labels.hide : labels.review;
+    const review = document.createElement("div");
+    review.className = "nmt-review";
+    review.hidden = !rec.revealed[current];
+    const answer = document.createElement("p");
+    answer.className = "nmt-answer-key";
+    answer.textContent = `${labels.answer}: ${question.answer[lang]}`;
+    const solution = document.createElement("p");
+    solution.textContent = question.solution[lang];
+    review.append(answer,solution);
+    reviewButton.addEventListener("click",()=>{
+      rec.revealed[current] = !rec.revealed[current];
+      review.hidden = !rec.revealed[current];
+      reviewButton.textContent = rec.revealed[current] ? labels.hide : labels.review;
+      persist();
+    });
+    panel.append(reviewButton,review);
+    updateProgress();
+  }
+
+  back.addEventListener("click",()=>showQuestion(current-1));
+  forward.addEventListener("click",()=>showQuestion(current+1));
+  showQuestion(0);
+}
+
 /* ============================================================
    ROADMAP — заголовки будущих уроков (для навигации)
    ============================================================ */
@@ -1025,8 +1310,8 @@ const ROADMAP = {
     "lim1","lim2","der1","der2","der3","int1","int2","int3",
     {test:true, id:"test9", t:{ru:"Итоговый тест модуля",ua:"Підсумковий тест модуля"}}
   ]},
-  10:{ru:"Модуль 10. Смешанные варианты НМТ",ua:"Модуль 10. Змішані варіанти НМТ",exam_priority:true,lessons:[
-    "final1","final2","final3","final4","final5","final6"
+  10:{ru:"Модуль 10. Архив годовых вариантов НМТ",ua:"Модуль 10. Архів річних варіантів НМТ",exam_priority:true,lessons:[
+    "nmt2022","nmt2023","nmt2024","nmt2025","nmt2026"
   ]}
 };
 
@@ -1106,9 +1391,7 @@ const LESSON_GRADES = {
   /* модуль 15 — рациональные выражения, уравнения и неравенства, ступень 8–9 */
   re1:["preSenior","senior"], re2:["preSenior","senior"],
   re3:["preSenior","senior"], re4:["preSenior","senior"],
-  /* модуль 10 — итоговая подготовка к НМТ, ступень 10–11 */
-  final1:["senior"], final2:["senior"], final3:["senior"],
-  final4:["senior"], final5:["senior"], final6:["senior"],
+  /* модуль 10 — архив вариантов НМТ, ступень 10–11 */
   /* факультатив — сверх программы, доступен на ступени 10–11 */
   geoCurved:["senior"], geoRose:["senior"], geoTrigPro:["senior"],
   /* детский курс 1–4 — только ступень junior */
@@ -1147,6 +1430,7 @@ const LESSON_GRADES = {
   kidSpeed:["junior"], kidMotion:["junior"], kidMotionTasks:["junior"],
   kidParty24:["junior"]
 };
+for(let year=2022;year<=2026;year++) LESSON_GRADES[`nmt${year}`]=["senior"];
 /* Маркировка готовности для ступени 5–7: базовый маршрут и темы для углубления. */
 const LESSON_READINESS = {
   m1div:"core", m1frac:"core", m1dec:"core", m1remain:"core",

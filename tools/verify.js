@@ -94,7 +94,7 @@ const FINAL_ANSWERS = {
 
 function checkRoadmap() {
   section("roadmap");
-  const { lessons, roadmap, facultative, buildFinalQuestions } = loadLessons();
+  const { lessons, roadmap, facultative, buildFinalQuestions, nmt2022Questions, nmt2023Questions, nmt2024Questions, nmt2025Questions, nmtQuestions } = loadLessons();
   const ids = lessons.map(l => l.id);
   const idSet = new Set(ids);
   report("lesson ids unique", idSet.size === ids.length);
@@ -250,8 +250,90 @@ function checkRoadmap() {
     advanced.comment && advanced.comment.ru === "Углублённый блок (необязательный для НМТ)" &&
     advanced.comment.ua === "Поглиблений блок (необов’язковий для НМТ)");
   const finalIds = roadmap[10] && roadmap[10].lessons.filter(item=>typeof item === "string");
-  report("module 10 has six final practice lessons", !!finalIds &&
-    finalIds.join(",") === "final1,final2,final3,final4,final5,final6");
+  const expectedNmtIds = Array.from({length:5}, (_, index) => "nmt" + (2022 + index));
+  report("module 10 has yearly archive slots for 2022-2026",
+    !!finalIds && JSON.stringify(finalIds) === JSON.stringify(expectedNmtIds),
+    (finalIds || []).join(","));
+  const nmtDataProblems = [];
+  if (!Array.isArray(nmtQuestions) || nmtQuestions.length !== 22) {
+    nmtDataProblems.push("expected 22 NMT-2026 questions");
+  } else {
+    nmtQuestions.forEach((question, index) => {
+      const no = index + 1;
+      if (!question.prompt || !question.prompt.ru || !question.prompt.ua ||
+          !question.solution || !question.solution.ru || !question.solution.ua ||
+          !question.answer || !question.answer.ru || !question.answer.ua ||
+          !question.topic || !question.topic.ru || !question.topic.ua) {
+        nmtDataProblems.push("#" + no + " missing bilingual prompt, topic, answer, or solution");
+      }
+      if (question.kind === "choice") {
+        if (!Array.isArray(question.options) || question.options.length !== 5 ||
+            !question.options.some(option => option.key === question.correct) ||
+            question.options.some(option => !option.ru || !option.ua)) {
+          nmtDataProblems.push("#" + no + " invalid multiple-choice options/key");
+        }
+      } else if (question.kind === "matching") {
+        if (!Array.isArray(question.items) || question.items.length !== 3 ||
+            !Array.isArray(question.matches) || question.matches.length !== 5 ||
+            String(question.correct).split("|").length !== 3) {
+          nmtDataProblems.push("#" + no + " invalid matching items/key");
+        }
+      } else if (question.kind === "short") {
+        if (typeof question.correct !== "string" || !question.correct) {
+          nmtDataProblems.push("#" + no + " missing short answer key");
+        }
+      } else {
+        nmtDataProblems.push("#" + no + " unknown question kind");
+      }
+    });
+  }
+  const archiveLessons = (roadmap[10] && roadmap[10].lessons || [])
+    .filter(item => typeof item === "string")
+    .map(id => lessons.find(lesson => lesson.id === id));
+  report("NMT-2026 has 22 complete bilingual questions and keys",
+    nmtDataProblems.length === 0, nmtDataProblems.join("; "));
+  for (const [year, questions, expectedCount, expectedKinds] of [
+    [2022,nmt2022Questions,20,{choice:14,matching:3,short:3}],
+    [2023,nmt2023Questions,22,{choice:15,matching:3,short:4}],
+    [2024,nmt2024Questions,22,{choice:15,matching:3,short:4}],
+    [2025,nmt2025Questions,22,{choice:15,matching:3,short:4}]
+  ]) {
+    const problems = [];
+    if (!Array.isArray(questions) || questions.length !== expectedCount) {
+      problems.push(`expected ${expectedCount} NMT-${year} questions`);
+    } else {
+      const kinds = questions.reduce((counts, question) => {
+        counts[question.kind] = (counts[question.kind] || 0) + 1;
+        return counts;
+      }, {});
+      if (kinds.choice !== expectedKinds.choice || kinds.matching !== expectedKinds.matching ||
+          kinds.short !== expectedKinds.short)
+        problems.push(`expected ${expectedKinds.choice} choice, ${expectedKinds.matching} matching, and ${expectedKinds.short} short-answer tasks`);
+      questions.forEach((question, index) => {
+        if (!question.prompt || !question.prompt.ru || !question.prompt.ua ||
+            !question.solution || !question.solution.ru || !question.solution.ua ||
+            !question.answer || !question.answer.ru || !question.answer.ua ||
+            !question.topic || !question.topic.ru || !question.topic.ua)
+          problems.push("#" + (index + 1) + " missing bilingual content");
+        if (question.kind === "choice" && (!question.options || question.options.length !== 5 ||
+            !question.options.some(option => option.key === question.correct)))
+          problems.push("#" + (index + 1) + " invalid choice key");
+        if (question.kind === "matching" && (!question.items || question.items.length !== 3 ||
+            !question.matches || question.matches.length !== 5 ||
+            String(question.correct).split("|").length !== 3))
+          problems.push("#" + (index + 1) + " invalid matching key");
+        if (question.kind === "short" && (typeof question.correct !== "string" || !question.correct))
+          problems.push("#" + (index + 1) + " missing short answer key");
+      });
+    }
+    report(`NMT-${year} has ${expectedCount} complete bilingual questions and keys`,
+      problems.length === 0, problems.join("; "));
+  }
+  report("2022-2026 archive slots are populated",
+    archiveLessons.length === 5 &&
+    archiveLessons.every(lesson => lesson && ["nmt2022","nmt2023","nmt2024","nmt2025","nmt2026"].includes(lesson.id)) &&
+    archiveLessons.filter(lesson => lesson && ["nmt2022","nmt2023","nmt2024","nmt2025","nmt2026"].includes(lesson.id)).length === 5,
+    "archive lesson count=" + archiveLessons.length);
   const guessHeavy = [];
   {
     const src = read("lesson-data.js");

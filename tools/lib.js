@@ -42,9 +42,11 @@ const DEG_TABLE = [
 function loadLessons() {
   const ctx = {};
   vm.createContext(ctx);
-  vm.runInContext(readLessonsSource() + "\n;var __L = LESSONS, __R = ROADMAP, __FAC = FACULTATIVE, __F = buildFinalQuestions, __G = LESSON_GRADES, __TG = TOPIC_GRADES, __LR = LESSON_READINESS;", ctx);
+  vm.runInContext(readLessonsSource() + "\n;var __L = LESSONS, __R = ROADMAP, __FAC = FACULTATIVE, __F = buildFinalQuestions, __NMT22 = NMT_2022_QUESTIONS, __NMT23 = NMT_2023_QUESTIONS, __NMT24 = NMT_2024_QUESTIONS, __NMT25 = NMT_2025_QUESTIONS, __NMT26 = NMT_2026_QUESTIONS, __G = LESSON_GRADES, __TG = TOPIC_GRADES, __LR = LESSON_READINESS;", ctx);
   return { lessons: ctx.__L, roadmap: ctx.__R, facultative: ctx.__FAC,
-    buildFinalQuestions: ctx.__F, lessonGrades: ctx.__G, topicGrades: ctx.__TG,
+    buildFinalQuestions: ctx.__F, nmt2022Questions: ctx.__NMT22, nmt2023Questions: ctx.__NMT23, nmt2024Questions: ctx.__NMT24, nmt2025Questions: ctx.__NMT25,
+    nmtQuestions: ctx.__NMT26,
+    lessonGrades: ctx.__G, topicGrades: ctx.__TG,
     lessonReadiness: ctx.__LR };
 }
 
@@ -116,6 +118,8 @@ function lessonQuizStats(src, lessons, includeQuizSource = false) {
     const esc = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const re = /^final\d$/.test(id)
       ? new RegExp("makeFinalLesson\\(" + id.slice(5) + "\\)")
+      : /^nmt\d{4}$/.test(id)
+      ? new RegExp("makeNmtYearLesson\\(" + id.slice(3) + "\\)")
       : new RegExp("(makeIntroLesson\\(\\\"|makeTopicLesson\\(\\\"|makeKidLesson\\(\\\"|makeKidParty\\(\\\"|id\\:\\s*\\\"|id\\:\\s*\\`)(" + esc + ")(\\\"|\\`)");
     const from = anchors.length ? anchors[anchors.length - 1] : 0;
     const hit = src.slice(from).search(re);

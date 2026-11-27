@@ -1,7 +1,7 @@
 /* Mathcourse audit — analysis of the two exam courses (grades 8-9 and 10-11).
    Verifies what tools/verify.js does NOT: per-lesson mini-check presence and
    guess-heaviness over ALL lessons, coverage matrices, machine-unverified
-   numeric claims, final-bank shape, and known UX debts. Read-only. */
+   numeric claims, annual NMT archive coverage, and known UX debts. Read-only. */
 
 const lib = require("./lib");
 
@@ -9,7 +9,7 @@ const src = lib.read("lesson-data.js");
 const testSrc = lib.read("tests/grade89-algebra.test.js");
 const data = lib.loadLessons();
 const trainer = lib.loadTrainer();
-const { lessons, roadmap, topicGrades, buildFinalQuestions, lessonGrades } = data;
+const { lessons, roadmap, topicGrades, nmtQuestions, lessonGrades } = data;
 
 /* ------------- band routes (mirror of tools/verify.js) ------------- */
 const ROUTE = {
@@ -34,6 +34,8 @@ const spans = [];
     const esc = l.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const re = /^final\d$/.test(l.id)
       ? new RegExp("makeFinalLesson\\(" + l.id.slice(5) + "\\)")
+      : /^nmt\d{4}$/.test(l.id)
+      ? new RegExp("makeNmtYearLesson\\(" + l.id.slice(3) + "\\)")
       : new RegExp("(makeIntroLesson\\(\\\"|makeTopicLesson\\(\\\"|makeKidLesson\\(\\\"|makeKidParty\\(\\\"|id\\:\\s*\\\"|id\\:\\s*\\`)(" + esc + ")(\\\"|\\`)");
     const hit = src.slice(prev).search(re) + prev;
     spans.push([prev, hit]);
@@ -57,9 +59,6 @@ const stat = quiz.map((q, i) => {
   };
 });
 
-/* ------------- word problems detector for the final bank ------------- */
-const WORD_RE = /грн|деталей|литров|литры|килограмм|кг |учеников|ученик|бактерий|раствора|товар|смешали|куп(ил|ила)|скорость|циферблат|шар|коробке|доске|монет/;
-
 /* ================================================================ */
 const out = [];
 
@@ -81,7 +80,7 @@ out.push("");
 out.push("== S1. Мини-проверки: наличие и угадываемость по ВСЕМ урокам ==");
 const flags = [];
 for (const s of stat) {
-  if (s.module === 10) continue; // final lessons are data-driven
+  if (s.module === 10) continue; // annual archive lessons use a dedicated renderer
   if (s.miniQ === 0 && !s.hasRenderMini) {
     flags.push(`НЕТ мини-проверки: ${s.id} (м${s.module}, ${s.custom ? "custom" : "factory"})`);
   }
@@ -90,27 +89,29 @@ const heavy = stat
   .filter(s => s.module !== 10 && s.corrects.length >= 2 && s.firstPosShare !== null)
   .sort((a, b) => b.firstPosShare - a.firstPosShare || b.corrects.length - a.corrects.length)
   .slice(0, 14);
-out.push(flags.length ? "ФЛАГ: " + flags.join("; ") : "все уроки (кроме finals) имеют мини-вопросы");
+out.push(flags.length ? "ФЛАГ: " + flags.join("; ") : "все уроки (кроме архива НМТ) имеют мини-вопросы");
 out.push("распределение correct-индексов по РЕАЛЬНЫМ мини-проверкам (топ по доле позиции 0, урок – кол-во – доля0 – индексы):");
 for (const s of heavy) out.push(`  ${s.id} м${s.module} n=${s.corrects.length} 0доля=${s.firstPosShare}% idx=${[...new Set(s.corrects)].sort().join(",")}`);
 
 out.push("");
-out.push("== S2. Финальный банк (6 вариантов НМТ) ==");
-const bankMods = {};
-const wordAll = [];
-for (let v = 1; v <= 6; v++) {
-  const qs = buildFinalQuestions(v);
-  const mods = [...new Set(qs.map(x => x.module))].sort((a, b) => a - b);
-  const words = qs.filter(x => WORD_RE.test(x.q.ru)).length;
-  const noExpl = qs.filter(x => !(x.explanation && x.explanation.ru && x.explanation.ua)).length;
-  qs.forEach(x => bankMods[x.module] = (bankMods[x.module] || 0) + 1);
-  for (const x of qs) if (WORD_RE.test(x.q.ru)) wordAll.push(x.q.ru);
-  out.push(`вариант ${v}: ${qs.length} вопросов, модули ${mods.join(",")}, ` +
-    `прикладных ${words}, без пояснений ${noExpl}`);
-}
-out.push("всего вопросов в банке: " + Object.keys(bankMods).reduce((a, k) => a + bankMods[k], 0));
-out.push("распределение по модулям: " + Object.keys(bankMods).map(Number).sort((a, b) => a - b)
-  .map(m => `м${m}:${bankMods[m]}`).join("  "));
+out.push("== S2. Архив годовых вариантов НМТ ==");
+const nmtSlots = (roadmap[10].lessons || []).filter(id => typeof id === "string");
+out.push(`годовых слотов: ${nmtSlots.length} (${nmtSlots[0]}–${nmtSlots[nmtSlots.length - 1]})`);
+out.push("заданий НМТ-2024: " + (Array.isArray(data.nmt2024Questions) ? data.nmt2024Questions.length : 0));
+out.push("заданий НМТ-2025: " + (Array.isArray(data.nmt2025Questions) ? data.nmt2025Questions.length : 0));
+out.push("заданий НМТ-2026: " + (Array.isArray(nmtQuestions) ? nmtQuestions.length : 0));
+out.push("форматы 2024: " + Object.entries((data.nmt2024Questions || []).reduce((counts, question) => {
+  counts[question.kind] = (counts[question.kind] || 0) + 1;
+  return counts;
+}, {})).map(([kind, count]) => `${kind}=${count}`).join(", "));
+out.push("форматы 2025: " + Object.entries((data.nmt2025Questions || []).reduce((counts, question) => {
+  counts[question.kind] = (counts[question.kind] || 0) + 1;
+  return counts;
+}, {})).map(([kind, count]) => `${kind}=${count}`).join(", "));
+out.push("форматы 2026: " + Object.entries((nmtQuestions || []).reduce((counts, question) => {
+  counts[question.kind] = (counts[question.kind] || 0) + 1;
+  return counts;
+}, {})).map(([kind, count]) => `${kind}=${count}`).join(", "));
 
 out.push("");
 out.push("== S3. Тренажёр: охват по модулям и уровням ==");

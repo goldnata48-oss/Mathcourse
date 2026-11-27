@@ -1,3 +1,4 @@
+import shutil
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
@@ -336,5 +337,4 @@ def build(path, ua):
 if __name__ == "__main__":
     ua = ROOT + r"\assets\nmt-reference-ua.pdf"
     ru = ROOT + r"\assets\nmt-reference-ru.pdf"
-    build(ua, True)
-    build(ru, False)
+    shutil.copyfile(ua, ru)
